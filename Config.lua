@@ -35,6 +35,8 @@ local DB_DEFAULTS = {
 		bloodEffects = true;
 		miniFrames = false;
 		snapping = false;
+		dm4Imported   = false;
+		traitsList   = {};
 	};
 	
 	char = { 
@@ -104,11 +106,6 @@ local DB_DEFAULTS = {
 			};
 		};
 		currencyActive = 1;
-		buffs			 = {};
-		removebuffs 	 = {};
-		playsounds  	 = {};
-		setdice     	 = {};
-		visualeffects	 = {};
 		buffsActive  	 = {};
 		stats = {
 		};
@@ -134,6 +131,11 @@ do
 			approved = false;									-- trait approved
 			officers = {};										-- approved by
 			icon   = "Interface/Icons/inv_misc_questionmark";   -- trait icon texture path
+			buffs			 = {};
+			removebuffs 	 = {};
+			playsounds  	 = {};
+			setdice     	 = {};
+			visualeffects	 = {};
 		}
 		
 		DB_DEFAULTS.char.traitSerials[i] = 1 -- used to optimize out duplicate requests
@@ -571,7 +573,7 @@ Me.configOptionsCharges = {
 					style = "dropdown";
 					values = {
 						["charge-orb"] = "Charge Orbs",
-						["charge-fire"] = "Burning Embers",
+						--["charge-fire"] = "Burning Embers",
 						["charge-rune"] = "Death Knight Runes",
 						["charge-shadow"] = "Shadow Orbs",
 						["charge-soulshards"] = "Soul Shards",
@@ -616,10 +618,12 @@ Me.configOptionsCharges = {
 						["NZoth"] = "N'zoth",
 						["sanctum-bar"] = "Arcane Sanctum",
 						["warden-bar"] = "Warden",
+						["archer-bar"] = "Archer",
 						["RevendrethAnima"] = "Revendreth",
 						["BastionAnima"] = "Bastion",
 						["MaldraxxusAnima"] = "Maldraxxus",
 						["ArdenwealdAnima"] = "Ardenweald",
+						["BurningEmbers"] = "Burning Embers",
 					};
 					set   = function( info, val ) 
 						Me.db.profile.charges.symbol = val
@@ -784,6 +788,7 @@ Me.configOptionsProgressBar = {
 						["NZoth"] = "N'zoth",
 						["sanctum-bar"] = "Arcane Sanctum",
 						["warden-bar"] = "Warden",
+						["archer-bar"] = "Archer",
 						["RevendrethAnima"] = "Revendreth",
 						["BastionAnima"] = "Bastion",
 						["MaldraxxusAnima"] = "Maldraxxus",

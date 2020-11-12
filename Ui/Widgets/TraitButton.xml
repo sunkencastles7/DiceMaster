@@ -201,7 +201,7 @@
         self.border:SetSize( qw, qh )
         self.highlight:SetSize( qw, qh )
 		-- Add the gold dragon border if this is the command trait.
-		if self.traitIndex == 5 then
+		if self.traitIndex == 5 and not self.isTraitsList then
 			self.border:SetTexture("Interface/AddOns/DiceMaster/Texture/elite-trait-border")
 			local bx, by = self:GetSize()
 			self.border:SetSize( bx*3 ,by*3 )

@@ -35,27 +35,6 @@ local BUFF_DURATION_AMOUNTS = {
 	{name = "10 turns", turns = 10},
 }
 
-local BUFF_RULES = {
-	[1] = "|TInterface/Icons/Spell_Holy_WordFortitude:16:16:0:-6|t |cFFFFd100Apply Buff|r enables this trait to cast a buff on a group member when it is right-clicked from the Dice Panel. If |cFFFFd100Always cast on self|r is enabled, the buff will apply to you; otherwise, the buff will be cast on your current target.|n|nYou can remove any buff on you by right-clicking it from the Buffs Frame (anchored to your default buffs).|n|nPlayers can only have a maximum of five buffs on them at any time.",
-	[2] = "|cFFFFd100Buff Name|r represents the name of the buff. You should try to use a short, concise name that describes the buff.|n|n|cFFFFd100Description|r is a brief description of the buff's effect. Similar to trait descriptions, this field can use the tags <img>path</img> and <color=r,g,b></color>.",
-	[3] = "|cFFFFd100Modify Statistic by Name|r allows you to increase or decrease a specific Statistic by a given |n|n|cFFFFd100Amount|r when the buff is applied to the target.|n|nWhen this buff expires or is removed, their Statistic returns to its normal value.",
-	[4] = "|cFFFFd100Lasts until cancelled|r is a buff which does not expire after a given duration. These buffs can only be removed when right-clicked.|n|n|cFFFFd100Buff Duration|r is the amount of time after the moment a buff is applied before it expires. These values can range from 15 seconds to 3 hours at pre-set intervals.",
-	[5] = "|cFFFFd100Always cast on self|r is a buff which is always automatically applied to you. Disable this to be able to apply the buff to your target instead.|n|n|cFFFFd100Area Buff|r denotes a buff which affects more than one target within a pre-determined radius set by the |cFFFFd100Range|r field.|n|n|cFFFFd100Range|r refers to the maximum radius of an |cFFFFd100Area Buff|r in yards.",
-	[6] = "|cFFFFd100Stackable|r determines whether or not buffs are able to \"stack\" multiple times on the same target. If this option is disabled, casting multiples of the same buff will refresh the buff instead of stacking.",
-}
-
-local REMOVE_BUFF_RULES = {
-	[1] = "|TInterface/Icons/Spell_Shadow_SacrificialShield:16:16:0:-6|t |cFFFFd100Remove Buff|r enables this trait to remove a buff from a group member when it is right-clicked on the Dice Panel. The buff will be removed from your current target, or yourself if you have no target.|n|nYou can only use this to remove buffs you have cast on the target.",
-	[2] = "|cFFFFd100Buff Name|r represents the name of the buff you wish to remove. This name must exactly match the name of the buff to successfully remove it.",
-	[3] = "|cFFFFd100Count|r refers to the number of stacks of the buff you wish to remove. If this number is higher than the number of stacks, this will remove all stacks of the buff.",
-}
-
-local SET_DICE_RULES = {
-	[1] = "|TInterface/Icons/INV_Misc_Dice_01:16:16:0:-6|t |cFFFFd100Roll Dice|r enables this trait to roll using specific dice when it is right-clicked on the Dice Panel, regardless of what dice are currently set on your Dice Panel.",
-	[2] = "|cFFFFd100Dice Value|r represents the specific dice you wish to roll in D20 Notation, which follows the format |cFFFFd100XDY+Z|r:|n|cFFFFd100X|r = The number of dice you are rolling.|n|cFFFFd100Y|r = The number of sides on each of the dice.|n|cFFFFd100Z|r = The modifier, or number added to the final roll.",
-	[3] = "|cFFFFd100Check Statistic by Name|r applies the value of a specified Statistic to the roll (on top of any existing modifiers).",
-}
-
 -------------------------------------------------------------------------------
 -- Remove Buff Editor
 --
@@ -73,37 +52,37 @@ function Me.RemoveBuffEditor_OnLoad(frame, level, menuList)
 	local found = false;
 
 	  for i=1,5 do
-		if Profile.buffs[i] and not Profile.buffs[i].blank then		
-		   info.text = Profile.buffs[i].name
-		   info.icon = Profile.buffs[i].icon
-		   info.arg1 = Profile.buffs[i]
-		   info.checked = Profile.removebuffs[Me.editing_trait].name == Profile.buffs[i].name;
+		if Me.db.global.traitsList[i].buffs and not Me.db.global.traitsList[i].buffs.blank then		
+		   info.text = Me.db.global.traitsList[i].buffs.name
+		   info.icon = Me.db.global.traitsList[i].buffs.icon
+		   info.arg1 = Me.db.global.traitsList[i].buffs
+		   info.checked = Me.db.global.traitsList[Me.trait_editing].removebuffs.name == Me.db.global.traitsList[i].buffs.name;
 		   info.notCheckable = false;
 		   info.func = Me.RemoveBuffEditor_OnClick;
 		   UIDropDownMenu_AddButton(info, level)
 		end
-		if Profile.buffs[i] and Profile.buffs[i].name == Profile.removebuffs[Me.editing_trait].name then
+		if Me.db.global.traitsList[i].buffs and Me.db.global.traitsList[i].buffs.name == Me.db.global.traitsList[Me.trait_editing].removebuffs.name then
 			found = true;
 		end
 	  end
 	UIDropDownMenu_SetText(frame, "")
 	if not found then
-		Profile.removebuffs[Me.editing_trait] = nil
+		Me.db.global.traitsList[Me.trait_editing].removebuffs = nil
 	end
-	if Profile.removebuffs[Me.editing_trait] and Profile.removebuffs[Me.editing_trait].name then
-		UIDropDownMenu_SetText(frame, Profile.removebuffs[Me.editing_trait].name)
+	if Me.db.global.traitsList[Me.trait_editing].removebuffs and Me.db.global.traitsList[Me.trait_editing].removebuffs.name then
+		UIDropDownMenu_SetText(frame, Me.db.global.traitsList[Me.trait_editing].removebuffs.name)
 	end
 end
 
 function Me.RemoveBuffEditor_Refresh()
-	local removebuff = Profile.removebuffs[Me.editing_trait] or nil
+	local removebuff = Me.db.global.traitsList[Me.trait_editing].removebuffs or nil
 	if not removebuff then
 		removebuff = {
 			name = "",
 			count = 1,
 			blank = true,
 		}
-		Profile.removebuffs[Me.editing_trait] = removebuff
+		Me.db.global.traitsList[Me.trait_editing].removebuffs = removebuff
 	end
 	Me.removebuffeditor.buffName:SetText( removebuff.name )
 	Me.removebuffeditor.buffCount:SetText( removebuff.count )
@@ -119,11 +98,11 @@ function Me.RemoveBuffEditor_Save()
 		count = Me.removebuffeditor.buffCount:GetText();
 		blank = false;
 	}
-	Profile.removebuffs[Me.editing_trait] = removebuff
+	Me.db.global.traitsList[Me.trait_editing].removebuffs = removebuff
 end
 
 function Me.RemoveBuffEditor_DeleteBuff()
-	Profile.removebuffs[Me.editing_trait] = nil
+	Me.db.global.traitsList[Me.trait_editing].removebuffs = nil
 	
 	PlaySound(840); 
 	Me.removebuffeditor:Hide()
@@ -154,14 +133,14 @@ end
 --
 
 function Me.SetDiceEditor_Refresh()
-	local setdice = Profile.setdice[Me.editing_trait] or nil
+	local setdice = Me.db.global.traitsList[Me.editing_trait].setdice or nil
 	if not setdice then
 		setdice = {
 			value = "D20";
 			stat = "";
 			blank = true,
 		}
-		Profile.setdice[Me.editing_trait] = dice
+		Me.db.global.traitsList[Me.editing_trait].setdice = dice
 	end
 	Me.setdiceeditor.diceValue:SetText( setdice.value )
 	Me.setdiceeditor.statName:SetText( setdice.stat )
@@ -176,11 +155,11 @@ function Me.SetDiceEditor_Save()
 		stat = Me.setdiceeditor.statName:GetText();
 		blank = false,
 	}
-	Profile.setdice[Me.editing_trait] = setdice
+	Me.db.global.traitsList[Me.editing_trait].setdice = setdice
 end
 
 function Me.SetDiceEditor_Delete()
-	Profile.setdice[Me.editing_trait] = nil
+	Me.db.global.traitsList[Me.editing_trait].setdice = nil
 	
 	PlaySound(840); 
 	Me.setdiceeditor:Hide()
@@ -226,7 +205,7 @@ function Me.BuffButton_FormatTime( seconds )
 end
 
 function Me.BuffEditor_Refresh()
-	local buff = Profile.buffs[Me.editing_trait] or nil
+	local buff = Me.db.global.traitsList[Me.editing_trait].buffs or nil
 	if not buff then
 		buff = {
 			icon = "Interface/Icons/inv_misc_questionmark",
@@ -242,7 +221,7 @@ function Me.BuffEditor_Refresh()
 			stackable = false,
 			blank = true,
 		}
-		Profile.buffs[Me.editing_trait] = buff
+		Me.db.global.traitsList[Me.editing_trait].buffs = buff
 	end
 	Me.buffeditor.buffIcon:SetTexture( buff.icon )
 	Me.buffeditor.buffName:SetText( buff.name )
@@ -265,7 +244,7 @@ function Me.BuffEditor_Refresh()
 end
 
 function Me.BuffEditor_DeleteBuff()
-	Profile.buffs[Me.editing_trait] = nil
+	Me.db.global.traitsList[Me.editing_trait].buffs = nil
 	
 	PlaySound(840); 
 	Me.IconPicker_Close()
@@ -278,7 +257,7 @@ function Me.BuffEditor_Save()
 		UIErrorsFrame:AddMessage( "Invalid name: too short.", 1.0, 0.0, 0.0, 53, 5 );
 		return
 	end
-	local buff = Profile.buffs[Me.editing_trait]
+	local buff = Me.db.global.traitsList[Me.editing_trait].buffs
 	buff.name = Me.buffeditor.buffName:GetText()
 	buff.desc = Me.buffeditor.buffDesc.EditBox:GetText()
 	buff.stat = Me.buffeditor.buffStatName:GetText()
@@ -298,11 +277,11 @@ function Me.BuffEditor_Save()
 	end
 	buff.stackable = Me.buffeditor.buffStackable:GetChecked()
 	buff.blank = false
-	Profile.buffs[Me.editing_trait] = buff
+	Me.db.global.traitsList[Me.editing_trait].buffs = buff
 end
 
 function Me.BuffEditor_SelectIcon( texture )
-	local buff = Profile.buffs[Me.editing_trait]
+	local buff = Me.db.global.traitsList[Me.editing_trait].buffs
 	buff.icon = texture
 	DiceMasterBuffEditor.buffIcon:SetTexture( texture )
 end
@@ -614,7 +593,7 @@ function Me.BuffFrame_UpdateAllBuffAnchors()
 end
 
 function Me.BuffFrame_CastBuff( traitIndex )
-	local buff = Profile.buffs[ traitIndex ]
+	local buff = Me.db.global.traitsList[ traitIndex ].buffs
 	if buff and not buff.blank then
 		local name = tostring( buff.name )
 		local icon = tostring( buff.icon )
@@ -693,7 +672,7 @@ function Me.BuffFrame_CastBuff( traitIndex )
 end
 
 function Me.BuffFrame_RemoveBuff( traitIndex )
-	local removebuff = Profile.removebuffs[ traitIndex ]
+	local removebuff = Me.db.global.traitsList[ traitIndex ].removebuffs
 	if removebuff and not removebuff.blank then
 		local name = tostring( removebuff.name )
 		local count = tostring( removebuff.count )
@@ -747,7 +726,7 @@ function Me.BuffFrame_CastAOEBuff( target, range, buff )
 end
 
 function Me.BuffFrame_RollDice( traitIndex )
-	local setdice = Profile.setdice[ traitIndex ] or nil
+	local setdice = Me.db.global.traitsList[ traitIndex ].setdice or nil
 	
 	if not setdice then return end
 	

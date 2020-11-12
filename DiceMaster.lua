@@ -1170,6 +1170,7 @@ function Me:OnEnable()
 	Me.Comm_Init()
 	Me.MinimapButton:OnLoad()
 	Me.ImportDM3Saved()
+	Me.ImportDM4Saved()
 	
 	Me.ApplyKeybindings()
 	Me.ApplyUiScale()

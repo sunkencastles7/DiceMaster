@@ -1,4 +1,4 @@
-## Interface: 90100
+## Interface: 90001
 ## Title: DiceMaster
 ## Author: Skylar, Rennae
 ## Notes: An intuitive custom dice addon for roleplay.
@@ -17,6 +17,7 @@ TraitEditor.lua
 StatInspector.lua
 Inspect.lua
 DM3Import.lua
+DM4Import.lua
 IconList.lua
 SoundList.lua
 ModelList.lua

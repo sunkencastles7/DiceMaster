@@ -2,6 +2,67 @@
 
   <Script file="UnitPowerBar.lua"/>
   
+  <Frame name="DiceMasterBurningEmberTemplate" virtual="true">
+    <Size x="36" y="39"/>
+    <Animations>
+      <AnimationGroup parentKey="animIn">
+        <Alpha target="$parentGlow" change="1" duration="0.1" order="1"/>
+        <Alpha target="$parentGlow2" change="1" duration="0.1" order="1"/>
+        <Alpha target="$parentGlow" change="-1" duration="0.15" order="2"/>
+        <Alpha target="$parentGlow2" change="-1" duration="0.15" order="2"/>
+        <Scripts>
+          <OnFinished>
+            local parent = self:GetParent();
+            parent.glow:SetAlpha(0.0);
+            parent.glow2:SetAlpha(0.0);
+          </OnFinished>
+        </Scripts>
+      </AnimationGroup>
+      <AnimationGroup parentKey="animOut">
+        <Alpha target="$parentGlow" change="1" duration="0.1" order="1"/>
+        <Alpha target="$parentGlow2" change="1" duration="0.1" order="1"/>
+        <Alpha target="$parentGlow" change="-1" duration="0.15" order="2"/>
+        <Alpha target="$parentGlow2" change="-1" duration="0.15" order="2"/>
+        <Scripts>
+          <OnFinished>
+            local parent = self:GetParent();
+            parent.glow:SetAlpha(0.0);
+            parent.glow2:SetAlpha(0.0);
+          </OnFinished>
+        </Scripts>
+      </AnimationGroup>
+    </Animations>
+    <Layers>
+      <Layer level="BORDER">
+        <Texture parentKey="border" file="Interface\PlayerFrame\Warlock-DestructionUI" setAllPoints="true">
+          <TexCoords left="0.15234375" right="0.29296875" top="0.32812500" bottom="0.93750000"/>
+        </Texture>
+      </Layer>
+      <Layer level="ARTWORK">
+        <Texture name="$parentFill" file="Interface\PlayerFrame\Warlock-DestructionUI" parentKey="fill">
+          <Size x="20" y="22"/>
+          <Anchors>
+            <Anchor point="BOTTOM" x="0" y="7"/>
+          </Anchors>
+          <TexCoords left="0.30078125" right="0.37890625" top="0.32812500" bottom="0.67187500"/>
+        </Texture>
+      </Layer>
+      <Layer level="ARTWORK" textureSubLevel="1">
+        <Texture name="$parentFire" file="Interface\PlayerFrame\Warlock-DestructionUI" setAllPoints="true" parentKey="fire" hidden="true">
+          <TexCoords left="0.00390625" right="0.14453125" top="0.32812500" bottom="0.93750000"/>
+        </Texture>
+      </Layer>
+      <Layer level="OVERLAY">
+        <Texture name="$parentGlow" file="Interface\PlayerFrame\Warlock-DestructionUI" setAllPoints="true" parentKey="glow" alpha="0" alphaMode="ADD">
+          <TexCoords left="0.00390625" right="0.14453125" top="0.32812500" bottom="0.93750000"/>
+        </Texture>  
+        <Texture name="$parentGlow2" file="Interface\PlayerFrame\Warlock-DestructionUI" setAllPoints="true" parentKey="glow2" alpha="0" alphaMode="ADD">
+          <TexCoords left="0.00390625" right="0.14453125" top="0.32812500" bottom="0.93750000"/>
+        </Texture>
+      </Layer>
+    </Layers>
+  </Frame>
+  
   <Frame name="DiceMasterUnitPowerBar" inherits="UnitPowerBarAltTexturableTemplate" virtual="true">
 	<Size x="256" y="64"/>
 	<Animations>
@@ -36,6 +97,47 @@
 			</Texture>
 		</Layer>
 	</Layers>
+	<Frames>
+	  <Frame parentKey="BurningEmbersBarFrame" hidden="true">
+        <Size x="148" y="18"/>
+        <Anchors>
+          <Anchor point="CENTER" x="0" y="0"/>
+        </Anchors>
+        <HitRectInsets>
+          <AbsInset left="22" right="25" top="3" bottom="-9"/>
+        </HitRectInsets>
+        <Layers>
+          <Layer level="BACKGROUND">
+            <Texture parentKey="background" file="Interface\PlayerFrame\Warlock-DestructionUI" setAllPoints="true">
+              <Size x="148" y="18"/>  
+              <TexCoords left="0.00390625" right="0.58203125" top="0.01562500" bottom="0.29687500"/>
+            </Texture>
+          </Layer>
+        </Layers>
+        <Frames>
+          <Frame name="$parentEmber1" inherits="DiceMasterBurningEmberTemplate" parentKey="ember1">
+            <Anchors>
+              <Anchor point="TOPLEFT" x="16" y="7"/>
+            </Anchors>
+          </Frame>
+          <Frame name="$parentEmber2" inherits="DiceMasterBurningEmberTemplate" parentKey="ember2">
+            <Anchors>
+              <Anchor point="LEFT" relativeTo="$parentEmber1" x="26" y="0"/>
+            </Anchors>
+          </Frame>
+          <Frame name="$parentEmber3" inherits="DiceMasterBurningEmberTemplate" parentKey="ember3">
+            <Anchors>
+              <Anchor point="LEFT" relativeTo="$parentEmber2" x="26" y="0"/>
+            </Anchors>
+          </Frame>
+          <Frame name="$parentEmber4" inherits="DiceMasterBurningEmberTemplate" parentKey="ember4">
+            <Anchors>
+              <Anchor point="LEFT" relativeTo="$parentEmber3" x="26" y="0"/>
+            </Anchors>
+          </Frame>
+        </Frames>
+      </Frame>
+	</Frames>
 	<Scripts>
 		<OnLoad>
 			DiceMaster4.UnitPowerBar_Init( self )

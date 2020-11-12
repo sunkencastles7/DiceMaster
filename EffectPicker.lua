@@ -106,7 +106,7 @@ function Me.EffectPickerButton_OnClick(self, button)
 end
 
 function Me.EffectPicker_Refresh()
-	local effect = Profile.visualeffects[Me.editing_trait] or nil
+	local effect = Profile.traits[Me.editing_trait].visualeffects or nil
 	if not effect then
 		effect = {
 			effectID = 0;
@@ -119,7 +119,7 @@ function Me.EffectPicker_Refresh()
 			blank = true;
 		}
 		DiceMasterEffectPicker.customEffect:SetChecked( false )
-		Profile.visualeffects[Me.editing_trait] = effect;
+		Profile.traits[Me.editing_trait].visualeffects = effect;
 	else
 		if ( effect.effectName and effect.effectName == "" ) then
 			-- this is a custom effect

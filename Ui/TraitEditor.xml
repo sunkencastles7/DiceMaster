@@ -314,10 +314,36 @@
 		</Frames>
   </Frame>
   
+  <!-- Cursor Drag Icon -->
+	<Frame name="DiceMasterTraitPickerCursorIcon" parent="UIParent" frameStrata="DIALOG" toplevel="true" hidden="true">
+		<Size x="32" y="32"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="icon" setAllPoints="true" file="Interface/Icons/inv_misc_questionmark">
+				</Texture>
+			</Layer>
+			<Layer level="BORDER">
+				<Texture parentKey="border" file="Interface/AddOns/DiceMaster/Texture/traits-border">
+					<Size x="48" y="48"/>	
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnUpdate>
+				local cursorX, cursorY = GetCursorPosition();
+				local uiScale = UIParent:GetScale();
+				self:SetPoint("TOP", UIParent, "BOTTOMLEFT", cursorX / uiScale, cursorY / uiScale + 25);
+			</OnUpdate>
+		</Scripts>
+	</Frame>
+  
   <!-- Trait editor frame. -->
   
   <Frame name="DiceMasterTraitEditor" enableMouse="true" movable="true" resizable="false" frameStrata="HIGH" hidden="true" parent="UIParent" inherits="ButtonFrameTemplate" topLevel="true">
-    <Size x="336" y="444"/>
+    <Size x="520" y="444"/>
     <Anchors>
       <Anchor point="TOP" x="0" y="-90" />
     </Anchors>
@@ -355,10 +381,11 @@
     </Scripts>
     
     <Frames>      
+		  
       <!-- Scroll frame for the trait description editing. -->
       <ScrollFrame name="DiceMasterTraitsFrame" parentKey="scrollFrame" inherits="UIPanelScrollFrameTemplate">
 		<Anchors>
-			<Anchor point="TOPLEFT" x="10" y="-64"/>
+			<Anchor point="TOPLEFT" x="194" y="-64"/>
 			<Anchor point="BOTTOMRIGHT" x="-32" y="44"/>
 		</Anchors>
         
@@ -626,6 +653,101 @@
         
       </ScrollFrame>
 	  
+	  <Frame name="DiceMasterTraitPicker" parentKey="TraitPicker">
+		<Size x="160" y="379"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" x="6" y="-62"/>
+			<Anchor point="BOTTOMLEFT" x="6" y="42"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="store-category-bg" file="Interface\Store\Store-Main" >
+					<TexCoords left="0.00097656" right="0.18261719" top="0.46289063" bottom="0.8"/>	
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<FontString inherits="GameFontNormal" text="Traits">
+					<Size x="150" y="0"/>
+					<Anchors>
+						<Anchor point="TOP" x="0" y="-20" />
+					</Anchors>
+					<Color r="1" g="0.82" b="0"/>
+				</FontString>
+				<Texture name="$parentTLCorner" atlas="Talent-TopLeftCurlies" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-1" y="-1"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentTRCorner" atlas="Talent-TopRightCurlies" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPRIGHT" x="1" y="-1"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentBLCorner" atlas="Talent-BottomLeftCurlies" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="-1"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentBRCorner" atlas="Talent-BottomRightCurlies" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" x="1"/>
+					</Anchors>
+				</Texture>
+				<Texture atlas="_Talent-Top-Tile" horizTile="true">
+					<Size x="0" y="11"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentTLCorner" relativePoint="TOPRIGHT" x="0" y="1"/>
+						<Anchor point="TOPRIGHT" relativeTo="$parentTRCorner" relativePoint="TOPLEFT" x="0" y="1"/>
+					</Anchors>
+				</Texture>
+				<Texture atlas="_Talent-Bottom-Tile" horizTile="true">
+					<Size x="0" y="4"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeTo="$parentBLCorner" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parentBRCorner" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Slider parentKey="scroller" inherits="UIPanelScrollBarTrimTemplate" minvalue="0" maxvalue="1" valuestep="3">
+            
+            <Anchors>
+              <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="24" y="-16" />
+              <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="24" y="12" />
+            </Anchors>
+            
+            <Layers>
+              <Layer level="BACKGROUND">
+                
+                <!-- scroller background -->
+                <Texture setAllPoints="true">
+                  <Color r="0" g="0" b="0" a="0.25"/>
+                </Texture>
+                
+              </Layer>
+            </Layers>
+            <Scripts>
+              <OnLoad>
+                self:SetValueStep(1)
+                self.scrollStep = 4
+              </OnLoad>
+              <OnValueChanged>
+                DiceMaster4.TraitPicker_ScrollChanged( value )
+              </OnValueChanged>
+            </Scripts>
+          </Slider>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self:EnableMouseWheel( true )
+			</OnLoad>
+			<OnMouseWheel>
+				DiceMaster4.TraitPicker_MouseScroll( delta )
+			</OnMouseWheel>
+		</Scripts>
+	</Frame>
+	  
 	  <Frame parentKey="StatsPointCounter" topLevel="true" inherits="InsetFrameTemplate" hidden="true">
 		<Size x="180" y="20"/>
 		<Anchors>
@@ -717,6 +839,17 @@
 				<Scripts>
 					<OnClick>
 						StaticPopup_Show("DICEMASTER4_CREATESTAT", nil, nil, nil, DiceMasterStatButtonOptionsDropdown)
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parentImportCodeButton" inherits="UIPanelButtonTemplate" text="Import">
+				<Size x="131" y="22"/>
+				<Anchors>
+					<Anchor point="TOP" relativeTo="$parentNewButton" relativePoint="BOTTOM" x="0" y="-4"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						StaticPopup_Show( "DICEMASTER4_IMPORTSTATS" )
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -861,6 +994,20 @@
 					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="3" y="12"/>
 				</Anchors>
 			</Slider>
+			<Button parentKey="ExportButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="26" y="42"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to export all of your statistics." )
+						self.icon:SetTexCoord( 0.25, 0.5, 0.5, 0.75 )
+					</OnLoad>
+					<OnClick>
+						DiceMaster4.TraitEditor_StatsList_Export()
+					</OnClick>
+				</Scripts>
+		    </Button>
 		</Frames>
         
       </ScrollFrame>
@@ -992,12 +1139,16 @@
 			</Anchors>
 			<Scripts>
 				<OnClick>
+					DiceMaster4.editor:SetWidth( 520 )
+					DiceMasterTraitsFrame:SetPoint( "TOPLEFT", 194, -64 )
+					DiceMasterTraitEditor.FormatBar:SetPoint( "BOTTOMLEFT", 200, 4 )
 					DiceMaster4.editor.Inset:SetPoint("BOTTOMLEFT", 4, 40)
 					DiceMaster4.editor.Bg:SetPoint("BOTTOMRIGHT", -6, 40)
 					DiceMaster4.editor.Inset:Show();
 					DiceMaster4.editor.Bg:Show()
 					PanelTemplates_SetTab(DiceMaster4.editor, 1);
                     DiceMasterTraitsFrame:Show();
+					DiceMasterTraitPicker:Show();
 					DiceMasterTraitEditor.StatsWarning:Hide()
 					DiceMasterTraitEditorExperienceBar:Hide()
 					DiceMasterTraitEditor.StatsPointCounter:Hide()
@@ -1018,12 +1169,14 @@
 		</Anchors>
 		<Scripts>
 			<OnClick>
+				DiceMaster4.editor:SetWidth( 336 )
 				DiceMaster4.editor.Inset:SetPoint("BOTTOMLEFT", 4, 26)
 				DiceMaster4.editor.Bg:SetPoint("BOTTOMRIGHT", -6, 26)
 				DiceMaster4.editor.Inset:Show();
 				DiceMaster4.editor.Bg:Show()
 				PanelTemplates_SetTab(DiceMaster4.editor, 2);
 				DiceMasterTraitsFrame:Hide();
+				DiceMasterTraitPicker:Hide();
 				DiceMasterTraitEditorExperienceBar:Show()
 				if DiceMaster4.PermittedUse() then
 					DiceMasterTraitEditor.StatsPointCounter:Show()
@@ -1045,12 +1198,14 @@
 		</Anchors>
 		<Scripts>
 			<OnClick>
+				DiceMaster4.editor:SetWidth( 336 )
 				DiceMaster4.editor.Inset:SetPoint("BOTTOMLEFT", 4, 26)
 				DiceMaster4.editor.Bg:SetPoint("BOTTOMRIGHT", -6, 26)
 				DiceMaster4.editor.Inset:Show();
 				DiceMaster4.editor.Bg:Show()
 				PanelTemplates_SetTab(DiceMaster4.editor, 3);
 				DiceMasterTraitsFrame:Hide();
+				DiceMasterTraitPicker:Hide();
 				DiceMasterTraitEditor.StatsWarning:Hide()
 				DiceMasterTraitEditorExperienceBar:Hide()
 				DiceMasterTraitEditor.StatsPointCounter:Hide()
@@ -1068,21 +1223,21 @@
 	  <Frame parentKey="FormatBar">
 		<Size x="265" y="36"/>
 		<Anchors>
-			<Anchor point="BOTTOMLEFT" x="0" y="4"/>
+			<Anchor point="BOTTOMLEFT" x="200" y="4"/>
 		</Anchors>
 		<Frames>
 		
 		  <Button name="$parentClearButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
 			<Anchors>
-				<Anchor point="BOTTOMLEFT" x="12" y="0"/>
+				<Anchor point="BOTTOMLEFT" x="0" y="0"/>
 			</Anchors>
 			<Scripts>
 				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to reset this trait." )
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to delete this trait." )
 					self.icon:SetTexCoord( 0.25, 0.5, 0, 0.25 )
 				</OnLoad>
 				<OnClick>
-					StaticPopup_Show("DICEMASTER4_DELETETRAITDESCRIPTION")
+					StaticPopup_Show("DICEMASTER4_DELETETRAIT")
 				</OnClick>
 			</Scripts>
 		  </Button>
@@ -1204,9 +1359,39 @@
 			</Scripts>
 		  </Button>
 		  
-		  <Button name="$parentEffectButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+		  <Button name="$parentImportButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
 			<Anchors>
 				<Anchor point="LEFT" relativeTo="$parentArmourButton" relativePoint="RIGHT" x="12" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to import a trait." )
+					self.icon:SetTexCoord( 0, 0.25, 0.5, 0.75 )
+				</OnLoad>
+				<OnClick>
+					StaticPopup_Show( "DICEMASTER4_IMPORTTRAIT" )
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentExportButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentImportButton" relativePoint="RIGHT" x="0" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to export this trait." )
+					self.icon:SetTexCoord( 0.25, 0.5, 0.5, 0.75 )
+				</OnLoad>
+				<OnClick>
+					DiceMaster4.TraitEditor_ExportTrait()
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentEffectButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentExportButton" relativePoint="RIGHT" x="12" y="0"/>
 			</Anchors>
 			<Scripts>
 				<OnLoad>

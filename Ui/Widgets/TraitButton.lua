@@ -61,7 +61,7 @@ function Me.UpdateTraitTooltip( name, index )
 end
 
 -------------------------------------------------------------------------------
-function Me.OpenTraitTooltip( owner, trait, index )
+function Me.OpenTraitTooltip( owner, trait, index, isTraitsList )
 	local playername = nil
 	
 	if type(trait) == "string" then
@@ -191,30 +191,11 @@ function Me.OpenTraitTooltip( owner, trait, index )
 		end
 	end
 	
-	if owner and owner.editable_trait then
-		if Me.Profile.buffs[ index ] and owner:GetParent():GetName() == "DiceMasterPanel" then
-			if Me.Profile.buffs[ index ].blank == false then
-				usable = usable .. "<Right Click to Use>|n"
-			end
-		end
-		if Me.Profile.removebuffs[ index ] and owner:GetParent():GetName() == "DiceMasterPanel" then
-			if Me.Profile.removebuffs[ index ].blank == false then
-				usable = usable .. "<Right Click to Use>|n"
-			end
-		end
-		if Me.Profile.setdice[ index ] and owner:GetParent():GetName() == "DiceMasterPanel" then
-			if Me.Profile.setdice[ index ].blank == false then
-				usable = usable .. "<Right Click to Use>|n"
-			end
-		end
-		if Me.Profile.playsounds[ index ] and owner:GetParent():GetName() == "DiceMasterPanel" then
-			if Me.Profile.playsounds[ index ].blank == false then
-				usable = usable .. "<Right Click to Use>|n"
-			end
-		end
-		usable = usable .. "<Left Click to Edit>|n"
+	if isTraitsList then
+		GameTooltip:AddLine( "<Left Click to Edit>", 0.44, 0.44, 0.44, true )
+	else
+		GameTooltip:AddLine( usable .. "<Shift+Click to Link to Chat>", 0.44, 0.44, 0.44, true )
 	end
-	GameTooltip:AddLine( usable .. "<Shift+Click to Link to Chat>", 0.44, 0.44, 0.44, true )
 	
 	if trait.officers and Me.PermittedUse() then
 		local approval
@@ -262,7 +243,7 @@ local function OnEnter( self )
 	if not self.trait and not self.traitPlayer then return end
 	
 	if self.trait then
-		Me.OpenTraitTooltip( self, self.trait )
+		Me.OpenTraitTooltip( self, self.trait, nil, self.isTraitsList )
 	elseif self.traitPlayer then 
 		Me.OpenTraitTooltip( self, self.traitPlayer, self.traitIndex )
 	else
@@ -278,11 +259,23 @@ local function OnLeave( self )
 	if self.traitPlayer then
 		Me.playerTraitTooltipOpen = false
 	end
+	
     GameTooltip:Hide()
 	DiceMasterTooltipIcon:Hide()
 	DiceMasterTooltipIcon.approved:Hide()
 	DiceMasterTooltipIcon.elite:Hide()
 	DiceMasterTooltip:Hide()
+end
+
+local function OnReceiveDrag( self )
+	if self.editable_trait and DiceMasterTraitPickerCursorIcon.data and self.traitIndex then
+		Me.Profile.traits[ self.traitIndex ] = DiceMasterTraitPickerCursorIcon.data
+		self:SetTrait( DiceMasterTraitPickerCursorIcon.data )
+		Me.BumpSerial( Me.db.char.traitSerials, self.traitIndex )
+		Me.Inspect_OnTraitUpdated( UnitName("player"), self.traitIndex )
+		Me.UpdatePanelTraits()
+	end
+	DiceMasterTraitPickerCursorIcon.data = nil;
 end
 
 -------------------------------------------------------------------------------
@@ -295,7 +288,8 @@ local methods = {
 	SetTexture = function( self, tex )
 		self.trait       = nil
 		self.traitPlayer = nil
-		self.traitIndex  = nil
+		--self.traitIndex  = nil
+		self.isTraitsList = nil
 		self.icon:SetTexture( tex )
 		self.icon:SetVertexColor( 1, 1, 1 )
 		self.count:SetText( "")
@@ -305,8 +299,18 @@ local methods = {
 	---------------------------------------------------------------------------
 	-- Hook this button up to a direct trait.
 	--
-	SetTrait = function( self, trait )
+	SetTrait = function( self, trait, isTraitsList )
 		self.trait = trait
+		self.isTraitsList = isTraitsList
+		if isTraitsList then
+			self:RegisterForDrag("LeftButton")
+			self:SetScript("OnDragStart", function()
+				self:OnDragStart( self )
+			end)
+			self:SetScript("OnDragStop", function()
+				self:OnDragStop( self )
+			end)
+		end
 		self:Refresh()
 	end;
 	
@@ -317,6 +321,7 @@ local methods = {
 		self.trait = nil
 		self.traitPlayer = player
 		self.traitIndex  = index
+		self.isTraitsList = nil
 		-- Add the gold dragon border if this is the command trait.
 		if self.traitIndex == 5 then
 			self.border:SetTexture("Interface/AddOns/DiceMaster/Texture/elite-trait-border")
@@ -365,6 +370,23 @@ local methods = {
 	SetCustomTooltip = function( self, text )
 		self.customTooltip = text
 	end;
+	
+	OnDragStart = function( self )
+		if not ( self.trait and self.isTraitsList ) then
+			return
+		end 
+		
+		DiceMasterTraitPickerCursorIcon:Show()
+		DiceMasterTraitPickerCursorIcon.data = self.trait
+		DiceMasterTraitPickerCursorIcon.icon:SetTexture( self.trait.icon )
+		PlaySound(832)
+	end;
+	
+	OnDragStop = function( self )
+		PlaySound(833)
+		DiceMasterTraitPickerCursorIcon:Hide()
+		DiceMasterTraitPickerCursorIcon.icon:SetTexture( nil )
+	end;
 }
 
 -------------------------------------------------------------------------------
@@ -378,6 +400,7 @@ function Me.TraitButton_Init( self )
 	 
 	self:SetScript( "OnEnter", OnEnter )
 	self:SetScript( "OnLeave", OnLeave ) 
+	self:SetScript( "OnReceiveDrag", OnReceiveDrag ) 
 	self.editable_trait = false 
 end
 

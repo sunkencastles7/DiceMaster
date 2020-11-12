@@ -110,24 +110,6 @@
 		<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
 		<BarColor r="0.26" g="0.42" b="1"/>
 	  </StatusBar>
-	  
-      <!-- Dice button. -->
-      <Button parentKey="roll">
-        <Size x="28" y="29"/>
-        <Anchors>
-          <Anchor point="CENTER" x="79" y="-17"/>
-        </Anchors>
-        
-        <HighlightTexture file="Interface/MINIMAP/UI-Minimap-ZoomButton-Highlight" alphaMode="ADD">
-			<Size x="28" y="28"/>
-			<Anchors>
-				<Anchor point="CENTER" x="0" y="0" />
-			</Anchors>
-		</HighlightTexture>
-        
-        <Scripts>
-        </Scripts>
-      </Button>
     </Frames>
 	
 	<Scripts>

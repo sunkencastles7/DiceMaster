@@ -10,6 +10,7 @@
 --
 
 local Me = DiceMaster4
+local Profile = Me.Profile
 
 -------------------------------------------------------------------------------
 -- Which events we want to hook for filtering chat links.
@@ -117,6 +118,15 @@ local function ChatFilter( self, event, msg, sender, ... )
 		Me.Inspect_UpdatePlayer( sender_short )
 	end
 	
+	if not found_links then
+	
+		clean = string.gsub(msg, "%[DiceMaster4Roll:(.-)%]", function( statistic )
+
+			-- convert into chat link
+			return "|cffffd100|HDiceMaster4Roll:"..statistic.."|h[|TInterface/AddOns/DiceMaster/Texture/logo:12|t Roll " .. statistic .. "]|h|r";
+		end);
+	end
+	
 	return false, clean, sender, ...;
 end
 
@@ -221,8 +231,9 @@ function ItemRefTooltip:SetHyperlink(link)
 			-- this might be a TODO job.
 			-- we need to hook the chatbox code for copying links
 		else
-			local linkType, name, guid = strsplit(":", link)
+			local linkType, name, guid = strsplit(":", link)			
 			guid = tonumber(guid) 
+			
 			if not guid or guid < 1 or guid > Me.traitCount then return end
 			
 			Me.itemRefOpen   = true
@@ -240,6 +251,44 @@ function ItemRefTooltip:SetHyperlink(link)
 			-- if trait data isn't loaded yet, the tooltip will be updated
 			-- automatically
 		end
+	elseif strsub(link, 1, 16) == "DiceMaster4Roll:" then
+	
+		local linkType, msg = strsplit( ":", link )
+				
+		if not msg then return end
+		
+		local dice = DiceMasterPanelDice:GetText()
+		local rollType = nil
+		local stat = nil
+		local modifier = 0;
+		
+		for k, v in pairs( Me.RollList ) do
+			for i = 1, #v do
+				if v[i].name:lower() == msg:lower() then
+					rollType = v[i].name
+					stat = v[i].stat
+				end
+			end
+		end
+		
+		if rollType and stat then
+			for i = 1,#Profile.stats do
+				if Profile.stats[i] and ( Profile.stats[i].name == stat or Profile.stats[i].name == rollType ) then
+					modifier = modifier + Profile.stats[i].value
+				end
+			end
+			for i = 1, #Profile.buffsActive do
+				if Profile.buffsActive[i].statistic == rollType then
+					modifier = modifier + Profile.buffsActive[i].statAmount
+				end
+			end
+			msg = Me.FormatDiceString( dice, modifier ) or "D20"
+		end
+		
+		Me.Roll( msg, rollType )
+		
+	elseif strsub(link, 1, 17) == "DiceMaster4Traits" then
+		Me.TraitEditor_Open()
     else
 	
 		-- release control over the tooltip if something else is clicked

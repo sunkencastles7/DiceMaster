@@ -38,7 +38,7 @@ function Me.SoundPickerButton_OnClick(self, button)
 end
 
 function Me.SoundPicker_Refresh()
-	local sound = Profile.playsounds[Me.editing_trait] or nil
+	local sound = Profile.traits[Me.editing_trait].playsounds or nil
 	if not sound then
 		sound = {
 			soundID = 0;
@@ -46,7 +46,7 @@ function Me.SoundPicker_Refresh()
 			range = 0;
 			blank = true;
 		}
-		Profile.playsounds[Me.editing_trait] = sound;
+		Profile.traits[Me.editing_trait].playsounds = sound;
 		DiceMasterSoundPicker.areaSound:SetChecked( false )
 		DiceMasterSoundPicker.range:SetText( 0 )
 	else
@@ -112,7 +112,7 @@ function Me.SoundPicker_TestSound( self )
 end
 
 function Me.SoundPicker_PlaySound( traitIndex )
-	local sound = Profile.playsounds[ traitIndex ]
+	local sound = Profile.traits[ traitIndex ].playsounds
 	if ( sound and sound.range and sound.soundID ) then
 		local range = sound.range or 0
 		local soundKitID = sound.soundID;
@@ -131,7 +131,7 @@ function Me.SoundPicker_StopSound()
 end
 
 function Me.SoundPicker_Delete()
-	Profile.playsounds[Me.editing_trait] = nil
+	Profile.traits[Me.editing_trait].playsounds = nil
 	
 	PlaySound(840); 
 	Me.SoundPicker_Close()
@@ -147,7 +147,7 @@ function Me.SoundPicker_Save()
 		return
 	end
 	
-	Profile.playsounds[Me.editing_trait] = {
+	Profile.traits[Me.editing_trait].playsounds = {
 		soundID = DiceMasterSoundPicker.selectedID;
 		soundPath = DiceMasterSoundPicker.selectedName;
 		range = 0;
@@ -155,7 +155,7 @@ function Me.SoundPicker_Save()
 	}
 	if DiceMasterSoundPicker.areaSound:GetChecked() then
 		local range = DiceMasterSoundPicker.range:GetText() or 0
-		Profile.playsounds[Me.editing_trait].range = tonumber( range )
+		Profile.traits[Me.editing_trait].playsounds.range = tonumber( range )
 	end
 end
 
