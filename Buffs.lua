@@ -35,27 +35,6 @@ local BUFF_DURATION_AMOUNTS = {
 	{name = "10 turns", turns = 10},
 }
 
-local BUFF_RULES = {
-	[1] = "|TInterface/Icons/Spell_Holy_WordFortitude:16:16:0:-6|t |cFFFFd100Apply Buff|r enables this trait to cast a buff on a group member when it is right-clicked from the Dice Panel. If |cFFFFd100Always cast on self|r is enabled, the buff will apply to you; otherwise, the buff will be cast on your current target.|n|nYou can remove any buff on you by right-clicking it from the Buffs Frame (anchored to your default buffs).|n|nPlayers can only have a maximum of five buffs on them at any time.",
-	[2] = "|cFFFFd100Buff Name|r represents the name of the buff. You should try to use a short, concise name that describes the buff.|n|n|cFFFFd100Description|r is a brief description of the buff's effect. Similar to trait descriptions, this field can use the tags <img>path</img> and <color=r,g,b></color>.",
-	[3] = "|cFFFFd100Modify Statistic by Name|r allows you to increase or decrease a specific Statistic by a given |n|n|cFFFFd100Amount|r when the buff is applied to the target.|n|nWhen this buff expires or is removed, their Statistic returns to its normal value.",
-	[4] = "|cFFFFd100Lasts until cancelled|r is a buff which does not expire after a given duration. These buffs can only be removed when right-clicked.|n|n|cFFFFd100Buff Duration|r is the amount of time after the moment a buff is applied before it expires. These values can range from 15 seconds to 3 hours at pre-set intervals.",
-	[5] = "|cFFFFd100Always cast on self|r is a buff which is always automatically applied to you. Disable this to be able to apply the buff to your target instead.|n|n|cFFFFd100Area Buff|r denotes a buff which affects more than one target within a pre-determined radius set by the |cFFFFd100Range|r field.|n|n|cFFFFd100Range|r refers to the maximum radius of an |cFFFFd100Area Buff|r in yards.",
-	[6] = "|cFFFFd100Stackable|r determines whether or not buffs are able to \"stack\" multiple times on the same target. If this option is disabled, casting multiples of the same buff will refresh the buff instead of stacking.",
-}
-
-local REMOVE_BUFF_RULES = {
-	[1] = "|TInterface/Icons/Spell_Shadow_SacrificialShield:16:16:0:-6|t |cFFFFd100Remove Buff|r enables this trait to remove a buff from a group member when it is right-clicked on the Dice Panel. The buff will be removed from your current target, or yourself if you have no target.|n|nYou can only use this to remove buffs you have cast on the target.",
-	[2] = "|cFFFFd100Buff Name|r represents the name of the buff you wish to remove. This name must exactly match the name of the buff to successfully remove it.",
-	[3] = "|cFFFFd100Count|r refers to the number of stacks of the buff you wish to remove. If this number is higher than the number of stacks, this will remove all stacks of the buff.",
-}
-
-local SET_DICE_RULES = {
-	[1] = "|TInterface/Icons/INV_Misc_Dice_01:16:16:0:-6|t |cFFFFd100Roll Dice|r enables this trait to roll using specific dice when it is right-clicked on the Dice Panel, regardless of what dice are currently set on your Dice Panel.",
-	[2] = "|cFFFFd100Dice Value|r represents the specific dice you wish to roll in D20 Notation, which follows the format |cFFFFd100XDY+Z|r:|n|cFFFFd100X|r = The number of dice you are rolling.|n|cFFFFd100Y|r = The number of sides on each of the dice.|n|cFFFFd100Z|r = The modifier, or number added to the final roll.",
-	[3] = "|cFFFFd100Check Statistic by Name|r applies the value of a specified Statistic to the roll (on top of any existing modifiers).",
-}
-
 -------------------------------------------------------------------------------
 -- Remove Buff Editor
 --

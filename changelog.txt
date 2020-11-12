@@ -5,6 +5,9 @@
 - Added new Shadowlands skins to the Charges and Progress Bars.
 - Traits can now display their remaining uses in the bottom right corner of the icon.
 - Added a new Range Radar to track distance between players (accessible with the '/dicemaster range [number]' console command.
+- You can now add hyperlinks to chat, allowing players to click the links to roll a designated dice value or statistic. Format: [DiceMaster4Roll:value]
+- You can also insert icons in public chat channels using [DiceMaster4Icon:path].
+- New config menu option to enable/disable icon links in chat channels.
 - Added Shadowlands models to the Model Picker.
 - Added Shadowlands backdrops to the Unit Editor.
 - Updated TexCoords for map nodes.

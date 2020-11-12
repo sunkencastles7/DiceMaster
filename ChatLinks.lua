@@ -10,6 +10,7 @@
 --
 
 local Me = DiceMaster4
+local Profile = Me.Profile
 
 -------------------------------------------------------------------------------
 -- Which events we want to hook for filtering chat links.
@@ -116,6 +117,21 @@ local function ChatFilter( self, event, msg, sender, ... )
 		-- if we received this over a public channel; request inspect data
 		Me.Inspect_UpdatePlayer( sender_short )
 	end
+
+	clean = string.gsub(clean, "%[DiceMaster4Roll:(.-)%]", function( statistic )
+
+		-- convert into chat link
+		return "|cffffd100|HDiceMaster4Roll:"..statistic.."|h[|TInterface/AddOns/DiceMaster/Texture/logo:12|t Roll " .. statistic .. "]|h|r";
+	end);
+	
+	clean = string.gsub(clean, "%[DiceMaster4Icon:(.-)%]", function( path )
+		
+		if not strfind( path, "%/Icons%/" ) or not Me.db.global.allowIcons then
+			return "";
+		end
+		
+		return "|T" .. path .. ":16|t";
+	end);
 	
 	return false, clean, sender, ...;
 end
@@ -240,6 +256,41 @@ function ItemRefTooltip:SetHyperlink(link)
 			-- if trait data isn't loaded yet, the tooltip will be updated
 			-- automatically
 		end
+	elseif strsub(link, 1, 16) == "DiceMaster4Roll:" then
+	
+		local linkType, msg = strsplit( ":", link )
+				
+		if not msg then return end
+		
+		local dice = DiceMasterPanelDice:GetText()
+		local rollType = nil
+		local stat = nil
+		local modifier = 0;
+		
+		for k, v in pairs( Me.RollList ) do
+			for i = 1, #v do
+				if v[i].name:lower() == msg:lower() then
+					rollType = v[i].name
+					stat = v[i].stat
+				end
+			end
+		end
+		
+		if rollType and stat then
+			for i = 1,#Profile.stats do
+				if Profile.stats[i] and ( Profile.stats[i].name == stat or Profile.stats[i].name == rollType ) then
+					modifier = modifier + Profile.stats[i].value
+				end
+			end
+			for i = 1, #Profile.buffsActive do
+				if Profile.buffsActive[i].statistic == rollType then
+					modifier = modifier + Profile.buffsActive[i].statAmount
+				end
+			end
+			msg = Me.FormatDiceString( dice, modifier ) or "D20"
+		end
+		
+		Me.Roll( msg, rollType )
     else
 	
 		-- release control over the tooltip if something else is clicked

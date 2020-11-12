@@ -30,6 +30,7 @@ local DB_DEFAULTS = {
 		talkingHeads = true;
 		allowSounds = true;
 		allowEffects = true;
+		allowIcons = true;
 		allowAssistantTalkingHeads = true;
 		allowBuffs = true;
 		bloodEffects = true;
@@ -299,6 +300,18 @@ Me.configOptions = {
 			get = function( info ) return Me.db.global.allowEffects end;
 		};
 		
+		allowIcons = {
+			order = 13;
+			name  = "Display Icons in Chat";
+			desc  = "Display icons linked by players in public chat channels.";
+			type  = "toggle";
+			width = "double";
+			set = function( info, val )
+				Me.db.global.allowIcons = val
+			end;
+			get = function( info ) return Me.db.global.allowIcons end;
+		};
+		
 		enableRoundBanners = {
 			order = 15;
 			name  = "Allow Roll Prompt Banners";
@@ -374,14 +387,6 @@ Me.configOptions = {
 					DiceMasterUnitsPanel:SetPoint("TOP", 0, -200)
 				end
 			end;
-		};
-		
-		curseLink = {
-			order = 21;
-			name  = "Curse Forge";
-			type  = "input";
-			width = "double";
-			get   = function( info ) return "https://www.curseforge.com/wow/addons/dicemaster" end;
 		};
 		
 		discordLink = {
@@ -620,6 +625,7 @@ Me.configOptionsCharges = {
 						["BastionAnima"] = "Bastion",
 						["MaldraxxusAnima"] = "Maldraxxus",
 						["ArdenwealdAnima"] = "Ardenweald",
+						["archer-bar"] = "Archer",
 					};
 					set   = function( info, val ) 
 						Me.db.profile.charges.symbol = val
@@ -788,6 +794,7 @@ Me.configOptionsProgressBar = {
 						["BastionAnima"] = "Bastion",
 						["MaldraxxusAnima"] = "Maldraxxus",
 						["ArdenwealdAnima"] = "Ardenweald",
+						["archer-bar"] = "Archer",
 					};
 					set   = function( info, val ) 
 						Me.db.profile.morale.symbol = val

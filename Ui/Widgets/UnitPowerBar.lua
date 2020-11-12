@@ -461,6 +461,15 @@ local altPowerBars = {
 		flash = true;
 		inset = 0.18;
 	},
+	["archer-bar"] = {
+		path = "Interface/AddOns/DiceMaster/Texture/archer-bar_";
+		frame = false;
+		background = true;
+		fill = true;
+		spark = false;
+		flash = false;
+		inset = 0.26;
+	},
 }
 
 local altPowerBarTextures = {
