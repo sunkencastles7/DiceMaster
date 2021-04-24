@@ -37,6 +37,11 @@ function Me.UnitFrame_SendStatus( visibleframes, id, status )
 	local statusHealth = status.healthCurrent
 	local statusMaxHealth = status.healthMax
 	local statusArmor = status.armor
+	local statusCastBar = status.castEnabled
+	local statusCastText = status.castText
+	local statusCast = status.castCurrent
+	local statusCastMax = status.castMax
+	local statusCastType = status.castType
 	local statusVisible = status.visible
 	local statusBuffsAllowed = Me.db.global.allowBuffs
 	local statusBlood = Me.db.global.bloodEffects
@@ -56,6 +61,11 @@ function Me.UnitFrame_SendStatus( visibleframes, id, status )
 		hc = tonumber( statusHealth );
 		hm = tonumber( statusMaxHealth );
 		ar = tonumber( statusArmor );
+		ce = tonumber( statusCastBar );
+		ct = tonumber( statusCastText );
+		cc = tonumber( statusCast );
+		cm = tonumber( statusCastMax );
+		ch = tonumber( statusCastType );
 		vs = tostring( statusVisible );
 		ba = tostring( statusBuffsAllowed );
 		bl = statusBlood;
@@ -88,6 +98,11 @@ end
 --	hc = current health					number
 --  hm = max health						number
 --  ar = armour							number
+--  ce = cast bar enabled?				boolean
+--  ct = cast bar text					string
+--  cc = current cast bar value			number
+--  cm = max cast bar value				number
+--  ch = cast bar type					number
 -- 	vs = visible						boolean
 --  buffs = buffs						table
 --  zo = zone							string

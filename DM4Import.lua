@@ -29,17 +29,23 @@ function Me.ImportDM4Saved()
 						["cooldown"] = traits[ i ]["cooldown"] or Me.TRAIT_COOLDOWN_MODES[1];
 						["icon"] = traits[ i ]["icon"] or "Interface/Icons/inv_misc_questionmark";
 						["desc"] = traits[ i ]["desc"] or "Type a description for your trait here.";
+						["effects"] = {};
 					}
 					
 					-- copy trait effects
-					local EFFECT_TYPES = {
+					local OLD_EFFECT_TYPES = {
 						"buffs", "removebuffs", "playsounds", "setdice", "visualeffects"
 					}
 					
-					for effect = 1, #EFFECT_TYPES do
-						local effectType = EFFECT_TYPES[ effect ]
+					local NEW_EFFECT_TYPES = {
+						"buff", "removebuff", "sound", "setdice", "effect"
+					}
+					
+					for effect = 1, #OLD_EFFECT_TYPES do
+						local effectType = OLD_EFFECT_TYPES[ effect ]
 						if Me.db["profiles"][ k ][effectType] and Me.db["profiles"][ k ][effectType][ i ] then
-							trait[effectType] = Me.db["profiles"][ k ][effectType][ i ];
+							local effectData = Me.db["profiles"][ k ][effectType][ i ];
+							trait["effects"][ NEW_EFFECT_TYPES[ effect ] ] = effectData;
 						end
 					end
 					
@@ -56,7 +62,7 @@ function Me.ImportDM4Saved()
 		end
 	end	
 	
-	Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t DiceMaster has been updated with new features to the Trait Editor: |cffffd100|HDiceMaster4Traits|h[|TInterface/AddOns/DiceMaster/Texture/logo:12|t Open the Trait Editor]|h|r", "SYSTEM");
+	Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Thank you for downloading DiceMaster version 5.1.5 (Alpha)! Please refer to the official DiceMaster Discord Server for information and updates. Happy testing!", "SYSTEM");
 	
 	Me.db.global.dm4Imported = true
 end

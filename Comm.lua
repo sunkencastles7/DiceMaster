@@ -23,6 +23,13 @@ local MessageHandlers = {
 	ROLL    = "Dice_OnRollMessage";
 	
 	ITEM    = "LootToast_OnToast";
+	ITEMREQ = "ShopEditor_RequestItem";
+	ITEMBUY = "ShopEditor_BuyItem";
+	ITEMGET = "ShopEditor_ReceiveItem";
+	
+	TRDREM 	= "ItemTrade_RemoveTradeitem";
+	TRDACC 	= "ItemTrade_TradeAccepted";
+	TRDITEM = "ItemTrade_RecieveTradeItem";
 	
 	TYPE    = "PostTracker_OnTyping";
 	
@@ -107,7 +114,9 @@ function Me.ResetFullscreenEffect()
 	local model = DiceMasterFullscreenEffectFrame.Model
 	model:ClearModel()
 	model:SetDisplayInfo( 6908 )
-	model:SetPosition( -20, 9.7, 1 )
+	model:SetPosition( 0, 0, -0.5 )
+	model:SetPortraitZoom( 0 );
+	model:SetCamDistanceScale( 5 );
 	model:SetLight( true, true, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 );
 end
 
@@ -118,14 +127,9 @@ function Me.OnFullscreenEffectMessage( data, dist, sender )
 		return
 	end
 	
-	if ( UnitIsGroupLeader( sender ) or UnitIsGroupAssistant( sender ) or Me.IsLeader( false ) ) then
+	if ( UnitInRaid( sender) or UnitInParty( sender ) or Me.IsLeader( false ) ) then
 		Me.ResetFullscreenEffect()
-		DiceMasterFullscreenEffectFrame.Model:SetSpellVisualKit( data.sv );
-		if ( data.po and data.po.x and data.po.y and data.po.z ) then
-			DiceMasterFullscreenEffectFrame.Model:SetPosition( data.po.x, data.po.y, data.po.z );
-		else
-			DiceMasterFullscreenEffectFrame.Model:SetPosition( -20, 9.7, 1 );
-		end
+		DiceMasterFullscreenEffectFrame.Model:ApplySpellVisualKit( data.sv, true );
 		if ( data.so ) then
 			PlaySound( data.so )
 		end

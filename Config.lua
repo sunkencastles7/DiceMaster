@@ -30,13 +30,14 @@ local DB_DEFAULTS = {
 		talkingHeads = true;
 		allowSounds = true;
 		allowEffects = true;
+		allowIcons = true;
 		allowAssistantTalkingHeads = true;
 		allowBuffs = true;
 		bloodEffects = true;
 		miniFrames = false;
 		snapping = false;
-		dm4Imported   = false;
-		traitsList   = {};
+		dm4Imported = false;
+		traitsList = {};
 	};
 	
 	char = { 
@@ -96,7 +97,9 @@ local DB_DEFAULTS = {
 			armor        = 0;
 		};
 		inventory	 = {};
+		inventoryIcon = "Interface/Icons/inv_misc_bag_08";
 		shop		 = {};
+		shopIcon = "Interface/Icons/garrison_building_tradingpost";
 		currency     = {
 			{
 				name = "DiceMaster Coins";
@@ -131,11 +134,7 @@ do
 			approved = false;									-- trait approved
 			officers = {};										-- approved by
 			icon   = "Interface/Icons/inv_misc_questionmark";   -- trait icon texture path
-			buffs			 = {};
-			removebuffs 	 = {};
-			playsounds  	 = {};
-			setdice     	 = {};
-			visualeffects	 = {};
+			effects = {};
 		}
 		
 		DB_DEFAULTS.char.traitSerials[i] = 1 -- used to optimize out duplicate requests
@@ -301,6 +300,18 @@ Me.configOptions = {
 			get = function( info ) return Me.db.global.allowEffects end;
 		};
 		
+		allowIcons = {
+			order = 13;
+			name  = "Display Icons in Chat";
+			desc  = "Display icons linked by players in public chat channels.";
+			type  = "toggle";
+			width = "double";
+			set = function( info, val )
+				Me.db.global.allowIcons = val
+			end;
+			get = function( info ) return Me.db.global.allowIcons end;
+		};
+		
 		enableRoundBanners = {
 			order = 15;
 			name  = "Allow Roll Prompt Banners";
@@ -376,14 +387,6 @@ Me.configOptions = {
 					DiceMasterUnitsPanel:SetPoint("TOP", 0, -200)
 				end
 			end;
-		};
-		
-		curseLink = {
-			order = 21;
-			name  = "Curse Forge";
-			type  = "input";
-			width = "double";
-			get   = function( info ) return "https://www.curseforge.com/wow/addons/dicemaster" end;
 		};
 		
 		discordLink = {
@@ -573,7 +576,7 @@ Me.configOptionsCharges = {
 					style = "dropdown";
 					values = {
 						["charge-orb"] = "Charge Orbs",
-						--["charge-fire"] = "Burning Embers",
+						["charge-fire"] = "Burning Embers",
 						["charge-rune"] = "Death Knight Runes",
 						["charge-shadow"] = "Shadow Orbs",
 						["charge-soulshards"] = "Soul Shards",
@@ -596,6 +599,7 @@ Me.configOptionsCharges = {
 						["Druid"] = "Druid",
 						["FancyPanda"] = "Fancy Pandaren",
 						["Mechanical"] = "Mechanical",
+						["LightningCharges"] = "Lightning",
 						["Map"] = "Map",
 						["InquisitionTorment"] = "Inquisitor",
 						["Bamboo"] = "Bamboo",
@@ -618,12 +622,14 @@ Me.configOptionsCharges = {
 						["NZoth"] = "N'zoth",
 						["sanctum-bar"] = "Arcane Sanctum",
 						["warden-bar"] = "Warden",
-						["archer-bar"] = "Archer",
 						["RevendrethAnima"] = "Revendreth",
 						["BastionAnima"] = "Bastion",
 						["MaldraxxusAnima"] = "Maldraxxus",
 						["ArdenwealdAnima"] = "Ardenweald",
-						["BurningEmbers"] = "Burning Embers",
+						["archer-bar"] = "Archer",
+						["phoenix-bar"] = "Phoenix",
+						["mana-gems-bar"] = "Mana Gems",
+						["holy-power-bar"] = "Holy Power",
 					};
 					set   = function( info, val ) 
 						Me.db.profile.charges.symbol = val
@@ -788,11 +794,14 @@ Me.configOptionsProgressBar = {
 						["NZoth"] = "N'zoth",
 						["sanctum-bar"] = "Arcane Sanctum",
 						["warden-bar"] = "Warden",
-						["archer-bar"] = "Archer",
 						["RevendrethAnima"] = "Revendreth",
 						["BastionAnima"] = "Bastion",
 						["MaldraxxusAnima"] = "Maldraxxus",
 						["ArdenwealdAnima"] = "Ardenweald",
+						["archer-bar"] = "Archer",
+						["phoenix-bar"] = "Phoenix",
+						["mana-gems-bar"] = "Mana Gems",
+						["holy-power-bar"] = "Holy Power",
 					};
 					set   = function( info, val ) 
 						Me.db.profile.morale.symbol = val

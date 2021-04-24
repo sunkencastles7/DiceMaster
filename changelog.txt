@@ -1,3 +1,17 @@
+### 5.1.5
+- Added Shadowlands icons to the icon libraries.
+- Added a new option to the Visual Effects editor to send effects to a targeted player.
+- Added a new inventory tab to the Trait Editor.
+- You can now create, edit, and copy custom items from the inventory tab in the Trait Editor.
+- You can also create your own custom currencies to trade with other players. Disclaimer: these "currencies" are for roleplaying and D20 commerce purposes only and have no gameplay or real world value.
+- Added a new default "DiceMaster Coins" currency to the inventory tab. 
+- Added a new inventory tab to the Inspector frame, allowing you to view other players' inventories and custom currency values.
+- You can request an item from another player by clicking the 'Request Item' button from their inventory on the Inspector frame, then selecting the desired item.
+- You can now display a casting bar below Unit Frames to imitate a spellcast.
+- Fixed an issue where XRP users were unable to see their full name in the Trait Editor.
+- Fixed the Inspector frame to display the character's full name. 
+- Added smooth transitions to the Typing Tracker.
+
 ### 5.1.4
 - Patch 9.0 support
 - Added a new Visual Effects feature to traits, allowing players to display an on-screen visual effect when they right-click the associated trait.
@@ -5,6 +19,9 @@
 - Added new Shadowlands skins to the Charges and Progress Bars.
 - Traits can now display their remaining uses in the bottom right corner of the icon.
 - Added a new Range Radar to track distance between players (accessible with the '/dicemaster range [number]' console command.
+- You can now add hyperlinks to chat, allowing players to click the links to roll a designated dice value or statistic. Format: [DiceMaster4Roll:value]
+- You can also insert icons in public chat channels using [DiceMaster4Icon:path].
+- New config menu option to enable/disable icon links in chat channels.
 - Added Shadowlands models to the Model Picker.
 - Added Shadowlands backdrops to the Unit Editor.
 - Updated TexCoords for map nodes.

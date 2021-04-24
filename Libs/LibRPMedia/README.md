@@ -18,7 +18,7 @@ The `LibRPMedia-1.0.xml` file includes all references to databases for both Reta
 
 ### Dependencies
 
-This library depends upon the following. These must be loaded *prior* to loading LibRPMedia via any of its XML files; the library will not load its embedded dependencies automatically.
+This library depends upon the following. These libraries are loaded automatically when including any of the above XML files.
 
  * [LibStub](https://www.curseforge.com/wow/addons/libstub)
 

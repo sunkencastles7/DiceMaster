@@ -224,6 +224,80 @@
           </OnMouseDown>
         </Scripts>
       </Frame>
+	  <StatusBar parentKey="castBar" drawLayer="BORDER" hidden="true">
+		<Size>
+			<AbsDimension x="150" y="10"/>
+		</Size>
+		<Anchors>
+          <Anchor point="BOTTOM" x="0" y="-75"/> 
+        </Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true">
+					<Color r="0" g="0" b="0" a="0.5"/>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Border" file="Interface\CastingBar\UI-CastingBar-Border-Small">
+					<Size>
+						<AbsDimension x="0" y="49"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-23" y="20"/>
+						<Anchor point="TOPRIGHT" x="23" y="20"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Text" inherits="SystemFont_Shadow_Small" text="Casting...">
+					<Size>
+						<AbsDimension x="0" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="0" y="4"/>
+						<Anchor point="TOPRIGHT" x="0" y="4"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Spark" file="Interface\CastingBar\UI-CastingBar-Spark" alphaMode="ADD">
+					<Size>
+						<AbsDimension x="32" y="32"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="Flash" file="Interface\CastingBar\UI-CastingBar-Flash-Small" alphaMode="ADD">
+					<Size>
+						<AbsDimension x="0" y="49"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-23" y="20"/>
+						<Anchor point="TOPRIGHT" x="23" y="20"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:SetMinMaxValues( 0, 3 )
+				self:SetValue( 0 )
+				self.Spark:Hide()
+				self.Flash:Hide()
+				self:Hide()
+			</OnLoad>
+			<OnShow>
+				self:GetParent().buffFrame:SetPoint( "TOP", self:GetParent(), "BOTTOM", 0, -75 )
+			</OnShow>
+			<OnHide>
+				self:GetParent().buffFrame:SetPoint( "TOP", self:GetParent(), "BOTTOM", 0, -45 )
+			</OnHide>
+			<OnMouseDown>
+				DiceMaster4.OnUnitBarCastClicked( self, button )
+			</OnMouseDown>
+		</Scripts>
+		<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+		<BarColor r="1.0" g="0.7" b="0.0"/>
+	  </StatusBar>
 	  <Frame name="$parentBuffFrame" parentKey="buffFrame">
 		<Size x="180" y="32"/>
 		<Anchors>

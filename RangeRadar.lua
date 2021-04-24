@@ -125,7 +125,7 @@ local function updateRangeFrame()
 		local uId = unitList[i]
 		local dot = dots[i]
 		local mapId = GetBestMapForUnit(uId) or 0
-		if UnitExists(uId) and playerMapId == mapId and not UnitIsUnit(uId, "player") and not UnitIsDeadOrGhost(uId) and UnitIsConnected(uId) and UnitInPhase(uId) then
+		if UnitExists(uId) and playerMapId == mapId and not UnitIsUnit(uId, "player") and not UnitIsDeadOrGhost(uId) and UnitIsConnected(uId) then
 			local range--Just set to a number in case any api fails and returns nil
 			if restricted then--API restrictions are in play, so pretend we're back in BC
 				print( "FAILED" )

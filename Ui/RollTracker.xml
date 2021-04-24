@@ -1808,6 +1808,7 @@
 			</Anchors>
 			<Scripts>
 				<OnClick>
+					HelpPlate_Hide( false );
 					PanelTemplates_SetTab(DiceMasterRollFrame, 1);
                     DiceMasterRollTracker:Show();
                     DiceMasterDMNotes:Hide();
@@ -1825,6 +1826,7 @@
 			</Anchors>
 			<Scripts>
 				<OnClick>
+					HelpPlate_Hide( false );
 					PanelTemplates_SetTab(DiceMasterRollFrame, 2);
                     DiceMasterRollTracker:Hide();
                     DiceMasterDMNotes:Show();
@@ -1841,6 +1843,7 @@
 			</Anchors>
 			<Scripts>
 				<OnClick>
+					HelpPlate_Hide( false );
 					PanelTemplates_SetTab(DiceMasterRollFrame, 3);
                     DiceMasterRollTracker:Hide();
                     DiceMasterDMNotes:Hide();
@@ -1857,6 +1860,7 @@
 			</Anchors>
 			<Scripts>
 				<OnClick>
+					HelpPlate_Hide( false );
 					PanelTemplates_SetTab(DiceMasterRollFrame, 4);
                     DiceMasterRollTracker:Hide();
                     DiceMasterDMNotes:Hide();
@@ -1890,6 +1894,17 @@
 						DiceMasterRollFrame:Show()
 					end
 				</OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button parentKey="Tutorial" inherits="MainHelpPlateButton" mixin="DiceMasterRollFrameTutorialMixin">
+			<Anchors>
+				<Anchor point="TOPLEFT" x="43" y="19"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad method="OnLoad"/>
+				<OnHide method="OnHide"/>
+				<OnClick method="ToggleHelpInfo"/>
 			</Scripts>
 		</Button>
 	

@@ -35,292 +35,6 @@ local BUFF_DURATION_AMOUNTS = {
 	{name = "10 turns", turns = 10},
 }
 
--------------------------------------------------------------------------------
--- Remove Buff Editor
---
-
-function Me.RemoveBuffEditor_OnClick(self, arg1, arg2, checked)
-	UIDropDownMenu_SetText(Me.removebuffeditor.buffName, "")
-	if self:GetText() ~= "" then
-		UIDropDownMenu_SetText(Me.removebuffeditor.buffName, self:GetText())
-	end
-	Me.RemoveBuffEditor_Save()
-end
-
-function Me.RemoveBuffEditor_OnLoad(frame, level, menuList)
-	local info = UIDropDownMenu_CreateInfo()
-	local found = false;
-
-	  for i=1,5 do
-		if Me.db.global.traitsList[i].buffs and not Me.db.global.traitsList[i].buffs.blank then		
-		   info.text = Me.db.global.traitsList[i].buffs.name
-		   info.icon = Me.db.global.traitsList[i].buffs.icon
-		   info.arg1 = Me.db.global.traitsList[i].buffs
-		   info.checked = Me.db.global.traitsList[Me.trait_editing].removebuffs.name == Me.db.global.traitsList[i].buffs.name;
-		   info.notCheckable = false;
-		   info.func = Me.RemoveBuffEditor_OnClick;
-		   UIDropDownMenu_AddButton(info, level)
-		end
-		if Me.db.global.traitsList[i].buffs and Me.db.global.traitsList[i].buffs.name == Me.db.global.traitsList[Me.trait_editing].removebuffs.name then
-			found = true;
-		end
-	  end
-	UIDropDownMenu_SetText(frame, "")
-	if not found then
-		Me.db.global.traitsList[Me.trait_editing].removebuffs = nil
-	end
-	if Me.db.global.traitsList[Me.trait_editing].removebuffs and Me.db.global.traitsList[Me.trait_editing].removebuffs.name then
-		UIDropDownMenu_SetText(frame, Me.db.global.traitsList[Me.trait_editing].removebuffs.name)
-	end
-end
-
-function Me.RemoveBuffEditor_Refresh()
-	local removebuff = Me.db.global.traitsList[Me.trait_editing].removebuffs or nil
-	if not removebuff then
-		removebuff = {
-			name = "",
-			count = 1,
-			blank = true,
-		}
-		Me.db.global.traitsList[Me.trait_editing].removebuffs = removebuff
-	end
-	Me.removebuffeditor.buffName:SetText( removebuff.name )
-	Me.removebuffeditor.buffCount:SetText( removebuff.count )
-end
-
-function Me.RemoveBuffEditor_Save()
-	if not UIDropDownMenu_GetText(Me.removebuffeditor.buffName) then
-		UIErrorsFrame:AddMessage( "You must select a buff from the dropdown.", 1.0, 0.0, 0.0, 53, 5 );
-		return
-	end
-	local removebuff = {
-		name = UIDropDownMenu_GetText(Me.removebuffeditor.buffName);
-		count = Me.removebuffeditor.buffCount:GetText();
-		blank = false;
-	}
-	Me.db.global.traitsList[Me.trait_editing].removebuffs = removebuff
-end
-
-function Me.RemoveBuffEditor_DeleteBuff()
-	Me.db.global.traitsList[Me.trait_editing].removebuffs = nil
-	
-	PlaySound(840); 
-	Me.removebuffeditor:Hide()
-	Me.TraitEditor_Refresh()
-end
-
-function Me.RemoveBuffEditor_OnCloseClicked()
-	Me.RemoveBuffEditor_Save()
-	PlaySound(840); 
-	Me.removebuffeditor:Hide()
-	Me.TraitEditor_Refresh()
-end
-
-function Me.RemoveBuffEditor_Open()
-	Me.SoundPicker_Close()
-	Me.EffectPicker_Close()
-	if Me.buffeditor:IsShown() or Me.setdiceeditor:IsShown() then
-		Me.buffeditor:Hide()
-		Me.setdiceeditor:Hide()
-	end
-   
-	Me.RemoveBuffEditor_Refresh()
-	Me.removebuffeditor:Show()
-end
-
--------------------------------------------------------------------------------
--- Set Dice Editor
---
-
-function Me.SetDiceEditor_Refresh()
-	local setdice = Me.db.global.traitsList[Me.editing_trait].setdice or nil
-	if not setdice then
-		setdice = {
-			value = "D20";
-			stat = "";
-			blank = true,
-		}
-		Me.db.global.traitsList[Me.editing_trait].setdice = dice
-	end
-	Me.setdiceeditor.diceValue:SetText( setdice.value )
-	Me.setdiceeditor.statName:SetText( setdice.stat )
-end
-
-function Me.SetDiceEditor_Save()
-	if not Me.FormatDiceString( Me.setdiceeditor.diceValue:GetText() ) then
-		Me.setdiceeditor.diceValue:SetText("D20")
-	end
-	local setdice = {
-		value = Me.setdiceeditor.diceValue:GetText();
-		stat = Me.setdiceeditor.statName:GetText();
-		blank = false,
-	}
-	Me.db.global.traitsList[Me.editing_trait].setdice = setdice
-end
-
-function Me.SetDiceEditor_Delete()
-	Me.db.global.traitsList[Me.editing_trait].setdice = nil
-	
-	PlaySound(840); 
-	Me.setdiceeditor:Hide()
-	Me.TraitEditor_Refresh()
-end
-
-function Me.SetDiceEditor_OnCloseClicked()
-	Me.SetDiceEditor_Save()
-	PlaySound(840); 
-	Me.setdiceeditor:Hide()
-	Me.TraitEditor_Refresh()
-end
-
-function Me.SetDiceEditor_Open()
-	Me.SoundPicker_Close()
-	Me.EffectPicker_Close()
-	if Me.buffeditor:IsShown() or Me.removebuffeditor:IsShown() then
-		Me.buffeditor:Hide()
-		Me.removebuffeditor:Hide()
-	end
-   
-	Me.RemoveBuffEditor_Refresh()
-	Me.setdiceeditor:Show()
-end
-
--------------------------------------------------------------------------------
--- Apply Buff Editor
---
-
-function Me.BuffButton_FormatTime( seconds )
-	local timeRemaining = math.floor( seconds ) .. " seconds"
-	if seconds > 86400 then
-		seconds = math.ceil( seconds / 86400 )
-		timeRemaining = seconds .. " days"
-	elseif seconds > 3600 then
-		seconds = math.ceil( seconds / 3600 )
-		timeRemaining = seconds .. " hours"
-	elseif seconds > 60 then
-		seconds = math.ceil( seconds / 60 )
-		timeRemaining = seconds .. " minutes"
-	end
-	return timeRemaining
-end
-
-function Me.BuffEditor_Refresh()
-	local buff = Me.db.global.traitsList[Me.editing_trait].buffs or nil
-	if not buff then
-		buff = {
-			icon = "Interface/Icons/inv_misc_questionmark",
-			name = "",
-			desc = "",
-			stat = "",
-			statAmount = 0,
-			cancelable = true,
-			duration = 1,
-			target = true,
-			aoe = false,
-			range = 0,
-			stackable = false,
-			blank = true,
-		}
-		Me.db.global.traitsList[Me.editing_trait].buffs = buff
-	end
-	Me.buffeditor.buffIcon:SetTexture( buff.icon )
-	Me.buffeditor.buffName:SetText( buff.name )
-	Me.buffeditor.buffDesc.EditBox:SetText( buff.desc )
-	Me.buffeditor.buffStatName:SetText( buff.stat or "" )
-	Me.buffeditor.buffStatAmount:SetText( buff.statAmount or 0 )
-	Me.buffeditor.buffCancelable:SetChecked( buff.cancelable )
-	if buff.cancelable then
-		DiceMasterBuffEditorBuffDuration:Disable()
-		DiceMasterBuffEditorBuffDurationText:SetTextColor( 0.4, 0.4, 0.4 )
-	else
-		DiceMasterBuffEditorBuffDuration:Enable()
-		DiceMasterBuffEditorBuffDurationText:SetTextColor( 1, 0.82, 0 )
-	end
-	Me.buffeditor.buffDuration:SetValue( buff.duration or 1 )
-	Me.buffeditor.buffTarget:SetChecked( buff.target )
-	Me.buffeditor.buffAOE:SetChecked( buff.aoe )
-	Me.buffeditor.buffRange:SetText( buff.range or 0 )
-	Me.buffeditor.buffStackable:SetChecked( buff.stackable )
-end
-
-function Me.BuffEditor_DeleteBuff()
-	Me.db.global.traitsList[Me.editing_trait].buffs = nil
-	
-	PlaySound(840); 
-	Me.IconPicker_Close()
-	Me.buffeditor:Hide()
-	Me.TraitEditor_Refresh()
-end
-
-function Me.BuffEditor_Save()
-	if Me.buffeditor.buffName:GetText() == "" then
-		UIErrorsFrame:AddMessage( "Invalid name: too short.", 1.0, 0.0, 0.0, 53, 5 );
-		return
-	end
-	local buff = Me.db.global.traitsList[Me.editing_trait].buffs
-	buff.name = Me.buffeditor.buffName:GetText()
-	buff.desc = Me.buffeditor.buffDesc.EditBox:GetText()
-	buff.stat = Me.buffeditor.buffStatName:GetText()
-	buff.statAmount = Me.buffeditor.buffStatAmount:GetText()
-	buff.cancelable = Me.buffeditor.buffCancelable:GetChecked()	
-	if not buff.cancelable then
-		buff.duration = Me.buffeditor.buffDuration:GetValue()
-	else
-		buff.duration = 1
-	end
-	buff.target = Me.buffeditor.buffTarget:GetChecked()
-	buff.aoe = Me.buffeditor.buffAOE:GetChecked()
-	if buff.aoe then 
-		buff.range = Me.buffeditor.buffRange:GetText()
-	else
-		buff.range = 0
-	end
-	buff.stackable = Me.buffeditor.buffStackable:GetChecked()
-	buff.blank = false
-	Me.db.global.traitsList[Me.editing_trait].buffs = buff
-end
-
-function Me.BuffEditor_SelectIcon( texture )
-	local buff = Me.db.global.traitsList[Me.editing_trait].buffs
-	buff.icon = texture
-	DiceMasterBuffEditor.buffIcon:SetTexture( texture )
-end
-
-function Me.BuffDuration_OnLoad( self )
-	self:SetMinMaxValues(1, #BUFF_DURATION_AMOUNTS)
-	self:SetObeyStepOnDrag( true )
-	self:SetValueStep( 1 )
-	self:SetValue(1)
-	_G[self:GetName().."Low"]:Hide()
-	_G[self:GetName().."High"]:Hide()
-	_G[self:GetName().."Text"]:SetText("Buff Duration: "..BUFF_DURATION_AMOUNTS[self:GetValue()].name)
-	self.tooltipText = "Set the duration for this buff."
-end
-
-function Me.BuffDuration_OnValueChanged( self, value, userInput )
-	_G[self:GetName().."Text"]:SetText("Buff Duration: "..BUFF_DURATION_AMOUNTS[ value ].name)
-end
-
-function Me.BuffEditor_OnCloseClicked()
-	Me.BuffEditor_Save()
-	PlaySound(840); 
-	Me.IconPicker_Close()
-	Me.buffeditor:Hide()
-	Me.TraitEditor_Refresh()
-end
-
-function Me.BuffEditor_Open()
-	Me.SoundPicker_Close()
-	Me.EffectPicker_Close()
-	if Me.removebuffeditor:IsShown() or Me.setdiceeditor:IsShown() then
-		Me.removebuffeditor:Hide()
-		Me.setdiceeditor:Hide()
-	end
-   
-	Me.BuffEditor_Refresh()
-	Me.buffeditor:Show()
-end
-
 ------------------------------------------------------------
 
 function Me.BuffFrame_OnLoad(self)
@@ -592,9 +306,14 @@ function Me.BuffFrame_UpdateAllBuffAnchors()
 	end
 end
 
-function Me.BuffFrame_CastBuff( traitIndex )
-	local buff = Me.db.global.traitsList[ traitIndex ].buffs
-	if buff and not buff.blank then
+function Me.BuffFrame_CastBuff( data )
+	local buff
+	if type( data ) == "table" and data.type and data.type == "buff" then
+		buff = data
+	elseif type( data ) == "number" then
+		buff = Profile.traits[ data ]["effects"]["buff"]
+	end
+	if buff then
 		local name = tostring( buff.name )
 		local icon = tostring( buff.icon )
 		local desc = tostring( buff.desc )
@@ -671,9 +390,14 @@ function Me.BuffFrame_CastBuff( traitIndex )
 	end
 end
 
-function Me.BuffFrame_RemoveBuff( traitIndex )
-	local removebuff = Me.db.global.traitsList[ traitIndex ].removebuffs
-	if removebuff and not removebuff.blank then
+function Me.BuffFrame_RemoveBuff( data )
+	local removebuff
+	if type( data ) == "table" and data.type and data.type == "removebuff" then
+		removebuff = data
+	elseif type( data ) == "number" then
+		removebuff = Profile.traits[ data ]["effects"]["removebuff"]
+	end
+	if removebuff then
 		local name = tostring( removebuff.name )
 		local count = tostring( removebuff.count )
 		local target = UnitName("target") or UnitName("player")
@@ -725,8 +449,13 @@ function Me.BuffFrame_CastAOEBuff( target, range, buff )
 	end
 end
 
-function Me.BuffFrame_RollDice( traitIndex )
-	local setdice = Me.db.global.traitsList[ traitIndex ].setdice or nil
+function Me.BuffFrame_RollDice( data )
+	local setdice
+	if type( data ) == "table" and data.type and data.type == "setdice" then
+		setdice = data
+	elseif type( data ) == "number" then
+		setdice = Profile.traits[ data ]["effects"]["setdice"] or nil
+	end
 	
 	if not setdice then return end
 	
@@ -747,7 +476,7 @@ function Me.BuffFrame_RollDice( traitIndex )
 		end
 	end
 	
-	if setdice and not setdice.blank then
+	if setdice then
 		local dice = Me.FormatDiceString( setdice.value, modifier )
 		Me.Roll( dice )
 	end

@@ -392,26 +392,50 @@
 				</Scripts>
 			</Button>
 			
-			<Button name="$parentSetSounds" parentKey="setSounds" inherits="MagicButtonTemplate" text="Assign Sound Effects">
+			<CheckButton name="$parentShowCastBar" parentKey="showCastBar" inherits="UICheckButtonTemplate">
+				<Size x="24" y="24"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" relativeTo="$parentSetHealth" relativePoint="BOTTOMLEFT" x="0" y="-8"/> 
+				</Anchors>
+				
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("Show Casting Bar")
+						DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to toggle whether the casting bar below this unit frame is visible.")
+					</OnLoad>
+					<OnClick>
+						if self:GetChecked() then
+							DiceMaster4.UnitEditing.castEnabled = true;
+							DiceMaster4.UnitEditing.castBar:Show()
+						else
+							DiceMaster4.UnitEditing.castEnabled = false;
+							DiceMaster4.UnitEditing.castBar:Hide()
+						end
+						PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+						DiceMaster4.UpdateUnitFrames()
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			
+			<!-- <Button name="$parentShowCastBar" parentKey="showCastBar" inherits="MagicButtonTemplate" text="Toggle Cast Bar">
 				<Size x="150" y="22"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentSetHealth" relativePoint="BOTTOMLEFT" x="0" y="-8"/> 
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to change this unit's sound effect settings.")
-						self:Disable()
+						DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to toggle whether the cast bar below this unit frame is visible.")
 					</OnLoad>
 					<OnClick>
-						--DiceMaster4.SoundPicker_Open( self:GetParent() )
+						DiceMaster4.SoundPicker_Open( self:GetParent() )
 					</OnClick>
 				</Scripts>
-			</Button>
+			</Button> -->
 			
 			<Button name="$parentSetAnimations" parentKey="setAnimations" inherits="MagicButtonTemplate" text="Assign Animations">
-				<Size x="150" y="22"/>
+				<Size x="180" y="22"/>
 				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parentSetSounds" relativePoint="RIGHT" x="4" y="0"/> 
+					<Anchor point="LEFT" relativeTo="$parentShowCastBar" relativePoint="RIGHT" x="100" y="0"/> 
 				</Anchors>
 				<Scripts>
 					<OnLoad>
@@ -426,7 +450,7 @@
 			<EditBox parentKey="diceValue" inherits="InputBoxTemplate">
 				<Size x="80" y="8" />
 				<Anchors>
-				  <Anchor point="TOPLEFT" relativeKey="$parent.setSounds" relativePoint="BOTTOMLEFT" x="6" y="-16"/> 
+				  <Anchor point="TOPLEFT" relativeKey="$parent.showCastBar" relativePoint="BOTTOMLEFT" x="6" y="-16"/> 
 				</Anchors>
 				<Scripts>
 				  <OnLoad>

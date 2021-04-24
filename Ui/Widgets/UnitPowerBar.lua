@@ -9,16 +9,6 @@
 local Me = DiceMaster4
 local Profile = Me.Profile
 
-local POWER_FILLBAR = {
-	Demonology = { left = 0.03906250, right = 0.55468750, top = 0.10546875, bottom = 0.19921875, width = 132, fileWidth = 256 };
-	DemonologyActivated = { left = 0.03906250, right = 0.55468750, top = 0.00390625, bottom = 0.09765625, width = 132, fileWidth = 256 };
-	Destruction = { left = 0.30078125, right = 0.37890625, top = 0.32812500, bottom = 0.67187500, height = 22, fileHeight = 64 };
-};
-
-local classPowerBars = {
-	["BurningEmbers"] = "BurningEmbersBarFrame";
-}
-
 local altPowerBars = {
 	["Air"] = {
 		path = "Interface/UNITPOWERBARALT/Air_Horizontal_";
@@ -238,6 +228,15 @@ local altPowerBars = {
 	},
 	["KargathRoarCrowd"] = {
 		path = "Interface/UNITPOWERBARALT/KargathRoarCrowd_Horizontal_";
+		frame = false;
+		background = true;
+		fill = true;
+		spark = true;
+		flash = true;
+		inset = 0.14;
+	},
+	["LightningCharges"] = {
+		path = "Interface/UNITPOWERBARALT/LightningCharges_Horizontal_";
 		frame = false;
 		background = true;
 		fill = true;
@@ -480,6 +479,33 @@ local altPowerBars = {
 		flash = false;
 		inset = 0.26;
 	},
+	["mana-gems-bar"] = {
+		path = "Interface/AddOns/DiceMaster/Texture/mana-gems-bar_";
+		frame = false;
+		background = true;
+		fill = true;
+		spark = false;
+		flash = true;
+		inset = 0.05;
+	},
+	["phoenix-bar"] = {
+		path = "Interface/AddOns/DiceMaster/Texture/phoenix-bar_";
+		frame = false;
+		background = true;
+		fill = true;
+		spark = false;
+		flash = true;
+		inset = 0.24;
+	},
+	["holy-power-bar"] = {
+		path = "Interface/AddOns/DiceMaster/Texture/holy-power-bar_";
+		frame = false;
+		background = true;
+		fill = true;
+		spark = false;
+		flash = true;
+		inset = 0.2;
+	},
 }
 
 local altPowerBarTextures = {
@@ -520,50 +546,44 @@ end
 local methods = {
 	ApplyTextures = function( self, texturePath, powerName, powerTooltip, displayedValue, color, flashEnabled )
 		self:ClearTextures()
-		self.barType = nil;
+		
 		self.powerName = powerName;
 		self.powerTooltip = powerTooltip;
 		if displayedValue then
 			self.displayedValue = displayedValue;
 		end
+		self.startInset = altPowerBars[texturePath].inset or 0;
+		self.endInset = altPowerBars[texturePath].inset or 0;
 		
-		-- Check if it's an altPowerBar or a classPowerBar
-		if classPowerBars[ texturePath ] then
-			self[ classPowerBars[ texturePath ] ]:Show()
-		elseif altPowerBars[ texturePath ] then	
-			self.startInset = altPowerBars[texturePath].inset or 0;
-			self.endInset = altPowerBars[texturePath].inset or 0;
-			
-			if altPowerBars[texturePath].insetRight then
-				self.endInset = altPowerBars[texturePath].insetRight
+		if altPowerBars[texturePath].insetRight then
+			self.endInset = altPowerBars[texturePath].insetRight
+		end
+		
+		self.background:SetTexture("Interface/UNITPOWERBARALT/Generic1Player_Horizontal_Bgnd")
+		self.fill:SetTexture("Interface/UNITPOWERBARALT/Generic1_Horizontal_Fill")
+		self.fill:SetVertexColor( 1, 1, 1 )
+		
+		for textureName, textureIndex in pairs(altPowerBarTextures) do
+			local texture = self[textureName];
+			if altPowerBars[texturePath][textureName] then 
+				texture:SetTexture(altPowerBars[texturePath].path .. textureIndex); 
 			end
-			
-			self.background:SetTexture("Interface/UNITPOWERBARALT/Generic1Player_Horizontal_Bgnd")
-			self.fill:SetTexture("Interface/UNITPOWERBARALT/Generic1_Horizontal_Fill")
-			self.fill:SetVertexColor( 1, 1, 1 )
-			
-			for textureName, textureIndex in pairs(altPowerBarTextures) do
-				local texture = self[textureName];
-				if altPowerBars[texturePath][textureName] then 
-					texture:SetTexture(altPowerBars[texturePath].path .. textureIndex); 
-				end
-				if not altPowerBars[texturePath].fill and color then
-					self.fill:SetVertexColor( color[1], color[2], color[3] )
-				end
+			if not altPowerBars[texturePath].fill and color then
+				self.fill:SetVertexColor( color[1], color[2], color[3] )
 			end
-			
-			if flashEnabled then
-				self.flashEnabled = true;
-			else
-				self.flashEnabled = false;
-			end
-			
-			if texturePath == "morale-bar" then
-				self.customframe:Show()
-				self.background:SetTexture(nil)
-			else
-				self.customframe:Hide()
-			end
+		end
+		
+		if flashEnabled then
+			self.flashEnabled = true;
+		else
+			self.flashEnabled = false;
+		end
+		
+		if texturePath == "morale-bar" then
+			self.customframe:Show()
+			self.background:SetTexture(nil)
+		else
+			self.customframe:Hide()
 		end
 		
 		self:UpdateFill();
@@ -575,10 +595,6 @@ local methods = {
 		self.flashAnim:Stop()
 		self.flashOutAnim:Stop()
 		self.flashEnabled = false;
-		
-		for k, v in pairs( classPowerBars ) do
-			self[v]:Hide()
-		end
 		
 		for textureName, textureIndex in pairs(altPowerBarTextures) do
 			local texture = self[textureName];
@@ -631,8 +647,6 @@ local methods = {
 		self.fill:SetWidth(max(self:GetWidth() * fillAmount, 1));
 		self.fill:SetTexCoord(0, fillAmount, 0, 1);
 		
-		self:SetBurningEmbers()
-		
 		if not self.flashEnabled then
 			self.flash:SetAlpha(0)
 		end
@@ -657,67 +671,6 @@ local methods = {
 				self.flashOutAnim:Play();
 			end
 		end
-	end;
-	
-	PowerFrameUpdateFill = function( self, texture, texData, value, maxValue )
-	  if ( value <= 0 ) then
-		texture:Hide();
-	  elseif ( value >= maxValue ) then
-		texture:SetTexCoord(texData["left"], texData["right"], texData["top"], texData["bottom"]);
-		if ( texData.width ) then
-		  texture:SetWidth(texData["width"]);
-		else
-		  texture:SetHeight(texData["height"]);
-		end
-		texture:Show();
-	  else
-		if ( texData.width ) then
-		  local texWidth = (value / maxValue) * texData["width"];
-		  local right = texData["left"] + texWidth / texData["fileWidth"];
-		  texture:SetTexCoord(texData["left"], right, texData["top"], texData["bottom"]);
-		  texture:SetWidth(texWidth);
-		else
-		  local texHeight = (value / maxValue) * texData["height"];
-		  local top = texData["bottom"] - texHeight / texData["fileHeight"];
-		  texture:SetTexCoord(texData["left"], texData["right"], top, texData["bottom"]);
-		  texture:SetHeight(texHeight);
-		end
-		texture:Show();
-	  end
-	end;
-	
-	SetBurningEmbers = function( self )
-	  local ratio = ( self.displayedValue / self.range ) * 5
-	  local power = self.displayedValue
-	  for i = 1, 4 do
-		local ember = self.BurningEmbersBarFrame["ember"..i];
-		self:PowerFrameUpdateFill( ember.fill, POWER_FILLBAR["Destruction"], power, ( self.range / 4 ) );
-	 
-		-- animate?
-		if ( power >= ( self.range / 4 ) ) then
-		  if (ember.animOut:IsPlaying()) then
-			ember.animOut:Stop();
-		  end
-		  
-		  if (not ember.active and not ember.animIn:IsPlaying()) then
-			ember.animIn:Play();
-			ember.active = true;
-			ember.fire:Show();
-		  end
-		else
-		  if (ember.animIn:IsPlaying()) then
-			ember.animIn:Stop();
-		  end
-		  
-		  if (ember.active and not ember.animOut:IsPlaying()) then
-			ember.animOut:Play();
-			ember.active = false;
-			ember.fire:Hide();
-		  end
-		end
-		
-		power = power - ( self.range / 4 );
-	  end
 	end;
 }
 

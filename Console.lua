@@ -21,7 +21,6 @@ end
 function SlashCmdList.DICE( msg, editBox )
 	
 	if msg == "" then
-		-- show usage
 		Me.PrintMessage("/dice (rollType or XDY[+/-]Z)", "SYSTEM");
 		Me.PrintMessage("- X is how many dice to roll.", "SYSTEM");
 		Me.PrintMessage("- Y is how many sides those dice have.", "SYSTEM");

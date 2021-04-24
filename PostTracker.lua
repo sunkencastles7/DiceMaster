@@ -29,7 +29,7 @@ function Me.PostTracker_Typing( self )
 	
 	local chatType = _G[self:GetName() .. "Header"]:GetText()
 	local msg = self:GetText()
-	if string.len(msg) > 0 and not msg:match("%/%.*") then 
+	if string.len(msg) > 0 and not msg:match("^%/%.*") then 
 		msg = true
 	else 
 		msg = false 
@@ -69,15 +69,13 @@ function Me.PostTracker_OnLoad( self )
 					if Me.WhoIsTyping[i] and not UnitIsConnected(Me.WhoIsTyping[i]) then
 						tremove(Me.WhoIsTyping, i)
 						if #Me.WhoIsTyping == 0 and not Me.FramesUnlocked then
-							DiceMasterPostTrackerFrame.Message:Hide()
-							DiceMasterPostTrackerFrame.Background:Hide()
+							DiceMasterPostTrackerFrame.FadeOutAnim:Play()
 						end
 					end
 				end)
 			end
 			if #Me.WhoIsTyping == 0 and not Me.FramesUnlocked then
-				DiceMasterPostTrackerFrame.Message:Hide()
-				DiceMasterPostTrackerFrame.Background:Hide()
+				DiceMasterPostTrackerFrame.FadeOutAnim:Play()
 			end
 		end
 	end)
@@ -113,7 +111,7 @@ function Me.PostTracker_OnTyping( data, dist, sender )
 		local text = Me.WhoIsTyping[1]
 		local plural = " is"
 		
-		if #Me.WhoIsTyping > 4 then
+		if #Me.WhoIsTyping > 3 then
 			text = "Several people"
 			plural = " are"
 		elseif #Me.WhoIsTyping > 1 then 
@@ -145,14 +143,23 @@ function Me.PostTracker_OnTyping( data, dist, sender )
 			DiceMasterPostTrackerFrame:GetScript("OnEnter")(DiceMasterPostTrackerFrame)
 		end
 		
-		DiceMasterPostTrackerFrame.Message:Show()
-		DiceMasterPostTrackerFrame.Background:Show()
+		if DiceMasterPostTrackerFrame.FadeOutAnim:IsPlaying() then
+			DiceMasterPostTrackerFrame.FadeOutAnim:Stop()
+		end
+		
+		if not DiceMasterPostTrackerFrame.FadeInAnim:IsPlaying() or not DiceMasterPostTrackerFrame:IsShown() then
+			DiceMasterPostTrackerFrame:Show()
+			if DiceMasterPostTrackerFrame.Background:GetAlpha() < 1 then
+				DiceMasterPostTrackerFrame.FadeInAnim:Play()
+			end
+		end
 	elseif not Me.FramesUnlocked then
 		if GameTooltip:IsOwned(DiceMasterPostTrackerFrame) then
 			GameTooltip:Hide()
 		end
 		DiceMasterPostTrackerFrame:SetScript( "OnEnter", nil )
-		DiceMasterPostTrackerFrame.Message:Hide()
-		DiceMasterPostTrackerFrame.Background:Hide()
+		if DiceMasterPostTrackerFrame:IsShown() and not DiceMasterPostTrackerFrame.FadeOutAnim:IsPlaying() then
+			DiceMasterPostTrackerFrame.FadeOutAnim:Play()
+		end
 	end
 end

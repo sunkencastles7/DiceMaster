@@ -189,8 +189,15 @@ local methods = {
 		self.symbol:SetNormalTexture(nil)
 		self.healthCurrent = 3
 		self.healthMax = 3
+		self.castEnabled = false
+		self.castText = "Casting..."
+		self.castCurrent = 0
+		self.castMax = 3
+		self.castType = 1;
+		self.castBar:Hide()
 		self.armor = 0
 		Me.RefreshHealthbarFrame( self.health, self.healthCurrent, self.healthMax, self.armor )
+		Me.RefreshCastbarFrame( self.castBar, self.castCurrent, self.castMax, self.castText )
 		self.buffsAllowed = true
 		self.bloodEnabled = true
 		self.buffsActive = {}
@@ -214,11 +221,13 @@ local methods = {
 		if Me.IsLeader( false ) then
 			DiceMaster4.SetupTooltip( self, nil, "Unit Frame", nil, nil, nil, nil, "Represents a custom unit.|n|cFF707070<Left Click to Edit>|n<Shift+Left/Right Click to Add/Remove>" )
 			DiceMaster4.SetupTooltip( self.symbol, nil, "World Marker Icon", nil, nil, nil, nil, "A unique icon to represent the location of this unit in the game world.|n|cFF707070<Left/Right Click to Toggle>" )
-			 DiceMaster4.SetupTooltip( self.health, nil, "Health", nil, nil, nil, nil, "Represents this unit's health.|n|cFF707070<Left/Right Click to Add/Remove>|n<Shift+Left Click to Set Max>|n<Ctrl+Left Click to Set Value>|n<Alt+Left/Right Click to Add/Remove Armour>" )
+			DiceMaster4.SetupTooltip( self.health, nil, "Health", nil, nil, nil, nil, "Represents this unit's health.|n|cFF707070<Left/Right Click to Add/Remove>|n<Shift+Left Click to Set Max>|n<Ctrl+Left Click to Set Value>|n<Alt+Left/Right Click to Add/Remove Armour>" )
+			DiceMaster4.SetupTooltip( self.castBar, nil, "Casting Bar", nil, nil, nil, nil, "This unit is casting a spell.|n|cFF707070<Left/Right Click to Add/Remove>|n<Shift+Left Click to Set Max>|n<Ctrl+Left Click to Set Text>|n<Alt+Left/Right Click to Toggle Type>" )
 		else
 			DiceMaster4.SetupTooltip( self )
 			DiceMaster4.SetupTooltip( self.symbol )
 			DiceMaster4.SetupTooltip( self.health, nil, "Health", nil, nil, nil, nil, "Represents this unit's health." )
+			DiceMaster4.SetupTooltip( self.castBar, nil, "Casting Bar", nil, nil, nil, nil, "This unit is casting a spell." )
 		end
 		self.state = false
 		self.zone = "Default (None)"
@@ -238,6 +247,11 @@ local methods = {
 		framedata.symbol = self.symbol.State or 9;
 		framedata.healthCurrent = self.healthCurrent or 3
 		framedata.healthMax = self.healthMax or 3
+		framedata.castEnabled = self.castEnabled or false
+		framedata.castText = self.castText or "Casting..."
+		framedata.castCurrent = self.castCurrent or 0
+		framedata.castMax = self.castMax or 3
+		framedata.castType = self.castType or 1
 		framedata.armor = self.armor or 0
 		framedata.visible = self:IsVisible()
 		framedata.buffs = self.buffsActive or {}
@@ -384,6 +398,19 @@ local methods = {
 		self.healthMax = framedata.hm
 		self.armor = framedata.ar or 0
 		Me.RefreshHealthbarFrame( self.health, self.healthCurrent, self.healthMax, self.armor )
+		
+		-- Set up cast bar
+		self.castEnabled = framedata.ce
+		self.castCurrent = framedata.cc
+		self.castMax = framedata.cm
+		self.castText = framedata.ct
+		self.castType = framedata.ch
+		Me.RefreshCastbarFrame( self.castBar, self.castCurrent, self.castMax, self.castText, self.castType )
+		if self.castEnabled then
+			self.castBar:Show()
+		else
+			self.castBar:Hide()
+		end
 		
 		-- Set unit frame backdrop
 		if framedata.zo then
@@ -623,6 +650,54 @@ StaticPopupDialogs["DICEMASTER4_SETUNITHEALTHMAX"] = {
   preferredIndex = 3,
 }
 
+StaticPopupDialogs["DICEMASTER4_SETUNITCASTMAX"] = {
+  text = "Set maximum casting bar value:",
+  button1 = "Accept",
+  button2 = "Cancel",
+  OnShow = function (self, data)
+    self.editBox:SetText(data.castMax)
+	self.editBox:HighlightText()
+  end,
+  OnAccept = function (self, data)
+    local text = tonumber(self.editBox:GetText()) or data.castMax
+	if Me.OutOfRange( text, 1, 1000 ) then
+		return
+	end
+	data.castMax = text
+	if data.castCurrent > text then
+		data.castCurrent = text
+	end
+	Me.RefreshCastbarFrame( data.castBar, data.castCurrent, data.castMax, data.castText, data.castType )
+	Me.UpdateUnitFrames()
+  end,
+  hasEditBox = true,
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  preferredIndex = 3,
+}
+
+StaticPopupDialogs["DICEMASTER4_SETUNITCASTTEXT"] = {
+  text = "Set casting bar text:",
+  button1 = "Accept",
+  button2 = "Cancel",
+  OnShow = function (self, data)
+    self.editBox:SetText(data.castText)
+	self.editBox:HighlightText()
+  end,
+  OnAccept = function (self, data)
+    local text = self.editBox:GetText() or data.castText
+	data.castText = text
+	Me.RefreshCastbarFrame( data.castBar, data.castCurrent, data.castMax, data.castText, data.castType )
+	Me.UpdateUnitFrames()
+  end,
+  hasEditBox = true,
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  preferredIndex = 3,
+}
+
 -------------------------------------------------------------------------------
 -- When the healthbar frame is clicked.
 --
@@ -680,6 +755,82 @@ function Me.OnUnitBarHealthClicked( self, button )
 		end
 		
 		Me.RefreshHealthbarFrame( self, unit.healthCurrent, unit.healthMax, unit.armor )
+		
+		Me.UpdateUnitFrames()
+	end
+end
+
+-------------------------------------------------------------------------------
+-- Update the UI for the castbar frame.
+--
+function Me.RefreshCastbarFrame( self, castValue, castMax, castText, castType )
+	self:SetMinMaxValues( 0, castMax )
+	self:SetValue( castValue )
+	self.Text:SetText( castText or "Casting..." )
+	local sparkPosition = ( castValue / castMax ) * self:GetWidth();
+	self.Spark:SetPoint( "CENTER", self, "LEFT", sparkPosition, 0 );
+	
+	if castValue >= castMax then
+		self.Spark:Hide()
+		self.Flash:Show()
+	elseif castValue < castMax and castValue > 0 then
+		self.Spark:Show()
+		self.Flash:Hide()
+	else
+		self.Spark:Hide()
+		self.Flash:Hide()
+	end
+	
+	if castType == 2 or castValue >= castMax then
+		self.Spark:Hide()
+		self:SetStatusBarColor( 0, 1, 0 )
+	elseif castType == 3 then
+		self.Spark:Hide()
+		self:SetStatusBarColor( 1, 0, 0 )
+		self:SetValue( castMax )
+		self.Text:SetText( "Interrupted" )
+	else
+		self:SetStatusBarColor( 1, 0.7, 0 )
+	end
+end
+
+-------------------------------------------------------------------------------
+-- When the castbar frame is clicked.
+--
+function Me.OnUnitBarCastClicked( self, button )
+	if Me.IsLeader( false ) then
+		local unit = self:GetParent()
+
+		local delta = 0
+		if button == "LeftButton" then
+			delta = 1
+		elseif button == "RightButton" then
+			delta = -1
+		else
+			return
+		end
+		if IsShiftKeyDown() and button == "LeftButton" then
+			-- Open dialog for custom value.
+			StaticPopup_Show("DICEMASTER4_SETUNITCASTMAX", nil, nil, self:GetParent())
+		elseif IsControlKeyDown() and button == "LeftButton" then
+			-- Open dialog for custom value.
+			StaticPopup_Show("DICEMASTER4_SETUNITCASTTEXT", nil, nil, self:GetParent())
+		elseif IsAltKeyDown() then
+			unit.castType = unit.castType + delta
+			if unit.castType > 3 then
+				unit.castType = 1
+			elseif unit.castType < 1 then
+				unit.castType = 3
+			end
+		else
+			if Me.OutOfRange( unit.castCurrent+delta, 0, unit.castMax ) then
+				return
+			end
+			
+			unit.castCurrent = Me.Clamp( unit.castCurrent + delta, 0, unit.castMax )
+		end
+		
+		Me.RefreshCastbarFrame( self, unit.castCurrent, unit.castMax, unit.castText, unit.castType )
 		
 		Me.UpdateUnitFrames()
 	end

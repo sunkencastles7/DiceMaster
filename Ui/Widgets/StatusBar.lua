@@ -41,7 +41,7 @@ local methods = {
 		
 		-- custom symbols get special backgrounds
 		local a = 0.3
-		if not tex:find("orb") and not tex:find("health") then 
+		if not tex:find("orb") and not tex:find("health") and not tex:find("gem") then 
 			tex = tex.."-back"
 			r, g, b, a = 1, 1, 1, 1
 		end

@@ -368,12 +368,13 @@ function Me.AffixEditor_Refresh()
 	
 	editor.unitName:SetText( framedata.name )
 	editor.enable:SetChecked( framedata.state )
+	editor.showCastBar:SetChecked( framedata.castEnabled )
 	editor.Model:SetDisplayInfo( framedata.model )
 	
 	if framedata.healthCurrent == 0 then
 		editor.Model:SetAnimation( Me.UnitEditing.animations["Dead"].id or 6 )
 		editor.Model.animation = Me.UnitEditing.animations["Dead"].id or 6
-		UIDropDownMenu_SetText(editor.animation, "Dead")
+		--UIDropDownMenu_SetText(editor.animation, "Dead")
 	else
 		editor.Model:SetAnimation( framedata.animations["PreAggro"].id or 0)
 		editor.Model.animation = Me.UnitEditing.animations["PreAggro"].id or 0
@@ -423,6 +424,11 @@ function Me.AffixEditor_SaveUnit()
 	end
 	data.hm = Me.UnitEditing.healthMax
 	data.ar = Me.UnitEditing.armor
+	data.ce = Me.UnitEditing.castEnabled
+	data.ct = Me.UnitEditing.castText
+	data.cc = Me.UnitEditing.castCurrent
+	data.cm = Me.UnitEditing.castMax
+	data.ch = Me.UnitEditing.castType
 	data.mx = {}
 	data.mx.px, data.mx.py, data.mx.pz = editor.Model:GetPosition()
 	data.mx.ro = editor.Model.rotation
@@ -500,6 +506,11 @@ function Me.AffixEditor_Save()
 	end
 	data.hm = Me.UnitEditing.healthMax
 	data.ar = Me.UnitEditing.armor
+	data.ce = Me.UnitEditing.castEnabled
+	data.ct = Me.UnitEditing.castText
+	data.cc = Me.UnitEditing.castCurrent
+	data.cm = Me.UnitEditing.castMax
+	data.ch = Me.UnitEditing.castType
 	data.mx = {}
 	data.mx.px, data.mx.py, data.mx.pz = editor.Model:GetPosition()
 	data.mx.ro = editor.Model.rotation

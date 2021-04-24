@@ -136,6 +136,43 @@
 	</Scripts>
   </Frame>
   
+  <Frame name="DiceMasterItemAnim" frameStrata="DIALOG" toplevel="true" hidden="true">
+		<Size x="30" y="30"/>
+		<Animations>
+			<AnimationGroup parentKey="flyin">
+				<Scale childKey="animIcon" fromScaleX="0.125" fromScaleY="0.125" toScaleX="1" toScaleY="1" duration="1" order="1"/>
+				<Alpha childKey="animIcon" fromAlpha="0" toAlpha="1" duration="1" order="1"/>
+				<Path childKey="animIcon" curve="SMOOTH" duration="1" order="1">
+					<ControlPoints>
+						<ControlPoint offsetX="-15" offsetY="30"/>
+						<ControlPoint offsetX="-75" offsetY="60"/>
+					</ControlPoints>
+				</Path>
+				<Scripts>
+					<OnPlay>
+						local iconFrame = self:GetParent();
+						iconFrame.animIcon:Show();
+					</OnPlay>
+					<OnFinished>
+						local iconFrame = self:GetParent();
+						iconFrame.animIcon:Hide();
+						iconFrame:Hide()
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+		</Animations>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture  parentKey="animIcon" setAllPoints="true"/>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnShow>
+				self.flyin:Play(true);
+			</OnShow>
+		</Scripts>
+	</Frame>
+  
   <!-- Template for the main "trait" buttons. -->
   <Button name="DiceMasterTraitButton" enableMouse="true" intrinsic="true">
     <Size x="32" y="32"/>

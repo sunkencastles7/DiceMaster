@@ -1,0 +1,2290 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+ 
+  <Button name="DiceMasterStatButtonTemplate" hidden="false" virtual="true">
+	<Size x="290" y="24"/>
+	<Layers>
+		<Layer level="BACKGROUND">
+			<Texture name="$parentBackground" parentKey="background">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="0" y="-1"/>
+					<Anchor point="BOTTOMRIGHT" x="0" y="1"/>
+				</Anchors>
+				<Color r="1" g="1" b="1" a="0.050"/>
+			</Texture>
+		</Layer>
+		<Layer level="ARTWORK">
+			<FontString name="$parentName" inherits="GameFontHighlightSmall2" justifyH="LEFT" parentKey="name">
+				<Anchors>
+					<Anchor point="LEFT" x="24" y="0"/>
+				</Anchors>
+				<Color r="1" g="0.81" b="0" />
+			</FontString>
+			<FontString name="$parentTitle" inherits="GameFontNormal" justifyH="CENTER" parentKey="title">
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="0"/>
+				</Anchors>
+				<Color r="1" g="1" b="1" />
+			</FontString>
+		</Layer>
+	</Layers>
+	<Frames>
+	
+		<EditBox name="$parentValue" parentKey="value" multiLine="false" font="GameFontHighlightSmall2">
+			<Size x="40" y="10"/>
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentName" relativePoint="RIGHT" x="3" y="0"/>
+			</Anchors>
+			<Color r="1" g="1" b="1" />
+			<Scripts> 
+			  <OnLoad>
+				self:SetAutoFocus( false )
+				self:SetMaxLetters( 3 )
+				self:EnableMouse( false )
+			  </OnLoad>
+			  <OnEditFocusGained>
+				self.lastValue = tonumber(self:GetText()) or 0;
+			  </OnEditFocusGained>
+			  <OnEditFocusLost>
+				self:HighlightText(0, 0)
+				if self:GetText()=="" then
+					self:SetText(self.lastValue)
+				end
+				if not tonumber(self:GetText()) then
+					self:SetText(self.lastValue)
+				end
+				DiceMaster4.TraitEditor_StatsList_SaveStat( self )
+			  </OnEditFocusLost>
+			  <OnTabPressed>
+				if DiceMasterStatsFrame.buttons[self:GetParent().index + 1] then
+					DiceMasterStatsFrame.buttons[self:GetParent().index + 1].value:SetFocus()
+					DiceMasterStatsFrame.buttons[self:GetParent().index + 1].value:HighlightText()
+				end
+			  </OnTabPressed>
+			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			  <OnEnterPressed function="EditBox_ClearFocus"/>
+			</Scripts>
+		</EditBox>
+		
+		<Button name="$parentDeleteButton" hidden="false" parentKey="deleteButton">
+			<Size x="16" y="16"/>
+			<Anchors>
+				<Anchor point="RIGHT" x="-10" y="0"/>
+			</Anchors>
+			<NormalTexture name="$parentNormalTexture" file="Interface/Buttons/UI-GroupLoot-Pass-Up"/>
+			<PushedTexture name="$parentPushedTexture" file="Interface/Buttons/UI-GroupLoot-Pass-Down"/>
+			<HighlightTexture name="$parentHighlightTexture" file="Interface/Buttons/UI-GROUPLOOT-PASS-HIGHLIGHT" alphaMode="ADD"/>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Delete" )
+				</OnLoad>
+				<OnClick>
+					DiceMaster4.TraitEditor_StatsList_Move( self )
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button name="$parentAddButton" hidden="false" parentKey="addButton">
+			<Size x="14" y="14"/>
+			<Anchors>
+				<Anchor point="RIGHT" relativeTo="$parentDeleteButton" relativePoint="LEFT" x="-4" y="0"/>
+			</Anchors>
+			<NormalTexture name="$parentNormalTexture" file="Interface/PaperDollInfoFrame/Character-Plus"/>
+			<PushedTexture name="$parentPushedTexture" file="Interface/PaperDollInfoFrame/Character-Plus" alpha="0.5"/>
+			<HighlightTexture name="$parentHighlightTexture" file="Interface/PaperDollInfoFrame/Character-Plus" alphaMode="ADD"/>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Add" )
+				</OnLoad>
+				<OnClick>
+					StaticPopup_Show("DICEMASTER4_CREATESTAT", nil, nil, self:GetParent(), DiceMasterStatButtonOptionsDropdown)
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button name="$parentRollButton" hidden="false" parentKey="rollButton">
+			<Size x="14" y="14"/>
+			<Anchors>
+				<Anchor point="RIGHT" relativeTo="$parentAddButton" relativePoint="LEFT" x="-4" y="0"/>
+			</Anchors>
+			<NormalTexture name="$parentNormalTexture" file="Interface/Buttons/UI-GroupLoot-Dice-Up"/>
+			<PushedTexture name="$parentPushedTexture" file="Interface/Buttons/UI-GroupLoot-Dice-Down" alpha="0.5"/>
+			<HighlightTexture name="$parentHighlightTexture" file="Interface/Buttons/UI-GroupLoot-Dice-Highlight" alphaMode="ADD"/>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.TraitEditor_StatsList_Roll( self:GetParent() )
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button name="$parentDownButton" hidden="false" parentKey="downButton">
+			<Size x="16" y="8"/>
+			<Anchors>
+				<Anchor point="LEFT" x="4" y="-5"/>
+			</Anchors>
+			<NormalTexture name="$parentNormalTexture" file="Interface/Buttons/Arrow-Down-Up">
+				<TexCoords left="0" right="1" top="0" bottom="0.5"/>
+			</NormalTexture>
+			<PushedTexture name="$parentPushedTexture" file="Interface/Buttons/Arrow-Down-Down">
+				<TexCoords left="0" right="1" top="0" bottom="0.5"/>
+			</PushedTexture>
+			<DisabledTexture name="$parentPushedTexture" file="Interface/Buttons/Arrow-Down-Disabled">
+				<TexCoords left="0" right="1" top="0" bottom="0.5"/>
+			</DisabledTexture>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Move Down" )
+				</OnLoad>
+				<OnClick>
+					DiceMaster4.TraitEditor_StatsList_Move( self, "down" )
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button name="$parentUpButton" hidden="false" parentKey="upButton">
+			<Size x="16" y="8"/>
+			<Anchors>
+				<Anchor point="BOTTOM" relativeTo="$parentDownButton" relativePoint="TOP" x="0" y="0"/>
+			</Anchors>
+			<NormalTexture name="$parentNormalTexture" file="Interface/Buttons/Arrow-Up-Up">
+				<TexCoords left="0" right="1" top="0.5" bottom="1"/>
+			</NormalTexture>
+			<PushedTexture name="$parentPushedTexture" file="Interface/Buttons/Arrow-Up-Down">
+				<TexCoords left="0" right="1" top="0.5" bottom="1"/>
+			</PushedTexture>
+			<DisabledTexture name="$parentPushedTexture" file="Interface/Buttons/Arrow-Up-Disabled">
+				<TexCoords left="0" right="1" top="0.5" bottom="1"/>
+			</DisabledTexture>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Move Up" )
+				</OnLoad>
+				<OnClick>
+					DiceMaster4.TraitEditor_StatsList_Move( self, "up" )
+				</OnClick>
+			</Scripts>
+		</Button>
+	</Frames>
+	<Scripts>
+		<OnLoad>
+			self.highlight:SetVertexColor(1, 0.81, 0);
+			self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+		</OnLoad>
+		<OnLeave>
+			GameTooltip:Hide()
+		</OnLeave>
+		<OnMouseDown>
+			if self.value then
+				self.value:SetFocus()
+				self.value:HighlightText()
+			end
+		</OnMouseDown>
+	</Scripts>
+	<HighlightTexture file="Interface\QuestFrame\UI-QuestLogTitleHighlight" alphaMode="ADD" parentKey="highlight">
+		<Anchors>
+			<Anchor point="TOPLEFT" x="0" y="-1"/>
+			<Anchor point="BOTTOMRIGHT" x="0" y="1"/>
+		</Anchors>
+	</HighlightTexture>
+  </Button>
+  
+  <Button name="DiceMasterStatButtonOptionsDropdown" enableMouse="true" inherits="UIDropDownMenuTemplate" hidden="true">
+		<Size x="300" y="22"/>
+		<Scripts>
+		  <OnLoad>
+			UIDropDownMenu_Initialize( self, DiceMaster4.TraitEditor_StatsList_OnLoad )
+			UIDropDownMenu_SetText(self, "Select an Attribute") 
+			UIDropDownMenu_SetWidth(self, 145, 5)
+		  </OnLoad>
+		  <OnShow>
+			self:ClearAllPoints()
+			self:SetPoint("BOTTOM", self:GetParent().editBox, "TOP", -20, 0)
+		  </OnShow>
+		</Scripts>
+  </Button>
+ 
+  <Button name="DiceMasterTraitEditorFormatButtonTemplate" virtual="true">
+	<Size x="24" y="36"/>
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="icon" file="Interface/AddOns/DiceMaster/Texture/format-icons">
+				<Size x="16" y="16"/>
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="-2" />
+				</Anchors>
+			</Texture>
+		</Layer>
+	</Layers>
+	<NormalTexture file="Interface/Buttons/UI-MicroButtonCharacter-Up">
+		<TexCoords left="0" right="1" top="0.3" bottom="1"/>
+	</NormalTexture>
+	<PushedTexture file="Interface/Buttons/UI-MicroButtonCharacter-Down">
+		<TexCoords left="0" right="1" top="0.3" bottom="1"/>
+	</PushedTexture>
+	<HighlightTexture file="Interface/Buttons/UI-MicroButton-Hilight" alphaMode="ADD">
+		<TexCoords left="0" right="1" top="0.3" bottom="1"/>
+	</HighlightTexture>
+  </Button>
+  
+  <Frame name="DiceMasterShopItemTemplate" virtual="true">	
+		<Size x="153" y="44"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentSlotTexture" file="Interface\Buttons\UI-EmptySlot">
+					<Size x="64" y="64"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-13" y="13"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentNameFrame" file="Interface\MerchantFrame\UI-Merchant-LabelSlots">
+					<Size x="128" y="78"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentSlotTexture" relativePoint="RIGHT" x="-9" y="-18"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Name" name="$parentName" inherits="GameFontNormalSmall" text="Item Name" justifyH="LEFT">
+					<Size x="100" y="30"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentSlotTexture" relativePoint="RIGHT" x="-5" y="7"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="ItemButton" name="$parentItemButton" inherits="DiceMasterItemButton">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent"/>
+				</Anchors>
+			</Button>
+			<Button parentKey="RemoveButton" name="$parentRemoveButton" hidden="true">
+				<Size x="16" y="16"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" x="-4" y="-2"/>
+				</Anchors>
+				<Scripts>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+						GameTooltip:SetText( "Remove From Shop" )
+						GameTooltip:Show()
+					</OnEnter>
+					<OnClick>
+						StaticPopup_Show("DICEMASTER4_REMOVESHOPITEM", nil, nil, self:GetParent().ItemButton:GetID())
+					</OnClick>
+					<OnLeave>
+						GameTooltip:Hide()
+					</OnLeave>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-GroupLoot-Pass-Up"/>
+				<HighlightTexture file="Interface\Buttons\UI-GroupLoot-Pass-Highlight" alphaMode="ADD"/>
+				<PushedTexture file="Interface\Buttons\UI-GroupLoot-Pass-Down"/>
+			</Button>
+			<Frame name="$parentMoneyFrame" hidden="false">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parentNameFrame" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="2" y="31"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Size>
+					<AbsDimension x="128" y="13"/>
+				</Size>
+				<Frames>
+					<Button name="$parentItem1" hidden="true">
+						<Anchors>
+							<Anchor point="LEFT">
+								<Offset>
+									<AbsDimension x="13" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Size>
+							<AbsDimension x="32" y="13"/>
+						</Size>
+						<Scripts>
+							<OnEnter>
+								GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+							</OnEnter>
+							<OnLeave>
+								GameTooltip:Hide();
+								ResetCursor();
+							</OnLeave>
+						</Scripts>
+						<ButtonText name="$parentText" parentKey="Text">
+							<Anchors>
+								<Anchor point="LEFT">
+									<Offset>
+										<AbsDimension x="-13" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</ButtonText>
+						<NormalTexture name="$parentTexture">
+							<Size>
+								<AbsDimension x="13" y="13"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT"/>
+							</Anchors>
+						</NormalTexture>
+						<NormalFont style="NumberFontNormalRight"/>
+						<PushedTextOffset>
+							<AbsDimension x="0" y="0"/>
+						</PushedTextOffset>
+					</Button>
+				</Frames>
+			</Frame>
+		</Frames>
+  </Frame>
+  
+  <!-- Cursor Drag Icon -->
+	<Frame name="DiceMasterTraitPickerCursorIcon" parent="UIParent" frameStrata="DIALOG" toplevel="true" hidden="true">
+		<Size x="32" y="32"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="icon" setAllPoints="true" file="Interface/Icons/inv_misc_questionmark">
+				</Texture>
+			</Layer>
+			<Layer level="BORDER">
+				<Texture parentKey="border" file="Interface/AddOns/DiceMaster/Texture/traits-border">
+					<Size x="48" y="48"/>	
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnUpdate>
+				local cursorX, cursorY = GetCursorPosition();
+				local uiScale = UIParent:GetScale();
+				self:SetPoint("TOP", UIParent, "BOTTOMLEFT", cursorX / uiScale, cursorY / uiScale + 25);
+			</OnUpdate>
+		</Scripts>
+	</Frame>
+  
+  <!-- Trait editor frame. -->
+  
+  <Frame name="DiceMasterTraitEditor" enableMouse="true" movable="true" resizable="false" frameStrata="HIGH" hidden="true" parent="UIParent" inherits="ButtonFrameTemplate" topLevel="true">
+    <Size x="336" y="444"/>
+    <Anchors>
+      <Anchor point="TOP" x="0" y="-90" />
+    </Anchors>
+    
+    <Layers>
+      
+	  <Layer level="BACKGROUND" textureSubLevel="-4">
+			<Texture name="$parentBg" file="Interface/TradeSkillFrame/Tradeskills" parentKey="Bg">
+				<TexCoords left="0" right="0.294921875" top="0" bottom="0.751953125" />
+				<Anchors>
+					<Anchor point="TOPLEFT" x="0" y="-64"/>
+					<Anchor point="BOTTOMRIGHT" x="-6" y="40" />
+				</Anchors>
+			</Texture>
+	  </Layer>
+    </Layers>
+    
+    <Scripts>
+      <OnLoad>
+		if self.NineSlice then
+			self.NineSlice:SetFrameLevel(1)
+		end
+		self.Inset:SetPoint("BOTTOMLEFT", 4, 40)
+        self:SetScale(0.8)
+		self.portrait:SetTexture( "Interface/AddOns/DiceMaster/Texture/logo" )
+        DiceMaster4.TraitEditor_OnLoad( self )
+		PanelTemplates_SetNumTabs(self, 3);
+	    PanelTemplates_SetTab(self, 1);
+      </OnLoad>
+      <OnShow>
+        
+        -- opening sound
+        PlaySound(839)
+      </OnShow>
+    </Scripts>
+    
+    <Frames>      
+      <!-- Scroll frame for the trait description editing. -->
+      <ScrollFrame name="DiceMasterTraitsFrame" parentKey="scrollFrame" inherits="UIPanelScrollFrameTemplate">
+		<Anchors>
+			<Anchor point="TOPLEFT" x="10" y="-64"/>
+			<Anchor point="BOTTOMRIGHT" x="-32" y="44"/>
+		</Anchors>
+        
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture name="$parentTop" file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+					<Size x="31" y="102"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="-2" y="5"/>
+					</Anchors>
+					<TexCoords left="0" right="0.484375" top="0" bottom="0.4"/>
+				</Texture>
+				<Texture name="$parentBottom" file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+					<Size x="31" y="106"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-2" y="-6"/>
+					</Anchors>
+					<TexCoords left="0.515625" right="1.0" top="0" bottom="0.4140625"/>
+				</Texture>
+				<Texture name="$parentMiddle" file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+					<Size x="31" y="1"/>
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parentTop" relativePoint="BOTTOM"/>
+						<Anchor point="BOTTOM" relativeTo="$parentBottom" relativePoint="TOP"/>
+					</Anchors>
+					<TexCoords left="0" right="0.484375" top=".75" bottom="1.0"/>
+				</Texture>
+			</Layer>
+		</Layers>
+				
+        <Scripts>
+          <OnLoad>
+            self.ScrollBar:ClearAllPoints()
+			self.ScrollBar:SetPoint("TOPLEFT", self, "TOPRIGHT", 6, -11)
+			self.ScrollBar:SetPoint("BOTTOMLEFT", self, "BOTTOMRIGHT", 6, 9)
+			self.ScrollBar.ScrollDownButton:SetPoint("TOP", self.ScrollBar, "BOTTOM", 0, 4)
+			self.ScrollBar.ScrollUpButton:SetPoint("BOTTOM", self.ScrollBar, "TOP", 0, -4)
+			self.ScrollBar.ScrollUpButton:Disable()
+			self.ScrollBar.ScrollDownButton:Disable()
+          </OnLoad>
+		  <OnMouseDown>
+			if self.Container.descEditor then
+				self.Container.descEditor:SetFocus()
+				self.Container.descEditor:SetCursorPosition(#self.Container.descEditor:GetText())
+			end
+		  </OnMouseDown>
+        </Scripts>
+        
+        <ScrollChild> 
+			<Frame parentKey="Container">
+				<Size x="265" y="10" />
+				<Anchors>
+					<Anchor point="TOPLEFT"/>
+				</Anchors>
+				<Frames>
+				
+					 <!-- Icon select button, to the left of the trait description. -->
+				  <DiceMasterTraitButton name="$parentTraitIconButton" parentKey="traitIcon" >
+					<Size x="42" y="42"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="10" y="-10"/> 
+					</Anchors>
+					<Scripts>
+					  <OnLoad>
+						
+						self:SetCustomTooltip( "|cFFFFD100Click to select an icon for this trait." )
+						
+					  </OnLoad>
+					  <OnClick>
+						PlaySound(54132)
+						DiceMaster4.IconPicker_Open( DiceMaster4.editor )
+					  </OnClick>
+					</Scripts>
+				  </DiceMasterTraitButton>
+				  
+				  <!-- Trait name editbox. -->
+				  <EditBox name="$parentTraitName" parentKey="traitName" multiLine="true" font="GameFontNormalMed2">
+					<Size x="230" y="12"/> 
+					<Anchors>
+					  <Anchor point="TOPLEFT" relativeTo="$parentTraitIconButton" relativePoint="TOPRIGHT" x="5" y="-2"/> 
+					</Anchors>
+					<Scripts> 
+					  <OnLoad>
+						self:SetAutoFocus( false )
+						self:SetTextColor( 1, 1, 1 )
+						self:SetMaxLetters( 40 )
+					  </OnLoad>
+					  <OnEditFocusLost>
+						DiceMaster4.TraitEditor_SaveName()
+					  </OnEditFocusLost>
+					  <OnEscapePressed function="EditBox_ClearFocus"/>
+					  <OnEnterPressed function="EditBox_ClearFocus"/>
+					</Scripts>
+				  </EditBox>
+				  
+				  <Button name="$parentTraitUsage" parentKey="traitUsage" enableMouse="true">
+					<Size x="100" y="12"/>
+					<Anchors>
+					  <Anchor point="TOPLEFT" relativeTo="$parentTraitName" relativePoint="BOTTOMLEFT" x="0" y="0"/> 
+					</Anchors>
+					<Layers>
+					  <Layer>
+						<FontString parentKey="text" inherits="GameFontHighlightSmall2" justifyH="left" setallpoints="true">
+						</FontString>
+					  </Layer>
+					</Layers>
+					<Scripts>
+					  <OnLoad> 
+						DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to toggle the number of uses this trait has." )
+						self:RegisterForClicks( "LeftButtonDown", "RightButtonDown" )
+					  </OnLoad>
+					  <OnClick>
+						DiceMaster4.TraitEditor_ChangeUsage( button )
+						self:SetWidth(self.text:GetStringWidth())
+					  </OnClick>
+					</Scripts>
+				  </Button>
+				  
+				  <Button name="$parentTraitRange" parentKey="traitRange" enableMouse="true">
+					<Size x="110" y="12"/>
+					<Anchors>
+					  <Anchor point="TOP" relativeTo="$parentTraitUsage" relativePoint="TOP"/> 
+					  <Anchor point="RIGHT" x="10" y="0"/> 
+					</Anchors>
+					<Layers>
+					  <Layer>
+						<FontString parentKey="text" inherits="GameFontHighlightSmall2" justifyH="left" setallpoints="true">
+						</FontString>
+					  </Layer>
+					</Layers>
+					<Scripts>
+					  <OnLoad> 
+						DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to toggle the range of this trait." )
+						self:RegisterForClicks( "LeftButtonDown", "RightButtonDown" )
+					  </OnLoad>
+					  <OnClick>
+						DiceMaster4.TraitEditor_ChangeRange( button )
+						self:SetWidth(self.text:GetStringWidth())
+					  </OnClick>
+					</Scripts>
+				  </Button>
+				  
+				  <Button name="$parentTraitCastTime" parentKey="traitCastTime" enableMouse="true">
+					<Size x="100" y="12"/>
+					<Anchors>
+					  <Anchor point="TOPLEFT" relativeTo="$parentTraitUsage" relativePoint="BOTTOMLEFT" x="0" y="0"/> 
+					</Anchors>
+					<Layers>
+					  <Layer>
+						<FontString parentKey="text" inherits="GameFontHighlightSmall2" justifyH="left" setallpoints="true">
+						</FontString>
+					  </Layer>
+					</Layers>
+					<Scripts>
+					  <OnLoad> 
+						DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to toggle the cast time for this trait." )
+						self:RegisterForClicks( "LeftButtonDown", "RightButtonDown" )
+					  </OnLoad>
+					  <OnClick>
+						DiceMaster4.TraitEditor_ChangeCastTime( button )
+						self:SetWidth(self.text:GetStringWidth())
+					  </OnClick>
+					</Scripts>
+				  </Button>
+				  
+				  <Button name="$parentTraitCooldown" parentKey="traitCooldown" enableMouse="true">
+					<Size x="110" y="12"/>
+					<Anchors>
+					  <Anchor point="TOP" relativeTo="$parentTraitCastTime" relativePoint="TOP"/> 
+					  <Anchor point="RIGHT" x="10" y="0"/> 
+					</Anchors>
+					<Layers>
+					  <Layer>
+						<FontString parentKey="text" inherits="GameFontHighlightSmall2" justifyH="left" setallpoints="true">
+						</FontString>
+					  </Layer>
+					</Layers>
+					<Scripts>
+					  <OnLoad> 
+						DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to toggle the cooldown time of this trait." )
+						self:RegisterForClicks( "LeftButtonDown", "RightButtonDown" )
+					  </OnLoad>
+					  <OnClick>
+						DiceMaster4.TraitEditor_ChangeCooldown( button )
+						self:SetWidth(self.text:GetStringWidth())
+					  </OnClick>
+					</Scripts>
+				  </Button>
+	  
+				  <!-- The multiline editbox. -->
+				  <EditBox name="$parentDescEditor" parentKey="descEditor" multiLine="true" font="GameFontHighlightSmall2">
+					
+					<Size x="268" y="12"/>
+					<Anchors>
+					  <Anchor point="TOPLEFT" relativeTo="$parentTraitIconButton" relativePoint="BOTTOMLEFT" x="0" y="-16"/> 
+					</Anchors>
+					<Scripts>
+					  <OnLoad>
+						self:SetAutoFocus( false )
+						self:SetTextColor( 1, 0.82, 0 )
+						self:SetMaxLetters( 2400 )
+					  </OnLoad>
+					  <OnEditFocusLost>
+						DiceMaster4.TraitEditor_EditDescription()
+					  </OnEditFocusLost>
+					  <OnEscapePressed function="EditBox_ClearFocus"/>
+					  <OnCursorChanged>
+						if not self:HasFocus() then return end
+						ScrollingEdit_SetCursorOffsets(self:GetParent(), y-65, h);
+						self:GetParent().handleCursorChange = true;
+					  </OnCursorChanged>
+					</Scripts>
+				  </EditBox>
+				  
+				  <Button name="$parentApplyBuff" parentKey="applyBuff" inherits="LargeItemButtonTemplate" hidden="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentDescEditor" relativePoint="BOTTOMLEFT" x="0" y="-30"/> 
+					</Anchors>
+					<Layers>
+						<Layer level="ARTWORK">
+							<FontString parentKey="text" inherits="GameFontNormalSmall" text="Applies:">
+								<Anchors>
+									<Anchor point="TOPLEFT" x="0" y="16"/>
+								</Anchors>
+							</FontString>
+						</Layer>
+					</Layers>
+					<Scripts>
+						<OnLoad>
+							self.Icon:SetTexture("Interface/Icons/Spell_Holy_WordFortitude")
+							self.Name:SetText("Apply Buff")
+							self.text:SetTextColor( 1, 1, 1 )
+						</OnLoad>
+					</Scripts>
+				  </Button>
+				  
+				  <Button name="$parentRemoveBuff" parentKey="removeBuff" inherits="LargeItemButtonTemplate" hidden="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentDescEditor" relativePoint="BOTTOMLEFT" x="0" y="-30"/> 
+					</Anchors>
+					<Layers>
+						<Layer level="ARTWORK">
+							<FontString parentKey="text" inherits="GameFontNormalSmall" text="Removes:">
+								<Anchors>
+									<Anchor point="TOPLEFT" x="0" y="16"/>
+								</Anchors>
+							</FontString>
+						</Layer>
+					</Layers>
+					<Scripts>
+						<OnLoad>
+							self.Icon:SetTexture("Interface/Icons/Spell_Shadow_SacrificialShield")
+							self.Name:SetText("Remove Buff")
+							self.text:SetTextColor( 1, 1, 1 )
+						</OnLoad>
+					</Scripts>
+				  </Button>
+	  
+				</Frames>
+				<Scripts>
+					<OnUpdate function="ScrollingEdit_OnUpdate"/>
+				</Scripts>
+			</Frame>
+        </ScrollChild>
+        
+      </ScrollFrame>
+	  
+	  <Frame name="DiceMasterTraitPicker" parentKey="TraitPicker" hidden="true">
+		<Size x="160" y="379"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" x="6" y="-62"/>
+			<Anchor point="BOTTOMLEFT" x="6" y="42"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="store-category-bg" file="Interface\Store\Store-Main" >
+					<TexCoords left="0.00097656" right="0.18261719" top="0.46289063" bottom="0.8"/>	
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<FontString inherits="GameFontNormal" text="Traits">
+					<Size x="150" y="0"/>
+					<Anchors>
+						<Anchor point="TOP" x="0" y="-20" />
+					</Anchors>
+					<Color r="1" g="0.82" b="0"/>
+				</FontString>
+				<Texture name="$parentTLCorner" atlas="Talent-TopLeftCurlies" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-1" y="-1"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentTRCorner" atlas="Talent-TopRightCurlies" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPRIGHT" x="1" y="-1"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentBLCorner" atlas="Talent-BottomLeftCurlies" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="-1"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentBRCorner" atlas="Talent-BottomRightCurlies" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" x="1"/>
+					</Anchors>
+				</Texture>
+				<Texture atlas="_Talent-Top-Tile" horizTile="true">
+					<Size x="0" y="11"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentTLCorner" relativePoint="TOPRIGHT" x="0" y="1"/>
+						<Anchor point="TOPRIGHT" relativeTo="$parentTRCorner" relativePoint="TOPLEFT" x="0" y="1"/>
+					</Anchors>
+				</Texture>
+				<Texture atlas="_Talent-Bottom-Tile" horizTile="true">
+					<Size x="0" y="4"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeTo="$parentBLCorner" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parentBRCorner" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Slider parentKey="scroller" inherits="UIPanelScrollBarTrimTemplate" minvalue="0" maxvalue="1" valuestep="3">
+            
+            <Anchors>
+              <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="24" y="-16" />
+              <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="24" y="12" />
+            </Anchors>
+            
+            <Layers>
+              <Layer level="BACKGROUND">
+                
+                <!-- scroller background -->
+                <Texture setAllPoints="true">
+                  <Color r="0" g="0" b="0" a="0.25"/>
+                </Texture>
+                
+              </Layer>
+            </Layers>
+            <Scripts>
+              <OnLoad>
+                self:SetValueStep(1)
+                self.scrollStep = 4
+              </OnLoad>
+              <OnValueChanged>
+                DiceMaster4.TraitPicker_ScrollChanged( value )
+              </OnValueChanged>
+            </Scripts>
+          </Slider>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self:EnableMouseWheel( true )
+			</OnLoad>
+			<OnMouseWheel>
+				DiceMaster4.TraitPicker_MouseScroll( delta )
+			</OnMouseWheel>
+		</Scripts>
+	  </Frame>
+	  
+	  <Frame parentKey="StatsPointCounter" topLevel="true" inherits="InsetFrameTemplate" hidden="true">
+		<Size x="180" y="20"/>
+		<Anchors>
+			<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="SkillIcon" file="Interface/Icons/achievement_guild_doctorisin">
+					<Size x="16" y="16"/>
+					<Anchors>
+						<Anchor point="RIGHT" x="-10" y="0"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="SkillCount" inherits="GameFontHighlightSmall" justifyH="RIGHT">
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.SkillIcon" relativePoint="LEFT" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+				<Texture parentKey="AttributeIcon" file="Interface/Icons/achievement_guildperk_mrpopularity">
+					<Size x="16" y="16"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.SkillCount" relativePoint="LEFT" x="-10" y="0"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="AttributeCount" inherits="GameFontHighlightSmall" justifyH="RIGHT">
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.AttributeIcon" relativePoint="LEFT" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="Label" inherits="GameFontNormalSmall" text="Points Remaining" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="LEFT" x="10" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	  </Frame>
+	  
+	  <Frame parentKey="StatsWarning" enableMouse="true" hidden="true" frameStrata="DIALOG">
+		<Size x="298" y="309"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" x="7" y="-65"/>
+			<Anchor point="BOTTOMRIGHT" x="-32" y="30"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true">
+					<Color r="0" g="0" b="0" a="0.3"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture name="$parentIcon" file="Interface/AddOns/DiceMaster/Texture/logo">
+					<Size x="64" y="64"/>
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="100" />
+					</Anchors>
+				</Texture>
+				<FontString name="$parentTitle" inherits="GameFontNormal" text="No Statistics">
+					<Size x="200" y="0"/>
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parentIcon" relativePoint="BOTTOM" x="0" y="2"/>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentDesc" inherits="GameFontHighlight" justifyH="CENTER" text="You haven't created any statistics yet. Choose an option below to either start with a set of default base stats, or create them yourself:">
+					<Size x="200" y="0"/>
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parentTitle" relativePoint="BOTTOM" x="0" y="-4"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parentDefaultsButton" inherits="UIPanelButtonTemplate" text="Use Defaults">
+				<Size x="131" y="22"/>
+				<Anchors>
+					<Anchor point="TOP" relativeTo="$parentDesc" relativePoint="BOTTOM" x="0" y="-30"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.TraitEditor_StatsList_CreateDefaults()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parentNewButton" inherits="UIPanelButtonTemplate" text="Create New">
+				<Size x="131" y="22"/>
+				<Anchors>
+					<Anchor point="TOP" relativeTo="$parentDefaultsButton" relativePoint="BOTTOM" x="0" y="-4"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						StaticPopup_Show("DICEMASTER4_CREATESTAT", nil, nil, nil, DiceMasterStatButtonOptionsDropdown)
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parentImportCodeButton" inherits="UIPanelButtonTemplate" text="Import">
+				<Size x="131" y="22"/>
+				<Anchors>
+					<Anchor point="TOP" relativeTo="$parentNewButton" relativePoint="BOTTOM" x="0" y="-4"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						StaticPopup_Show( "DICEMASTER4_IMPORTSTATS" )
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+	  </Frame>
+	  
+	  <StatusBar name="$parentExperienceBar" parentKey="experienceBar" hidden="true">
+		<Size x="230" y="14"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" x="80" y="-41"/>
+		</Anchors>
+		<HitRectInsets>
+			<AbsInset left="-25" right="0" top="-15" bottom="0"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\Common\friendship-parts">  <!-- the bar itself -->
+					<Size x="267" y="38"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-31" y="18"/>
+					</Anchors>
+					<TexCoords left="0.01367188" right="0.53515625" top="0.01562500" bottom="0.60937500"/>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK" textureSubLevel="1">
+				<FontString parentKey="level" inherits="GameFontNormalMed2" text="1">
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="TOPLEFT" x="-12" y="0"/>
+					</Anchors>
+				</FontString>
+				<Texture name="$parentNotch1" file="Interface\Common\friendship-parts">
+					<Size x="4" y="17"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="43" y="1"/>
+					</Anchors>
+					<TexCoords left="0.00195313" right="0.00976563" top="0.01562500" bottom="0.28125000"/>
+				</Texture>
+				<Texture name="$parentNotch2" file="Interface\Common\friendship-parts">
+					<Size x="4" y="17"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentNotch1" x="47" y="0"/>
+					</Anchors>
+					<TexCoords left="0.00195313" right="0.00976563" top="0.01562500" bottom="0.28125000"/>
+				</Texture>
+				<Texture name="$parentNotch3" file="Interface\Common\friendship-parts">
+					<Size x="4" y="17"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentNotch2" x="47" y="0"/>
+					</Anchors>
+					<TexCoords left="0.00195313" right="0.00976563" top="0.01562500" bottom="0.28125000"/>
+				</Texture>
+				<Texture name="$parentNotch4" file="Interface\Common\friendship-parts">
+					<Size x="4" y="17"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentNotch3" x="47" y="0"/>
+					</Anchors>
+					<TexCoords left="0.00195313" right="0.00976563" top="0.01562500" bottom="0.28125000"/>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true">  <!-- bar fill background -->
+					<Color r="0" g="0" b="0" a="0.5"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:SetMinMaxValues(0, 100)
+				self:SetValue(0)
+				--self:SetScale(0.8)
+				self:SetStatusBarTexture(1, 1, 1, "BORDER", -1);
+				self:GetStatusBarTexture():SetGradient("VERTICAL", 8/255, 93/255, 72/255, 11/255, 136/255, 105/255);
+				self:SetStatusBarColor(0.2, 0.6, 1.0);
+			</OnLoad>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
+				GameTooltip:SetText("Experience", 1, 1, 1);
+				GameTooltip:AddLine("Granted by DMs to reward players for participation.", nil, nil, nil, true);
+				GameTooltip:AddLine(self:GetValue().. " / 100", 1, 1, 1);
+				GameTooltip:Show();
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide();
+			</OnLeave>
+		</Scripts>
+	  </StatusBar>
+	  
+	  <!-- Scroll frame for the trait description editing. -->
+      <ScrollFrame name="DiceMasterStatsFrame" parentKey="scrollFrame2" hidden="true" inherits="HybridScrollFrameTemplate">
+		<Anchors>
+			<Anchor point="TOPLEFT" x="10" y="-65"/>
+			<Anchor point="BOTTOMRIGHT" x="-32" y="30"/>
+		</Anchors>
+        
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture name="$parentTop" file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+					<Size x="31" y="102"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="-2" y="5"/>
+					</Anchors>
+					<TexCoords left="0" right="0.484375" top="0" bottom="0.4"/>
+				</Texture>
+				<Texture name="$parentBottom" file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+					<Size x="31" y="106"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-2" y="-6"/>
+					</Anchors>
+					<TexCoords left="0.515625" right="1.0" top="0" bottom="0.4140625"/>
+				</Texture>
+				<Texture name="$parentMiddle" file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+					<Size x="31" y="1"/>
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parentTop" relativePoint="BOTTOM"/>
+						<Anchor point="BOTTOM" relativeTo="$parentBottom" relativePoint="TOP"/>
+					</Anchors>
+					<TexCoords left="0" right="0.484375" top=".75" bottom="1.0"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		
+        <Scripts>
+          <OnLoad>
+			self.scrollBar.trackBG:Hide()
+			self.scrollBar.doNotHide = true;
+			self.update = DiceMaster4.TraitEditor_StatsFrame_UpdateStats
+			self.dynamic = DiceMaster4.TraitEditor_StatsList_GetScrollFrameTopButton;
+			HybridScrollFrame_CreateButtons(self, "DiceMasterStatButtonTemplate");
+          </OnLoad>
+		  <OnMouseDown>
+		  </OnMouseDown>
+		  <OnShow>
+			DiceMaster4.TraitEditor_StatsList_Update()
+			DiceMaster4.TraitEditor_StatsList_UpdatePointsTotal()
+		  </OnShow>
+        </Scripts>
+		
+		<Frames>
+			<Slider name="$parentScrollBar" inherits="MinimalHybridScrollBarTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterStatsFrame" relativePoint="TOPRIGHT" x="3" y="-14"/>
+					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="3" y="12"/>
+				</Anchors>
+			</Slider>
+			<Button parentKey="ExportButton" inherits="MagicButtonTemplate" text="Export">
+				<Size x="120" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOM" x="12" y="-26"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to export all of your statistics." )
+					</OnLoad>
+					<OnClick>
+						DiceMaster4.TraitEditor_StatsList_Export()
+					</OnClick>
+				</Scripts>
+		    </Button>
+		</Frames>
+        
+      </ScrollFrame>
+	  
+	  <Frame name="DiceMasterPetFrame" parentKey="petFrame" enableMouse="true" hidden="true" frameStrata="DIALOG">
+		<Size x="298" y="309"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" x="4" y="-60"/>
+			<Anchor point="BOTTOMRIGHT" x="-6" y="26"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentModelBG" file="Interface\PetStableFrame\PetStable-Parts">
+						<Size x="314" y="281"/>
+						<TexCoords left="0.16406250" right="0.77734375" top="0.00195313" bottom="0.55078125"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<CheckButton name="$parentEnable" parentKey="enable" inherits="UICheckButtonTemplate">
+				<Size x="24" y="24"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" relativeTo="DiceMasterTraitEditor" x="58" y="-22"/>
+				</Anchors>
+				
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("Enable Pet")
+					</OnLoad>
+					<OnClick>
+						DiceMaster4.Profile.pet.enable = self:GetChecked()
+						DiceMaster4.RefreshPetFrame()
+						PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<DiceMasterTraitButton name="$parentPetIconButton" parentKey="petIcon" >
+				<Size x="42" y="42"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" x="10" y="-10"/> 
+				</Anchors>
+				<Scripts>
+				  <OnLoad>
+					self:SetCustomTooltip( "|cFFFFD100Click to select an icon for your pet." )
+				  </OnLoad>
+				  <OnClick>
+					PlaySound(54132)
+					DiceMaster4.IconPicker_Open( DiceMasterPetFrame )
+				  </OnClick>
+				</Scripts>
+		    </DiceMasterTraitButton>
+		    <EditBox name="$parentPetName" parentKey="petName" multiLine="false" font="GameFontNormalMed2">
+				<Size x="170" y="12"/> 
+				<Anchors>
+				  <Anchor point="TOPLEFT" relativeTo="$parentPetIconButton" relativePoint="TOPRIGHT" x="5" y="-8"/> 
+				</Anchors>
+				<Scripts> 
+				  <OnLoad>
+					self:SetAutoFocus( false )
+					self:SetTextColor( 1, 0.82, 0 )
+					self:SetMaxLetters( 30 )
+				  </OnLoad>
+				  <OnEditFocusLost>
+					DiceMaster4.PetEditor_SaveName()
+				  </OnEditFocusLost>
+				  <OnEscapePressed function="EditBox_ClearFocus"/>
+				  <OnEnterPressed function="EditBox_ClearFocus"/>
+				  <OnTabPressed>
+					self:ClearFocus()
+					DiceMasterPetFrame.petType:SetFocus()
+				  </OnTabPressed>
+				</Scripts>
+		    </EditBox>
+			<EditBox name="$parentPetType" parentKey="petType" multiLine="false" font="GameFontHighlightSmallLeft">
+				<Size x="170" y="12"/> 
+				<Anchors>
+				  <Anchor point="TOPLEFT" relativeTo="$parentPetName" relativePoint="BOTTOMLEFT" x="0" y="0"/>  
+				</Anchors>
+				<Scripts> 
+				  <OnLoad>
+					self:SetAutoFocus( false )
+					self:SetMaxLetters( 30 )
+				  </OnLoad>
+				  <OnEditFocusLost>
+					DiceMaster4.PetEditor_SaveType()
+				  </OnEditFocusLost>
+				  <OnEscapePressed function="EditBox_ClearFocus"/>
+				  <OnEnterPressed function="EditBox_ClearFocus"/>
+				</Scripts>
+		    </EditBox>
+			<PlayerModel parentKey="petModel" enableMouse="true" inherits="ModelWithControlsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="2" y="-60"/>
+					<Anchor point="BOTTOMRIGHT" x="-3" y="3"/>
+                </Anchors>
+                <Scripts>
+					<OnLoad>
+						Model_OnLoad(self);
+						self:SetCamDistanceScale(1.3);
+						hooksecurefunc(self, "SetDisplayInfo", DiceMaster4.PetEditor_SaveModel)
+					</OnLoad>
+                </Scripts>
+				<Frames>
+					<Frame parentKey="petModelShadow" inherits="ShadowOverlayTemplate" useParentLevel="true">
+						<Anchors>
+							<Anchor point="TOPLEFT" x="-1" y="1"/>
+							<Anchor point="BOTTOMRIGHT" x="1" y="-1"/>
+						</Anchors>
+					</Frame>
+				</Frames>
+			</PlayerModel>
+			<Button inherits="MagicButtonTemplate" text="Select Model">
+				<Size x="120" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOM" x="0" y="-22"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.ModelPicker_Open( DiceMasterTraitEditor, DiceMasterPetFrame.petModel )
+					</OnClick>
+				</Scripts>
+		    </Button>
+		</Frames>
+	  </Frame>
+	  
+	  <Frame name="$parentInventoryFrame" parentKey="inventoryFrame" enableMouse="true" hidden="true" frameStrata="HIGH">
+		<Size x="298" y="309"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" x="4" y="-60"/>
+			<Anchor point="BOTTOMRIGHT" x="-6" y="26"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="BG1" atlas="bank-slots" useAtlasSize="true" >
+					<Anchors>
+						<Anchor point="TOPLEFT" x="10" y="-6"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture atlas="bank-slots-shadow" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.BG1" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="createButton" inherits="MagicButtonTemplate" text="Create">
+				<Size x="78" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" x="6" y="12"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.ItemEditor_ClearAllFields()
+						DiceMaster4.ItemEditor_Open( DiceMasterTraitEditor )
+					</OnClick>
+				</Scripts>
+		    </Button>
+			<Button parentKey="editButton" inherits="MagicButtonTemplate" text="Edit">
+				<Size x="78" y="22"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent.createButton" relativePoint="RIGHT" x="0" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.TraitEditor_EditItem()
+					</OnClick>
+				</Scripts>
+		    </Button>
+			<Button parentKey="copyButton" inherits="MagicButtonTemplate" text="Copy">
+				<Size x="78" y="22"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent.editButton" relativePoint="RIGHT" x="0" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.TraitEditor_CopyItem()
+					</OnClick>
+				</Scripts>
+		    </Button>
+			<Button parentKey="sellButton" inherits="MagicButtonTemplate" text="Sell">
+				<Size x="78" y="22"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent.copyButton" relativePoint="RIGHT" x="0" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						--self:Disable()
+					</OnLoad>
+					<OnClick>
+						DiceMaster4.TraitEditor_SellItem()
+					</OnClick>
+				</Scripts>
+		    </Button>
+			<Frame name="$parentMoneyInset" inherits="InsetFrameTemplate" useParentLevel="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterTraitEditor" relativePoint="BOTTOMRIGHT" x="-171" y="27"/>
+					<Anchor point="BOTTOMRIGHT" relativeTo="DiceMasterTraitEditor" relativePoint="BOTTOMRIGHT" x="-5" y="4"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentMoneyBg" inherits="ThinGoldEdgeTemplate" >
+				<Size x="120" y="30"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="DiceMasterTraitEditor" relativePoint="BOTTOMRIGHT" x="-7" y="25"/>
+					<Anchor point="BOTTOMLEFT" relativeTo="DiceMasterTraitEditor" relativePoint="BOTTOMRIGHT" x="-166" y="6"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentMoney" parentKey="money" inherits="NumberFontNormalRight" justifyH="RIGHT">
+							<Anchors>
+								<Anchor point="RIGHT" x="-3" y="0"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnMouseDown>
+						CloseDropDownMenus()
+						if button == "RightButton" then
+							if IsAltKeyDown() and DiceMaster4.Profile.currencyActive > 1 then
+								StaticPopup_Show( "DICEMASTER4_DESTROYCUSTOMCURRENCY", DiceMaster4.Profile.currencyActive, nil, DiceMaster4.Profile.currencyActive )
+							else
+								UIDropDownMenu_Initialize( self, DiceMaster4.TraitEditor_CurrencyList_OnLoad )
+								ToggleDropDownMenu(1, nil, self, self, 0, 0)
+							end
+						end
+					</OnMouseDown>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</Frame>
+			<Button parentKey="cleanUpButton">
+				<Size x="28" y="26"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="-10" y="27"/>
+				</Anchors>
+				<NormalTexture atlas="bags-button-autosort-up"/>
+				<PushedTexture atlas="bags-button-autosort-down"/>
+				<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD">
+					<Size x="24" y="23"/>
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="0"/>
+					</Anchors>
+				</HighlightTexture>
+				<Scripts>
+					<OnClick>
+						PlaySound(SOUNDKIT.UI_BAG_SORTING_01);
+						DiceMaster4.TraitEditor_CleanUpInventory();
+					</OnClick>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip_SetTitle(GameTooltip, "Clean Up Inventory", HIGHLIGHT_FONT_COLOR);
+						GameTooltip_AddNormalLine(GameTooltip, "Auto-sorts your inventory to make room for new items.");
+						GameTooltip:Show();
+					</OnEnter>
+					<OnLeave function="GameTooltip_Hide"/>
+				</Scripts>
+			</Button>
+			<EditBox parentKey="searchBar" inherits="SearchBoxTemplate">
+				<Size x="150" y="8" />
+				<Anchors>
+				  <Anchor point="TOPRIGHT" x="-42" y="20" />
+				</Anchors>
+				
+				<Scripts>
+				  <OnTextChanged>
+					SearchBoxTemplate_OnTextChanged(self);
+					DiceMaster4.TraitEditor_InventoryFilterChanged()
+				  </OnTextChanged>
+				  <OnEscapePressed function="EditBox_ClearFocus"/>
+				</Scripts>
+			</EditBox>
+		</Frames>
+		<Scripts>
+			<OnShow>
+				DiceMaster4.TraitEditor_UpdateInventory()
+			</OnShow>
+		</Scripts>
+	  </Frame>
+	  
+	  <Frame name="$parentShopFrame" parentKey="shopFrame" enableMouse="true" hidden="true" useParentLevel="true" inherits="InsetFrameTemplate">
+		<Anchors>
+			<Anchor point="TOPLEFT" x="4" y="-60" />
+			<Anchor point="BOTTOMRIGHT" x="-6" y="26" />
+		</Anchors>
+		<Layers>
+			<Layer level="BORDER">
+				<FontString name="$parentPageText" inherits="GameFontNormal" text="Page">
+					<Size x="104" y="0"/>
+					<Anchors>
+						<Anchor point="BOTTOM" x="0" y="15"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame name="$parentItem1" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="7" y="-8"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem2" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem1" relativePoint="TOPRIGHT" x="12" y="0"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem3" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem1" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem4" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem3" relativePoint="TOPRIGHT" x="12" y="0"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem5" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem3" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem6" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem5" relativePoint="TOPRIGHT" x="12" y="0"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem7" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem5" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem8" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem7" relativePoint="TOPRIGHT" x="12" y="0"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem9" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem7" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem10" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem9" relativePoint="TOPRIGHT" x="12" y="0"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem11" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem9" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem12" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem11" relativePoint="TOPRIGHT" x="12" y="0"/>
+				</Anchors>
+			</Frame>
+			<Button name="$parentPrevPageButton">
+				<Size x="32" y="32"/>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="4" y="4"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<FontString inherits="GameFontNormal" justifyH="LEFT" text="PREV">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT"/>
+							</Anchors>
+						</FontString>
+						<Texture file="Interface\Buttons\UI-PageButton-Background">
+							<Size x="32" y="32"/>
+							<Anchors>
+								<Anchor point="CENTER" x="0" y="1"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.ShopFramePrevPageButton_OnClick()
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Down"/>
+				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Disabled"/>
+				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
+			</Button>
+			<Button name="$parentNextPageButton">
+				<Size x="32" y="32"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-4" y="4"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<FontString inherits="GameFontNormal" justifyH="RIGHT" text="NEXT">
+							<Anchors>
+								<Anchor point="RIGHT" relativePoint="LEFT" x="-3" y="0"/>
+							</Anchors>
+						</FontString>
+						<Texture file="Interface\Buttons\UI-PageButton-Background">
+							<Size x="32" y="32"/>
+							<Anchors>
+								<Anchor point="CENTER" x="0" y="1"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.ShopFrameNextPageButton_OnClick()
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
+				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled"/>
+				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
+			</Button>
+			<Frame name="$parentMoneyInset" inherits="InsetFrameTemplate" useParentLevel="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterTraitEditor" relativePoint="BOTTOMRIGHT" x="-171" y="27"/>
+					<Anchor point="BOTTOMRIGHT" relativeTo="DiceMasterTraitEditor" relativePoint="BOTTOMRIGHT" x="-5" y="4"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentMoneyBg" inherits="ThinGoldEdgeTemplate">
+				<Size x="120" y="30"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="DiceMasterTraitEditor" relativePoint="BOTTOMRIGHT" x="-7" y="25"/>
+					<Anchor point="BOTTOMLEFT" relativeTo="DiceMasterTraitEditor" relativePoint="BOTTOMRIGHT" x="-166" y="6"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentMoney" parentKey="money" inherits="NumberFontNormalRight" justifyH="RIGHT">
+							<Anchors>
+								<Anchor point="RIGHT" x="-3" y="0"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnMouseDown>
+						CloseDropDownMenus()
+						if button == "RightButton" then
+							if IsAltKeyDown() and DiceMaster4.Profile.currencyActive > 1 then
+								StaticPopup_Show( "DICEMASTER4_DESTROYCUSTOMCURRENCY", DiceMaster4.Profile.currencyActive, nil, DiceMaster4.Profile.currencyActive )
+							else
+								UIDropDownMenu_Initialize( self, DiceMaster4.TraitEditor_CurrencyList_OnLoad )
+								ToggleDropDownMenu(1, nil, self, self, 0, 0)
+							end
+						end
+					</OnMouseDown>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self.page = 1;
+			</OnLoad>
+			<OnHide>
+				DiceMaster4.ShopFrame_OnHide(self)
+			</OnHide>
+			<OnShow>
+				DiceMaster4.ShopFrame_OnShow(self)
+			</OnShow>
+			<OnMouseWheel> 
+				DiceMaster4.ShopFrame_OnMouseWheel(self, delta)
+			</OnMouseWheel>
+			<OnUpdate>
+				DiceMaster4.ShopFrame_OnUpdate(self)
+			</OnUpdate>
+		</Scripts>
+
+	</Frame>
+	  
+	  <ModelScene name="$parentNPCModel" enableMouse="true" hidden="true" inherits="ModelSceneMixinTemplate">
+		<Size x="198" y="230"/>
+		<KeyValues>
+			<KeyValue key="normalIntensity" value="0.75" type="number"/>
+			<KeyValue key="highlightIntensity" value="1.2" type="number"/>
+		</KeyValues>
+		<Anchors>
+			<Anchor point="TOPRIGHT" relativePoint="TOPLEFT" x="3" y="-60" />
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentModelBg" file="Interface/AddOns/DiceMaster/Texture/shop-overlay" setAllPoints="true" hidden="false">
+					<TexCoords left="0.00000000" right="0.776" top="0" bottom="0.9"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="-2">
+				<Texture name="$parentModelShadowOverlay" file="Interface\TalentFrame\PetTalent-ShadowOverlay" setAllPoints="true">
+					<TexCoords left="0.00000000" right="0.537109375" top="0" bottom="0.791015625"/>
+				</Texture>
+				<Texture name="$parentModelTopBg" inherits="QuestPortrait-StoneSwirls-Top">
+					<Anchors>
+						<Anchor point="TOPLEFT" y="16"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="-1">
+				<Texture name="$parentModelShopOverlay" file="Interface/AddOns/DiceMaster/Texture/shop-overlay" setAllPoints="true" hidden="true">
+					<TexCoords left="0.00000000" right="0.776" top="0" bottom="0.9"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture name="$parentModelBotLeftCorner" inherits="UI-Frame-BotCornerLeft" parentKey="BorderBottomLeft">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="-5" y="-5"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentModelBotRightCorner" inherits="UI-Frame-BotCornerRight" parentKey="BorderBottomRight">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" x="2" y="-5"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentModelTopBorder" inherits="_UI-Frame-TitleTile" parentKey="BorderTop">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-1" y="20"/>
+						<Anchor point="TOPRIGHT" x="1" y="20"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentModelBottomBorder" inherits="_UI-Frame-Bot" parentKey="BorderBottom">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeTo="$parentModelBotLeftCorner" relativePoint="BOTTOMRIGHT" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parentModelBotRightCorner" relativePoint="BOTTOMLEFT" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentModelLeftBorder" inherits="!UI-Frame-LeftTile" parentKey="BorderLeft">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-5"/>
+						<Anchor point="BOTTOMLEFT" relativeTo="$parentModelBotLeftCorner" relativePoint="TOPLEFT"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentModelRightBorder" inherits="!UI-Frame-RightTile" parentKey="BorderRight">
+					<Anchors>
+						<Anchor point="TOPRIGHT" x="3"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parentModelBotRightCorner" relativePoint="TOPRIGHT" x="1"/>
+					</Anchors>
+				</Texture>	
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture name="$parentModelNameplate" inherits="QuestPortrait-Nameplate">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="0" y="12"/>
+					</Anchors>
+				</Texture>
+				<FontString name="$parentModelNameText" parentKey="ModelNameText" inherits="GameFontNormal" text="Aleiah Sinclair">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentModelNameplate" x="22" y="-12"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parentModelNameplate" x="-22" y="12"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture name="$parentCornerTopLeft" inherits="QuestPortrait-Corner_UL">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-6" y="24"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentCornerTopRight" inherits="QuestPortrait-Corner_UR">
+					<Anchors>
+						<Anchor point="TOPRIGHT" x="7" y="24"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentCornerBottomLeft" inherits="QuestPortrait-Corner_BL">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="-6" y="-26"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentCornerBottomRight" inherits="QuestPortrait-Corner_BR">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" x="7" y="-26"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame name="$parentModelNameTooltipFrame" enableMouse="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentModelNameText" x="0" y="0"/>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parentModelNameText" x="0" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnEnter>
+						if ( DiceMasterTraitEditorNPCModelModelNameText:IsTruncated() ) then
+							GameTooltip:SetOwner(self, "ANCHOR_TOP");
+							GameTooltip:SetText(DiceMasterTraitEditorNPCModelModelNameText:GetText());
+						end
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</Frame>
+			<Frame name="$parentModelTextFrame" hidden="false" useParentLevel="true">
+				<Size x="198" y="64"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentModelNameplate" relativePoint="BOTTOMLEFT" y="12"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentModelTextFrameBg" inherits="QuestPortrait-MrBrownstone">
+							<Size x="197" y="64"/>	
+							<TexCoords left="0.00390625" right="0.77343750" top="0.00195313" bottom="0.126953125"/>	
+						</Texture>
+					</Layer>
+
+					<Layer level="OVERLAY">
+						<Texture name="$parentModelTextBotLeftCorner" inherits="UI-Frame-BotCornerLeft" parentKey="BorderBottomLeft">
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" x="-5" y="-5"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentModelTextBotRightCorner" inherits="UI-Frame-BotCornerRight" parentKey="BorderBottomRight">
+							<Anchors>
+								<Anchor point="BOTTOMRIGHT" x="2" y="-5"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentModelTextBottomBorder" inherits="_UI-Frame-Bot" parentKey="BorderBottom">
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativeTo="$parentModelTextBotLeftCorner" relativePoint="BOTTOMRIGHT" y="0"/>
+								<Anchor point="BOTTOMRIGHT" relativeTo="$parentModelTextBotRightCorner" relativePoint="BOTTOMLEFT" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentModelTextLeftBorder" inherits="!UI-Frame-LeftTile" parentKey="BorderLeft">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="-5"/>
+								<Anchor point="BOTTOMLEFT" relativeTo="$parentModelTextBotLeftCorner" relativePoint="TOPLEFT"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentModelTextRightBorder" inherits="!UI-Frame-RightTile" parentKey="BorderRight">
+							<Anchors>
+								<Anchor point="TOPRIGHT" x="3"/>
+								<Anchor point="BOTTOMRIGHT" relativeTo="$parentModelTextBotRightCorner" relativePoint="TOPRIGHT" x="1"/>
+							</Anchors>
+						</Texture>	
+					</Layer>
+				</Layers>
+				<Frames>
+					<ScrollFrame name="$parentModelTextScrollFrame" inherits="UIPanelScrollFrameTemplate" useParentLevel="true">
+						<Anchors>
+							<Anchor point="TOPLEFT" x="10" y="-6"/>
+							<Anchor point="BOTTOMRIGHT" x="-10" y="10"/>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self.scrollBarHideable = 1;
+								ScrollFrame_OnLoad(self);
+								self.ScrollBar:SetThumbTexture("");
+								ScrollFrame_OnScrollRangeChanged(self);
+								self.ScrollBar:SetPoint("TOPLEFT", self, "TOPRIGHT", -12, -16);
+								self.ScrollBar:SetPoint("BOTTOMLEFT", self, "BOTTOMRIGHT", -12, 16);
+							</OnLoad>
+						</Scripts>
+						<ScrollChild>
+							<Frame name="$parentModelTextScrollChildFrame">
+								<Size x="178" y="0"/>
+								<Layers>
+									<Layer level="ARTWORK">
+										<FontString name="$parentModelText" parentKey="ModelText" inherits="GameFontHighlight" justifyH="LEFT" justifyV="TOP" text="&quot;I supply only the finest goods.&quot;">
+											<Size x="178" y="0"/>
+											<Anchors>
+												<Anchor point="TOPLEFT"/>
+											</Anchors>
+											<Color r="0.96875" g="0.8984375" b="0.578125"/>
+										</FontString>
+									</Layer>
+								</Layers>
+								<Scripts>
+									<OnShow>
+										if (self.ModelText:GetHeight() > DiceMasterTraitEditorNPCModelModelTextFrameModelTextScrollFrame:GetHeight()) then
+											self:SetHeight(self.ModelText:GetHeight()+10);
+											self.ModelText:SetWidth(162);
+										else
+											self:SetHeight(self.ModelText:GetHeight());
+										end
+			
+										self.progress = 0
+										self.doprogress = true
+										self.ModelText:SetAlphaGradient( self.progress * QUEST_DESCRIPTION_GRADIENT_CPS, QUEST_DESCRIPTION_GRADIENT_LENGTH )
+									</OnShow>
+									<OnUpdate>
+										if self.doprogress then
+											self.progress = self.progress + elapsed
+											self.ModelText:SetAlphaGradient( self.progress * QUEST_DESCRIPTION_GRADIENT_CPS, QUEST_DESCRIPTION_GRADIENT_LENGTH )
+											local width = self.ModelText:GetText():len() - 6
+											if self.progress * QUEST_DESCRIPTION_GRADIENT_CPS > width then
+												self.doprogress = false
+												self.progress = 0
+											end
+										end
+									</OnUpdate>
+								</Scripts>
+							</Frame>
+						</ScrollChild>
+					</ScrollFrame>
+				</Frames>
+				<Scripts>
+					<OnShow>
+						DiceMasterTraitEditorNPCModelCornerBottomLeft:SetPoint("BOTTOMLEFT", self, -6, -6);
+						DiceMasterTraitEditorNPCModelCornerBottomRight:SetPoint("BOTTOMRIGHT", self, 7, -6);
+					</OnShow>
+					<OnHide>
+						DiceMasterTraitEditorNPCModelCornerBottomLeft:SetPoint("BOTTOMLEFT", DiceMasterTraitEditorNPCModelModel, -6, -29);
+						DiceMasterTraitEditorNPCModelCornerBottomRight:SetPoint("BOTTOMRIGHT", DiceMasterTraitEditorNPCModelModel, 7, -29);
+					</OnHide>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self:OnLoad()
+				self:ClearScene()
+				self:SetViewInsets(0, 0, 0, 0)
+				--self:SetFromModelSceneID( 9 )
+				self:SetCameraPosition( -2, 0, 0.6 )
+				
+				local actor = self:CreateActor()
+				DiceMasterActor = actor;
+				if (actor) then
+					actor:SetModelByUnit( "player", true )
+					--actor:SetModelByCreatureDisplayID( 16509 )
+					actor:SetPosition( 1, 0, -0.82 )
+					actor:SetYaw(3.2)
+					actor:SetScale(1)
+					actor:Show()
+					actor:SetAnimation(590)
+				end			
+				
+				local b = self:CreateActor()
+				if (b) then
+					b:SetModelByFileID( 1347698 )
+					b:SetPosition( 0, 0, 0 )
+					b:SetYaw(3.2)
+					b:SetScale(0.4)
+					b:Show()
+					b:SetAnimation(0)
+				end
+				
+				local c = self:CreateActor()
+				if (c) then
+					c:SetModelByFileID( 1255034 )
+					c:SetPosition( 0, 1, 0.4 )
+					c:SetYaw(3.2)
+					c:SetScale(0.4)
+					c:Show()
+				end
+				
+				local d = self:CreateActor()
+				if (d) then
+					d:SetModelByFileID( 1255034 )
+					d:SetPosition( 0, -1, 0.4 )
+					d:SetYaw(0.2)
+					d:SetScale(0.4)
+					d:Show()
+				end
+			</OnLoad>
+		</Scripts>
+	  </ModelScene>
+	  
+	  <Button name="$parentTab1" parentKey="Tab1" useParentLevel="true" inherits="CharacterFrameTabButtonTemplate" id="1" text="Traits">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" y="2"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					HelpPlate_Hide( false );
+					DiceMaster4.editor:SetWidth( 336 )
+					DiceMasterTraitsFrame:SetPoint( "TOPLEFT", 10, -64 )
+					DiceMasterTraitEditor.FormatBar:SetPoint( "BOTTOMLEFT", 20, 4 )
+					DiceMaster4.editor.Inset:SetPoint("BOTTOMLEFT", 4, 40)
+					DiceMaster4.editor.Bg:SetPoint("TOPLEFT", 0, -64)
+					DiceMaster4.editor.Bg:SetPoint("BOTTOMRIGHT", -6, 40)
+					DiceMaster4.editor.Inset:Show();
+					DiceMaster4.editor.Bg:Show()
+					PanelTemplates_SetTab(DiceMaster4.editor, 1);
+                    DiceMasterTraitsFrame:Show();
+                    -- DiceMasterTraitPicker:Show();
+					DiceMasterTraitEditor.StatsWarning:Hide()
+					DiceMasterTraitEditorExperienceBar:Hide()
+					DiceMasterTraitEditor.StatsPointCounter:Hide()
+					DiceMasterTraitEditor.FormatBar:Show();
+					DiceMasterTraitEditorTraitsExpandButton:Show()
+					DiceMasterTraitEditorTraitsExpandButton:SetExpanded( false )
+					for i = 1,5 do
+						-- DiceMaster4.editor.trait_buttons[i]:Show();
+					end
+                    DiceMasterStatsFrame:Hide();
+					DiceMasterPetFrame:Hide();
+					DiceMasterTraitEditorInventoryFrame:Hide()
+					DiceMasterTraitEditorInventoryTab:SetChecked( false )
+					DiceMasterTraitEditorShopFrame:Hide()
+					DiceMasterTraitEditorShopTab:SetChecked( false )
+					PlaySound(841)
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+	  <Button name="$parentTab2" parentKey="Tab2" useParentLevel="true" inherits="CharacterFrameTabButtonTemplate" id="2" text="Statistics">
+		<Anchors>
+			<Anchor point="LEFT" relativeKey="$parent.Tab1" relativePoint="RIGHT" x="-16"/>
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				HelpPlate_Hide( false );
+				DiceMaster4.editor:SetWidth( 336 )
+				DiceMaster4.editor.Inset:SetPoint("BOTTOMLEFT", 4, 26)
+				DiceMaster4.editor.Bg:SetPoint("TOPLEFT", 0, -64)
+				DiceMaster4.editor.Bg:SetPoint("BOTTOMRIGHT", -6, 26)
+				DiceMaster4.editor.Inset:Show();
+				DiceMaster4.editor.Bg:Show()
+				PanelTemplates_SetTab(DiceMaster4.editor, 2);
+				DiceMasterTraitsFrame:Hide();
+				DiceMasterTraitPicker:Hide();
+				DiceMasterTraitEditorTraitsExpandButton:Hide();
+				DiceMasterTraitEditorExperienceBar:Show()
+				if DiceMaster4.PermittedUse() then
+					DiceMasterTraitEditor.StatsPointCounter:Show()
+				end
+				DiceMasterTraitEditor.FormatBar:Hide();
+				for i = 1,5 do
+					-- DiceMaster4.editor.trait_buttons[i]:Hide();
+				end
+				DiceMasterStatsFrame:Show();
+				DiceMasterPetFrame:Hide();
+				DiceMasterTraitEditorInventoryFrame:Hide()
+				DiceMasterTraitEditorInventoryTab:SetChecked( false )
+				DiceMasterTraitEditorShopFrame:Hide()
+				DiceMasterTraitEditorShopTab:SetChecked( false )									
+				PlaySound(841)
+			</OnClick>
+		</Scripts>
+	  </Button>
+	  
+	  <Button name="$parentTab3" parentKey="Tab3" useParentLevel="true" inherits="CharacterFrameTabButtonTemplate" id="3" text="Pet">
+		<Anchors>
+			<Anchor point="LEFT" relativeKey="$parent.Tab2" relativePoint="RIGHT" x="-16"/>
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				HelpPlate_Hide( false );
+				DiceMaster4.editor:SetWidth( 336 )
+				DiceMaster4.editor.Inset:SetPoint("BOTTOMLEFT", 4, 26)
+				DiceMaster4.editor.Bg:SetPoint("BOTTOMRIGHT", -6, 26)
+				DiceMaster4.editor.Inset:Show();
+				DiceMaster4.editor.Bg:Show()
+				PanelTemplates_SetTab(DiceMaster4.editor, 3);
+				DiceMasterTraitsFrame:Hide();
+				DiceMasterTraitPicker:Hide();
+				DiceMasterTraitEditor.StatsWarning:Hide()
+				DiceMasterTraitEditorExperienceBar:Hide()
+				DiceMasterTraitEditor.StatsPointCounter:Hide()
+				DiceMasterTraitEditor.FormatBar:Hide();
+				DiceMasterTraitEditorTraitsExpandButton:Hide();
+				for i = 1,5 do
+					-- DiceMaster4.editor.trait_buttons[i]:Hide();
+				end
+				DiceMasterStatsFrame:Hide();
+				DiceMasterPetFrame:Show();
+				DiceMasterTraitEditorInventoryFrame:Hide()
+				DiceMasterTraitEditorInventoryTab:SetChecked( false )
+				DiceMasterTraitEditorShopFrame:Hide()
+				DiceMasterTraitEditorShopTab:SetChecked( false )									
+				PlaySound(841)
+			</OnClick>
+		</Scripts>
+	  </Button>
+	  
+	  <CheckButton name="$parentInventoryTab" frameLevel="510">
+		<Size x="32" y="32"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="-36"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture file="Interface\SpellBook\SpellBook-SkillLineTab">
+					<Size x="64" y="64"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-3" y="11"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			  <Layer level="ARTWORK">
+				<Texture parentKey="Icon" file="Interface/Icons/inv_misc_bag_08">
+				  <Size x="32" y="32"/>
+				  <Anchors>
+					<Anchor point="CENTER"/>
+				  </Anchors>
+				</Texture>
+			  </Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+			</OnLoad>
+			<OnClick>
+				if button == "LeftButton" then
+					HelpPlate_Hide( false );
+					DiceMaster4.editor:SetWidth( 336 )
+					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+					PanelTemplates_SetTab(DiceMaster4.editor, 0);
+					DiceMaster4.editor.Inset:Hide();
+					DiceMaster4.editor.Bg:Hide();
+					DiceMasterTraitsFrame:Hide();
+					DiceMasterTraitPicker:Hide();
+					DiceMasterTraitEditor.StatsWarning:Hide()
+					DiceMasterTraitEditorExperienceBar:Hide()
+					DiceMasterTraitEditor.StatsPointCounter:Hide()
+					DiceMasterTraitEditor.FormatBar:Hide();
+					DiceMasterTraitEditorTraitsExpandButton:Hide();
+					for i = 1,5 do
+						-- DiceMaster4.editor.trait_buttons[i]:Hide();
+					end
+					DiceMasterStatsFrame:Hide();
+					DiceMasterPetFrame:Hide();
+					DiceMasterTraitEditorShopFrame:Hide()
+					DiceMasterTraitEditorShopTab:SetChecked( false )
+					DiceMasterTraitEditorInventoryFrame:Show();
+					self:SetChecked(true);
+				elseif button == "RightButton" then
+					self:SetChecked( not self:GetChecked() )
+					DiceMaster4.IconPicker_Open( DiceMasterTraitEditorInventoryTab, true )
+				end
+			</OnClick>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+				GameTooltip:SetText( "Inventory" );
+				GameTooltip:AddLine( "&lt;Right Click to Change Icon>", 0.44, 0.44, 0.44, true )
+				GameTooltip:Show();
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide();
+			</OnLeave>
+		</Scripts>
+		<NormalTexture/>
+		<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+		<CheckedTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"/>
+	  </CheckButton>
+	  
+	  <CheckButton name="$parentShopTab" frameLevel="510">
+		<Size x="32" y="32"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="-86"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture file="Interface\SpellBook\SpellBook-SkillLineTab">
+					<Size x="64" y="64"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-3" y="11"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			  <Layer level="ARTWORK">
+				<Texture parentKey="Icon" file="Interface/Icons/garrison_building_tradingpost">
+				  <Size x="32" y="32"/>
+				  <Anchors>
+					<Anchor point="CENTER"/>
+				  </Anchors>
+				</Texture>
+			  </Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+			</OnLoad>
+			<OnClick>
+				if button == "LeftButton" then
+					HelpPlate_Hide( false );
+					DiceMaster4.editor:SetWidth( 336 )
+					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+					PanelTemplates_SetTab(DiceMaster4.editor, 0);
+					DiceMaster4.editor.Inset:Hide();
+					DiceMaster4.editor.Bg:Hide();
+					DiceMasterTraitsFrame:Hide();
+					DiceMasterTraitPicker:Hide();
+					DiceMasterTraitEditor.StatsWarning:Hide()
+					DiceMasterTraitEditorExperienceBar:Hide()
+					DiceMasterTraitEditor.StatsPointCounter:Hide()
+					DiceMasterTraitEditorTraitsExpandButton:Hide();
+					DiceMasterTraitEditor.FormatBar:Hide();
+					for i = 1,5 do
+						-- DiceMaster4.editor.trait_buttons[i]:Hide();
+					end
+					DiceMasterStatsFrame:Hide();
+					DiceMasterPetFrame:Hide();
+					DiceMasterTraitEditorInventoryFrame:Hide()
+					DiceMasterTraitEditorInventoryTab:SetChecked( false )
+					DiceMasterTraitEditorShopFrame:Show();
+					self:SetChecked(true);
+				elseif button == "RightButton" then
+					self:SetChecked( not self:GetChecked() )
+					DiceMaster4.IconPicker_Open( DiceMasterTraitEditorShopTab, true )
+				end
+			</OnClick>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+				GameTooltip:SetText( "Shop" );
+				GameTooltip:AddLine( "&lt;Right Click to Change Icon>", 0.44, 0.44, 0.44, true )
+				GameTooltip:Show();
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide();
+			</OnLeave>
+		</Scripts>
+		<NormalTexture/>
+		<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+		<CheckedTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"/>
+	  </CheckButton>
+	  
+	  <Button name="$parentTraitsExpandButton" parentKey="traitsExpandButton" inherits="UIExpandingButtonTemplate">
+		<Size x="" y="" />
+		<Anchors>
+			<Anchor point="TOPLEFT" x="70" y="-28"/>
+		</Anchors>
+		<Scripts>
+			<OnLoad>
+				self.Label:SetText( "Traits" )
+				self.Label:ClearAllPoints()
+				self.Label:SetPoint( "LEFT", self, "RIGHT", 5, 0 )
+				self:SetUp( false, "LEFT");
+			</OnLoad>
+			<OnClick>
+				HelpPlate_Hide( false );
+				self:SetExpanded( not self:IsCurrentlyExpanded() )
+				if not self:IsCurrentlyExpanded() then
+					DiceMasterTraitPicker:Hide()
+					DiceMaster4.editor:SetWidth( 336 )
+					DiceMasterTraitsFrame:SetPoint( "TOPLEFT", 10, -64 )
+					DiceMasterTraitEditor.FormatBar:SetPoint( "BOTTOMLEFT", 20, 4 )
+					DiceMaster4.editor.Bg:SetPoint("TOPLEFT", 0, -64)
+					DiceMaster4.editor.Inset:Show();
+					DiceMaster4.editor.Bg:Show()
+				else
+					DiceMasterTraitPicker:Show()
+					DiceMaster4.editor:SetWidth( 520 )
+					DiceMasterTraitsFrame:SetPoint( "TOPLEFT", 194, -64 )
+					DiceMasterTraitEditor.FormatBar:SetPoint( "BOTTOMLEFT", 200, 4 )
+					DiceMaster4.editor.Bg:SetPoint("TOPLEFT", 184, -64)
+					DiceMaster4.editor.Inset:Show();
+					DiceMaster4.editor.Bg:Show()
+				end
+				PlaySound(841)
+			</OnClick>
+		</Scripts>
+	  </Button>
+	  
+	  <Button parentKey="Tutorial" inherits="MainHelpPlateButton" mixin="DiceMasterTraitEditorTutorialMixin">
+		<Anchors>
+			<Anchor point="TOPLEFT" x="43" y="19"/>
+		</Anchors>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnHide method="OnHide"/>
+			<OnClick method="ToggleHelpInfo"/>
+		</Scripts>
+	  </Button>
+	  
+	  <Frame parentKey="FormatBar">
+		<Size x="265" y="36"/>
+		<Anchors>
+			<Anchor point="BOTTOMLEFT" x="20" y="4"/>
+		</Anchors>
+		<Frames>
+		
+		  <Button name="$parentClearButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="BOTTOMLEFT" x="0" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to delete this trait." )
+					self.icon:SetTexCoord( 0.25, 0.5, 0, 0.25 )
+				</OnLoad>
+				<OnClick>
+					StaticPopup_Show("DICEMASTER4_DELETETRAIT")
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentColourButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT" x="12" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert a colour tag." )
+					self.icon:SetTexCoord( 0, 0.25, 0, 0.25 )
+				</OnLoad>
+				<OnClick>
+					PlaySound(54132)
+					DiceMaster4.ColourPicker_Open()
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentIconButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentColourButton" relativePoint="RIGHT" x="0" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert an icon." )
+					self.icon:SetTexCoord( 0.5, 0.75, 0, 0.25 )
+				</OnLoad>
+				<OnClick>
+					PlaySound(54132)
+					DiceMaster4.IconPicker_Open()
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentListButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentIconButton" relativePoint="RIGHT" x="0" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert a list." )
+					self.icon:SetTexCoord( 0, 0.25, 0.25, 0.5 )
+				</OnLoad>
+				<OnClick>
+					DiceMaster4.TraitEditor_Insert( "|n&lt;*> Item 1|n&lt;*> Item 2|n&lt;*> Item 3" )
+					DiceMaster4.TraitEditor_SaveDescription()
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentRuleButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentListButton" relativePoint="RIGHT" x="0" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert a line rule." )
+					self.icon:SetTexCoord( 0.75, 1, 0, 0.25 )
+				</OnLoad>
+				<OnClick>
+					DiceMaster4.TraitEditor_Insert( "&lt;rule>|n" )
+					DiceMaster4.TraitEditor_SaveDescription()
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentTermButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentRuleButton" relativePoint="RIGHT" x="0" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert a DiceMaster term." )
+					self.icon:SetTexCoord( 0.5, 0.75, 0.5, 0.75 )
+				</OnLoad>
+				<OnClick>
+					UIDropDownMenu_Initialize( self, DiceMaster4.TraitEditor_TermsOnLoad )
+					ToggleDropDownMenu(1, nil, self, self, 0, 0)
+					self:SetHeight(36)
+				</OnClick>
+				<OnShow>
+					UIDropDownMenu_Initialize( self, DiceMaster4.TraitEditor_TermsOnLoad )
+					self:SetHeight(36)
+				</OnShow>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentHeartButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentTermButton" relativePoint="RIGHT" x="0" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert a Health icon." )
+					self.icon:SetTexCoord( 0.5, 0.75, 0.25, 0.5 )
+				</OnLoad>
+				<OnClick>
+					DiceMaster4.TraitEditor_Insert( "&lt;HP> " )
+					DiceMaster4.TraitEditor_SaveDescription()
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentArmourButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentHeartButton" relativePoint="RIGHT" x="0" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert an Armour icon." )
+					self.icon:SetTexCoord( 0.25, 0.5, 0.25, 0.5 )
+				</OnLoad>
+				<OnClick>
+					DiceMaster4.TraitEditor_Insert( "&lt;AR> " )
+					DiceMaster4.TraitEditor_SaveDescription()
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentImportButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentArmourButton" relativePoint="RIGHT" x="12" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to import a trait." )
+					self.icon:SetTexCoord( 0, 0.25, 0.5, 0.75 )
+				</OnLoad>
+				<OnClick>
+					StaticPopup_Show( "DICEMASTER4_IMPORTTRAIT" )
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentExportButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentImportButton" relativePoint="RIGHT" x="0" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to export this trait." )
+					self.icon:SetTexCoord( 0.25, 0.5, 0.5, 0.75 )
+				</OnLoad>
+				<OnClick>
+					DiceMaster4.TraitEditor_ExportTrait()
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentEffectButton" inherits="DiceMasterTraitEditorFormatButtonTemplate">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentExportButton" relativePoint="RIGHT" x="12" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to edit this trait's effects." )
+					self.icon:SetTexCoord( 0.75, 1, 0.25, 0.5 )
+				</OnLoad>
+				<OnClick>
+					UIDropDownMenu_Initialize( self, DiceMaster4.TraitEditor_EffectsOnLoad )
+					ToggleDropDownMenu(1, nil, self, self, 0, 0)
+					self:SetHeight(36)
+				</OnClick>
+				<OnShow>
+					UIDropDownMenu_Initialize( self, DiceMaster4.TraitEditor_EffectsOnLoad )
+					self:SetHeight(36)
+				</OnShow>
+			</Scripts>
+		  </Button>
+		  
+		  </Frames>
+	  </Frame>
+      
+    </Frames>
+  </Frame>
+  
+</Ui>

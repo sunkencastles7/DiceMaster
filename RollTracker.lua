@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2019 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2021 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
@@ -212,40 +212,40 @@ local MAP_NODE_ICONS = {
 		path = "Interface/Minimap/ObjectIconsAtlas",
 		x = 1024,
 		y = 512,
-		{ "Dungeon", 22, 22, 0.133789, 0.155273, 0.894531, 0.9375 },
-		{ "Raid", 22, 22, 0.133789, 0.155273, 0.941406, 0.984375 },
+		{ "Dungeon", 22, 22, 0.246094, 0.267578, 0.951172, 0.994141 },
+		{ "Raid", 22, 22, 0.283203, 0.304688, 0.941406, 0.984375 },
 	},
 	["Azerite"] = {
 		path = "Interface/Minimap/ObjectIconsAtlas",
 		x = 1024,
 		y = 512,
-		{ "Azerite Boss", 32, 32, 0.507812, 0.539062, 0.533203, 0.595703 },
-		{ "Azerite Chest", 32, 32, 0.507812, 0.539062, 0.599609, 0.662109 },
-		{ "Azerite Ready", 32, 32, 0.474609, 0.505859, 0.537109, 0.599609 },
-		{ "Azerite Spawning", 32, 32, 0.474609, 0.505859, 0.603516, 0.666016 },
+		{ "Azerite Boss", 32, 32, 0.744141, 0.775391, 0.0683594, 0.130859 },
+		{ "Azerite Chest", 32, 32, 0.777344, 0.808594, 0.0683594, 0.130859 },
+		{ "Azerite Ready", 32, 32, 0.611328, 0.642578, 0.00195312, 0.0644531 },
+		{ "Azerite Spawning", 32, 32, 0.644531, 0.675781, 0.00195312, 0.0644531 },
 	},
 	["Legion Invasion"] = {
 		path = "Interface/Minimap/ObjectIconsAtlas",
 		x = 1024,
 		y = 512,
-		{ "Demon Invasion 1", 32, 32, 0.641602, 0.672852, 0.00195312, 0.0644531 },
-		{ "Demon Invasion 2", 32, 32, 0.674805, 0.706055, 0.00195312, 0.0644531 },
-		{ "Demon Invasion 3", 32, 32, 0.641602, 0.672852, 0.00195312, 0.0644531 },
-		{ "Demon Invasion 4", 32, 32, 0.674805, 0.706055, 0.00195312, 0.0644531 },
-		{ "Demon Invasion 5", 32, 32, 0.708008, 0.739258, 0.00195312, 0.0644531 },
-		{ "Rift 1", 27, 26, 0.133789, 0.160156, 0.519531, 0.570312 },
-		{ "Rift 2", 33, 32, 0.507812, 0.540039, 0.00195312, 0.0644531 },
+		{ "Demon Invasion 1", 32, 32, 0.511719, 0.542969, 0.0683594, 0.130859 },
+		{ "Demon Invasion 2", 32, 32, 0.511719, 0.542969, 0.134766, 0.197266 },
+		{ "Demon Invasion 3", 32, 32, 0.511719, 0.542969, 0.201172, 0.263672 },
+		{ "Demon Invasion 4", 32, 32, 0.511719, 0.542969, 0.267578, 0.330078 },
+		{ "Demon Invasion 5", 32, 32, 0.511719, 0.542969, 0.333984, 0.396484 },
+		{ "Rift 1", 27, 26, 0.133789, 0.160156, 0.582031, 0.632812 },
+		{ "Rift 2", 33, 32, 0.246094, 0.27832, 0.220703, 0.283203 },
 	},
 	["Vignettes"] = {
 		path = "Interface/Minimap/ObjectIconsAtlas",
 		x = 1024,
 		y = 512,
-		{ "Event", 32, 32, 0.707031, 0.738281, 0.333984, 0.396484 },
-		{ "Event Elite", 32, 32, 0.740234, 0.771484, 0.333984, 0.396484 },
-		{ "Kill", 32, 32, 0.773438, 0.804688, 0.333984, 0.396484 },
-		{ "Kill Elite", 32, 32, 0.806641, 0.837891, 0.333984, 0.396484 },
-		{ "Loot", 32, 32, 0.839844, 0.871094, 0.333984, 0.396484 },
-		{ "Loot Elite", 32, 32, 0.873047, 0.904297, 0.333984, 0.396484 },
+		{ "Event", 32, 32, 0.710938, 0.742188, 0.666016, 0.728516 },
+		{ "Event Elite", 32, 32, 0.710938, 0.742188, 0.732422, 0.794922 },
+		{ "Kill", 32, 32, 0.710938, 0.742188, 0.798828, 0.861328 },
+		{ "Kill Elite", 32, 32, 0.710938, 0.742188, 0.865234, 0.927734 },
+		{ "Loot", 32, 32, 0.710938, 0.742188, 0.931641, 0.994141 },
+		{ "Loot Elite", 32, 32, 0.744141, 0.775391, 0.466797, 0.529297 },
 	},
 	["Vehicles"] = {
 		path = "Interface/Minimap/ObjectIconsAtlas",
@@ -254,94 +254,94 @@ local MAP_NODE_ICONS = {
 		{ "Acherus", 64, 64, 0.0693359, 0.131836, 0.130859, 0.255859 },
 		{ "Air Alliance", 64, 64, 0.0693359, 0.131836, 0.259766, 0.384766 },
 		{ "Air Horde", 64, 64, 0.0693359, 0.131836, 0.388672, 0.513672 },
-		{ "Air Occupied", 32, 32, 0.607422, 0.638672, 0.865234, 0.927734 },
-		{ "Air unoccupied", 32, 32, 0.607422, 0.638672, 0.931641, 0.994141 },
-		{ "Arrow", 32, 32, 0.640625, 0.671875, 0.333984, 0.396484 },
-		{ "Ball Cyan", 32, 32, 0.640625, 0.671875, 0.599609, 0.662109 },
-		{ "Ball Green", 32, 32, 0.640625, 0.671875, 0.666016, 0.728516 },
-		{ "Ball Orange", 32, 32, 0.640625, 0.671875, 0.732422, 0.794922 },
-		{ "Ball Purple", 32, 32, 0.640625, 0.671875, 0.798828, 0.861328 },
+		{ "Air Occupied", 32, 32, 0.876953, 0.908203, 0.333984, 0.396484 },
+		{ "Air Unoccupied", 32, 32, 0.910156, 0.941406, 0.333984, 0.396484 },
+		{ "Arrow", 32, 32, 0.710938, 0.742188, 0.400391, 0.462891 },
+		{ "Ball Cyan", 32, 32, 0.84375, 0.875, 0.400391, 0.462891 },
+		{ "Ball Green", 32, 32, 0.876953, 0.908203, 0.400391, 0.462891 },
+		{ "Ball Orange", 32, 32, 0.910156, 0.941406, 0.400391, 0.462891 },
+		{ "Ball Purple", 32, 32, 0.943359, 0.974609, 0.400391, 0.462891 },
 		{ "Boat Alliance", 64, 64, 0.000976562, 0.0634766, 0.654297, 0.779297 },
 		{ "Boat Horde", 64, 64, 0.000976562, 0.0634766, 0.783203, 0.908203 },
 		{ "Carriage", 64, 64, 0.0693359, 0.131836, 0.517578, 0.642578 },
-		{ "Cart Alliance", 32, 32, 0.640625, 0.671875, 0.267578, 0.330078 },
-		{ "Cart Horde", 32, 32, 0.90625, 0.9375, 0.267578, 0.330078 },
+		{ "Cart Alliance", 32, 32, 0.943359, 0.974609, 0.333984, 0.396484 },
+		{ "Cart Horde", 32, 32, 0.677734, 0.708984, 0.865234, 0.927734 },
 		{ "Demon Ship", 31, 56, 0.133789, 0.164062, 0.00195312, 0.111328 },
 		{ "Demon Ship East", 56, 31, 0.000976562, 0.0556641, 0.912109, 0.972656 },
-		{ "Ground Occupied", 32, 32, 0.673828, 0.705078, 0.267578, 0.330078 },
-		{ "Ground Unoccupied", 32, 32, 0.707031, 0.738281, 0.267578, 0.330078 },
-		{ "Grummle Convoy", 32, 32, 0.740234, 0.771484, 0.267578, 0.330078 },
-		{ "Hammer Gold 1", 32, 32, 0.806641, 0.837891, 0.267578, 0.330078 },
-		{ "Hammer Gold 2", 32, 32, 0.839844, 0.871094, 0.267578, 0.330078 },
-		{ "Hammer Gold 3", 32, 32, 0.873047, 0.904297, 0.267578, 0.330078 },
-		{ "Hammer Gold", 32, 32, 0.773438, 0.804688, 0.267578, 0.330078 },
-		{ "Minecart", 32, 32, 0.640625, 0.671875, 0.400391, 0.462891 },
-		{ "Minecart Blue", 32, 32, 0.640625, 0.671875, 0.466797, 0.529297 },
-		{ "Minecart Red", 32, 32, 0.640625, 0.671875, 0.533203, 0.595703 },
-		{ "Mogu", 32, 32, 0.939453, 0.970703, 0.267578, 0.330078 },
-		{ "Trap Gold", 32, 32, 0.640625, 0.671875, 0.865234, 0.927734 },
-		{ "Trap Grey", 32, 32, 0.640625, 0.671875, 0.931641, 0.994141 },
-		{ "Trap Red", 32, 32, 0.673828, 0.705078, 0.333984, 0.396484 },
+		{ "Ground Occupied", 32, 32, 0.677734, 0.708984, 0.400391, 0.462891 },
+		{ "Ground Unoccupied", 32, 32, 0.677734, 0.708984, 0.466797, 0.529297 },
+		{ "Grummle Convoy", 32, 32, 0.677734, 0.708984, 0.533203, 0.595703 },
+		{ "Hammer Gold", 32, 32, 0.677734, 0.708984, 0.599609, 0.662109 },
+		{ "Hammer Gold 1", 32, 32, 0.677734, 0.708984, 0.666016, 0.728516 },
+		{ "Hammer Gold 2", 32, 32, 0.677734, 0.708984, 0.732422, 0.794922 },
+		{ "Hammer Gold 3", 32, 32, 0.677734, 0.708984, 0.798828, 0.861328 },
+		{ "Minecart", 32, 32, 0.744141, 0.775391, 0.400391, 0.462891 },
+		{ "Minecart Blue", 32, 32, 0.777344, 0.808594, 0.400391, 0.462891 },
+		{ "Minecart Red", 32, 32, 0.810547, 0.841797, 0.400391, 0.462891 },
+		{ "Mogu", 32, 32, 0.677734, 0.708984, 0.931641, 0.994141 },
+		{ "Trap Gold", 32, 32, 0.710938, 0.742188, 0.466797, 0.529297 },
+		{ "Trap Grey", 32, 32, 0.710938, 0.742188, 0.533203, 0.595703 },
+		{ "Trap Red", 32, 32, 0.710938, 0.742188, 0.599609, 0.662109 },
 	},
 	["Warfront Alliance"] = {
 		path = "Interface/Minimap/ObjectIconsAtlas",
 		x = 1024,
 		y = 512,
 		{ "Constructed" },
-		{ "Altar", 37, 35, 0.28418, 0.320312, 0.0742188, 0.142578 },
-		{ "Armory", 37, 35, 0.246094, 0.282227, 0.00195312, 0.0703125 },
-		{ "Banner", 37, 35, 0.398438, 0.43457, 0.291016, 0.359375 },
-		{ "Barracks", 37, 35, 0.246094, 0.282227, 0.146484, 0.214844 },
-		{ "Keep", 37, 35, 0.28418, 0.320312, 0.21875, 0.287109 },
-		{ "LumberMill", 37, 35, 0.398438, 0.43457, 0.435547, 0.503906 },
-		{ "Mine", 37, 35, 0.398438, 0.43457, 0.580078, 0.648438 },
-		{ "Tower", 37, 35, 0.28418, 0.320312, 0.363281, 0.431641 },
-		{ "Workshop", 37, 35, 0.28418, 0.320312, 0.507812, 0.576172 },
+		{ "Altar", 37, 35, 0.321289, 0.357422, 0.146484, 0.214844 },
+		{ "Armory", 37, 35, 0.283203, 0.319336, 0.0742188, 0.142578 },
+		{ "Banner", 37, 35, 0.435547, 0.47168, 0.363281, 0.431641 },
+		{ "Barracks", 37, 35, 0.283203, 0.319336, 0.21875, 0.287109 },
+		{ "Keep", 37, 35, 0.321289, 0.357422, 0.291016, 0.359375 },
+		{ "LumberMill", 37, 35, 0.435547, 0.47168, 0.507812, 0.576172 },
+		{ "Mine", 37, 35, 0.435547, 0.47168, 0.652344, 0.720703 },
+		{ "Tower", 37, 35, 0.321289, 0.357422, 0.435547, 0.503906 },
+		{ "Workshop", 37, 35, 0.321289, 0.357422, 0.580078, 0.648438 },
 		{ "Under Construction" },
-		{ "Altar", 37, 35, 0.246094, 0.282227, 0.580078, 0.648438 },
-		{ "Armory", 37, 35, 0.246094, 0.282227, 0.291016, 0.359375 },
-		{ "Barracks", 37, 35, 0.246094, 0.282227, 0.435547, 0.503906 },
-		{ "Keep", 37, 35, 0.246094, 0.282227, 0.724609, 0.792969 },
-		{ "Workshop", 37, 35, 0.246094, 0.282227, 0.869141, 0.9375 },
+		{ "Altar", 37, 35, 0.283203, 0.319336, 0.652344, 0.720703 },
+		{ "Armory", 37, 35, 0.283203, 0.319336, 0.363281, 0.431641 },
+		{ "Barracks", 37, 35, 0.283203, 0.319336, 0.507812, 0.576172 },
+		{ "Keep", 37, 35, 0.283203, 0.319336, 0.796875, 0.865234 },
+		{ "Workshop", 37, 35, 0.321289, 0.357422, 0.00195312, 0.0703125 },
 	},
 	["Warfront Horde"] = {
 		path = "Interface/Minimap/ObjectIconsAtlas",
 		x = 1024,
 		y = 512,
 		{ "Constructed" },
-		{ "Altar", 37, 35, 0.360352, 0.396484, 0.652344, 0.720703 },
-		{ "Armory", 37, 35, 0.322266, 0.358398, 0.580078, 0.648438 },
-		{ "Banner", 37, 35, 0.436523, 0.472656, 0.21875, 0.287109 },
-		{ "Barracks", 37, 35, 0.322266, 0.358398, 0.724609, 0.792969 },
-		{ "Keep", 37, 35, 0.360352, 0.396484, 0.796875, 0.865234 },
-		{ "Lumber Mill", 37, 35, 0.436523, 0.472656, 0.363281, 0.431641 },
-		{ "Mine", 37, 35, 0.436523, 0.472656, 0.507812, 0.576172 },
-		{ "Tower", 37, 35, 0.398438, 0.43457, 0.00195312, 0.0703125 },
-		{ "Workshop", 37, 35, 0.398438, 0.43457, 0.146484, 0.214844 },
+		{ "Altar", 37, 35, 0.397461, 0.433594, 0.724609, 0.792969 },
+		{ "Armory", 37, 35, 0.359375, 0.395508, 0.652344, 0.720703 },
+		{ "Banner", 37, 35, 0.473633, 0.509766, 0.291016, 0.359375 },
+		{ "Barracks", 37, 35, 0.359375, 0.395508, 0.796875, 0.865234 },
+		{ "Keep", 37, 35, 0.397461, 0.433594, 0.869141, 0.9375 },
+		{ "Lumber Mill", 37, 35, 0.473633, 0.509766, 0.435547, 0.503906 },
+		{ "Mine", 37, 35, 0.473633, 0.509766, 0.580078, 0.648438 },
+		{ "Tower", 37, 35, 0.435547, 0.47168, 0.0742188, 0.142578 },
+		{ "Workshop", 37, 35, 0.435547, 0.47168, 0.21875, 0.287109 },
 		{ "Under Construction" },
-		{ "Altar", 37, 35, 0.360352, 0.396484, 0.21875, 0.287109 },
-		{ "Armory", 37, 35, 0.322266, 0.358398, 0.869141, 0.9375 },
-		{ "Barracks", 37, 35, 0.360352, 0.396484, 0.0742188, 0.142578 },
-		{ "Keep", 37, 35, 0.360352, 0.396484, 0.363281, 0.431641 },
-		{ "Workshop", 37, 35, 0.360352, 0.396484, 0.507812, 0.576172 },
+		{ "Altar", 37, 35, 0.397461, 0.433594, 0.291016, 0.359375 },
+		{ "Armory", 37, 35, 0.397461, 0.433594, 0.00195312, 0.0703125 },
+		{ "Barracks", 37, 35, 0.397461, 0.433594, 0.146484, 0.214844 },
+		{ "Keep", 37, 35, 0.397461, 0.433594, 0.435547, 0.503906 },
+		{ "Workshop", 37, 35, 0.397461, 0.433594, 0.580078, 0.648438 },
 	},
 	["Warfront Neutral"] = {
 		path = "Interface/Minimap/ObjectIconsAtlas",
 		x = 1024,
 		y = 512,
 		{ "Empty" },
-		{ "Altar", 37, 35, 0.322266, 0.358398, 0.00195312, 0.0703125 },
-		{ "Armory", 37, 35, 0.28418, 0.320312, 0.652344, 0.720703 },
-		{ "Banner", 37, 35, 0.398438, 0.43457, 0.724609, 0.792969 },
-		{ "Barracks", 37, 35, 0.28418, 0.320312, 0.796875, 0.865234 },
-		{ "Keep", 37, 35, 0.322266, 0.358398, 0.146484, 0.214844 },
-		{ "Lumber Mill", 37, 35, 0.398438, 0.43457, 0.869141, 0.9375 },
-		{ "Mine", 37, 35, 0.436523, 0.472656, 0.0742188, 0.142578 },
-		{ "Tower", 37, 35, 0.322266, 0.358398, 0.291016, 0.359375 },
-		{ "Workshop", 37, 35, 0.322266, 0.358398, 0.435547, 0.503906 },
+		{ "Altar", 37, 35, 0.359375, 0.395508, 0.0742188, 0.142578 },
+		{ "Armory", 37, 35, 0.321289, 0.357422, 0.724609, 0.792969 },
+		{ "Banner", 37, 35, 0.435547, 0.47168, 0.796875, 0.865234 },
+		{ "Barracks", 37, 35, 0.321289, 0.357422, 0.869141, 0.9375 },
+		{ "Keep", 37, 35, 0.359375, 0.395508, 0.21875, 0.287109 },
+		{ "Lumber Mill", 37, 35, 0.473633, 0.509766, 0.00195312, 0.0703125 },
+		{ "Mine", 37, 35, 0.473633, 0.509766, 0.146484, 0.214844 },
+		{ "Tower", 37, 35, 0.359375, 0.395508, 0.363281, 0.431641 },
+		{ "Workshop", 37, 35, 0.359375, 0.395508, 0.507812, 0.576172 },
 		{ "Neutral" },
-		{ "Banner", 37, 35, 0.436523, 0.472656, 0.652344, 0.720703 },
-		{ "Mine", 37, 35, 0.436523, 0.472656, 0.796875, 0.865234 },
+		{ "Banner", 37, 35, 0.473633, 0.509766, 0.724609, 0.792969 },
+		{ "Mine", 37, 35, 0.473633, 0.509766, 0.869141, 0.9375 },
 	},
 	["Alliance Garrison (Tier 1)"] = {
 		path = "Interface/Garrison/AllianceGarrisonTier1",
@@ -523,63 +523,162 @@ local MAP_NODE_ICONS = {
 		x = 1024,
 		y = 512,
 		{ "Doors" },
-		{ "Door", 25, 24, 0.133789, 0.158203, 0.574219, 0.621094 },
-		{ "Door Locked", 32, 32, 0.773438, 0.804688, 0.0683594, 0.130859 },
-		{ "Door Down", 25, 24, 0.133789, 0.158203, 0.625, 0.671875 },
-		{ "Door Left", 25, 24, 0.133789, 0.158203, 0.675781, 0.722656 },
-		{ "Door Right", 25, 24, 0.133789, 0.158203, 0.726562, 0.773438 },
-		{ "Door Up", 25, 24, 0.133789, 0.158203, 0.777344, 0.824219 },
+		{ "Door", 25, 24, 0.133789, 0.158203, 0.636719, 0.683594 },
+		{ "Door Locked", 32, 32, 0.544922, 0.576172, 0.599609, 0.662109 },
+		{ "Door Down", 25, 24, 0.133789, 0.158203, 0.6875, 0.734375 },
+		{ "Door Left", 25, 24, 0.133789, 0.158203, 0.738281, 0.785156 },
+		{ "Door Right", 25, 24, 0.133789, 0.158203, 0.789062, 0.835938 },
+		{ "Door Up", 25, 24, 0.133789, 0.158203, 0.839844, 0.886719 },
 		{ "Quests" },
-		{ "Quest Normal", 32, 32, 0.673828, 0.705078, 0.201172, 0.263672 },
-		{ "Quest Daily", 32, 32, 0.574219, 0.605469, 0.865234, 0.927734 },
-		{ "Quest Legendary", 32, 32, 0.607422, 0.638672, 0.201172, 0.263672 },
-		{ "Quest Flight Path", 32, 32, 0.839844, 0.871094, 0.134766, 0.197266 },
-		{ "Quest Objective", 32, 32, 0.707031, 0.738281, 0.201172, 0.263672 },
-		{ "Quest Normal Turnin", 32, 32, 0.839844, 0.871094, 0.201172, 0.263672 },
-		{ "Quest Daily Turnin", 32, 32, 0.740234, 0.771484, 0.201172, 0.263672 },
-		{ "Quest Legendary Turnin", 32, 32, 0.640625, 0.671875, 0.201172, 0.263672 },
+		{ "Quest Normal", 32, 32, 0.611328, 0.642578, 0.599609, 0.662109 },
+		{ "Quest Campaign", 32, 32, 0.777344, 0.808594, 0.201172, 0.263672 },
+		{ "Quest Daily", 32, 32, 0.611328, 0.642578, 0.400391, 0.462891 },
+		{ "Quest Legendary", 32, 32, 0.611328, 0.642578, 0.533203, 0.595703 },
+		{ "Quest Flight Path", 32, 32, 0.511719, 0.542969, 0.798828, 0.861328 },
+		{ "Quest Objective", 32, 32, 0.611328, 0.642578, 0.732422, 0.794922 },
+		{ "Quest Normal Turnin", 32, 32, 0.644531, 0.675781, 0.267578, 0.330078 },
+		{ "Quest Campaign Turnin", 32, 32, 0.810547, 0.841797, 0.201172, 0.263672 },
+		{ "Quest Daily Turnin", 32, 32, 0.611328, 0.642578, 0.798828, 0.861328 },
+		{ "Quest Legendary Turnin", 32, 32, 0.611328, 0.642578, 0.599609, 0.662109 },
 		{ "Flight Paths" },
-		{ "Flight Path Alliance", 18, 18, 0.322266, 0.339844, 0.941406, 0.976562 },
-		{ "Flight Path Horde", 18, 18, 0.360352, 0.37793, 0.941406, 0.976562 },
-		{ "Flight Path Neutral", 18, 18, 0.398438, 0.416016, 0.941406, 0.976562 },
-		{ "Flight Path Boat Alliance", 27, 27, 0.133789, 0.160156, 0.349609, 0.402344 },
-		{ "Flight Path Boat Horde", 27, 27, 0.133789, 0.160156, 0.40625, 0.458984 },
-		{ "Flight Path Boat Neutral", 27, 27, 0.133789, 0.160156, 0.462891, 0.515625 },
-		{ "Flight Path Argus", 32, 32, 0.874023, 0.905273, 0.00195312, 0.0644531 },
-		{ "Flight Path Ferry", 32, 32, 0.907227, 0.938477, 0.00195312, 0.0644531 },
+		{ "Flight Path Alliance", 18, 18, 0.397461, 0.415039, 0.941406, 0.976562 },
+		{ "Flight Path Horde", 18, 18, 0.435547, 0.453125, 0.941406, 0.976562 },
+		{ "Flight Path Neutral", 18, 18, 0.473633, 0.491211, 0.941406, 0.976562 },
+		{ "Flight Path Boat Alliance", 27, 27, 0.133789, 0.160156, 0.412109, 0.464844 },
+		{ "Flight Path Boat Horde", 27, 27, 0.133789, 0.160156, 0.46875, 0.521484 },
+		{ "Flight Path Boat Neutral", 27, 27, 0.133789, 0.160156, 0.525391, 0.578125 },
+		{ "Flight Path Argus", 32, 32, 0.511719, 0.542969, 0.666016, 0.728516 },
+		{ "Flight Path Ferry", 32, 32, 0.511719, 0.542969, 0.732422, 0.794922 },
 		{ "Portals" },
-		{ "Mage Portal Alliance", 32, 32, 0.541016, 0.572266, 0.0683594, 0.130859 },
-		{ "Mage Portal Horde", 32, 32, 0.574219, 0.605469, 0.0683594, 0.130859 },
-		{ "Warlock Portal Alliance", 32, 32, 0.707031, 0.738281, 0.533203, 0.595703 },
-		{ "Warlock Portal Horde", 32, 32, 0.707031, 0.738281, 0.599609, 0.662109 },
-		{ "Shadowlands" },
-		{ "Broker", 32, 32, 0.707031, 0.738281, 0.666016, 0.728516 },
-		{ "Chromie Time", 32, 32, 0.474609, 0.505859, 0.935547, 0.998047 },
-		{ "Soul Spirit Ghost", 32, 34, 0.474609, 0.505859, 0.00195312, 0.0683594 },
-		{ "Teleportation Network", 32, 32, 0.607422, 0.638672, 0.732422, 0.794922 },
+		{ "Mage Portal Alliance", 32, 32, 0.544922, 0.576172, 0.134766, 0.197266 },
+		{ "Mage Portal Horde", 32, 32, 0.544922, 0.576172, 0.201172, 0.263672 },
+		{ "Warlock Portal Alliance", 32, 32, 0.777344, 0.808594, 0.798828, 0.861328 },
+		{ "Warlock Portal Horde", 32, 32, 0.777344, 0.808594, 0.865234, 0.927734 },
+		{ "N'zoth" },
+		{ "N'zoth Pylon", 31, 44, 0.133789, 0.164062, 0.115234, 0.201172 },
+	},
+	["Shadowlands"] = {
+		path = "Interface/Minimap/ObjectIconsAtlas",
+		x = 1024,
+		y = 512,
+		{ "Broker", 32, 32, 0.777344, 0.808594, 0.931641, 0.994141 },
+		{ "Chromie Time", 32, 32, 0.84375, 0.875, 0.00195312, 0.0644531 },
+		{ "Soul Spirit Ghost", 32, 34, 0.246094, 0.277344, 0.150391, 0.216797 },
+		{ "Teleportation Network" },
+		{ "Teleportation Network", 32, 32, 0.644531, 0.675781, 0.732422, 0.794922 },
+		{ "Teleportation Network Ardenweald", 32, 32, 0.644531, 0.675781, 0.798828, 0.861328 },
+		{ "Teleportation Network Bastion", 32, 32, 0.644531, 0.675781, 0.865234, 0.927734 },
+		{ "Teleportation Network Maldraxxus", 32, 32, 0.644531, 0.675781, 0.931641, 0.994141 },
+		{ "Teleportation Network Revendreth", 32, 32, 0.677734, 0.708984, 0.333984, 0.396484 },
+		{ "Torghast" },
 		{ "Torghast", 27, 31, 0.0693359, 0.125977, 0.646484, 0.767578 },
+		{ "Torghast Door", 32, 32, 0.744141, 0.775391, 0.333984, 0.396484 },
+		{ "Torghast Door Down", 32, 32, 0.777344, 0.808594, 0.333984, 0.396484 },
+		{ "Torghast Door Left", 32, 32, 0.810547, 0.841797, 0.333984, 0.396484 },
+		{ "Torghast Door Right", 32, 32, 0.84375, 0.875, 0.333984, 0.396484 },
+		{ "Torghast Door Up", 32, 32, 0.876953, 0.908203, 0.333984, 0.396484 },
 	},
 	["Ember Court"] = {
 		path = "Interface/Minimap/ObjectIconsAtlas",
 		x = 1024,
 		y = 512,
-		{ " Alexandros Mograine", 36, 36, 0.166016, 0.201172, 0.0917969, 0.162109 },
-		{ " Baroness Vashj", 36, 36, 0.166016, 0.201172, 0.166016, 0.236328 },
-		{ " Choofa", 36, 36, 0.166016, 0.201172, 0.240234, 0.310547 },
-		{ " Countess", 36, 36, 0.166016, 0.201172, 0.314453, 0.384766 },
-		{ " Cryptkeeper Kassir", 36, 36, 0.166016, 0.201172, 0.388672, 0.458984 },
-		{ " Droman Aliothe", 36, 36, 0.166016, 0.201172, 0.462891, 0.533203 },
-		{ " Grandmaster Vole", 36, 36, 0.166016, 0.201172, 0.537109, 0.607422 },
-		{ " Hunt Captain Korayn", 36, 36, 0.166016, 0.201172, 0.611328, 0.681641 },
-		{ " Kleia", 36, 36, 0.166016, 0.201172, 0.685547, 0.755859 },
-		{ " Lady Moonberry", 36, 36, 0.166016, 0.201172, 0.759766, 0.830078 },
-		{ " Mikanikos", 36, 36, 0.166016, 0.201172, 0.833984, 0.904297 },
-		{ " Plague Deviser Marileth", 36, 36, 0.166016, 0.201172, 0.908203, 0.978516 },
-		{ " Polemarch Adrestes", 36, 36, 0.203125, 0.238281, 0.154297, 0.224609 },
-		{ " Prince Renathal", 36, 36, 0.203125, 0.238281, 0.228516, 0.298828 },
-		{ " Rendle", 36, 36, 0.203125, 0.238281, 0.302734, 0.373047 },
-		{ " Sika", 36, 36, 0.203125, 0.238281, 0.376953, 0.447266 },
-		{ " Stonehead", 36, 36, 0.203125, 0.238281, 0.451172, 0.521484 },
+		{ "Alexandros Mograine", 36, 36, 0.166016, 0.201172, 0.0917969, 0.162109 },
+		{ "Baroness Vashj", 36, 36, 0.166016, 0.201172, 0.166016, 0.236328 },
+		{ "Choofa", 36, 36, 0.166016, 0.201172, 0.240234, 0.310547 },
+		{ "Countess", 36, 36, 0.166016, 0.201172, 0.314453, 0.384766 },
+		{ "Cryptkeeper Kassir", 36, 36, 0.166016, 0.201172, 0.388672, 0.458984 },
+		{ "Droman Aliothe", 36, 36, 0.166016, 0.201172, 0.537109, 0.607422 },
+		{ "Grandmaster Vole", 36, 36, 0.166016, 0.201172, 0.611328, 0.681641 },
+		{ "Hunt Captain Korayn", 36, 36, 0.166016, 0.201172, 0.685547, 0.755859 },
+		{ "Kleia", 36, 36, 0.166016, 0.201172, 0.759766, 0.830078 },
+		{ "Lady Moonberry", 36, 36, 0.166016, 0.201172, 0.833984, 0.904297 },
+		{ "Mikanikos", 36, 36, 0.166016, 0.201172, 0.908203, 0.978516 },
+		{ "Plague Deviser Marileth", 36, 36, 0.203125, 0.238281, 0.228516, 0.298828 },
+		{ "Polemarch Adrestes", 36, 36, 0.203125, 0.238281, 0.302734, 0.373047 },
+		{ "Prince Renathal", 36, 36, 0.203125, 0.238281, 0.376953, 0.447266 },
+		{ "Rendle", 36, 36, 0.203125, 0.238281, 0.451172, 0.521484 },
+		{ "Sika", 36, 36, 0.203125, 0.238281, 0.525391, 0.595703 },
+		{ "Stonehead", 36, 36, 0.203125, 0.238281, 0.599609, 0.669922 },
+	},
+	["Undead Scourge"] = {
+		path = "Interface/AddOns/DiceMaster/Texture/undead-scourge-nodes",
+		x = 256,
+		y = 256,
+		{ "Buildings" },
+		{ "Altar of Darkness", 32, 32, 0.75, 1.0, 0, 0.25 },
+		{ "Boneyard", 32, 32, 0.25, 0.5, 0.5, 0.75 },
+		{ "Crypt", 32, 32, 0, 0.25, 0.25, 0.5 },
+		{ "Graveyard", 32, 32, 0.5, 0.75, 0.25, 0.5 },
+		{ "Haunted Gold Mine", 32, 32, 0, 0.25, 0, 0.25 },
+		{ "Necropolis", 64, 64, 0.5, 1.0, 0.5, 1.0 },
+		{ "Sacrificial Pit", 32, 32, 0.25, 0.5, 0.25, 0.5 },
+		{ "Slaughterhouse", 32, 32, 0.75, 1.0, 0.25, 0.5 },
+		{ "Temple of the Damned", 32, 32, 0, 0.25, 0.5, 0.75 },
+		{ "Tomb of Relics", 32, 32, 0.25, 0.5, 0, 0.25 },
+		{ "Ziggurat", 32, 32, 0.5, 0.75, 0, 0.25 },
+		{ "Heroes" },
+		{ "Crypt Lord", 32, 32, 0.25, 0.5, 0.75, 1.0 },
+		{ "Lich", 32, 32, 0, 0.25, 0.75, 1.0 },
+	},
+	["Human Alliance"] = {
+		path = "Interface/AddOns/DiceMaster/Texture/human-alliance-nodes",
+		x = 256,
+		y = 256,
+		{ "Buildings" },
+		{ "Arcane Vault", 32, 32, 0, 0.25, 0, 0.25 },
+		{ "Arcane Sanctum", 32, 32, 0.75, 1.0, 0.25, 0.5 },
+		{ "Altar of Kings", 32, 32, 0, 0.25, 0.5, 0.75 },
+		{ "Barracks", 32, 32, 0.25, 0.5, 0, 0.25 },
+		{ "Lumber Mill", 32, 32, 0.5, 0.75, 0, 0.25 },
+		{ "Farm", 32, 32, 0.75, 1.0, 0, 0.25 },
+		{ "Gryphon Aviary", 32, 32, 0, 0.25, 0.25, 0.5 },
+		{ "Blacksmith", 32, 32, 0.25, 0.5, 0.25, 0.5 },
+		{ "Workshop", 32, 32, 0.5, 0.75, 0.25, 0.5 },
+		{ "Scout Tower", 32, 32, 0.25, 0.5, 0.5, 0.75 },
+		{ "Town Hall", 64, 64, 0.5, 1.0, 0.5, 1.0 },
+		{ "Heroes" },
+		{ "Archmage", 32, 32, 0.25, 0.5, 0.75, 1.0 },
+		{ "Paladin", 32, 32, 0, 0.25, 0.75, 1.0 },
+	},
+	["Orcish Horde"] = {
+		path = "Interface/AddOns/DiceMaster/Texture/orcish-horde-nodes",
+		x = 256,
+		y = 256,
+		{ "Buildings" },
+		{ "Altar of Storms", 32, 32, 0.75, 1.0, 0, 0.25 },
+		{ "Barracks", 32, 32, 0.25, 0.5, 0, 0.25 },
+		{ "Beastiary", 32, 32, 0.5, 0.75, 0.25, 0.5 },
+		{ "Burrow", 32, 32, 0.75, 1.0, 0.25, 0.5 },
+		{ "Great Hall", 64, 64, 0.5, 1.0, 0.5, 1.0 },
+		{ "Spirit Lodge", 32, 32, 0, 0.25, 0.25, 0.5 },
+		{ "Tauren Totem", 32, 32, 0.25, 0.5, 0.25, 0.5 },
+		{ "Voodoo Lounge", 32, 32, 0, 0.25, 0.5, 0.75 },
+		{ "War Mill", 32, 32, 0.5, 0.75, 0, 0.25 },
+		{ "Watch Tower", 32, 32, 0, 0.25, 0, 0.25 },
+		{ "Heroes" },
+		{ "Blademaster", 32, 32, 0, 0.25, 0.75, 1.0 },
+		{ "Farseer", 32, 32, 0.25, 0.5, 0.75, 1.0 },
+		{ "Tauren Chieftain", 32, 32, 0.25, 0.5, 0.5, 0.75 },
+	},
+	["Night Elves"] = {
+		path = "Interface/AddOns/DiceMaster/Texture/night-elf-nodes",
+		x = 256,
+		y = 256,
+		{ "Buildings" },
+		{ "Altar of Elders", 32, 32, 0.75, 1.0, 0, 0.25 },
+		{ "Ancient of Lore", 32, 32, 0.5, 0.75, 0, 0.25 },
+		{ "Ancient of War", 32, 32, 0.25, 0.5, 0, 0.25 },
+		{ "Ancient of Wind", 32, 32, 0.25, 0.5, 0.25, 0.5 },
+		{ "Ancient of Wonders", 32, 32, 0, 0.25, 0.5, 0.75 },
+		{ "Ancient Protector", 32, 32, 0.75, 1.0, 0.25, 0.5 },
+		{ "Chimera Roost", 32, 32, 0, 0.25, 0.25, 0.5 },
+		{ "Hunter's Hall", 32, 32, 0.5, 0.75, 0.25, 0.5 },
+		{ "Moonwell", 32, 32, 0, 0.25, 0, 0.25 },
+		{ "Tree of Life", 64, 64, 0.5, 1.0, 0.5, 1.0 },
+		{ "Heroes" },
+		{ "Keeper of the Grove", 32, 32, 0, 0.25, 0.75, 1.0 },
+		{ "Priestess of the Moon", 32, 32, 0.25, 0.5, 0.75, 1.0 },
+		{ "Warden", 32, 32, 0.25, 0.5, 0.5, 0.75 },
 	},
 }
 
@@ -702,6 +801,31 @@ StaticPopupDialogs["DICEMASTER4_LEVELRESETATTEMPT"] = {
   whileDead = true,
   hideOnEscape = true,
   preferredIndex = 3,
+}
+
+-- TUTORIAL STRINGS
+
+local ROLL_TRACKER_TUTORIAL = {
+	"Select a World Marker from the dropdown to designate which World Marker you are currently at or focused on.|n|nDungeon Masters may use World Markers to represent NPCs or important locations.",
+	"Use the ‘Difficulty Class’ text box to compare each of the rolls listed below against a Difficulty Class (or DC).|n|nAny numeric value entered in the text box will change the colour of each roll to either green (indicating a “success”, or a value greater than the Difficulty Class) or red (indicating a “failure”, or a value lesser than the Difficulty Class).",
+	"Player rolls are logged here along with a timestamp and the type of roll attempted (if applicable).|n|nYou can expand a detailed menu complete with a list of all past rolls by left clicking any entry from the list.",
+	"Click the 'Clear' button to erase all player rolls from the above list.|n|nDungeon Masters can click the 'Send Banner...' button to send custom banners to their group members in order to make announcements and signal the transition between turns or combat phases.",
+}
+
+local NOTES_TUTORIAL = {
+	"Dungeon Masters can toggle whether or not raid assistants are allowed to edit the Notes field below.",
+	"Dungeon Masters can record public notes here that the rest of their group can see.",
+	"The format bar allows the Dungeon Master to insert icons, colours, and more into the Notes field above.",
+}
+
+local ROSTER_TUTORIAL = {
+	"While in a party or raid, you can view the health, level, and experience of all group members here.|n|nYou can target a group member by clicking on their portrait, or click on their nameplate for more information.",
+	"Click the 'Refresh' button to manually update the roster.",
+}
+
+local MAP_NODES_TUTORIAL = {
+	"Your custom map nodes are logged here, including their icon, title, zone, and a 'View' button that opens the World Map to their location.|n|nSelect any map node from this list to edit or delete it.",
+	"Create custom map nodes that are visible on the World Map and Minimap by you and the members of your party or raid.|n|nYou can edit the title, description, and icon of your map nodes here.|n|nYou can also toggle whether or not the map node is visible to the rest of your party or raid.|n|nClick the 'Save' button to save any changes made to the selected map node.",
 }
 
 function Me.DiceMasterRollFrame_OnLoad(self)
@@ -1837,7 +1961,6 @@ function Me.DiceMasterMapNodes_View( self )
 	local mapID = info.mapID;
 	
 	OpenWorldMap( mapID )
-	--WorldMapFrame:SetMapID( mapID );
 end
 
 -------------------------------------------------------------------------------
@@ -1857,6 +1980,61 @@ function Me.RollTracker_ShareNoteWithParty()
 	})
 	
 	Me:SendCommMessage( "DCM4", msg, "RAID", nil, "NORMAL" )
+end
+
+DiceMasterRollFrameTutorialMixin = {}
+
+function DiceMasterRollFrameTutorialMixin:OnLoad()
+	self.helpInfo = {
+		FramePos = { x = 0,	y = -20 },
+		FrameSize = { width = 338, height = 364	},
+	};
+end
+
+function DiceMasterRollFrameTutorialMixin:OnHide()
+	self:CheckAndHideHelpInfo();
+end
+
+function DiceMasterRollFrameTutorialMixin:CheckAndShowTooltip()
+	if not HelpPlate:IsShown() then
+		HelpPlate_ShowTutorialPrompt(self.helpInfo, self);
+	end
+end
+
+function DiceMasterRollFrameTutorialMixin:CheckAndHideHelpInfo()
+	if HelpPlate:IsShown() then
+		HelpPlate_Hide();
+		HelpPlate_TooltipHide();
+	end
+end
+
+function DiceMasterRollFrameTutorialMixin:ToggleHelpInfo()
+	local rollFrame = DiceMasterRollFrame;
+	for i = 1, #self.helpInfo do
+		self.helpInfo[i] = nil;
+	end
+	if ( DiceMasterRollTracker:IsShown() ) then
+		self.helpInfo[1] = { ButtonPos = { x = 108,	y = 2 }, HighLightBox = { x = 50, y = -2, width = 98, height = 39 },	ToolTipDir = "DOWN", ToolTipText = ROLL_TRACKER_TUTORIAL[1] };
+		self.helpInfo[2] = { ButtonPos = { x = 150,	y = 2 }, HighLightBox = { x = 155, y = -2, width = 174, height = 39 },	ToolTipDir = "DOWN", ToolTipText = ROLL_TRACKER_TUTORIAL[2] };
+		self.helpInfo[3] = { ButtonPos = { x = 146,	y = -170 }, HighLightBox = { x = 10, y = -66, width = 320, height = 270 },	ToolTipDir = "DOWN", ToolTipText = ROLL_TRACKER_TUTORIAL[3] };
+		self.helpInfo[4] = { ButtonPos = { x = 146,	y = -329 }, HighLightBox = { x = 10, y = -340, width = 320, height = 24 },	ToolTipDir = "UP", ToolTipText = ROLL_TRACKER_TUTORIAL[4] };
+	elseif ( DiceMasterDMNotes:IsShown() ) then
+		self.helpInfo[1] = { ButtonPos = { x = 290,	y = 2 }, HighLightBox = { x = 60, y = -2, width = 270, height = 39 },	ToolTipDir = "DOWN", ToolTipText = NOTES_TUTORIAL[1] };
+		self.helpInfo[2] = { ButtonPos = { x = 146,	y = -150 }, HighLightBox = { x = 10, y = -47, width = 320, height = 276 },	ToolTipDir = "DOWN", ToolTipText = NOTES_TUTORIAL[2] };
+		self.helpInfo[3] = { ButtonPos = { x = 146,	y = -324 }, HighLightBox = { x = 10, y = -328, width = 320, height = 39 },	ToolTipDir = "UP", ToolTipText = NOTES_TUTORIAL[3] };
+	elseif ( DiceMasterDMRoster:IsShown() ) then
+		self.helpInfo[1] = { ButtonPos = { x = 146,	y = -150 }, HighLightBox = { x = 10, y = -47, width = 320, height = 289 },	ToolTipDir = "DOWN", ToolTipText = ROSTER_TUTORIAL[1] };
+		self.helpInfo[2] = { ButtonPos = { x = 146,	y = -329 }, HighLightBox = { x = 10, y = -340, width = 320, height = 24 },	ToolTipDir = "UP", ToolTipText = ROSTER_TUTORIAL[2] };
+	elseif ( DiceMasterMapNodes:IsShown() ) then
+		self.helpInfo[1] = { ButtonPos = { x = 146,	y = -100 }, HighLightBox = { x = 10, y = -66, width = 320, height = 111 },	ToolTipDir = "DOWN", ToolTipText = MAP_NODES_TUTORIAL[1] };
+		self.helpInfo[2] = { ButtonPos = { x = 146,	y = -230 }, HighLightBox = { x = 10, y = -185, width = 320, height = 152 },	ToolTipDir = "UP", ToolTipText = MAP_NODES_TUTORIAL[2] };
+	end
+
+	if ( not HelpPlate:IsShown() and rollFrame:IsShown()) then
+		HelpPlate_Show(self.helpInfo, rollFrame, self, true);
+	else
+		HelpPlate_Hide(true);
+	end
 end
 
 -------------------------------------------------------------------------------

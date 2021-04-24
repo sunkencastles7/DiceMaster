@@ -191,6 +191,10 @@ function Me.OpenTraitTooltip( owner, trait, index, isTraitsList )
 		end
 	end
 	
+	if trait.effects and next(trait.effects) and owner and owner:GetParent():GetName() == "DiceMasterPanel" then
+		usable = usable .. "<Right Click to Use>|n"
+	end
+	
 	if isTraitsList then
 		GameTooltip:AddLine( "<Left Click to Edit>", 0.44, 0.44, 0.44, true )
 	else
@@ -268,9 +272,9 @@ local function OnLeave( self )
 end
 
 local function OnReceiveDrag( self )
-	if self.editable_trait and DiceMasterTraitPickerCursorIcon.data and self.traitIndex then
+	if self:GetParent() == DiceMasterPanel and DiceMasterTraitPickerCursorIcon.data and self.traitIndex then
 		Me.Profile.traits[ self.traitIndex ] = DiceMasterTraitPickerCursorIcon.data
-		self:SetTrait( DiceMasterTraitPickerCursorIcon.data )
+		self:SetPlayerTrait( UnitName( "player" ), self.traitIndex )
 		Me.BumpSerial( Me.db.char.traitSerials, self.traitIndex )
 		Me.Inspect_OnTraitUpdated( UnitName("player"), self.traitIndex )
 		Me.UpdatePanelTraits()
@@ -399,8 +403,8 @@ function Me.TraitButton_Init( self )
 	end
 	 
 	self:SetScript( "OnEnter", OnEnter )
-	self:SetScript( "OnLeave", OnLeave ) 
-	self:SetScript( "OnReceiveDrag", OnReceiveDrag ) 
+	self:SetScript( "OnLeave", OnLeave )
+	self:SetScript( "OnReceiveDrag", OnReceiveDrag )
 	self.editable_trait = false 
 end
 

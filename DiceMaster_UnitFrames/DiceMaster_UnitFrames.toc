@@ -1,4 +1,4 @@
-## Interface: 80300
+## Interface: 90005
 ## Title: DiceMaster Unit Frames
 ## Author: Skylar
 ## Notes: Allows custom unit frames and targeting options for DiceMaster.

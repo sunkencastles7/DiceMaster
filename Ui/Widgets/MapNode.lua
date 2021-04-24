@@ -52,11 +52,13 @@ local function OnEnter( self )
 	GameTooltip:AddLine( self:GetDistanceToMapIcon() .. " yd away", 1, 1, 1, true )
 	GameTooltip:AddLine( Me.FormatDescTooltip( self.description ), 1, 0.81, 0, true )
 	
-	if self.isWorldMapPin and Me.IsLeader( false ) then
-		GameTooltip:AddLine( "<Left Click to Drag>", 0.44, 0.44, 0.44, true )
-		GameTooltip:AddLine( "<Right Click to Edit>", 0.44, 0.44, 0.44, true )
+	if self.isWorldMapPin then
+		if Me.IsLeader( false ) then
+			GameTooltip:AddLine( "<Left Click to Drag>", 0.44, 0.44, 0.44, true )
+			GameTooltip:AddLine( "<Right Click to Edit>", 0.44, 0.44, 0.44, true )
+		end
+		GameTooltip:AddLine( "<Shift+Click to Link to Chat>", 0.44, 0.44, 0.44, true )
 	end
-	
 	GameTooltip:Show()
 	
 	self:ResizeMapIcon( 1 )
@@ -122,6 +124,35 @@ local function OnUpdate( self )
 end
 
 local function OnClick( self, button )
+	if button == "RightButton" and IsShiftKeyDown() then
+		local channels = {
+			"PARTY",
+			"RAID",
+			"GUILD",
+			"WHISPER",
+		}
+		local channelName = tostring(LAST_ACTIVE_CHAT_EDIT_BOX:GetAttribute("chatType")) or nil
+		local dist = "GUILD"
+		for i = 1, #channels do
+			if channels[i] == channelName then
+				dist = channels[i]
+				break;
+			end
+		end
+		local channel = nil
+		if dist == "WHISPER" then
+			channel = ACTIVE_CHAT_EDIT_BOX:GetAttribute("tellTarget") or nil
+		end
+		
+		if Me.IsLeader( false ) then
+			Me.RollTracker_ShareMapNodesWithParty()
+		end
+		
+		ChatEdit_InsertLink( "[DiceMaster4Pin:" .. self.id .. "]" ) 
+		
+		return
+	end
+
 	if not Me.IsLeader( false ) or IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) then
 		return
 	end

@@ -85,7 +85,9 @@ local function PrimeInspectData( name )
 			armor        = 0;
 		};
 		inventory	  = {};
+		inventoryIcon = "Interface/Icons/inv_misc_bag_08";
 		shop		  = {};
+		shopIcon = "Interface/Icons/garrison_building_tradingpost";
 		currency 	  = {};
 		currencyActive = 1;
 		mapNodes 	  = {};
@@ -459,6 +461,7 @@ function Me.Inspect_Open( name )
 	
 	Me.StatInspector_Update()
 	Me.StatInspector_UpdatePet()
+	Me.StatInspector_UpdateInventory()							   
 	
 	Me.Inspect_UpdatePlayer( name )
 	Me.Inspect_Refresh( true, "all" ) 
@@ -768,14 +771,21 @@ local function DoSendStatus()
 		
 		if #Profile.inventory > 0 then
 			msg.inv = Profile.inventory
+			msg.invIcon = Profile.inventoryIcon
 		else
 			msg.inv = {}
+			msg.invIcon = "Interface/Icons/inv_misc_bag_08"
 		end
+		
+		msg.cur = Profile.currency
+		msg.cura = Profile.currencyActive
 		
 		if #Profile.shop > 0 then
 			msg.shop = Profile.shop
+			msg.shopIcon = Profile.shopIcon
 		else
 			msg.shop = {}
+			msg.shopIcon = "Interface/Icons/garrison_building_tradingpost"
 		end
 		
 		local msg = Me:Serialize( "STATUS", msg )
@@ -1030,7 +1040,7 @@ function Me.Inspect_OnStatusMessage( data, dist, sender )
 	-- Version check
 	if data.vs and versionCheck and data.vs > Me.version then
 		versionCheck = false;
-		Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Your DiceMaster is out of date and may be incompatible with other users. Please update at your earliest convenience.", "RAID")
+		Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Your DiceMaster is out of date and may be incompatible with other users. Please update at your earliest convenience.", "SYSTEM")
 	end
 	
 	if not data.s or not data.h or not data.hm or not data.c 
@@ -1076,13 +1086,24 @@ function Me.Inspect_OnStatusMessage( data, dist, sender )
 	end
 	if data.inv then
 		store.inventory = data.inv
+		store.inventoryIcon = store.invIcon
 	else
 		store.inventory = {};
+		store.inventoryIcon = "Interface/Icons/inv_misc_bag_08";
+	end
+	if data.cur then
+		store.currency = data.cur
+		store.currencyActive = data.cura
+	else
+		store.currency = Me.Profile.currency[1]
+		store.currencyActive = 1;
 	end
 	if data.shop then
 		store.shop = data.shop
+		store.shopIcon = data.shopIcon
 	else
 		store.shop = {};
+		store.shopIcon = "Interface/Icons/garrison_building_tradingpost"
 	end
 	store.hasDM4         = true
 	
@@ -1158,6 +1179,10 @@ end
 ---------------------------------------------------------------------------
 -- Received SETHP data.
 --
+local healthAnimationPlaying = false;
+local healAmount = {};
+local damageAmount = 0;
+
 function Me.Inspect_OnSetHPMessage( data, dist, sender )
 	
 	-- Only the party leader can grant experience.
@@ -1177,6 +1202,44 @@ function Me.Inspect_OnSetHPMessage( data, dist, sender )
 		-- cover all those bases . . .
 		return 
 	end
+	
+	if data.h > Profile.health then
+		if not healAmount[ sender ] then
+			healAmount[ sender ] = data.h - Profile.health;
+		else
+			healAmount[ sender ] = healAmount[ sender ] + ( data.h - Profile.health )
+		end
+	elseif data.h < Profile.health then
+		damageAmount = damageAmount + ( Profile.health - data.h )
+	end
+	
+	if not healthAnimationPlaying and Me.db.global.allowEffects then
+		healthAnimationPlaying = true
+		Me.ResetFullscreenEffect()
+		local model = DiceMasterFullscreenEffectFrame.Model
+		-- check if we're gaining or losing health
+		if data.h > Profile.health then
+			model:ApplySpellVisualKit( 29077, true )
+			PlaySound( 32877 )
+		elseif data.h < Profile.health then
+			model:ApplySpellVisualKit( 29078, true )
+			PlaySound( 32878 )
+		end
+	end
+	
+	C_Timer.After( 3, function() 
+		if type(next(healAmount)) ~= "nil"  then
+			for k, v in pairs( healAmount ) do
+				Me.PrintMessage( k .. " has healed you for |cFFFFFFFF" .. v .. "|r|TInterface/AddOns/DiceMaster/Texture/health-heart:12|t!", "RAID" )
+			end
+		end
+		if damageAmount > 0 then
+			Me.PrintMessage( "You have lost |cFFFFFFFF" .. damageAmount .. "|r|TInterface/AddOns/DiceMaster/Texture/health-heart:12|t!", "RAID" )
+		end
+		healthAnimationPlaying = false
+		healAmount = {};
+		damageAmount = 0;
+	end )
 	
 	Profile.health = data.h
 	Profile.healthMax = data.hm

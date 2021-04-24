@@ -151,6 +151,7 @@
 				DiceMasterCursorItemIcon.copyAmount = nil
 				DiceMasterCursorItemIcon.editCursor = nil
 				DiceMasterCursorItemIcon.sellCursor = nil
+				DiceMasterCursorItemIcon.chooseCursor = nil
 				if DiceMasterCursorItemIcon.prevButton then
 					SetItemButtonDesaturated(DiceMasterCursorItemIcon.prevButton, false);
 					PlaySound(1203)
@@ -184,14 +185,16 @@
 		<Anchor point="CENTER"/>
 	</Anchors>
 	<Frames>
-		<CinematicModel parentKey="Model" setAllPoints="true">
+		<PlayerModel parentKey="Model" setAllPoints="true">
 			<Scripts>
 				<OnShow>
 					self:SetDisplayInfo( 6908 )
-					self:SetPosition( -20, 7.7, 0 )
+					self:SetPosition( 0, 0, -0.5 )
+					self:SetPortraitZoom( 0 );
+					self:SetCamDistanceScale( 5 );
 				</OnShow>
 			</Scripts>
-		</CinematicModel>
+		</PlayerModel>
 	</Frames>
 	<Scripts>
 		<OnLoad>
@@ -204,19 +207,34 @@
   <!-- Intrinsics/Widgets -->
   <Include file="Ui\Widgets\StatusBar.xml"/>
   <Include file="Ui\Widgets\TraitButton.xml"/>
+  <Include file="Ui\Widgets\ItemButton.xml"/>
   <Include file="Ui\Widgets\UnitPowerBar.xml"/>
   <Include file="Ui\Widgets\MapNode.xml"/>
   
+  <!-- Editors -->
+  <Include file="Ui\Editors\TraitEditor.xml"/>
+  <Include file="Ui\Editors\ItemEditor.xml"/>
+  <Include file="Ui\Editors\ShopEditor.xml"/>
+  <Include file="Ui\Editors\ApplyBuffEditor.xml"/>
+  <Include file="Ui\Editors\RemoveBuffEditor.xml"/>
+  <Include file="Ui\Editors\SetDiceEditor.xml"/>
+  <Include file="Ui\Editors\ScriptEditor.xml"/>
+  <Include file="Ui\Editors\MessageEditor.xml"/>
+  <Include file="Ui\Editors\ProduceItemEditor.xml"/>
+  <Include file="Ui\Editors\ProduceCurrencyEditor.xml"/>
+  <Include file="Ui\Editors\Book.xml"/>
+  
+  <!-- Pickers -->
+  <Include file="Ui\Pickers\IconPicker.xml"/>
+  <Include file="Ui\Pickers\ColourPicker.xml"/>
+  <Include file="Ui\Pickers\SoundPicker.xml"/>
+  <Include file="Ui\Pickers\ModelPicker.xml"/>
+  <Include file="Ui\Pickers\EffectPicker.xml"/>
+  
   <!-- Frames -->
-  <Include file="Ui\Panel.xml"/>
-  <Include file="Ui\TraitEditor.xml"/>
+  <Include file="Ui\Panel.xml"/>							 
   <Include file="Ui\StatInspector.xml"/>
   <Include file="Ui\Charges.xml"/>
-  <Include file="Ui\IconPicker.xml"/>
-  <Include file="Ui\ColourPicker.xml"/>
-  <Include file="Ui\SoundPicker.xml"/>
-  <Include file="Ui\ModelPicker.xml"/>
-  <Include file="Ui\EffectPicker.xml"/>
   <Include file="Ui\Buffs.xml"/>
   <Include file="Ui\InspectFrame.xml"/>
   <Include file="Ui\RollTracker.xml"/>
@@ -225,5 +243,6 @@
   <Include file="Ui\TurnTracker.xml"/>
   <Include file="Ui\MoraleBar.xml"/>
   <Include file="Ui\RangeRadar.xml"/>
+  <Include file="Ui\LootToast.xml"/>
 </Ui>
  
