@@ -10,21 +10,13 @@ local Me = DiceMaster4
 local Profile = Me.Profile
 
 local chat_channels = { 
-	"Say";
-	"Yell";
-	"Emote";
-	"Guild";
-	"Party";
-	"Raid";
-	--"Whisper";
+	"SAY";
+	"YELL";
+	"EMOTE";
+	"GUILD";
+	"PARTY";
+	"RAID";
 }
-
-local function RGBToHex(r, g, b)
-	r = r <= 1 and r >= 0 and r or 0
-	g = g <= 1 and g >= 0 and g or 0
-	b = b <= 1 and b >= 0 and b or 0
-	return string.format("%02x%02x%02x", r*255, g*255, b*255)
-end
 
 function Me.MessageEditorChannel_OnClick(self, arg1, arg2, checked)
 	UIDropDownMenu_SetText( DiceMasterMessageEditor.channel, self:GetText() )
@@ -33,9 +25,7 @@ end
 function Me.MessageEditorChannel_OnLoad(frame, level, menuList)
 	local info = UIDropDownMenu_CreateInfo()
 	for i=1, #chat_channels do
-		local r, g, b = Chat_GetChannelColor( ChatTypeInfo[ string.upper( chat_channels[i] ) ] )
-		local hex = RGBToHex( r, g, b )
-		info.text = "|cFF" .. hex .. chat_channels[i] .. "|r"
+		info.text = chat_channels[i]
 		info.checked = UIDropDownMenu_GetText(DiceMasterMessageEditor.channel) == info.text;
 		info.notCheckable = false;
 		info.func = Me.MessageEditorChannel_OnClick;
@@ -93,7 +83,7 @@ function Me.MessageEditor_SaveEdits()
 	local delay = tonumber( DiceMasterMessageEditor.delay:GetText() )
 	
 	if not channel or type( channel ) ~= "string" then
-		channel = "Say"
+		channel = "SAY"
 	end
 	
 	if not delay or type( delay ) ~= "number" or delay <= 0 then
@@ -108,7 +98,7 @@ function Me.MessageEditor_SaveEdits()
 	local messageData = {
 		type = "message";
 		message = message;
-		channel = string.upper( channel );
+		channel = channel;
 		delay = delay;
 	}
 	
@@ -128,7 +118,7 @@ function Me.MessageEditor_Save()
 	local delay = tonumber( DiceMasterMessageEditor.delay:GetText() )
 	
 	if not channel or type( channel ) ~= "string" then
-		channel = "Say"
+		channel = "SAY"
 	end
 	
 	if not delay or type( delay ) ~= "number" or delay <= 0 then
@@ -143,7 +133,7 @@ function Me.MessageEditor_Save()
 	local messageData = {
 		type = "message";
 		message = message;
-		channel = string.upper( channel );
+		channel = channel;
 		delay = delay;
 	}
 	

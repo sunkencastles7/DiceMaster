@@ -135,6 +135,9 @@
 				self:SetAutoFocus( false )
 			  </OnLoad>
 			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			  <OnEnterPressed>
+				DiceMaster4.EffectPicker_TestEffect( nil, self:GetText() )
+			  </OnEnterPressed>
 			</Scripts>
 		  </EditBox>
 		  

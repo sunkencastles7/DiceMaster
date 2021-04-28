@@ -1551,7 +1551,7 @@
 				</Texture>
 			</Layer>
 			  <Layer level="ARTWORK">
-				<Texture parentKey="Icon" file="Interface/Icons/inv_misc_bag_08">
+				<Texture parentKey="Icon" file="Interface/Buttons/Button-Backpack-Up">
 				  <Size x="32" y="32"/>
 				  <Anchors>
 					<Anchor point="CENTER"/>

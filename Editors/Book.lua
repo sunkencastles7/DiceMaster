@@ -53,6 +53,10 @@ StaticPopupDialogs["DICEMASTER4_DELETEBOOKPAGE"] = {
   preferredIndex = 3,
 }
 
+-------------------------------------------------------------------------------
+-- BBCode to HTML converter
+--
+
 local BOOK_MATERIALS = {
 	["Alliance"] = {
 		atlas = "QuestBG-Alliance",
@@ -177,6 +181,10 @@ local BOOK_FONTS = {
 	["Irish Uncialfabeta Bold"] = "Interface\\AddOns\\DiceMaster\\Fonts\\IrishUncialfabeta-Bold.TTF",
 	["Elementary Gothic Bookhand"] = "Interface\\AddOns\\DiceMaster\\Fonts\\Elementary_Gothic_Bookhand.TTF",
 }
+
+local AppendHtmlAndBodyTags = function(text)
+	return "<HTML><BODY>"..text.."</BODY></HTML>";
+end
 
 local function SetBookMaterial( materialType )
 	DiceMasterBookFramePageBg:SetTexture( nil )

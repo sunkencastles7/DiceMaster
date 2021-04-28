@@ -23,8 +23,8 @@ function Me.ScriptEditor_RunScript( data )
 	
 	local codeFunc, err = loadstring( data.code );
 	if not ( codeFunc ) then
-		Me.PrintMessage( "Syntax error in DiceMaster item.", "SYSTEM" )
-		Me.PrintMessage( err )
+		Me.PrintMessage( "|cFFFF0000Syntax error in DiceMaster item.|r", "SYSTEM" )
+		Me.PrintMessage( "|cFFFF0000" .. err .. "|r" )
 		return
 	end
 	pcall( codeFunc )

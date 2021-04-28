@@ -122,7 +122,7 @@ local function RecycleInventorySlots()
 end
 
 function Me.StatInspector_UpdateInventory()
-	DiceMasterStatInspectorInventoryTab.Icon:SetTexture( Me.inspectData[ Me.statInspectName ].inventoryIcon or "Interface/Icons/inv_misc_bag_08" )
+	DiceMasterStatInspectorInventoryTab.Icon:SetTexture( Me.inspectData[ Me.statInspectName ].inventoryIcon or "Interface/Buttons/Button-Backpack-Up" )
 	local frame = Me.statinspector.inventoryFrame
 	if( not frame.slots_initialized ) then
 		frame.slots_initialized = true;

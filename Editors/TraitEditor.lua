@@ -763,7 +763,7 @@ end
 --
 
 function Me.TraitEditor_SelectInventoryIcon( texture )
-	Me.Profile.inventoryIcon = texture or "Interface/Icons/inv_misc_bag_08"
+	Me.Profile.inventoryIcon = texture or "Interface/Buttons/Button-Backpack-Up"
 	DiceMasterTraitEditorInventoryTab.Icon:SetTexture( texture )
 end
 
@@ -854,7 +854,7 @@ function Me.TraitEditor_CleanUpInventory()
 end
 
 function Me.TraitEditor_UpdateInventory()
-	DiceMasterTraitEditorInventoryTab.Icon:SetTexture( Me.Profile.inventoryIcon or "Interface/Icons/inv_misc_bag_08" )
+	DiceMasterTraitEditorInventoryTab.Icon:SetTexture( Me.Profile.inventoryIcon or "Interface/Buttons/Button-Backpack-Up" )
 	local frame = DiceMasterTraitEditorInventoryFrame
 	if( not frame.slots_initialized ) then
 		frame.slots_initialized = true;

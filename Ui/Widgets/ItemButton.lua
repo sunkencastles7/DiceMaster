@@ -399,7 +399,7 @@ end
 local function OnLeave( self )
 	if self.itemPlayer then
 		Me.playerItemTooltipOpen = false
-		if DiceMasterCursorItemIcon.editCursor or DiceMasterCursorItemIcon.sellCursor or DiceMasterCursorItemIcon.chooseCursor then
+		if DiceMasterCursorItemIcon.editCursor or DiceMasterCursorItemIcon.sellCursor or DiceMasterCursorItemIcon.chooseCursor or DiceMasterCursorItemIcon.requestCursor then
 			SetCursor("CAST_CURSOR");
 		end
 	end

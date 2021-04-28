@@ -85,7 +85,7 @@ local function PrimeInspectData( name )
 			armor        = 0;
 		};
 		inventory	  = {};
-		inventoryIcon = "Interface/Icons/inv_misc_bag_08";
+		inventoryIcon = "Interface/Buttons/Button-Backpack-Up";
 		shop		  = {};
 		shopIcon = "Interface/Icons/garrison_building_tradingpost";
 		currency 	  = {};
