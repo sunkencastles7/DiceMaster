@@ -74,7 +74,7 @@ function Me.MessageEditor_Load( effectIndex )
 	
 	Me.EffectEditingIndex = effectIndex
 	
-	DiceMasterMessageEditor.message.EditBox:SetText( effect.code )
+	DiceMasterMessageEditor.message.EditBox:SetText( effect.message )
 	DiceMasterMessageEditor.delay:SetText( effect.delay )
 	UIDropDownMenu_SetText( DiceMasterMessageEditor.channel, effect.channel )
 	
@@ -123,10 +123,6 @@ function Me.MessageEditor_SaveEdits()
 end
 
 function Me.MessageEditor_Save()
-	if not Me.ItemEditingIndex then
-		return
-	end
-	
 	local message = DiceMasterMessageEditor.message.EditBox:GetText()
 	local channel = UIDropDownMenu_GetText( DiceMasterMessageEditor.channel )
 	local delay = tonumber( DiceMasterMessageEditor.delay:GetText() )
@@ -157,7 +153,6 @@ function Me.MessageEditor_Save()
 		tinsert( Me.newItem.effects, messageData )
 	end
 	
-	--tinsert( Me.Profile.inventory[Me.ItemEditingIndex].effects, scriptData )
 	Me.MessageEditor_Close()
 	Me.ItemEditorEffectsList_Update()
 end
@@ -177,17 +172,7 @@ end
 -- Open the message editor window.
 --
 function Me.MessageEditor_Open( frame )
-	Me.EffectPicker_Close()
-	Me.SoundPicker_Close()
-	Me.AnimationPicker_Close()
-	Me.ShopEditor_Close()
-	Me.ScriptEditor_Close()
-	--Me.ItemEditor_Close()
-	Me.ModelPicker_Close()
-	Me.CurrencyEditor_Close()
-	Me.buffeditor:Hide()
-	Me.removebuffeditor:Hide()
-	Me.setdiceeditor:Hide()
+	Me.CloseAllEditors( nil, nil, true )
 	if not frame then
 		frame = DiceMasterItemEditor;
 	end

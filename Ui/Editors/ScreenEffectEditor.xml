@@ -1,0 +1,169 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+	
+	<Frame name="DiceMasterScreenEffectEditor" parent="UIParent" inherits="SimplePanelTemplate" hidden="true" frameStrata="DIALOG" topLevel="true">
+    <Size x="256" y="290" />
+    <Anchors>
+      <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
+    </Anchors>
+	
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="header" file="Interface/AddOns/DiceMaster/Texture/dicemaster-header">
+				<TexCoords left="0" right="0.623" top="0" bottom="0.566" />
+				<Size x="160" y="72"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-16" />
+				</Anchors>
+			</Texture>
+			<FontString inherits="GameFontNormal" justifyH="center" text="Screen Effect">
+				<Anchors>
+				  <Anchor point="TOP" x="0" y="-12"/> 
+				</Anchors>
+			</FontString>
+		</Layer>
+		<Layer level="ARTWORK">
+			<FontString inherits="GameFontNormalLeft" justifyH="center" text="Preview">
+				<Anchors>
+				  <Anchor point="TOP" x="0" y="-32"/> 
+				</Anchors>
+			</FontString>
+			<Texture parentKey="previewTextureTop">
+				<Size x="128" y="64"/>
+				<Anchors>
+					<Anchor point="TOP" x="0" y="-48" />
+				</Anchors>
+			</Texture>
+			<Texture parentKey="previewTextureLeft">
+				<Size x="64" y="128"/>
+				<Anchors>
+					<Anchor point="TOP" x="48" y="-48" />
+				</Anchors>
+			</Texture>
+			<Texture parentKey="previewTextureRight">
+				<Size x="64" y="128"/>
+				<Anchors>
+					<Anchor point="TOP" x="-48" y="-48" />
+				</Anchors>
+			</Texture>
+		</Layer>
+	</Layers>
+    
+    <Scripts>
+      <OnLoad>	
+		if self.NineSlice then
+			self.NineSlice:SetFrameLevel(1)
+		end
+      </OnLoad>
+	  <OnShow>
+		--DiceMaster4.ScreenEffectEditor_Refresh()
+	  </OnShow>
+    </Scripts>
+    <Frames>
+		
+		<Button name="$parentTextureDropdown" parentKey="textureDropdown" enableMouse="true" inherits="UIDropDownMenuTemplate">
+			<Size x="150" y="22"/>
+			<Anchors>
+			  <Anchor point="TOP" relativeKey="$parent.previewTextureTop" relativePoint="BOTTOM" x="4" y="-74"/> 
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString name="$parentTitle" inherits="GameFontNormalLeft" justifyH="left" text="Texture:">
+						<Size x="60" y="12"/>
+						<Anchors>
+						  <Anchor point="RIGHT" relativePoint="LEFT" x="20" y="2"/> 
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts>
+			  <OnLoad>
+				UIDropDownMenu_Initialize( self, DiceMaster4.ScreenEffectEditorTexture_OnLoad )
+				UIDropDownMenu_SetText(self, DiceMaster4.textureList["Mage"][1].file )
+				UIDropDownMenu_SetWidth(self, 150, 5)
+			  </OnLoad>
+			</Scripts>
+	    </Button>
+
+	    <CheckButton name="$parentSendToTarget" parentKey="sendToTarget" inherits="ChatConfigCheckButtonTemplate">
+			<Anchors>
+			  <Anchor point="TOPLEFT" relativeTo="$parentTextureDropdownTitle" relativePoint="BOTTOMLEFT" x="-2" y="-6" />
+			</Anchors>
+			<HitRectInsets>
+				<AbsInset left="0" right="0" top="0" bottom="0"/>
+			</HitRectInsets>
+			<Scripts>
+				<OnLoad>
+					_G[self:GetName().."Text"]:SetText("|cFFFFD100Send to targeted player")
+					self.tooltip = "Enables this effect to appear on a player target's screen instead of your own."
+				</OnLoad>
+			</Scripts>
+		</CheckButton>
+		
+		<EditBox name="$parentDelay" parentKey="delay" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+			<Size x="40" y="12"/> 
+			<Anchors>
+			  <Anchor point="TOPLEFT" relativeKey="$parent.sendToTarget" relativePoint="BOTTOMLEFT" x="54" y="0"/> 
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString name="$parentTitle" inherits="GameFontNormalLeft" justifyH="left" text="Delay:">
+						<Size x="50" y="12"/>
+						<Anchors>
+						  <Anchor point="RIGHT" relativePoint="LEFT" x="0" y="0"/> 
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts> 
+			  <OnLoad>
+				self:SetAutoFocus( false )
+				self:SetTextColor( 1, 1, 1 )
+				self:SetMaxLetters( 3 )
+			  </OnLoad>
+			  <OnEditFocusGained>
+				self.lastValue = tonumber(self:GetText()) or 0;
+			  </OnEditFocusGained>
+			  <OnEditFocusLost>
+				self:HighlightText(0, 0)
+				if self:GetText()=="" then
+					self:SetText(self.lastValue)
+				end
+				if not tonumber(self:GetText()) then
+					self:SetText(self.lastValue)
+				elseif tonumber(self:GetText()) > 300 or tonumber(self:GetText()) &lt; 0 then
+					self:SetText(self.lastValue)
+				end
+			  </OnEditFocusLost>
+			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			  <OnEnterPressed function="EditBox_ClearFocus"/>
+			</Scripts>
+	    </EditBox>
+		
+		<Button name="$parentCancelButton" inherits="UIPanelButtonTemplate" text="Cancel">
+			<Size x="85" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMRIGHT" x="-6" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.ScreenEffectEditor_Close()
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button name="$parentSaveButton" inherits="UIPanelButtonTemplate" text="Save">
+			<Size x="85" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMLEFT" x="6" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.ScreenEffectEditor_Save()
+				</OnClick>
+			</Scripts>
+		</Button>
+
+    </Frames>
+  </Frame>
+  
+</Ui>

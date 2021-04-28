@@ -312,6 +312,10 @@ local function RefreshItemRef()
 		if item.flavorText and item.flavorText~="" then
 			ItemRefTooltip:AddLine( "\""..item.flavorText.."\"", 1, 0.81, 0, true )
 		end
+		
+		if item.author then
+			ItemRefTooltip:AddLine( "<Made by " .. item.author .. ">", 0, 1, 0, true )
+		end
 	end
 	
 	ItemRefTooltip:Show();
@@ -337,6 +341,7 @@ function ItemRefTooltip:SetHyperlink(link)
 			
 			Me.itemRefOpen   = true
 			Me.itemRefItem  = Me.inspectData[ name ].inventory[guid]
+			Me.itemRefTrait  = nil
 			Me.itemRefIndex  = guid
 			Me.itemRefPlayer = name
 			 
@@ -364,6 +369,7 @@ function ItemRefTooltip:SetHyperlink(link)
 			
 			Me.itemRefOpen   = true
 			Me.itemRefTrait  = Me.inspectData[ name ].traits[guid]
+			Me.itemRefItem   = nil
 			Me.itemRefIndex  = guid
 			Me.itemRefPlayer = name
 			 

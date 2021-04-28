@@ -792,7 +792,7 @@
 		</HighlightTexture>
 	</Button>
 	
-  <Frame name="DiceMasterRollFrame" parent="UIParent" inherits="PortraitFrameTemplate" hidden="true" framestrata="HIGH">
+  <Frame name="DiceMasterRollFrame" parent="UIParent" inherits="PortraitFrameTemplate" hidden="true" framestrata="HIGH" topLevel="true">
     <Size x="338" y="384" />
     <Anchors>
       <Anchor point="LEFT" x="300" y="100" />

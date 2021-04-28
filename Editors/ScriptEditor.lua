@@ -130,16 +130,7 @@ end
 -- Open the script editor window.
 --
 function Me.ScriptEditor_Open( frame )
-	Me.EffectPicker_Close()
-	Me.SoundPicker_Close()
-	Me.AnimationPicker_Close()
-	Me.ShopEditor_Close()
-	--Me.ItemEditor_Close()
-	Me.ModelPicker_Close()
-	Me.CurrencyEditor_Close()
-	Me.buffeditor:Hide()
-	Me.removebuffeditor:Hide()
-	Me.setdiceeditor:Hide()
+	Me.CloseAllEditors( nil, nil, true )
 	if not frame then
 		frame = DiceMasterItemEditor;
 	end

@@ -9,9 +9,50 @@
 local Me = DiceMaster4
 local Profile = Me.Profile
 
+local function GetUnitGUID( unit )
+	local guid = UnitGUID( unit )
+	if not( guid ) then
+		return;
+	end
+	if not( string.find( guid, "-" ) ) then
+		return guid;
+	end
+	
+	local guidType, realmID, unitID = strsplit( "-", guid );
+	return unitID;
+end;
+
+local function GenerateGUID( seed )
+	local lastTime;
+	local guid;
+	
+	if not (guid) then
+		guid = string.gsub(string.gsub(GetUnitGUID("player"), "0x..", ""), "00[0]*", "")
+	end
+
+	local t = time();
+	if t == 0 and not(lastTime) then
+		t = random(100000);
+	else
+		t = t - 1315000000;
+	end
+
+	if lastTime and t <= lastTime then
+		t = lastTime + 1;
+	end
+	
+	t = t + seed
+	
+	lastTime = t;
+
+	local hashTime = string.format("%X", t)
+	
+	return guid .. "_" .. hashTime;
+end
+
 function Me.ImportDM4Saved()
 
-	if Me.db.global.dm4Imported then return end
+	if Me.db.global.dm4ImportedAlpha then return end
 	
 	Me.db.global.traitsList = {}
 	
@@ -20,6 +61,10 @@ function Me.ImportDM4Saved()
 			local traits = Me.db["profiles"][ k ]["traits"]
 			for i = 1, #traits do
 				if traits[ i ] then
+				
+					local guid = GenerateGUID( #Me.db.global.traitsList or 1 )
+				
+					Me.db["profiles"][ k ]["traits"][ i ].guid = guid;
 					
 					local trait = {
 						["name"] = traits[ i ]["name"] or "Trait " .. i;
@@ -30,6 +75,7 @@ function Me.ImportDM4Saved()
 						["icon"] = traits[ i ]["icon"] or "Interface/Icons/inv_misc_questionmark";
 						["desc"] = traits[ i ]["desc"] or "Type a description for your trait here.";
 						["effects"] = {};
+						["guid"] = guid;
 					}
 					
 					-- copy trait effects
@@ -64,5 +110,5 @@ function Me.ImportDM4Saved()
 	
 	Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Thank you for downloading DiceMaster version 5.1.5 (Alpha)! Please refer to the official DiceMaster Discord Server for information and updates. Happy testing!", "SYSTEM");
 	
-	Me.db.global.dm4Imported = true
+	Me.db.global.dm4ImportedAlpha = true
 end

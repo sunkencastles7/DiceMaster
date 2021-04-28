@@ -364,7 +364,7 @@
   
   <!-- Trait editor frame. -->
   
-  <Frame name="DiceMasterTraitEditor" enableMouse="true" movable="true" resizable="false" frameStrata="HIGH" hidden="true" parent="UIParent" inherits="ButtonFrameTemplate" topLevel="true">
+  <Frame name="DiceMasterTraitEditor" enableMouse="true" movable="true" resizable="false" frameStrata="HIGH" hidden="true" parent="UIParent" inherits="ButtonFrameTemplate">
     <Size x="336" y="444"/>
     <Anchors>
       <Anchor point="TOP" x="0" y="-90" />
@@ -389,7 +389,6 @@
 			self.NineSlice:SetFrameLevel(1)
 		end
 		self.Inset:SetPoint("BOTTOMLEFT", 4, 40)
-        self:SetScale(0.8)
 		self.portrait:SetTexture( "Interface/AddOns/DiceMaster/Texture/logo" )
         DiceMaster4.TraitEditor_OnLoad( self )
 		PanelTemplates_SetNumTabs(self, 3);
@@ -620,50 +619,6 @@
 					  </OnCursorChanged>
 					</Scripts>
 				  </EditBox>
-				  
-				  <Button name="$parentApplyBuff" parentKey="applyBuff" inherits="LargeItemButtonTemplate" hidden="true">
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeTo="$parentDescEditor" relativePoint="BOTTOMLEFT" x="0" y="-30"/> 
-					</Anchors>
-					<Layers>
-						<Layer level="ARTWORK">
-							<FontString parentKey="text" inherits="GameFontNormalSmall" text="Applies:">
-								<Anchors>
-									<Anchor point="TOPLEFT" x="0" y="16"/>
-								</Anchors>
-							</FontString>
-						</Layer>
-					</Layers>
-					<Scripts>
-						<OnLoad>
-							self.Icon:SetTexture("Interface/Icons/Spell_Holy_WordFortitude")
-							self.Name:SetText("Apply Buff")
-							self.text:SetTextColor( 1, 1, 1 )
-						</OnLoad>
-					</Scripts>
-				  </Button>
-				  
-				  <Button name="$parentRemoveBuff" parentKey="removeBuff" inherits="LargeItemButtonTemplate" hidden="true">
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeTo="$parentDescEditor" relativePoint="BOTTOMLEFT" x="0" y="-30"/> 
-					</Anchors>
-					<Layers>
-						<Layer level="ARTWORK">
-							<FontString parentKey="text" inherits="GameFontNormalSmall" text="Removes:">
-								<Anchors>
-									<Anchor point="TOPLEFT" x="0" y="16"/>
-								</Anchors>
-							</FontString>
-						</Layer>
-					</Layers>
-					<Scripts>
-						<OnLoad>
-							self.Icon:SetTexture("Interface/Icons/Spell_Shadow_SacrificialShield")
-							self.Name:SetText("Remove Buff")
-							self.text:SetTextColor( 1, 1, 1 )
-						</OnLoad>
-					</Scripts>
-				  </Button>
 	  
 				</Frames>
 				<Scripts>
@@ -687,13 +642,6 @@
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY" textureSubLevel="2">
-				<FontString inherits="GameFontNormal" text="Traits">
-					<Size x="150" y="0"/>
-					<Anchors>
-						<Anchor point="TOP" x="0" y="-20" />
-					</Anchors>
-					<Color r="1" g="0.82" b="0"/>
-				</FontString>
 				<Texture name="$parentTLCorner" atlas="Talent-TopLeftCurlies" useAtlasSize="true">
 					<Anchors>
 						<Anchor point="TOPLEFT" x="-1" y="-1"/>
@@ -731,6 +679,23 @@
 			</Layer>
 		</Layers>
 		<Frames>
+			<EditBox parentKey="search" inherits="SearchBoxTemplate">
+				<Size x="128" y="8" />
+				<Anchors>
+				  <Anchor point="TOP" x="2" y="-28" />
+				</Anchors>
+				
+				<Scripts>
+				  <OnTextChanged>
+					SearchBoxTemplate_OnTextChanged(self);
+					DiceMaster4.TraitPicker_FilterChanged()
+				  </OnTextChanged>
+				  
+				  
+				  <OnEscapePressed function="EditBox_ClearFocus"/>
+				</Scripts>
+			</EditBox>
+			
 			<Slider parentKey="scroller" inherits="UIPanelScrollBarTrimTemplate" minvalue="0" maxvalue="1" valuestep="3">
             
             <Anchors>
@@ -769,45 +734,7 @@
 		</Scripts>
 	  </Frame>
 	  
-	  <Frame parentKey="StatsPointCounter" topLevel="true" inherits="InsetFrameTemplate" hidden="true">
-		<Size x="180" y="20"/>
-		<Anchors>
-			<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
-		</Anchors>
-		<Layers>
-			<Layer level="ARTWORK">
-				<Texture parentKey="SkillIcon" file="Interface/Icons/achievement_guild_doctorisin">
-					<Size x="16" y="16"/>
-					<Anchors>
-						<Anchor point="RIGHT" x="-10" y="0"/>
-					</Anchors>
-				</Texture>
-				<FontString parentKey="SkillCount" inherits="GameFontHighlightSmall" justifyH="RIGHT">
-					<Anchors>
-						<Anchor point="RIGHT" relativeKey="$parent.SkillIcon" relativePoint="LEFT" x="0" y="0"/>
-					</Anchors>
-				</FontString>
-				<Texture parentKey="AttributeIcon" file="Interface/Icons/achievement_guildperk_mrpopularity">
-					<Size x="16" y="16"/>
-					<Anchors>
-						<Anchor point="RIGHT" relativeKey="$parent.SkillCount" relativePoint="LEFT" x="-10" y="0"/>
-					</Anchors>
-				</Texture>
-				<FontString parentKey="AttributeCount" inherits="GameFontHighlightSmall" justifyH="RIGHT">
-					<Anchors>
-						<Anchor point="RIGHT" relativeKey="$parent.AttributeIcon" relativePoint="LEFT" x="0" y="0"/>
-					</Anchors>
-				</FontString>
-				<FontString parentKey="Label" inherits="GameFontNormalSmall" text="Points Remaining" justifyH="LEFT">
-					<Anchors>
-						<Anchor point="LEFT" x="10" y="0"/>
-					</Anchors>
-				</FontString>
-			</Layer>
-		</Layers>
-	  </Frame>
-	  
-	  <Frame parentKey="StatsWarning" enableMouse="true" hidden="true" frameStrata="DIALOG">
+	  <Frame parentKey="StatsWarning" enableMouse="true" hidden="true">
 		<Size x="298" y="309"/>
 		<Anchors>
 			<Anchor point="TOPLEFT" x="7" y="-65"/>
@@ -1004,7 +931,6 @@
 		  </OnMouseDown>
 		  <OnShow>
 			DiceMaster4.TraitEditor_StatsList_Update()
-			DiceMaster4.TraitEditor_StatsList_UpdatePointsTotal()
 		  </OnShow>
         </Scripts>
 		
@@ -1033,7 +959,7 @@
         
       </ScrollFrame>
 	  
-	  <Frame name="DiceMasterPetFrame" parentKey="petFrame" enableMouse="true" hidden="true" frameStrata="DIALOG">
+	  <Frame name="DiceMasterPetFrame" parentKey="petFrame" enableMouse="true" hidden="true">
 		<Size x="298" y="309"/>
 		<Anchors>
 			<Anchor point="TOPLEFT" x="4" y="-60"/>
@@ -1154,7 +1080,7 @@
 		</Frames>
 	  </Frame>
 	  
-	  <Frame name="$parentInventoryFrame" parentKey="inventoryFrame" enableMouse="true" hidden="true" frameStrata="HIGH">
+	  <Frame name="$parentInventoryFrame" parentKey="inventoryFrame" enableMouse="true" hidden="true">
 		<Size x="298" y="309"/>
 		<Anchors>
 			<Anchor point="TOPLEFT" x="4" y="-60"/>
@@ -1291,7 +1217,7 @@
 				</Scripts>
 			</Button>
 			<EditBox parentKey="searchBar" inherits="SearchBoxTemplate">
-				<Size x="150" y="8" />
+				<Size x="200" y="8" />
 				<Anchors>
 				  <Anchor point="TOPRIGHT" x="-42" y="20" />
 				</Anchors>
@@ -1507,292 +1433,6 @@
 
 	</Frame>
 	  
-	  <ModelScene name="$parentNPCModel" enableMouse="true" hidden="true" inherits="ModelSceneMixinTemplate">
-		<Size x="198" y="230"/>
-		<KeyValues>
-			<KeyValue key="normalIntensity" value="0.75" type="number"/>
-			<KeyValue key="highlightIntensity" value="1.2" type="number"/>
-		</KeyValues>
-		<Anchors>
-			<Anchor point="TOPRIGHT" relativePoint="TOPLEFT" x="3" y="-60" />
-		</Anchors>
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture name="$parentModelBg" file="Interface/AddOns/DiceMaster/Texture/shop-overlay" setAllPoints="true" hidden="false">
-					<TexCoords left="0.00000000" right="0.776" top="0" bottom="0.9"/>
-				</Texture>
-			</Layer>
-			<Layer level="OVERLAY" textureSubLevel="-2">
-				<Texture name="$parentModelShadowOverlay" file="Interface\TalentFrame\PetTalent-ShadowOverlay" setAllPoints="true">
-					<TexCoords left="0.00000000" right="0.537109375" top="0" bottom="0.791015625"/>
-				</Texture>
-				<Texture name="$parentModelTopBg" inherits="QuestPortrait-StoneSwirls-Top">
-					<Anchors>
-						<Anchor point="TOPLEFT" y="16"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-			<Layer level="OVERLAY" textureSubLevel="-1">
-				<Texture name="$parentModelShopOverlay" file="Interface/AddOns/DiceMaster/Texture/shop-overlay" setAllPoints="true" hidden="true">
-					<TexCoords left="0.00000000" right="0.776" top="0" bottom="0.9"/>
-				</Texture>
-			</Layer>
-			<Layer level="OVERLAY">
-				<Texture name="$parentModelBotLeftCorner" inherits="UI-Frame-BotCornerLeft" parentKey="BorderBottomLeft">
-					<Anchors>
-						<Anchor point="BOTTOMLEFT" x="-5" y="-5"/>
-					</Anchors>
-				</Texture>
-				<Texture name="$parentModelBotRightCorner" inherits="UI-Frame-BotCornerRight" parentKey="BorderBottomRight">
-					<Anchors>
-						<Anchor point="BOTTOMRIGHT" x="2" y="-5"/>
-					</Anchors>
-				</Texture>
-				<Texture name="$parentModelTopBorder" inherits="_UI-Frame-TitleTile" parentKey="BorderTop">
-					<Anchors>
-						<Anchor point="TOPLEFT" x="-1" y="20"/>
-						<Anchor point="TOPRIGHT" x="1" y="20"/>
-					</Anchors>
-				</Texture>
-				<Texture name="$parentModelBottomBorder" inherits="_UI-Frame-Bot" parentKey="BorderBottom">
-					<Anchors>
-						<Anchor point="BOTTOMLEFT" relativeTo="$parentModelBotLeftCorner" relativePoint="BOTTOMRIGHT" y="0"/>
-						<Anchor point="BOTTOMRIGHT" relativeTo="$parentModelBotRightCorner" relativePoint="BOTTOMLEFT" y="0"/>
-					</Anchors>
-				</Texture>
-				<Texture name="$parentModelLeftBorder" inherits="!UI-Frame-LeftTile" parentKey="BorderLeft">
-					<Anchors>
-						<Anchor point="TOPLEFT" x="-5"/>
-						<Anchor point="BOTTOMLEFT" relativeTo="$parentModelBotLeftCorner" relativePoint="TOPLEFT"/>
-					</Anchors>
-				</Texture>
-				<Texture name="$parentModelRightBorder" inherits="!UI-Frame-RightTile" parentKey="BorderRight">
-					<Anchors>
-						<Anchor point="TOPRIGHT" x="3"/>
-						<Anchor point="BOTTOMRIGHT" relativeTo="$parentModelBotRightCorner" relativePoint="TOPRIGHT" x="1"/>
-					</Anchors>
-				</Texture>	
-			</Layer>
-			<Layer level="OVERLAY" textureSubLevel="1">
-				<Texture name="$parentModelNameplate" inherits="QuestPortrait-Nameplate">
-					<Anchors>
-						<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="0" y="12"/>
-					</Anchors>
-				</Texture>
-				<FontString name="$parentModelNameText" parentKey="ModelNameText" inherits="GameFontNormal" text="Aleiah Sinclair">
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeTo="$parentModelNameplate" x="22" y="-12"/>
-						<Anchor point="BOTTOMRIGHT" relativeTo="$parentModelNameplate" x="-22" y="12"/>
-					</Anchors>
-				</FontString>
-			</Layer>
-			<Layer level="OVERLAY" textureSubLevel="2">
-				<Texture name="$parentCornerTopLeft" inherits="QuestPortrait-Corner_UL">
-					<Anchors>
-						<Anchor point="TOPLEFT" x="-6" y="24"/>
-					</Anchors>
-				</Texture>
-				<Texture name="$parentCornerTopRight" inherits="QuestPortrait-Corner_UR">
-					<Anchors>
-						<Anchor point="TOPRIGHT" x="7" y="24"/>
-					</Anchors>
-				</Texture>
-				<Texture name="$parentCornerBottomLeft" inherits="QuestPortrait-Corner_BL">
-					<Anchors>
-						<Anchor point="BOTTOMLEFT" x="-6" y="-26"/>
-					</Anchors>
-				</Texture>
-				<Texture name="$parentCornerBottomRight" inherits="QuestPortrait-Corner_BR">
-					<Anchors>
-						<Anchor point="BOTTOMRIGHT" x="7" y="-26"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-		</Layers>
-		<Frames>
-			<Frame name="$parentModelNameTooltipFrame" enableMouse="true">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentModelNameText" x="0" y="0"/>
-					<Anchor point="BOTTOMRIGHT" relativeTo="$parentModelNameText" x="0" y="0"/>
-				</Anchors>
-				<Scripts>
-					<OnEnter>
-						if ( DiceMasterTraitEditorNPCModelModelNameText:IsTruncated() ) then
-							GameTooltip:SetOwner(self, "ANCHOR_TOP");
-							GameTooltip:SetText(DiceMasterTraitEditorNPCModelModelNameText:GetText());
-						end
-					</OnEnter>
-					<OnLeave>
-						GameTooltip:Hide();
-					</OnLeave>
-				</Scripts>
-			</Frame>
-			<Frame name="$parentModelTextFrame" hidden="false" useParentLevel="true">
-				<Size x="198" y="64"/>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentModelNameplate" relativePoint="BOTTOMLEFT" y="12"/>
-				</Anchors>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture name="$parentModelTextFrameBg" inherits="QuestPortrait-MrBrownstone">
-							<Size x="197" y="64"/>	
-							<TexCoords left="0.00390625" right="0.77343750" top="0.00195313" bottom="0.126953125"/>	
-						</Texture>
-					</Layer>
-
-					<Layer level="OVERLAY">
-						<Texture name="$parentModelTextBotLeftCorner" inherits="UI-Frame-BotCornerLeft" parentKey="BorderBottomLeft">
-							<Anchors>
-								<Anchor point="BOTTOMLEFT" x="-5" y="-5"/>
-							</Anchors>
-						</Texture>
-						<Texture name="$parentModelTextBotRightCorner" inherits="UI-Frame-BotCornerRight" parentKey="BorderBottomRight">
-							<Anchors>
-								<Anchor point="BOTTOMRIGHT" x="2" y="-5"/>
-							</Anchors>
-						</Texture>
-						<Texture name="$parentModelTextBottomBorder" inherits="_UI-Frame-Bot" parentKey="BorderBottom">
-							<Anchors>
-								<Anchor point="BOTTOMLEFT" relativeTo="$parentModelTextBotLeftCorner" relativePoint="BOTTOMRIGHT" y="0"/>
-								<Anchor point="BOTTOMRIGHT" relativeTo="$parentModelTextBotRightCorner" relativePoint="BOTTOMLEFT" y="0"/>
-							</Anchors>
-						</Texture>
-						<Texture name="$parentModelTextLeftBorder" inherits="!UI-Frame-LeftTile" parentKey="BorderLeft">
-							<Anchors>
-								<Anchor point="TOPLEFT" x="-5"/>
-								<Anchor point="BOTTOMLEFT" relativeTo="$parentModelTextBotLeftCorner" relativePoint="TOPLEFT"/>
-							</Anchors>
-						</Texture>
-						<Texture name="$parentModelTextRightBorder" inherits="!UI-Frame-RightTile" parentKey="BorderRight">
-							<Anchors>
-								<Anchor point="TOPRIGHT" x="3"/>
-								<Anchor point="BOTTOMRIGHT" relativeTo="$parentModelTextBotRightCorner" relativePoint="TOPRIGHT" x="1"/>
-							</Anchors>
-						</Texture>	
-					</Layer>
-				</Layers>
-				<Frames>
-					<ScrollFrame name="$parentModelTextScrollFrame" inherits="UIPanelScrollFrameTemplate" useParentLevel="true">
-						<Anchors>
-							<Anchor point="TOPLEFT" x="10" y="-6"/>
-							<Anchor point="BOTTOMRIGHT" x="-10" y="10"/>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								self.scrollBarHideable = 1;
-								ScrollFrame_OnLoad(self);
-								self.ScrollBar:SetThumbTexture("");
-								ScrollFrame_OnScrollRangeChanged(self);
-								self.ScrollBar:SetPoint("TOPLEFT", self, "TOPRIGHT", -12, -16);
-								self.ScrollBar:SetPoint("BOTTOMLEFT", self, "BOTTOMRIGHT", -12, 16);
-							</OnLoad>
-						</Scripts>
-						<ScrollChild>
-							<Frame name="$parentModelTextScrollChildFrame">
-								<Size x="178" y="0"/>
-								<Layers>
-									<Layer level="ARTWORK">
-										<FontString name="$parentModelText" parentKey="ModelText" inherits="GameFontHighlight" justifyH="LEFT" justifyV="TOP" text="&quot;I supply only the finest goods.&quot;">
-											<Size x="178" y="0"/>
-											<Anchors>
-												<Anchor point="TOPLEFT"/>
-											</Anchors>
-											<Color r="0.96875" g="0.8984375" b="0.578125"/>
-										</FontString>
-									</Layer>
-								</Layers>
-								<Scripts>
-									<OnShow>
-										if (self.ModelText:GetHeight() > DiceMasterTraitEditorNPCModelModelTextFrameModelTextScrollFrame:GetHeight()) then
-											self:SetHeight(self.ModelText:GetHeight()+10);
-											self.ModelText:SetWidth(162);
-										else
-											self:SetHeight(self.ModelText:GetHeight());
-										end
-			
-										self.progress = 0
-										self.doprogress = true
-										self.ModelText:SetAlphaGradient( self.progress * QUEST_DESCRIPTION_GRADIENT_CPS, QUEST_DESCRIPTION_GRADIENT_LENGTH )
-									</OnShow>
-									<OnUpdate>
-										if self.doprogress then
-											self.progress = self.progress + elapsed
-											self.ModelText:SetAlphaGradient( self.progress * QUEST_DESCRIPTION_GRADIENT_CPS, QUEST_DESCRIPTION_GRADIENT_LENGTH )
-											local width = self.ModelText:GetText():len() - 6
-											if self.progress * QUEST_DESCRIPTION_GRADIENT_CPS > width then
-												self.doprogress = false
-												self.progress = 0
-											end
-										end
-									</OnUpdate>
-								</Scripts>
-							</Frame>
-						</ScrollChild>
-					</ScrollFrame>
-				</Frames>
-				<Scripts>
-					<OnShow>
-						DiceMasterTraitEditorNPCModelCornerBottomLeft:SetPoint("BOTTOMLEFT", self, -6, -6);
-						DiceMasterTraitEditorNPCModelCornerBottomRight:SetPoint("BOTTOMRIGHT", self, 7, -6);
-					</OnShow>
-					<OnHide>
-						DiceMasterTraitEditorNPCModelCornerBottomLeft:SetPoint("BOTTOMLEFT", DiceMasterTraitEditorNPCModelModel, -6, -29);
-						DiceMasterTraitEditorNPCModelCornerBottomRight:SetPoint("BOTTOMRIGHT", DiceMasterTraitEditorNPCModelModel, 7, -29);
-					</OnHide>
-				</Scripts>
-			</Frame>
-		</Frames>
-		<Scripts>
-			<OnLoad>
-				self:OnLoad()
-				self:ClearScene()
-				self:SetViewInsets(0, 0, 0, 0)
-				--self:SetFromModelSceneID( 9 )
-				self:SetCameraPosition( -2, 0, 0.6 )
-				
-				local actor = self:CreateActor()
-				DiceMasterActor = actor;
-				if (actor) then
-					actor:SetModelByUnit( "player", true )
-					--actor:SetModelByCreatureDisplayID( 16509 )
-					actor:SetPosition( 1, 0, -0.82 )
-					actor:SetYaw(3.2)
-					actor:SetScale(1)
-					actor:Show()
-					actor:SetAnimation(590)
-				end			
-				
-				local b = self:CreateActor()
-				if (b) then
-					b:SetModelByFileID( 1347698 )
-					b:SetPosition( 0, 0, 0 )
-					b:SetYaw(3.2)
-					b:SetScale(0.4)
-					b:Show()
-					b:SetAnimation(0)
-				end
-				
-				local c = self:CreateActor()
-				if (c) then
-					c:SetModelByFileID( 1255034 )
-					c:SetPosition( 0, 1, 0.4 )
-					c:SetYaw(3.2)
-					c:SetScale(0.4)
-					c:Show()
-				end
-				
-				local d = self:CreateActor()
-				if (d) then
-					d:SetModelByFileID( 1255034 )
-					d:SetPosition( 0, -1, 0.4 )
-					d:SetYaw(0.2)
-					d:SetScale(0.4)
-					d:Show()
-				end
-			</OnLoad>
-		</Scripts>
-	  </ModelScene>
-	  
 	  <Button name="$parentTab1" parentKey="Tab1" useParentLevel="true" inherits="CharacterFrameTabButtonTemplate" id="1" text="Traits">
 			<Anchors>
 				<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" y="2"/>
@@ -1813,7 +1453,6 @@
                     -- DiceMasterTraitPicker:Show();
 					DiceMasterTraitEditor.StatsWarning:Hide()
 					DiceMasterTraitEditorExperienceBar:Hide()
-					DiceMasterTraitEditor.StatsPointCounter:Hide()
 					DiceMasterTraitEditor.FormatBar:Show();
 					DiceMasterTraitEditorTraitsExpandButton:Show()
 					DiceMasterTraitEditorTraitsExpandButton:SetExpanded( false )
@@ -1849,9 +1488,6 @@
 				DiceMasterTraitPicker:Hide();
 				DiceMasterTraitEditorTraitsExpandButton:Hide();
 				DiceMasterTraitEditorExperienceBar:Show()
-				if DiceMaster4.PermittedUse() then
-					DiceMasterTraitEditor.StatsPointCounter:Show()
-				end
 				DiceMasterTraitEditor.FormatBar:Hide();
 				for i = 1,5 do
 					-- DiceMaster4.editor.trait_buttons[i]:Hide();
@@ -1884,7 +1520,6 @@
 				DiceMasterTraitPicker:Hide();
 				DiceMasterTraitEditor.StatsWarning:Hide()
 				DiceMasterTraitEditorExperienceBar:Hide()
-				DiceMasterTraitEditor.StatsPointCounter:Hide()
 				DiceMasterTraitEditor.FormatBar:Hide();
 				DiceMasterTraitEditorTraitsExpandButton:Hide();
 				for i = 1,5 do
@@ -1940,7 +1575,6 @@
 					DiceMasterTraitPicker:Hide();
 					DiceMasterTraitEditor.StatsWarning:Hide()
 					DiceMasterTraitEditorExperienceBar:Hide()
-					DiceMasterTraitEditor.StatsPointCounter:Hide()
 					DiceMasterTraitEditor.FormatBar:Hide();
 					DiceMasterTraitEditorTraitsExpandButton:Hide();
 					for i = 1,5 do
@@ -2011,7 +1645,6 @@
 					DiceMasterTraitPicker:Hide();
 					DiceMasterTraitEditor.StatsWarning:Hide()
 					DiceMasterTraitEditorExperienceBar:Hide()
-					DiceMasterTraitEditor.StatsPointCounter:Hide()
 					DiceMasterTraitEditorTraitsExpandButton:Hide();
 					DiceMasterTraitEditor.FormatBar:Hide();
 					for i = 1,5 do

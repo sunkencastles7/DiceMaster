@@ -1,9 +1,9 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2019 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2021 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
--- Icon picker interface.
+-- Texture picker interface.
 --
 
 local Me = DiceMaster4
@@ -14,7 +14,7 @@ local filteredList = nil
 -------------------------------------------------------------------------------
 -- When one of the icon buttons are clicked.
 --
-function Me.IconPickerButton_OnClick( self )
+function Me.TexturePickerButton_OnClick( self )
 	-- Apply the icon to the edited trait and close the picker. 
 	if DiceMasterIconPicker.parent == DiceMasterBuffEditor then
 		Me.BuffEditor_SelectIcon( self:GetNormalTexture():GetTexture() )
@@ -42,13 +42,13 @@ function Me.IconPickerButton_OnClick( self )
 		Me.TraitEditor_SaveDescription()
 	end
 	PlaySound(54129)
-	Me.IconPicker_Close()
+	Me.TexturePicker_Close()
 end
 
 -------------------------------------------------------------------------------
 -- OnEnter handler, to magnify the icon and show the texture path.
 --
-function Me.IconPickerButton_ShowTooltip( self )
+function Me.TexturePickerButton_ShowTooltip( self )
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 	
 	local texture = self:GetNormalTexture():GetTexture()
@@ -60,42 +60,35 @@ end
 -------------------------------------------------------------------------------
 -- When the mousewheel is used on the icon map.
 --
-function Me.IconPicker_MouseScroll( delta )
+function Me.TexturePicker_MouseScroll( delta )
 
-	local a = DiceMasterIconPicker.selectorFrame.scroller:GetValue() - delta
+	local a = DiceMasterTexturePicker.selectorFrame.scroller:GetValue() - delta
 	-- todo: do we need to clamp?
-	DiceMasterIconPicker.selectorFrame.scroller:SetValue( a )
+	DiceMasterTexturePicker.selectorFrame.scroller:SetValue( a )
 end
    
 -------------------------------------------------------------------------------
 -- When the scrollbar's value is changed.
 --
-function Me.IconPicker_ScrollChanged( value )
+function Me.TexturePicker_ScrollChanged( value )
 	
 	-- Our "step" is 6 icons, which is one line.
 	startOffset = math.floor(value) * 7
-	Me.IconPicker_RefreshGrid()
+	Me.TexturePicker_RefreshGrid()
 end
 
 -------------------------------------------------------------------------------
--- Set the textures of the icon grid from the icons in the list at the
+-- Set the textures of the grid from the textures in the list at the
 -- current offset.
 --
-function Me.IconPicker_RefreshGrid()
-	local list = filteredList or Me.iconList
-	for k,v in ipairs( DiceMasterIconPicker.icons ) do
+function Me.TexturePicker_RefreshGrid()
+	local list = filteredList or Me.textureList
+	for k,v in ipairs( DiceMasterTexturePicker.icons ) do
 		 
-		local tex = list[startOffset + k]
+		local tex = list[startOffset + k].id
 		if tex then
 			v:Show()
-			if tex:find( "AddOns/" ) then
-				tex = "Interface/" .. tex
-			else
-				tex = "Interface/Icons/" .. tex
-			end
-			
 			v:SetNormalTexture( tex )
-				
 		else
 			v:Hide()
 		end
@@ -105,24 +98,25 @@ end
 -------------------------------------------------------------------------------
 -- Called when the user types into the search box.
 --
-function Me.IconPicker_FilterChanged()
-	local filter = DiceMasterIconPicker.search:GetText():lower()
+function Me.TexturePicker_FilterChanged()
+	local filter = DiceMasterTexturePicker.search:GetText():lower()
 	if #filter < 3 then
 		-- Ignore filters less than three characters
 		if filteredList then
 			filteredList = nil
-			Me.IconPicker_RefreshScroll()
-			Me.IconPicker_RefreshGrid()
+			Me.TexturePicker_RefreshScroll()
+			Me.TexturePicker_RefreshGrid()
 		end
 	else
 		-- build new list
 		filteredList = {}
-		for k,v in ipairs( Me.iconList ) do
-			if v:lower():find( filter ) then
+		for k,v in ipairs( Me.textureList ) do
+			local file = v.file
+			if file:lower():find( filter ) then
 				table.insert( filteredList, v )
 			end	
 		end
-		Me.IconPicker_RefreshScroll()
+		Me.TexturePicker_RefreshScroll()
 	end
 end
 
@@ -131,55 +125,43 @@ end
 --
 -- @param reset Reset the scroll bar to the beginning.
 --
-function Me.IconPicker_RefreshScroll( reset )
-	local list = filteredList or Me.iconList 
+function Me.TexturePicker_RefreshScroll( reset )
+	local list = filteredList or Me.textureList 
 	local max = math.floor((#list - 42) / 7)
 	if max < 0 then max = 0 end
-	DiceMasterIconPicker.selectorFrame.scroller:SetMinMaxValues( 0, max )
+	DiceMasterTexturePicker.selectorFrame.scroller:SetMinMaxValues( 0, max )
 	
 	if reset then
-		DiceMasterIconPicker.selectorFrame.scroller:SetValue( 0 )
+		DiceMasterTexturePicker.selectorFrame.scroller:SetValue( 0 )
 	end
 	-- todo: does scroller auto clamp value?
 	
-	Me.IconPicker_ScrollChanged( DiceMasterIconPicker.selectorFrame.scroller:GetValue() )
+	Me.TexturePicker_ScrollChanged( DiceMasterTexturePicker.selectorFrame.scroller:GetValue() )
 end
     
 -------------------------------------------------------------------------------
 -- Close the icon picker window. Use this instead of a direct Hide()
 --
-function Me.IconPicker_Close()
-
-	-- unhighlight the traitIcon button.
-	Me.editor.scrollFrame.Container.traitIcon:Select( false )
-	DiceMasterBuffEditor.buffIcon:Select( false )
-	DiceMasterIconPicker:Hide()
+function Me.TexturePicker_Close()
+	DiceMasterTexturePicker:Hide()
 end
     
 -------------------------------------------------------------------------------
 -- Open the icon picker window.
 --
-function Me.IconPicker_Open( parent, noSelect )
+function Me.TexturePicker_Open( parent, noSelect )
 	if parent then
 		Me.CloseAllEditors( nil, true, true )
-		DiceMasterIconPicker.parent = parent
-		
-		if not noSelect then
-			if DiceMasterIconPicker.parent == Me.editor then
-				DiceMasterIconPicker.parent.scrollFrame.Container.traitIcon:Select( true )
-			elseif DiceMasterIconPicker.parent.buffIcon then
-				DiceMasterIconPicker.parent.buffIcon:Select( true )
-			end
-		end
+		DiceMasterTexturePicker.parent = parent
 	else
 		Me.CloseAllEditors( nil, true )
-		DiceMasterIconPicker.parent = nil
+		DiceMasterTexturePicker.parent = nil
 	end
 	filteredList = nil
 	
-	DiceMasterIconPicker.CloseButton:SetScript("OnClick",Me.IconPicker_Close)
+	DiceMasterTexturePicker.CloseButton:SetScript("OnClick",Me.TexturePicker_Close)
 	
-	Me.IconPicker_RefreshScroll( true )
-	DiceMasterIconPicker.search:SetText("")
-	DiceMasterIconPicker:Show()
+	Me.TexturePicker_RefreshScroll( true )
+	DiceMasterTexturePicker.search:SetText("")
+	DiceMasterTexturePicker:Show()
 end

@@ -104,7 +104,7 @@
         
         <Scripts>
 		  <OnShow>
-			UIDropDownMenu_Initialize( self, DiceMaster4.RollWheelDropDown_OnLoad )
+			--UIDropDownMenu_Initialize( self, DiceMaster4.RollWheelDropDown_OnLoad )
 		  </OnShow>
           <OnEnter>
             
@@ -140,6 +140,7 @@
 					end
 				end)
 			elseif button == "RightButton" then
+				UIDropDownMenu_Initialize( self, DiceMaster4.RollWheelDropDown_OnLoad )
 				ToggleDropDownMenu(1, nil, self, self, 0, 0)
 				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 			end

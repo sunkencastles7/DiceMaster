@@ -36,7 +36,7 @@ local DB_DEFAULTS = {
 		bloodEffects = true;
 		miniFrames = false;
 		snapping = false;
-		dm4Imported = false;
+		dm4ImportedAlpha = false;
 		traitsList = {};
 	};
 	
@@ -135,6 +135,7 @@ do
 			officers = {};										-- approved by
 			icon   = "Interface/Icons/inv_misc_questionmark";   -- trait icon texture path
 			effects = {};
+			traitIndex = nil;
 		}
 		
 		DB_DEFAULTS.char.traitSerials[i] = 1 -- used to optimize out duplicate requests
@@ -185,18 +186,47 @@ Me.configOptions = {
 		showUses = {
 			order = 5;
 			name  = "Show Remaining Uses on Dice Panel";
-			desc  = "Show the number of remaining uses on the Dice Panel.";
+			desc  = "Show the number of remaining uses for traits on the Dice Panel.";
 			type  = "toggle";
 			width = "double";
 			set = function( info, val )
 				Me.db.global.showUses = val
+				Me.configOptions.args.resetUses.hidden = not val
 				Me.UpdatePanelTraits()
 			end;
 			get = function( info ) return Me.db.global.showUses end;
 		};
 		
-		hideInspect = {
+		resetUses = {
 			order = 6;
+			name  = "Reset Trait Uses";
+			desc  = "Reset the cooldown and number of remaining uses for traits on the Dice Panel.";
+			type  = "execute";
+			hidden   = true;
+			width = "normal";
+			func  = function()
+				for i = 1, #DiceMasterPanel.traits do
+					local traitButton = DiceMasterPanel.traits[i]
+					local traitIndex = traitButton.traitIndex
+					local trait = Me.Profile.traits[ traitIndex ]
+					local usage = trait.usage or "PASSIVE";
+					
+					if usage:find("USE") then
+						local usesTotal = usage:gsub("USE", "")
+						traitButton.count:SetText( usesTotal )
+						traitButton.icon:SetVertexColor( 1, 1, 1 )
+						traitButton.notCastable = false;
+					end
+					
+					traitButton.cooldown:SetCooldown( 0, 0 )
+					traitButton.cooldown.text:SetText("")
+					traitButton.cooldown.text:Hide()
+				end
+			end;
+		};
+		
+		hideInspect = {
+			order = 7;
 			name  = "Hide Inspect Frame When Hidden";
 			desc  = "Hide the Inspect Frame when the Dice Panel is hidden.";
 			type  = "toggle";
@@ -210,7 +240,7 @@ Me.configOptions = {
 		};
 		
 		hideStats = {
-			order = 7;
+			order = 8;
 			name  = "Hide Statistics Button on Inspect Frame";
 			desc  = "Hide the Statistics button from the Inspect Frame.";
 			type  = "toggle";
@@ -224,7 +254,7 @@ Me.configOptions = {
 		};
 		
 		hidePet = {
-			order = 8;
+			order = 9;
 			name  = "Hide Pet Frame on Inspect Frame";
 			desc  = "Hide the Pet Portrait Frame from the Inspect Frame.";
 			type  = "toggle";
@@ -238,7 +268,7 @@ Me.configOptions = {
 		};
 		
 		hideTips = {
-			order = 9;
+			order = 10;
 			name  = "Enable Enhanced Tooltips";
 			desc  = "Enable helpful DiceMaster term definitions next to trait tooltips.";
 			type  = "toggle";
@@ -250,7 +280,7 @@ Me.configOptions = {
 		};
 		
 		hideTypeTracker = {
-			order = 10;
+			order = 11;
 			name  = "Enable Typing Tracker";
 			desc  = "Enable the Typing Tracker to alert you when group members are writing in say, emote, party, and raid.";
 			type  = "toggle";
@@ -262,7 +292,7 @@ Me.configOptions = {
 		};
 		
 		enableTurnTracker = {
-			order = 11;
+			order = 12;
 			name  = "Enable Combat Turn Tracker";
 			desc  = "Displays the Turn Tracker frame when turn-based combat begins.";
 			width = "full";
@@ -277,7 +307,7 @@ Me.configOptions = {
 		};
 		
 		allowSounds = {
-			order = 12;
+			order = 13;
 			name  = "Allow Sounds from Other Players";
 			desc  = "Allow other players to play sound effects.";
 			type  = "toggle";
@@ -289,7 +319,7 @@ Me.configOptions = {
 		};
 		
 		allowEffects = {
-			order = 13;
+			order = 14;
 			name  = "Allow Effects from Other Players";
 			desc  = "Allow the group leader to send you fullscreen visual effects.";
 			type  = "toggle";
@@ -301,7 +331,7 @@ Me.configOptions = {
 		};
 		
 		allowIcons = {
-			order = 13;
+			order = 15;
 			name  = "Display Icons in Chat";
 			desc  = "Display icons linked by players in public chat channels.";
 			type  = "toggle";
@@ -313,7 +343,7 @@ Me.configOptions = {
 		};
 		
 		enableRoundBanners = {
-			order = 15;
+			order = 16;
 			name  = "Allow Roll Prompt Banners";
 			desc  = "Allow the group leader to send you visual prompts when it's your turn to roll.";
 			type  = "toggle";
@@ -325,7 +355,7 @@ Me.configOptions = {
 		};
 		
 		enableMapNodes = {
-			order = 16;
+			order = 17;
 			name  = "Display Group Leader's Map Nodes";
 			desc  = "Display the group leader's map nodes when you're in a party or raid.";
 			type  = "toggle";
@@ -338,13 +368,13 @@ Me.configOptions = {
 		};
 		
 		headerFrames = {
-			order = 17;
+			order = 18;
 			name  = " ";
 			type  = "description";
 		};
 		
 		unlockFrames = {
-			order = 18;
+			order = 19;
 			name  = "Unlock Frames";
 			desc  = "Unlock all frames, allowing you to click and drag them around your UI.";
 			type  = "execute";
@@ -356,7 +386,7 @@ Me.configOptions = {
 		};
 		
 		lockFrames = {
-			order = 19;
+			order = 20;
 			name  = "Lock Frames";
 			desc  = "Lock all frames so they can no longer be dragged.";
 			type  = "execute";
@@ -368,7 +398,7 @@ Me.configOptions = {
 		};
 		
 		resetFrames = {
-			order = 20;
+			order = 21;
 			name  = "Reset Frame Positions";
 			desc  = "Resets all frames to their default positions.";
 			type  = "execute";
@@ -1161,6 +1191,7 @@ local interfaceOptionsNeedsInit = true
 --
 function Me.OpenConfig() 
 	Me.configOptionsCharges.args.chargesGroup.hidden = not Me.db.profile.charges.enable
+	Me.configOptions.args.resetUses.hidden = not Me.db.profile.showUses
 	Me.configOptionsCharges.args.healthGroup.args.healthCurrent.max = Me.db.profile.healthMax
 	
 	if Me.db.profile.charges.enable and Me.db.profile.charges.symbol:find("charge") then
@@ -1193,6 +1224,7 @@ end
 -------------------------------------------------------------------------------
 function Me.ApplyConfig( onload )
 	Me.configOptionsCharges.args.chargesGroup.hidden = not Me.db.profile.charges.enable
+	Me.configOptions.args.resetUses.hidden = not Me.db.profile.showUses
 	Me.configOptionsCharges.args.healthGroup.args.healthCurrent.max = Me.db.profile.healthMax
 	
 	-- bump all serials, everything is considered dirty
@@ -1206,5 +1238,7 @@ function Me.ApplyConfig( onload )
 	Me.RefreshHealthbarFrame( DiceMasterChargesFrame.healthbar, Me.db.profile.health, Me.db.profile.healthMax, Me.db.profile.armor )
 	Me.RefreshChargesFrame( true, true )  
 	Me.TraitEditor_Refresh()
+	Me.TraitEditor_UpdateInventory()
+	Me.ShopFrame_Update()	
 	Me.UpdatePanelTraits()
 end

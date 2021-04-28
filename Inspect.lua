@@ -718,7 +718,7 @@ function Me.Inspect_SendTrait( index, dist, channel )
 	})
 	
 	if (channel and (not type(channel) == "number")) then channel = tostring(channel) end
-    Me:SendCommMessage( "DCM4", msg, dist, channel, "NORMAL" )
+    Me:SendCommMessage( "DCM4", msg, dist, channel, "ALERT" )
 end
 
 local sendStatusQueue   = {}
@@ -1068,7 +1068,7 @@ function Me.Inspect_OnStatusMessage( data, dist, sender )
 	store.charges.color  = FromHex( data.cc )
 	if data.ct then store.charges.tooltip = data.ct end
 	if data.cs then store.charges.symbol = data.cs end
-	if data.fl then store.charges.flash = data.fl end
+	store.charges.flash = data.fl or false;
 	store.health         = data.h
 	store.healthMax      = data.hm
 	store.armor          = data.ar

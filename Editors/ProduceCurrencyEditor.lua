@@ -175,24 +175,17 @@ function Me.ProduceCurrencyEditor_OnCloseClicked()
 	DiceMasterProduceCurrencyEditorSaveButton:SetScript( "OnClick", function()
 		Me.ProduceCurrencyEditor_Save()
 	end)
-	PlaySound(840); 
 	DiceMasterProduceCurrencyEditor:Hide()
 end
 
 function Me.ProduceCurrencyEditor_Open( parent )
+	Me.CloseAllEditors( nil, nil, true )
 	if parent then
 		DiceMasterProduceCurrencyEditor.parent = parent
 		DiceMasterProduceCurrencyEditor:ClearAllPoints()
 		DiceMasterProduceCurrencyEditor:SetPoint( "LEFT", parent, "RIGHT" )
 	else
 		DiceMasterProduceCurrencyEditor.parent = nil
-	end
-	
-	Me.SoundPicker_Close()
-	Me.EffectPicker_Close()
-	if Me.buffeditor:IsShown() or Me.setdiceeditor:IsShown() then
-		Me.buffeditor:Hide()
-		Me.setdiceeditor:Hide()
 	end
 	
 	DiceMasterProduceCurrencyEditorSaveButton:SetScript( "OnClick", function()

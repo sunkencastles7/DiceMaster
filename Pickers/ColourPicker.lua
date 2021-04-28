@@ -151,7 +151,6 @@ end
 -- Close the colour picker window. Use this instead of a direct Hide()
 --
 function Me.ColourPicker_Close()
-
 	DiceMasterColourPicker:Hide()
 end
     
@@ -159,7 +158,7 @@ end
 -- Open the colour picker window.
 --
 function Me.ColourPicker_Open( parent )
-
+	Me.CloseAllEditors()
 	if parent then
 		DiceMasterColourPicker.parent = parent
 	else

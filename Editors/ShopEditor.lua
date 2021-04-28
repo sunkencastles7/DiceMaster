@@ -21,6 +21,16 @@ local function GetTotalNumberOfItem( itemIndex )
 	return total
 end
 
+local FindAllStacks = function( guid )
+	local t = {}
+	for i = 1, #Me.Profile.inventory do
+		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == guid then
+			tinsert( t, i );
+		end
+	end
+	return t;
+end
+
 function Me.ShopEditorAmount_OnLoad( self )
 	local item = DiceMasterTraitEditorInventoryFrame["Item"..Me.newShopItem.itemIndex]:GetItem();
 	
@@ -367,7 +377,6 @@ end
 --
 function Me.ShopEditor_Close()
 	Me.ShopEditor_ClearAllFields()
-	PlaySound(840);
 	DiceMasterShopEditor:Hide()
 	ResetCursor();
 end
@@ -376,14 +385,9 @@ end
 -- Open the shop editor window.
 --
 function Me.ShopEditor_Open( frame )
-	Me.ModelPicker_Close()
-	Me.SoundPicker_Close()
-	Me.AnimationPicker_Close()
-	Me.ItemEditor_Close()
+	Me.CloseAllEditors()
 	DiceMasterShopEditor:ClearAllPoints()
 	DiceMasterShopEditor:SetPoint( "LEFT", frame, "RIGHT" )
-	
-	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN);
 	
 	DiceMasterShopEditor:Show()
 end
@@ -544,17 +548,20 @@ function Me.ShopEditor_ReceiveItem( data, dist, sender )
 		end
 	end
 	
-	local found = false;
-	-- Check if item already exists.
-	for k,v in pairs( Me.Profile.inventory ) do
-		if v.guid == item.guid and v.stackCount < item.stackSize then
-			v.stackCount = v.stackCount + 1
-			found = true;
-			break
+	local amount = data.amount
+	local stacks = FindAllStacks( item.guid );
+	
+	for k,v in pairs( stacks ) do
+		local deltaAmount = math.min( amount, Me.Profile.inventory[ v ].stackSize - Me.Profile.inventory[ v ].stackCount )
+		Me.Profile.inventory[ v ].stackCount = Me.Profile.inventory[ v ].stackCount + deltaAmount
+		amount = amount - deltaAmount;
+		if amount <= 0 then
+			break;
 		end
 	end
 	
-	if not found then
+	if #stacks == 0 or amount > 0 then
+		item.stackCount = amount;
 		tinsert( Me.Profile.inventory, item )
 	end
 	

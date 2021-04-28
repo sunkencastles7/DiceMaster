@@ -101,15 +101,26 @@ function Me.OpenTraitTooltip( owner, trait, index, isTraitsList )
 	 
 	if trait.usage then
 		local usage = Me.FormatUsage( trait.usage, playername )
+		local range = Me.FormatRange( trait.range or nil )
 		
-		if trait.usage ~= "PASSIVE" and trait.range and trait.range ~= "NONE" then
+		if trait.usage == "NONE" then
+			usage = nil
+		end
+		
+		if not ( trait.range ) or trait.range == "NONE" then
+			range = nil
+		end
+		
+		if usage and usage ~= "Passive" and range then
 			local range = Me.FormatRange( trait.range )
 			GameTooltip:AddDoubleLine( usage, range, 1, 1, 1, 1, 1, 1, true )
-		else
+		elseif range and not ( usage ) then
+			GameTooltip:AddLine( range, 1, 1, 1, true )
+		elseif usage and not ( range ) then
 			GameTooltip:AddDoubleLine( usage, nil, 1, 1, 1, 1, 1, 1, true )
 		end
 		
-		if trait.usage ~= "PASSIVE" and trait.castTime then
+		if trait.usage and usage ~= "Passive" and trait.castTime then
 			local castTime = Me.FormatCastTime( trait.castTime )
 			if trait.cooldown and trait.cooldown ~= "NONE" then
 				local cooldown = Me.FormatCooldown( trait.cooldown )
@@ -274,12 +285,14 @@ end
 local function OnReceiveDrag( self )
 	if self:GetParent() == DiceMasterPanel and DiceMasterTraitPickerCursorIcon.data and self.traitIndex then
 		Me.Profile.traits[ self.traitIndex ] = DiceMasterTraitPickerCursorIcon.data
+		Me.Profile.traits[ self.traitIndex ].guid = DiceMasterTraitPickerCursorIcon.guid
 		self:SetPlayerTrait( UnitName( "player" ), self.traitIndex )
 		Me.BumpSerial( Me.db.char.traitSerials, self.traitIndex )
 		Me.Inspect_OnTraitUpdated( UnitName("player"), self.traitIndex )
 		Me.UpdatePanelTraits()
 	end
 	DiceMasterTraitPickerCursorIcon.data = nil;
+	DiceMasterTraitPickerCursorIcon.guid = nil;
 end
 
 -------------------------------------------------------------------------------
@@ -344,7 +357,7 @@ local methods = {
 		self.count:Hide()
 		if self.trait then
 			self.icon:SetTexture( self.trait.icon )
-		elseif self.traitPlayer then
+		elseif self.traitPlayer then		
 			self.icon:SetTexture( Me.inspectData[self.traitPlayer].traits[self.traitIndex].icon )
 			if Me.db.global.showUses and self:GetParent() == DiceMasterPanel then
 				local usage = Me.inspectData[self.traitPlayer].traits[self.traitIndex].usage or "PASSIVE"
@@ -382,6 +395,7 @@ local methods = {
 		
 		DiceMasterTraitPickerCursorIcon:Show()
 		DiceMasterTraitPickerCursorIcon.data = self.trait
+		DiceMasterTraitPickerCursorIcon.guid = self.trait.guid
 		DiceMasterTraitPickerCursorIcon.icon:SetTexture( self.trait.icon )
 		PlaySound(832)
 	end;

@@ -105,14 +105,12 @@ function Me.SetDiceEditor_Delete()
 		Me.db.global.traitsList[Me.editing_trait]["effects"]["setdice"] = nil
 	end
 	
-	PlaySound(840); 
 	Me.setdiceeditor:Hide()
 	Me.TraitEditor_Refresh()
 end
 
 function Me.SetDiceEditor_OnCloseClicked()
-	--Me.SetDiceEditor_Save()
-	PlaySound(840); 
+	Me.RemoveBuffEditor_Refresh()
 	Me.setdiceeditor.parent = nil
 	Me.setdiceeditor:Hide()
 	Me.TraitEditor_Refresh()
@@ -120,6 +118,7 @@ end
 
 function Me.SetDiceEditor_Open( parent )
 	if parent then
+		Me.CloseAllEditors( nil, nil, true )
 		Me.setdiceeditor.parent = parent
 		Me.setdiceeditor:SetPoint( "LEFT", parent, "RIGHT" )
 		DiceMasterSetDiceEditorSaveButton:ClearAllPoints()
@@ -128,6 +127,7 @@ function Me.SetDiceEditor_Open( parent )
 		DiceMasterSetDiceEditorDeleteButton:SetPoint( "BOTTOMRIGHT", -6, 4 )
 		DiceMasterSetDiceEditorDeleteButton:SetText( "Cancel" )
 	else
+		Me.CloseAllEditors()
 		Me.setdiceeditor.parent = nil
 		Me.setdiceeditor:SetPoint( "LEFT", DiceMasterTraitEditor, "RIGHT" )
 		DiceMasterSetDiceEditorSaveButton:ClearAllPoints()
@@ -135,13 +135,6 @@ function Me.SetDiceEditor_Open( parent )
 		DiceMasterSetDiceEditorDeleteButton:ClearAllPoints()
 		DiceMasterSetDiceEditorDeleteButton:SetPoint( "BOTTOMLEFT", 6, 4 )
 		DiceMasterSetDiceEditorDeleteButton:SetText( "Delete" )
-	end
-	
-	Me.SoundPicker_Close()
-	Me.EffectPicker_Close()
-	if Me.buffeditor:IsShown() or Me.removebuffeditor:IsShown() then
-		Me.buffeditor:Hide()
-		Me.removebuffeditor:Hide()
 	end
 	
 	DiceMasterSetDiceEditorSaveButton:SetScript( "OnClick", function()

@@ -41,7 +41,11 @@ function Me.LootToastFrame_OnEnter( self )
 	end
 	
 	if self.itemData.flavorText then
-		GameTooltip:AddLine(self.itemData.flavorText, 1, 0.81, 0, true)
+		GameTooltip:AddLine( "\"" .. self.itemData.flavorText .. "\"", 1, 0.81, 0, true)
+	end
+	
+	if self.itemData.author then
+		GameTooltip:AddLine( "<Made by " .. self.itemData.author .. ">", 0, 1, 0, true)
 	end
 	
 	GameTooltip:Show();

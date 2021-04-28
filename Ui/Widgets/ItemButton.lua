@@ -4,6 +4,56 @@
 
 local Me = DiceMaster4
 
+local ITEM_BIND_TYPES = {
+	"Binds when picked up",
+	"Binds when equipped",
+	"Binds when used",
+}
+
+local EffectHandlers = {
+	["book"] 	= "BookFrame_Show";
+	["script"]	= "ScriptEditor_RunScript";
+	["message"]	= "MessageEditor_SendMessage";
+	["produce"]	= "ProduceItemEditor_ProduceItem";
+	["consume"]	= "ConsumeItemEditor_ConsumeItem";
+	["currency"] = "ProduceCurrencyEditor_ProduceCurrency";
+	["buff"]	= "BuffFrame_CastBuff";
+	["removebuff"]	= "BuffFrame_RemoveBuff";
+	["setdice"]	= "BuffFrame_RollDice";
+	["effect"]	= "EffectPicker_PlayEffect";
+	["screeneffect"] = "ScreenEffectEditor_PlayEffect";
+	["sound"]	= "SoundPicker_PlaySound";
+}
+
+local function ExecuteEffects( effects )
+	if not effects then
+		return
+	end
+	
+	for i = 1, #effects do
+		local handler = EffectHandlers[ effects[i].type ]
+		if Me[handler] then
+			if effects[i].delay and effects[i].delay > 0 then
+				C_Timer.After( effects[i].delay, function() Me[handler]( effects[i] ) end )
+			else
+				Me[handler]( effects[i] )
+			end
+		end
+	end
+end
+
+local function ItemIsInShop( guid )
+	-- check if it's already in our shop
+	local found = false;
+	for i = 1, #Me.Profile.shop do
+		if Me.Profile.shop[i].guid == guid then
+			found = true;
+			break
+		end
+	end
+	return found
+end
+
 -------------------------------------------------------------------------------
 Me.playerItemTooltipOpen = false
 Me.playerItemTooltipName = nil
@@ -21,7 +71,13 @@ StaticPopupDialogs["DICEMASTER4_DESTROYCUSTOMITEM"] = {
 	self.text:SetText( "Do you want to destroy " .. item.name .. "?" )
   end,
   OnAccept = function ( self, data )
-	Me.Profile.inventory[ data ] = nil
+  
+	if not ( Me.Profile.inventory[ data ] ) or ItemIsInShop( Me.Profile.inventory[ data ].guid ) then
+		UIErrorsFrame:AddMessage( "You cannot delete an item while it is in your shop.", 1.0, 0.0, 0.0, 53, 5 );
+	else
+		Me.Profile.inventory[ data ] = nil
+	end
+	
 	local cursorIcon = DiceMasterCursorItemIcon
 	-- previous button
 	cursorIcon.prevButton:Update()
@@ -47,6 +103,47 @@ StaticPopupDialogs["DICEMASTER4_DESTROYCUSTOMITEM"] = {
 	cursorIcon.prevButton = nil
 	cursorIcon:Hide()
 	ResetCursor()
+	PlaySound( 1203 )
+  end,
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  exclusive = true,
+}
+
+StaticPopupDialogs["DICEMASTER4_CUSTOMITEMBINDONUSE"] = {
+  text = "Using this item will bind it to you.",
+  button1 = "Okay",
+  button2 = "Cancel",
+  OnAccept = function ( self, data )
+	if not data or not data.itemIndex then
+		return
+	end  
+	local item = Me.Profile.inventory[ data.itemIndex ] or nil
+	if not item then
+		return
+	end
+	item.soulbound = true;
+	item.lastCastTime = GetTime()
+	CooldownFrame_Set( data.Cooldown, GetTime(), item.cooldown, 1 )
+	
+	if item.effects then
+		ExecuteEffects( item.effects )
+	end
+	
+	if item.consumeable then
+		item.stackCount = item.stackCount - 1
+		
+		if item.stackCount == 0 then
+			Me.Profile.inventory[ data.itemIndex ] = nil;
+			GameTooltip:Hide()
+		end
+		
+		data:Update()
+	end
+	Me.TraitEditor_UpdateInventory()
+  end,
+  OnCancel = function( self )
 	PlaySound( 1203 )
   end,
   timeout = 0,
@@ -132,8 +229,10 @@ function Me.OpenItemTooltip( owner, item, index, isShopItem )
 		GameTooltip:AddLine( item.name, color.r, color.g, color.b, true )
 	end
 	 
-	if item.soulbound then
-		GameTooltip:AddLine( "Binds when picked up", 1, 1, 1, true )
+	if item.soulbound then 
+		GameTooltip:AddLine( "Soulbound", 1, 1, 1, true )
+	elseif item.itemBind and item.itemBind > 0 then
+		GameTooltip:AddLine( ITEM_BIND_TYPES[ item.itemBind ], 1, 1, 1, true )
 	end
 	
 	if item.whiteText1 and item.whiteText2 then
@@ -209,6 +308,10 @@ function Me.OpenItemTooltip( owner, item, index, isShopItem )
 		end
 	end
 	
+	if item.author then
+		GameTooltip:AddLine( "<Made by " .. item.author .. ">", 0, 1, 0, true )
+	end
+	
 	if owner.InShopIcon and owner.InShopIcon:IsShown() then
 		GameTooltip:AddLine( "This item is currently in your shop.", 1, 1, 0, true )
 	end
@@ -262,8 +365,23 @@ local function OnEnter( self )
 	
 	if self.item then
 		Me.OpenItemTooltip( self, self.item )
-	elseif self.itemPlayer then 
+	elseif self.itemPlayer then
 		Me.OpenItemTooltip( self, self.itemPlayer, self.itemIndex )
+		local item = Me.Profile.inventory[ self.itemIndex ]
+		if item then
+			if self.itemPlayer == UnitName( "player" ) then
+				if DiceMasterCursorItemIcon.editCursor and ItemIsInShop( item.guid ) then
+					SetCursor("CAST_ERROR_CURSOR");
+				elseif DiceMasterCursorItemIcon.sellCursor and ( ItemIsInShop( item.guid ) or item.soulbound ) then
+					SetCursor("CAST_ERROR_CURSOR");
+				elseif DiceMasterCursorItemIcon.chooseCursor and item.soulbound then
+					SetCursor("CAST_ERROR_CURSOR");
+				end
+			end
+			if DiceMasterCursorItemIcon.requestCursor and item.soulbound then
+				SetCursor("CAST_ERROR_CURSOR");
+			end
+		end
 	elseif self.itemShop then
 		Me.OpenItemTooltip( self, self.itemShop, self.itemIndex, true )
 		if ( self:CanAffordShopItem() == false ) then
@@ -281,6 +399,9 @@ end
 local function OnLeave( self )
 	if self.itemPlayer then
 		Me.playerItemTooltipOpen = false
+		if DiceMasterCursorItemIcon.editCursor or DiceMasterCursorItemIcon.sellCursor or DiceMasterCursorItemIcon.chooseCursor then
+			SetCursor("CAST_CURSOR");
+		end
 	end
 	if self.shopCursor then
 		ResetCursor();
@@ -318,6 +439,8 @@ function Me.ClearCursorActions( clearItem, hideCursor, hideOverlay )
 	cursorIcon.requestCursor = nil;
 	cursorIcon.requestItem = nil;
 	
+	cursorIcon.inspectCursor = nil;
+	
 	if hideCursor then
 		cursorIcon:Hide()
 	else
@@ -334,6 +457,7 @@ function Me.ClearCursorActions( clearItem, hideCursor, hideOverlay )
 	ClearCursor();
 end;
 
+
 local function CheckEditBoxShown()
 	local isShown = false
 	for i = 1, NUM_CHAT_WINDOWS do
@@ -346,64 +470,54 @@ local function CheckEditBoxShown()
 	return isShown
 end
 
-local EffectHandlers = {
-	["book"] 	= "BookFrame_Show";
-	["script"]	= "ScriptEditor_RunScript";
-	["message"]	= "MessageEditor_SendMessage";
-	["produce"]	= "ProduceItemEditor_ProduceItem";
-	["currency"] = "ProduceCurrencyEditor_ProduceCurrency";
-	["buff"]	= "BuffFrame_CastBuff";
-	["removebuff"]	= "BuffFrame_RemoveBuff";
-	["setdice"]	= "BuffFrame_RollDice";
-	["effect"]	= "EffectPicker_PlayEffect";
-	["sound"]	= "SoundPicker_PlaySound";
-}
-
-local function ExecuteEffects( effects )
-	if not effects then
-		return
-	end
-	
-	for i = 1, #effects do
-		local handler = EffectHandlers[ effects[i].type ]
-		if Me[handler] then
-			if effects[i].delay and effects[i].delay > 0 then
-				C_Timer.After( effects[i].delay, function() Me[handler]( effects[i] ) end )
-			else
-				Me[handler]( effects[i] )
-			end
-		end
-	end
-end
-
 local function OnClick( self, button )
 	local item = Me.Profile.inventory[self.itemIndex]
 	local cursorIcon = DiceMasterCursorItemIcon
 	local startTime, duration = self:GetCooldown()
 	StaticPopup_Hide("DICEMASTER4_DESTROYCUSTOMITEM")
 	if ( button == "LeftButton" ) then
-		-- TODO
 		if cursorIcon.editCursor and self.hasItem then
 			-- check if it's our item first!
 			if item.author ~= UnitName("player") then
 				UIErrorsFrame:AddMessage( "You don't have permission to edit that item.", 1.0, 0.0, 0.0, 53, 5 );
+				return
+			elseif ItemIsInShop( item.guid ) then
+				UIErrorsFrame:AddMessage( "You cannot edit an item while it is in your shop.", 1.0, 0.0, 0.0, 53, 5 );
 				return
 			end
 			Me.ClearCursorActions( true, true, true )
 			Me.ItemEditor_Open( DiceMasterTraitEditor )
 			Me.ItemEditor_LoadEditItem( self.itemIndex )
 		elseif cursorIcon.chooseCursor and self.hasItem then
-			-- check if it's our item first!
-			if item.author ~= UnitName("player") then
-				UIErrorsFrame:AddMessage( "You can't produce items created by other players.", 1.0, 0.0, 0.0, 53, 5 );
-				return
-			elseif Me.ItemEditing and Me.ItemEditingIndex == self.itemIndex then
-				UIErrorsFrame:AddMessage( "Items cannot produce themselves.", 1.0, 0.0, 0.0, 53, 5 );
-				return
+			if DiceMasterProduceItemEditor:IsShown() then
+				-- check if it's our item first!
+				if item.author ~= UnitName("player") then
+					UIErrorsFrame:AddMessage( "You can't produce items created by other players.", 1.0, 0.0, 0.0, 53, 5 );
+					return
+				elseif Me.ItemEditing and Me.ItemEditingIndex == self.itemIndex then
+					UIErrorsFrame:AddMessage( "Items cannot produce themselves.", 1.0, 0.0, 0.0, 53, 5 );
+					return
+				elseif item.soulbound then
+					UIErrorsFrame:AddMessage( "You can't produce a soulbound item.", 1.0, 0.0, 0.0, 53, 5 );
+					return
+				end
+				Me.ClearCursorActions( true, true, true )
+				Me.ProduceItemEditor_LoadItem( self.itemIndex )
+			elseif DiceMasterConsumeItemEditor:IsShown() then
+				-- check if it's our item first!
+				if item.author ~= UnitName("player") then
+					UIErrorsFrame:AddMessage( "You can't consume items created by other players.", 1.0, 0.0, 0.0, 53, 5 );
+					return
+				elseif Me.ItemEditing and Me.ItemEditingIndex == self.itemIndex then
+					UIErrorsFrame:AddMessage( "Items cannot consume themselves.", 1.0, 0.0, 0.0, 53, 5 );
+					return
+				elseif item.soulbound then
+					UIErrorsFrame:AddMessage( "You can't consume a soulbound item.", 1.0, 0.0, 0.0, 53, 5 );
+					return
+				end
+				Me.ClearCursorActions( true, true, true )
+				Me.ConsumeItemEditor_LoadItem( self.itemIndex )
 			end
-			Me.ClearCursorActions( true, true, true )
-			--Me.ProduceItemEditor_Open( DiceMasterItemEditor )
-			Me.ProduceItemEditor_LoadItem( self.itemIndex )
 		elseif cursorIcon.copyCursor and self.hasItem then
 			-- check if it's our item or copyable first!
 			if not item.copyable and item.author ~= UnitName("player")  then
@@ -427,16 +541,10 @@ local function OnClick( self, button )
 			if item.author ~= UnitName("player") then
 				UIErrorsFrame:AddMessage( "You don't have permission to sell that item.", 1.0, 0.0, 0.0, 53, 5 );
 				return
-			end
-			-- check if it's already in our shop
-			local found = false;
-			for i = 1, #Me.Profile.shop do
-				if Me.Profile.shop[i].guid == item.guid then
-					found = true;
-					break
-				end
-			end
-			if found then
+			elseif item.soulbound then
+				UIErrorsFrame:AddMessage( "You cannot sell a soulbound item.", 1.0, 0.0, 0.0, 53, 5 );
+				return
+			elseif ItemIsInShop( item.guid ) then
 				UIErrorsFrame:AddMessage( "You are already selling that item.", 1.0, 0.0, 0.0, 53, 5 );
 				return
 			end
@@ -460,6 +568,8 @@ local function OnClick( self, button )
 							tinsert( Me.Profile.inventory, leftOver )
 							Me.TraitEditor_UpdateInventory()
 						end
+					elseif itemOne.stackCount == itemTwo.stackCount then
+						-- items have the same stack size (or are the same item) so we don't do anything...
 					else
 						itemOne.stackCount = itemOne.stackCount + itemTwo.stackCount;
 						if itemOne.stackCount > itemOne.stackSize then
@@ -594,6 +704,11 @@ local function OnClick( self, button )
 			UIErrorsFrame:AddMessage( "Item is not ready yet.", 1.0, 0.0, 0.0, 53, 5 ); 
 		elseif item then
 			-- use item
+			if item.itemBind and item.itemBind == 3 and not item.soulbound then
+				StaticPopup_Show( "DICEMASTER4_CUSTOMITEMBINDONUSE", nil, nil, self )
+				return
+			end
+			
 			item.lastCastTime = GetTime()
 			CooldownFrame_Set( self.Cooldown, GetTime(), item.cooldown, 1 )
 			
@@ -621,6 +736,11 @@ local function OnPlayerInventoryClick( self, button )
 	if ( button == "LeftButton" ) then
 		-- TODO
 		if cursorIcon.requestCursor and self.hasItem then
+			if item.soulbound then
+				UIErrorsFrame:AddMessage( "You cannot request a soulbound item.", 1.0, 0.0, 0.0, 53, 5 ); 
+				return
+			end
+		
 			Me.ClearCursorActions( true, true, true )
 			-- Request the item.
 			local msg = Me:Serialize( "ITEMREQ", {
@@ -761,7 +881,6 @@ local function OnShopClick( self, button )
 	if ( button == "LeftButton" ) then	
 		-- TODO
 	elseif ( button == "RightButton" ) then
-		-- TODO
 		PurchaseItem( self )
 	end
 end

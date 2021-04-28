@@ -80,7 +80,7 @@
 				UIDropDownMenu_SetWidth(self, 150, 5)
 			  </OnLoad>
 			</Scripts>
-	  </Button>
+	    </Button>
 		
 		<EditBox name="$parentDelay" parentKey="delay" font="GameFontNormalMed2" inherits="InputBoxTemplate">
 		<Size x="40" y="12"/> 

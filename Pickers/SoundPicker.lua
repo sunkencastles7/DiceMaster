@@ -193,6 +193,9 @@ function Me.SoundPicker_Save()
 			range = 0;
 			delay = delay;
 		}
+		if DiceMasterSoundPicker.areaSound:GetChecked() then
+			sound.range = tonumber( DiceMasterSoundPicker.range:GetText() ) or 0
+		end
 		if Me.ItemEditing then
 			tinsert( Me.ItemEditing.effects, sound )
 		elseif Me.newItem then
@@ -242,6 +245,10 @@ function Me.SoundPicker_SaveEdits()
 		delay = delay;
 	}
 	
+	if DiceMasterSoundPicker.areaSound:GetChecked() then
+		sound.range = tonumber( DiceMasterSoundPicker.range:GetText() ) or 0
+	end
+	
 	if Me.ItemEditing then
 		Me.ItemEditing.effects[ Me.EffectEditingIndex ] = sound
 	elseif Me.newItem then
@@ -266,9 +273,18 @@ function Me.SoundPicker_SendAreaSound( range, soundKitID )
 	for i = 1, GetNumGroupMembers( 1 ) do
 		local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i);
 		local y2, x2, _, instance2 = UnitPosition( "raid" .. i )
+		if not( IsInRaid( 1 ) ) then
+			y2, x2, _, instance2 = UnitPosition( "party" .. i )
+		end
 		local distance = instance1 == instance2 and ((x2 - x1) ^ 2 + (y2 - y1) ^ 2) ^ 0.5
 		if type( distance )=="number" and tonumber( distance ) <= range and online then
-			Me:SendCommMessage( "DCM4", msg, "WHISPER", UnitName( "raid"..i ), "NORMAL" )
+			if IsInRaid( 1 ) then
+				Me:SendCommMessage( "DCM4", msg, "WHISPER", UnitName( "raid"..i ), "ALERT" )
+				print( UnitName( "raid"..i ) )
+			else
+				Me:SendCommMessage( "DCM4", msg, "WHISPER", UnitName( "party" .. i ), "ALERT" )
+				print( UnitName( "party" .. i ) )
+			end
 		end
 	end
 end
@@ -308,17 +324,8 @@ end
 -- Open the sound picker window.
 --
 function Me.SoundPicker_Open( parent )
-	Me.EffectPicker_Close()
-	Me.AnimationPicker_Close()
-	Me.ShopEditor_Close()
-	--Me.ItemEditor_Close()
-	Me.ModelPicker_Close()
-	Me.CurrencyEditor_Close()
-	Me.buffeditor:Hide()
-	Me.removebuffeditor:Hide()
-	Me.setdiceeditor:Hide()
-	
 	if parent then
+		Me.CloseAllEditors( nil, nil, true )
 		DiceMasterSoundPicker.parent = parent
 		DiceMasterSoundPicker:SetPoint( "LEFT", parent, "RIGHT" )
 		DiceMasterSoundPickerSaveButton:ClearAllPoints()
@@ -327,6 +334,7 @@ function Me.SoundPicker_Open( parent )
 		DiceMasterSoundPickerDeleteButton:SetPoint( "BOTTOMRIGHT", -6, 4 )
 		DiceMasterSoundPickerDeleteButton:SetText( "Cancel" )
 	else
+		Me.CloseAllEditors()
 		DiceMasterSoundPicker.parent = nil
 		DiceMasterSoundPicker:SetPoint( "LEFT", DiceMasterTraitEditor, "RIGHT" )
 		DiceMasterSoundPickerSaveButton:ClearAllPoints()
@@ -356,7 +364,7 @@ end
 
 function Me.SoundPicker_OnSoundMessage( data, dist, sender )	
  
-	if sender == UnitName( "player" ) or not ( UnitInRaid( sender ) and UnitInParty( sender ) ) or not Me.db.global.allowSounds then
+	if sender == UnitName( "player" ) or ( not UnitInRaid( sender ) and not UnitInParty( sender ) ) or not Me.db.global.allowSounds then
 		return
 	end
  

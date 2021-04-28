@@ -611,6 +611,7 @@
 					DiceMasterStatInspectorInset:Show();
 					DiceMasterStatInspectorBg2:Show();
                     DiceMasterStatInspectorStatsFrame:Show();
+                    DiceMasterStatInspectorExperienceBar:Show();
 					DiceMasterStatInspectorPetFrame:Hide();
 					DiceMasterStatInspectorInventoryFrame:Hide();	 
 					PlaySound(841)
@@ -631,6 +632,7 @@
 				DiceMasterStatInspectorInset:Show();
 				DiceMasterStatInspectorBg2:Show();
 				DiceMasterStatInspectorStatsFrame:Hide();
+				DiceMasterStatInspectorExperienceBar:Hide();
 				DiceMasterStatInspectorPetFrame:Show();
 				DiceMasterStatInspectorInventoryFrame:Hide();								 
 				PlaySound(841)
@@ -671,6 +673,7 @@
 				DiceMasterStatInspectorInset:Hide();
 				DiceMasterStatInspectorBg2:Hide();
 				DiceMasterStatInspectorStatsFrame:Hide();
+				DiceMasterStatInspectorExperienceBar:Hide();
 				DiceMasterStatInspectorPetFrame:Hide();
 				DiceMasterStatInspectorInventoryFrame:Show();
 				self:SetChecked(true);
@@ -721,6 +724,7 @@
 				DiceMasterStatInspectorInset:Hide();
 				DiceMasterStatInspectorBg2:Hide();
 				DiceMasterStatInspectorStatsFrame:Hide();
+				DiceMasterStatInspectorExperienceBar:Hide();
 				DiceMasterStatInspectorPetFrame:Hide();
 				DiceMasterStatInspectorInventoryFrame:Hide();
 				DiceMasterStatInspectorInventoryTab:SetChecked( false );

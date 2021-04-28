@@ -151,7 +151,12 @@
 				DiceMasterCursorItemIcon.copyAmount = nil
 				DiceMasterCursorItemIcon.editCursor = nil
 				DiceMasterCursorItemIcon.sellCursor = nil
+				DiceMasterCursorItemIcon.splitItem = nil
+				DiceMasterCursorItemIcon.splitAmount = nil
 				DiceMasterCursorItemIcon.chooseCursor = nil
+				DiceMasterCursorItemIcon.requestCursor = nil
+				DiceMasterCursorItemIcon.requestItem = nil
+				DiceMasterCursorItemIcon.inspectCursor = nil
 				if DiceMasterCursorItemIcon.prevButton then
 					SetItemButtonDesaturated(DiceMasterCursorItemIcon.prevButton, false);
 					PlaySound(1203)
@@ -202,6 +207,17 @@
 		</OnLoad>
 	</Scripts>
   </Frame>
+  
+  <Frame name="DiceMasterScreenEffectFrame" parent="UIParent">
+		<Size x="256" y="256"/>
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Scripts>
+			<OnLoad function="SpellActivationOverlay_OnLoad"/>
+		</Scripts>
+  </Frame>
+  
   <Include file="Ui\Fonts.xml"/>
   
   <!-- Intrinsics/Widgets -->
@@ -221,11 +237,14 @@
   <Include file="Ui\Editors\ScriptEditor.xml"/>
   <Include file="Ui\Editors\MessageEditor.xml"/>
   <Include file="Ui\Editors\ProduceItemEditor.xml"/>
+  <Include file="Ui\Editors\ConsumeItemEditor.xml"/>
   <Include file="Ui\Editors\ProduceCurrencyEditor.xml"/>
+  <Include file="Ui\Editors\ScreenEffectEditor.xml"/>
   <Include file="Ui\Editors\Book.xml"/>
   
   <!-- Pickers -->
   <Include file="Ui\Pickers\IconPicker.xml"/>
+  <Include file="Ui\Pickers\TexturePicker.xml"/>
   <Include file="Ui\Pickers\ColourPicker.xml"/>
   <Include file="Ui\Pickers\SoundPicker.xml"/>
   <Include file="Ui\Pickers\ModelPicker.xml"/>

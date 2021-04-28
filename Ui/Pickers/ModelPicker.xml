@@ -142,7 +142,6 @@
 		</Anchors>
 		<Scripts>
 			<OnClick>
-				PlaySound(840); 
 				DiceMaster4.ModelPicker_Close()
 			</OnClick>
 		</Scripts>

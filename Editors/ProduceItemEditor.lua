@@ -20,7 +20,7 @@ function Me.ProduceItemEditorAmount_OnLoad( self )
 	end
 	
 	self:Enable()
-	self:SetMinMaxValues(1, item.stackSize)
+	self:SetMinMaxValues(1, item.stackSize or 1)
 	self:SetObeyStepOnDrag( true )
 	self:SetValueStep( 1 )
 	self:SetValue(1)
@@ -53,11 +53,15 @@ function Me.ProduceItemEditor_ChooseItem()
 end
 
 function Me.ProduceItemEditor_LoadItem( itemIndex )
+	
 	local item = Me.Profile.inventory[itemIndex]
 	
 	if not item then
 		return
 	end
+	
+	Me.produceItem = item
+	Me.produceItem.itemIndex = itemIndex
 	
 	local data = DiceMasterTraitEditorInventoryFrame["Item"..itemIndex]:GetItem();
 	local editor = DiceMasterProduceItemEditor
@@ -211,7 +215,6 @@ function Me.ProduceItemEditor_Close()
 	DiceMasterProduceItemEditorSaveButton:SetScript( "OnClick", function()
 		Me.ProduceItemEditor_Save()
 	end)
-	PlaySound(840);
 	DiceMasterProduceItemEditor:Hide()
 end
     
@@ -219,18 +222,7 @@ end
 -- Open the message editor window.
 --
 function Me.ProduceItemEditor_Open( frame )
-	Me.EffectPicker_Close()
-	Me.SoundPicker_Close()
-	Me.AnimationPicker_Close()
-	Me.ShopEditor_Close()
-	Me.ScriptEditor_Close()
-	Me.MessageEditor_Close()
-	--Me.ItemEditor_Close()
-	Me.ModelPicker_Close()
-	Me.CurrencyEditor_Close()
-	Me.buffeditor:Hide()
-	Me.removebuffeditor:Hide()
-	Me.setdiceeditor:Hide()
+	Me.CloseAllEditors( nil, nil, true )
 	if not frame then
 		frame = DiceMasterItemEditor;
 	end

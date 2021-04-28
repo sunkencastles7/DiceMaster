@@ -100,19 +100,19 @@ function Me.RemoveBuffEditor_DeleteBuff()
 		Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"] = nil
 	end
 	
-	PlaySound(840); 
 	Me.removebuffeditor:Hide()
 	Me.TraitEditor_Refresh()
 end
 
 function Me.RemoveBuffEditor_OnCloseClicked()
-	PlaySound(840); 
+	Me.RemoveBuffEditor_Refresh()
 	Me.removebuffeditor:Hide()
 	Me.TraitEditor_Refresh()
 end
 
 function Me.RemoveBuffEditor_Open( parent )
 	if parent then
+		Me.CloseAllEditors( nil, nil, true )
 		Me.removebuffeditor.parent = parent
 		Me.removebuffeditor:SetPoint( "LEFT", parent, "RIGHT" )
 		DiceMasterRemoveBuffEditorSaveButton:ClearAllPoints()
@@ -121,6 +121,7 @@ function Me.RemoveBuffEditor_Open( parent )
 		DiceMasterRemoveBuffEditorDeleteButton:SetPoint( "BOTTOMRIGHT", -6, 4 )
 		DiceMasterRemoveBuffEditorDeleteButton:SetText( "Cancel" )
 	else
+		Me.CloseAllEditors()
 		Me.removebuffeditor.parent = nil
 		Me.removebuffeditor:SetPoint( "LEFT", DiceMasterTraitEditor, "RIGHT" )
 		DiceMasterRemoveBuffEditorSaveButton:ClearAllPoints()

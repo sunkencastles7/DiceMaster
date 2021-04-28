@@ -419,12 +419,7 @@ end
 -- Open the model picker window.
 --
 function Me.ModelPicker_Open( frame, model )
-	Me.EffectPicker_Close()
-	Me.AnimationPicker_Close()
-	Me.ShopEditor_Close()
-	Me.ItemEditor_Close()
-	Me.ModelPicker_Close()
-	Me.CurrencyEditor_Close()
+	Me.CloseAllEditors( nil, true, nil )
 	DiceMasterModelPicker:ClearAllPoints()
 	DiceMasterModelPicker:SetPoint( "LEFT", frame, "RIGHT" )
 	Me.ModelEditing = model

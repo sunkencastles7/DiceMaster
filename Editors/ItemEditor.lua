@@ -57,6 +57,12 @@ local ITEM_COOLDOWNS = {
 	{name = "1 day", time = 86400},
 }
 
+local ITEM_BIND_TYPES = {
+	"Binds when picked up",
+	"Binds when equipped",
+	"Binds when used",
+}
+
 local function GetUnitGUID( unit )
 	local guid = UnitGUID( unit )
 	if not( guid ) then
@@ -95,11 +101,23 @@ local function GenerateGUID()
 	return guid .. "_" .. hashTime;
 end
 
+local escapes = {
+    ["|c%x%x%x%x%x%x%x%x"] = "", -- color start
+    ["|r"] = "", -- color end
+}
+local function unescape(str)
+    for k, v in pairs(escapes) do
+        str = gsub(str, k, v)
+    end
+    return str
+end
+
 local function GetQualityIDFromName( qualityName )
 	local quality = 1
+	qualityName = unescape( qualityName )
 	for i = 1, #ITEM_QUALITIES do
 		if ITEM_QUALITIES[i] == qualityName then
-			quality = i
+			quality = i - 1
 		end
 	end
 	return quality
@@ -138,9 +156,17 @@ function Me.ItemEditorNewAction_OnLoad(frame, level, menuList)
 	info.text = "Visual Effect"
 	info.arg1 = Me.EffectPicker_Open;
 	UIDropDownMenu_AddButton(info, level)
-	info.icon = "Interface/Icons/inv_misc_gift_01"
+	info.icon = "Interface/Icons/spell_arcane_blast"
+	info.text = "Screen Effect"
+	info.arg1 = Me.ScreenEffectEditor_Open;
+	UIDropDownMenu_AddButton(info, level)
+	info.icon = "Interface/Icons/Spell_ChargePositive"
 	info.text = "Produce Item"
 	info.arg1 = Me.ProduceItemEditor_Open;
+	UIDropDownMenu_AddButton(info, level)
+	info.icon = "Interface/Icons/Spell_ChargeNegative"
+	info.text = "Consume Item"
+	info.arg1 = Me.ConsumeItemEditor_Open;
 	UIDropDownMenu_AddButton(info, level)
 	info.icon = "Interface/Icons/achievement_guildperk_cashflow_rank2"
 	info.text = "Add/Remove Currency"
@@ -171,11 +197,13 @@ local EffectHandlers = {
 	["script"]	= { "ScriptEditor_Open", "ScriptEditor_Load" };
 	["message"]	=  { "MessageEditor_Open", "MessageEditor_Load" };
 	["produce"]	= { "ProduceItemEditor_Open", "ProduceItemEditor_Load" };
+	["consume"]	= { "ConsumeItemEditor_Open", "ConsumeItemEditor_Load" };
 	["currency"] = { "ProduceCurrencyEditor_Open", "ProduceCurrencyEditor_Refresh" };
 	["buff"] = { "BuffEditor_Open", "BuffEditor_Refresh" };
 	["removebuff"] = { "RemoveBuffEditor_Open", "RemoveBuffEditor_Refresh" };
 	["setdice"] = { "SetDiceEditor_Open", "SetDiceEditor_Refresh" };
 	["effect"] = { "EffectPicker_Open", "EffectPicker_Refresh" };
+	["screeneffect"] = { "ScreenEffectEditor_Open", "ScreenEffectEditor_Load" };
 	["sound"] = { "SoundPicker_Open", "SoundPicker_Refresh" };
 }
 
@@ -267,6 +295,11 @@ local DICEMASTER_ITEM_EFFECTS = {
 		icon = "Interface/Icons/spell_arcane_blast";
 		detail = "effectID"
 	},
+	["screeneffect"] = {
+		name = "Screen Effect";
+		icon = "Interface/Icons/spell_arcane_blast";
+		detail = "texture"
+	},
 	["message"] = {
 		name = "Send Message";
 		icon = "Interface/Icons/inv_misc_note_04";
@@ -274,7 +307,12 @@ local DICEMASTER_ITEM_EFFECTS = {
 	},
 	["produce"] = {
 		name = "Produce Item";
-		icon = "Interface/Icons/inv_misc_gift_01";
+		icon = "Interface/Icons/Spell_ChargePositive";
+		detail = "itemData";
+	},
+	["consume"] = {
+		name = "Consume Item";
+		icon = "Interface/Icons/Spell_ChargeNegative";
 		detail = "itemData";
 	},
 	["removebuff"] = {
@@ -478,14 +516,17 @@ end
 -------------------------------------------------------------------------------
 -- Handler for when the flavour text editor loses focus.
 --
-function Me.ItemEditor_SaveSoulbound()
-	local soulbound = DiceMasterItemEditor.soulbound:GetChecked()
-	if soulbound then
-		DiceMasterItemEditorPreviewTooltipTextLeft2:SetText( "Binds when picked up" )
+function Me.ItemEditor_SaveBinding()
+	local itemBind = 0;
+	if DiceMasterItemEditor.itemBind:GetChecked() then
+		itemBind = 3;
+	end
+	if itemBind and itemBind > 0 then
+		DiceMasterItemEditorPreviewTooltipTextLeft2:SetText( ITEM_BIND_TYPES[ itemBind ] )
 	else
 		DiceMasterItemEditorPreviewTooltipTextLeft2:SetText( nil )
 	end
-	Me.newItem.soulbound = soulbound;
+	Me.newItem.itemBind = itemBind;
 end
 
 -------------------------------------------------------------------------------
@@ -510,7 +551,8 @@ function Me.ItemEditor_CreateItem()
 		name = Me.newItem.name or "Item";
 		icon = Me.newItem.icon or "Interface/Icons/inv_misc_questionmark";
 		quality = Me.newItem.quality or 1;
-		soulbound = Me.newItem.soulbound or false;
+		itemBind = Me.newItem.itemBind or false;
+		soulbound = false;
 		whiteText1 = Me.newItem.whiteText1 or "";
 		whiteText2 = Me.newItem.whiteText2 or "";
 		useText = Me.newItem.useText or "";
@@ -548,7 +590,8 @@ function Me.ItemEditor_SaveItemEdits()
 		name = editor.itemName:GetText() or "Item";
 		icon = editor.itemIcon.icon:GetTexture() or "Interface/Icons/inv_misc_questionmark";
 		quality = GetQualityIDFromName( UIDropDownMenu_GetText(editor.itemQuality) ) or 1;
-		soulbound = editor.soulbound:GetChecked() or false;
+		itemBind = 0;
+		soulbound = Me.ItemEditing.soulbound or false;
 		whiteText1 = editor.whiteText1:GetText() or "";
 		whiteText2 = editor.whiteText2:GetText() or "";
 		useText = editor.useText:GetText() or "";
@@ -563,6 +606,12 @@ function Me.ItemEditor_SaveItemEdits()
 		guid = Me.ItemEditing.guid; -- we don't generate a new GUID since it's the same item
 		effects = Me.ItemEditing.effects or {};
 	}
+	
+	if editor.itemBind:GetChecked() then
+		item.itemBind = 3
+	else
+		item.soulbound = false;
+	end
 	
 	-- Reset the cooldown if we changed the cooldown
 	if Me.ItemEditing.cooldown ~= ITEM_COOLDOWNS[ editor.cooldown:GetValue() ].time then
@@ -581,6 +630,7 @@ function Me.ItemEditor_SaveItemEdits()
 			end
 		end
 	end
+	
 	Me.TraitEditor_UpdateInventory()
 	Me.ItemEditor_Close()
 end
@@ -609,7 +659,13 @@ function Me.ItemEditor_LoadEditItem( itemIndex )
 	editor.flavorText:SetText( data.flavorText or "" )
 	
 	editor.consumeable:SetChecked( data.consumeable or false )
-	editor.soulbound:SetChecked( data.soulbound or false )
+	
+	if data.itemBind and data.itemBind == 3 then
+		editor.itemBind:SetChecked( true )
+	else
+		editor.itemBind:SetChecked( false )
+	end
+	
 	editor.copyable:SetChecked( data.copyable or false )
 	
 	-- set quality
@@ -646,7 +702,9 @@ function Me.ItemEditor_LoadEditItem( itemIndex )
 	end
 	DiceMasterItemEditorPreviewTooltipTextLeft5:SetTextColor( 1, 0.81, 0 )
 	if data.soulbound then
-		DiceMasterItemEditorPreviewTooltipTextLeft2:SetText( "Binds when picked up" )
+		DiceMasterItemEditorPreviewTooltipTextLeft2:SetText( "Soulbound" )
+	elseif data.itemBind and data.itemBind == 3 then
+		DiceMasterItemEditorPreviewTooltipTextLeft2:SetText( "Binds when used" )
 	else
 		DiceMasterItemEditorPreviewTooltipTextLeft2:SetText( nil )
 	end
@@ -668,7 +726,7 @@ function Me.ItemEditor_ClearAllFields()
 	editor.flavorText:SetText( "" )
 	
 	editor.consumeable:SetChecked( false )
-	editor.soulbound:SetChecked( false )
+	editor.itemBind:SetChecked( false )
 	editor.copyable:SetChecked( false )
 	
 	UIDropDownMenu_SetText(editor.itemQuality, ITEM_QUALITY_COLORS[ 1 ].hex .. ITEM_QUALITIES[ 2 ])
@@ -696,7 +754,6 @@ end
 -- Close the item editor window. Use this instead of a direct Hide()
 --
 function Me.ItemEditor_Close()
-	PlaySound(840);
 	Me.ItemEditor_ClearAllFields()
 	
 	DiceMasterItemEditor.createButton:Show()
@@ -794,9 +851,7 @@ end
 -- Close the currency editor window. Use this instead of a direct Hide()
 --
 function Me.CurrencyEditor_Close()
-	PlaySound(840);
 	Me.CurrencyEditor_ClearAllFields()
-	
 	DiceMasterCurrencyEditor:Hide()
 end
     
@@ -804,14 +859,7 @@ end
 -- Open the currency editor window.
 --
 function Me.CurrencyEditor_Open( frame )
-	Me.ModelPicker_Close()
-	Me.SoundPicker_Close()
-	Me.AnimationPicker_Close()
-	Me.ShopEditor_Close()
-	Me.ItemEditor_Close()
-	Me.buffeditor:Hide()
-	Me.removebuffeditor:Hide()
-	Me.setdiceeditor:Hide()
+	Me.CloseAllEditors( nil, nil, true )
 	DiceMasterCurrencyEditor:ClearAllPoints()
 	DiceMasterCurrencyEditor:SetPoint( "LEFT", frame, "RIGHT" )
 	

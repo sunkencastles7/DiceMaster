@@ -45,7 +45,7 @@ local GUILDS_ALLOWED = {
 --
 local TRAIT_USAGE_MODES = {
 	"USE1", "USE2", "USE3", "PASSIVE", 
-	"CHARGE1", "CHARGE2", "CHARGE3", "CHARGE4", "CHARGE5", "CHARGE6", "CHARGE7", "CHARGE8"
+	"CHARGE1", "CHARGE2", "CHARGE3", "CHARGE4", "CHARGE5", "CHARGE6", "CHARGE7", "CHARGE8", "CHARGE9", "CHARGE10", "NONE"
 }
 
 -------------------------------------------------------------------------------
@@ -357,7 +357,7 @@ local TRAIT_USAGE = {
 	["PASSIVE"] = "Passive";
 	["CHARGE1"] = "1 &cs"; ["CHARGE2"] = "2 &cp"; ["CHARGE3"] = "3 &cp";
 	["CHARGE4"] = "4 &cp"; ["CHARGE5"] = "5 &cp"; ["CHARGE6"] = "6 &cp";
-	["CHARGE7"] = "7 &cp"; ["CHARGE8"] = "8 &cp";
+	["CHARGE7"] = "7 &cp"; ["CHARGE8"] = "8 &cp"; ["CHARGE9"] = "9 &cp"; ["CHARGE10"] = "10 &cp"; ["NONE"] = "(None)"
 }
 
 function Me.FormatUsage( usage, name )
@@ -697,7 +697,6 @@ local function updateTraitUses( traitButton )
 	local traitIndex = traitButton.traitIndex
 	local trait = Profile.traits[ traitIndex ]
 	local usage = trait.usage or "PASSIVE";
-	--traitButton.icon:SetVertexColor( 1, 1, 1 )
 	
 	if usage == "PASSIVE" or traitButton.cooldown:GetCooldownDuration() > 0 or traitButton.cooldown.text:IsShown() or not Me.db.global.showUses then
 		return
@@ -733,7 +732,14 @@ function Me.TraitButtonClicked( traitButton, button )
 	if button == "LeftButton" then
 		Me.TraitEditor_Open()
 		DiceMasterTraitEditorTab1:Click()
-		DiceMaster4.TraitEditor_StartEditing( traitButton.traitIndex )
+		if Me.Profile.traits[ traitButton.traitIndex ].guid then
+			for i = 1, #Me.db.global.traitsList do
+				if Me.Profile.traits[ traitButton.traitIndex ].guid == Me.db.global.traitsList[i].guid then
+					DiceMaster4.TraitEditor_StartEditing( i )
+					break
+				end
+			end
+		end
 	elseif button == "RightButton" then
 		local cooldown = Profile.traits[ traitButton.traitIndex ].cooldown or "NONE";
 		if cooldown ~= "NONE" then
@@ -783,10 +789,59 @@ end
 
 -------------------------------------------------------------------------------
 
+function Me.GetModifierFromStatistic( statistic )
+	if not statistic then
+		return 0;
+	end
+
+	local modifier = 0;
+	local stat = nil
+	local statistic = statistic:lower()
+	
+	-- Look for the attribute from our stats.
+	for i = 1,#Me.Profile.stats do
+		if Me.Profile.stats[i].name:lower() == statistic then
+			modifier = Profile.stats[i].value
+			if Me.Profile.stats[i].attribute then
+				stat = Me.Profile.stats[i].attribute
+			end
+			break
+		end
+	end
+	
+	-- If no attribute, check the RollList next.
+	if not stat then
+		for i = 1,#Me.db.char.rollOptions do
+			if Me.db.char.rollOptions[i].name == self then
+				stat = Me.db.char.rollOptions[i].stat or nil
+				break
+			end
+		end
+	end
+	
+	if stat then
+		for i = 1,#Profile.stats do
+			if Profile.stats[i] and ( Profile.stats[i].name == stat ) then
+				modifier = modifier + Profile.stats[i].value
+			end
+		end
+	end
+	
+	-- Find any buffs that are boosting this stat
+	for i = 1,#Profile.buffsActive do
+		if Profile.buffsActive[i].statistic and Profile.buffsActive[i].statistic:lower() == statistic then
+			modifier = modifier + ( Profile.buffsActive[i].statAmount * Profile.buffsActive[i].count );
+		end
+	end
+	
+	return modifier
+end
+
+
 function Me.RollWheelDropDown_OnClick( self, arg1, arg2, checked )
 	
 	for i = 1, #Me.db.char.rollOptions do
-		if Me.db.char.rollOptions[i].name == Me.RollList[arg1][arg2].name then
+		if Me.db.char.rollOptions[i].name == Me.RollWheelList[arg1][arg2].name then
 			tremove( Me.db.char.rollOptions, i )
 			break
 		end
@@ -795,7 +850,7 @@ function Me.RollWheelDropDown_OnClick( self, arg1, arg2, checked )
 	if checked then
 	
 		if #Me.db.char.rollOptions < 8 then
-			tinsert( Me.db.char.rollOptions, Me.RollList[arg1][arg2] )
+			tinsert( Me.db.char.rollOptions, Me.RollWheelList[arg1][arg2] )
 		else
 			UIErrorsFrame:AddMessage( "Only 8 roll options can be used at a time.", 1.0, 0.0, 0.0, 53, 5 ); 
 			CloseDropDownMenus()
@@ -807,23 +862,35 @@ end
 function Me.RollWheelDropDown_OnLoad( frame, level, menuList )
 	local info = UIDropDownMenu_CreateInfo()
 	
+	Me.RollWheelList = {}
+	local lastCategory
+	
+	for i = 1, #Me.Profile.stats do
+		if not Me.Profile.stats[i].value then
+			Me.RollWheelList[ Me.Profile.stats[i].name ] = {}
+			lastCategory = Me.Profile.stats[i].name;
+		else
+			if not ( lastCategory ) then
+				Me.RollWheelList[ "Uncategorised" ] = {}
+				lastCategory = "Uncategorised";
+			end
+			tinsert( Me.RollWheelList[ lastCategory ], Me.Profile.stats[i] )
+		end
+	end
+	
 	if level == 1 then
 		info.text = "|cFFffd100Roll Options"
 		info.notClickable = true;
 		info.notCheckable = true;
 		UIDropDownMenu_AddButton(info)
-		info.text = "Combat Actions"
 		info.disabled = false;
 		info.notClickable = false;
 		info.hasArrow = true;
-		info.menuList = "Combat Actions"
-		UIDropDownMenu_AddButton(info)
-		info.text = "Skills"
-		info.menuList = "Skills"
-		UIDropDownMenu_AddButton(info)
-		info.text = "Saving Throws"
-		info.menuList = "Saving Throws"
-		UIDropDownMenu_AddButton(info)
+		for k,v in pairs( Me.RollWheelList ) do
+			info.text = k
+			info.menuList = k
+			UIDropDownMenu_AddButton(info)
+		end
 		info.text = "|cFFFF0000Clear All Options"
 		info.notClickable = false;
 		info.hasArrow = nil;
@@ -831,18 +898,18 @@ function Me.RollWheelDropDown_OnLoad( frame, level, menuList )
 		info.menuList = nil
 		UIDropDownMenu_AddButton(info)
 	elseif menuList then
-		for i = 1,#Me.RollList[menuList] do
-			info.text = Me.RollList[menuList][i].name
+		for i = 1,#Me.RollWheelList[menuList] do
+			info.text = Me.RollWheelList[menuList][i].name
 			info.arg1 = menuList
 			info.arg2 = i
 			info.func = Me.RollWheelDropDown_OnClick;
 			info.notCheckable = false;
 			info.keepShownOnClick = true;
 			info.isNotRadio = true;
-			info.tooltipTitle = Me.RollList[menuList][i].name;
-			info.tooltipText = Me.RollList[menuList][i].desc;
-			if Me.RollList[menuList][i].stat then
-				info.tooltipText = Me.RollList[menuList][i].desc .. "|n|cFF707070(Modified by "..Me.RollList[menuList][i].stat.." + "..info.text..")|r";
+			info.tooltipTitle = Me.RollWheelList[menuList][i].name;
+			info.tooltipText = Me.RollWheelList[menuList][i].desc;
+			if Me.RollWheelList[menuList][i].stat then
+				info.tooltipText = Me.RollWheelList[menuList][i].desc .. "|n|cFF707070(Modified by "..Me.RollWheelList[menuList][i].stat.." + "..info.text..")|r";
 			end
 			
 			for i = 1, #Profile.stats do
@@ -886,7 +953,7 @@ function Me.RollWheel_Update()
 			
 			frame:Enable()
 			frame.Value = name
-			frame.Desc = rollOptions[i].desc
+			frame.Desc = rollOptions[i].desc or "Roll."
 			frame.Stat = rollOptions[i].stat or nil
 			
 			for i = 1, #Profile.stats do
@@ -924,15 +991,8 @@ function Me.RollWheel_OnEnter( self, rotation )
 	DiceMasterPanel.rollWheel.Highlight:Show()
 	
 	local dice = DiceMasterPanelDice:GetText()
-	local modifier = 0;
-	if self.Stat then
-		for i = 1,#Profile.stats do
-			if Profile.stats[i] and ( Profile.stats[i].name == self.Stat or Profile.stats[i].name == self.Value ) then
-				modifier = modifier + Profile.stats[i].value
-			end
-		end
-	end
-	dice = Me.FormatDiceString( dice, modifier ) or "D20"
+	local modifier = Me.GetModifierFromStatistic( self.Value )
+	dice = Me.FormatDiceString( dice, modifier )
 	
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 	GameTooltip:AddLine( self.Value, 1, 1, 1 )
@@ -945,6 +1005,18 @@ function Me.RollWheel_OnEnter( self, rotation )
 		GameTooltip:AddLine( "(Modified by "..self.Stat.." + "..self.Value..")", 0.44, 0.44, 0.44, true )
 	end
 	
+	if #Profile.buffsActive > 0 then
+		for i = 1,#Profile.buffsActive do
+			if Profile.buffsActive[i].statistic and Profile.buffsActive[i].statistic == self.Value then
+				if Profile.buffsActive[i].statAmount > 0 then
+					GameTooltip:AddLine( "(Modified by |cFF00FF00+".. ( Profile.buffsActive[i].statAmount * Profile.buffsActive[i].count ) .."|r from |T".. Profile.buffsActive[i].icon .. ":16|t |cFFFFFFFF" .. Profile.buffsActive[i].name .. "|r)", 0.44, 0.44, 0.44, false )
+				else
+					GameTooltip:AddLine( "(Modified by |cFFFF0000-".. ( Profile.buffsActive[i].statAmount * Profile.buffsActive[i].count ) .."|r from |T".. Profile.buffsActive[i].icon .. ":16|t |cFFFFFFFF" .. Profile.buffsActive[i].name .. "|r)", 0.44, 0.44, 0.44, false )
+				end
+			end
+		end
+	end
+	
 	GameTooltip:Show()
 	
 	PlaySound(823)
@@ -953,34 +1025,7 @@ end
 -------------------------------------------------------------------------------
 function Me.RollWheel_OnClick( self )	
 	local dice = DiceMasterPanelDice:GetText()
-	local modifier = 0;
-	local stat = nil
-	
-	-- Look for the attribute from our stats.
-	for i = 1,#Me.Profile.stats do
-		if Me.Profile.stats[i].name == self and Me.Profile.stats[i].attribute then
-			stat = Me.Profile.stats[i].attribute
-			break
-		end
-	end
-	
-	-- If no attribute, check the RollList next.
-	if not stat then
-		for i = 1,#Me.db.char.rollOptions do
-			if Me.db.char.rollOptions[i].name == self then
-				stat = Me.db.char.rollOptions[i].stat
-				break
-			end
-		end
-	end
-	
-	if stat then
-		for i = 1,#Profile.stats do
-			if Profile.stats[i] and ( Profile.stats[i].name == stat or Profile.stats[i].name == self ) then
-				modifier = modifier + Profile.stats[i].value
-			end
-		end
-	end
+	local modifier = Me.GetModifierFromStatistic( self )
 	dice = Me.FormatDiceString( dice, modifier ) or "D20"
 	
 	Me.Roll( dice, self )
@@ -1006,6 +1051,34 @@ function Me.BarOnDragStop( self )
 			self:StopMovingOrSizing()
 		end
 		self.isMoving = nil
+	end
+end
+
+-------------------------------------------------------------------------------
+
+function Me.CloseAllEditors( notPickers, notEditors, notItems )
+	if not ( notPickers ) then
+		Me.ColourPicker_Close()
+		Me.SoundPicker_Close()
+		Me.EffectPicker_Close()
+		Me.ModelPicker_Close()
+		Me.IconPicker_Close()
+		Me.TexturePicker_Close()
+	end
+	if not ( notEditors ) then
+		Me.BuffEditor_OnCloseClicked()
+		Me.RemoveBuffEditor_OnCloseClicked()
+		Me.SetDiceEditor_OnCloseClicked()
+		Me.MessageEditor_Close()
+		Me.ScriptEditor_Close()
+		Me.ProduceItemEditor_Close()
+		Me.ConsumeItemEditor_Close()
+		Me.CurrencyEditor_Close()
+		Me.ScreenEffectEditor_Close()
+	end
+	if not ( notItems ) then
+		Me.ItemEditor_Close()
+		Me.ShopEditor_Close()
 	end
 end
 
@@ -1073,17 +1146,17 @@ end
 -------------------------------------------------------------------------------
 function Me.ApplyUiScale()
 	DiceMasterPanel:SetScale( Me.db.char.uiScale * 1.4 )
-	DiceMasterTraitEditor:SetScale( Me.db.char.uiScale * 1.4 )
-	DiceMasterStatInspector:SetScale( Me.db.char.uiScale * 1.4 )
+	DiceMasterTraitEditor:SetScale( 1 )
+	DiceMasterStatInspector:SetScale( 1 )
 	DiceMasterRangeRadar:SetScale( Me.db.char.uiScale * 1.4 )
 	DiceMasterInspectFrame:SetScale( Me.db.char.uiScale * 1.2 )
 	DiceMasterStatInspectButton:SetScale( Me.db.char.uiScale * 1.2 )
-	DiceMasterBuffEditor:SetScale( Me.db.char.uiScale * 1.4 )
-	DiceMasterRemoveBuffEditor:SetScale( Me.db.char.uiScale * 1.4 )
-	DiceMasterSetDiceEditor:SetScale( Me.db.char.uiScale * 1.4 )
+	DiceMasterBuffEditor:SetScale( 1 )
+	DiceMasterRemoveBuffEditor:SetScale( 1 )
+	DiceMasterSetDiceEditor:SetScale( 1 )
 	DiceMasterChargesFrame:SetScale( Me.db.char.uiScale * 1.2 )
 	DiceMasterPetChargesFrame:SetScale( Me.db.char.uiScale * 1.2 )
-	DiceMasterRollFrame:SetScale( Me.db.char.trackerScale * 1.4 )
+	DiceMasterRollFrame:SetScale( 1 )
 	DiceMasterMoraleBar:SetScale( Me.db.profile.morale.scale * 1.2 )
 	
 	if IsAddOnLoaded("DiceMaster_UnitFrames") then

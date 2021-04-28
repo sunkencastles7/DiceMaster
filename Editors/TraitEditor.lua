@@ -13,6 +13,7 @@ Me.editing_trait = 1
 Me.statType = nil
 
 local startOffset = 0
+local filteredList = nil
 
 local StatsListEntries = { };
 
@@ -203,6 +204,11 @@ StaticPopupDialogs["DICEMASTER4_DELETETRAIT"] = {
   button1 = "Yes",
   button2 = "No",
   OnAccept = function (self, data)
+	if #Me.db.global.traitsList <= 5 then
+		UIErrorsFrame:AddMessage( "You cannot have less than five traits.", 1.0, 0.0, 0.0, 53, 5 ); 
+		return
+	end
+  
 	Me.TraitEditor_SelectIcon( "Interface/Icons/inv_misc_questionmark" )
     Me.editor.scrollFrame.Container.traitName:SetText("Trait Name")
 	Me.editor.scrollFrame.Container.descEditor:SetText("")
@@ -398,7 +404,6 @@ function Me.TraitEditor_StatsList_Update()
 	DiceMasterStatsFrame.numStatsListEntries = addButtonIndex;
 
 	Me.TraitEditor_StatsFrame_UpdateStats();
-	Me.TraitEditor_StatsList_UpdatePointsTotal()
 end
 
 -------------------------------------------------------------------------------
@@ -717,56 +722,6 @@ function Me.TraitEditor_StatsList_SaveStat( self )
 	if not IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) then
 		Me.Inspect_SendStats( "RAID" )
 	end
-	
-	Me.TraitEditor_StatsList_UpdatePointsTotal()
-end
-
--------------------------------------------------------------------------------
--- Handler for calculating the points totals.
---
---
-function Me.TraitEditor_StatsList_UpdatePointsTotal()
-
-	if not Me.PermittedUse() or not Profile.stats then
-		return
-	end
-
-	local stats = Profile.stats
-	local attributePoints = 3
-	local skillPoints = 9
-	
-	for k, v in pairs( Me.AttributeList ) do
-		for i = 1, #stats do
-			if stats[i].name == k and stats[i].value then
-				attributePoints = attributePoints - stats[i].value
-			end
-		end
-	end
-	
-	for i = 1, #Me.RollList["Skills"] do
-		for s = 1, #stats do
-			if stats[s].name == Me.RollList["Skills"][i].name and stats[s].value then
-				skillPoints = skillPoints - stats[s].value
-			end
-		end
-	end
-	
-	DiceMasterTraitEditor.StatsPointCounter.AttributeCount:SetText( attributePoints )
-	DiceMasterTraitEditor.StatsPointCounter.SkillCount:SetText( skillPoints )
-	
-	if attributePoints < 0 then
-		DiceMasterTraitEditor.StatsPointCounter.AttributeCount:SetTextColor( 1, 0, 0 )
-	else
-		DiceMasterTraitEditor.StatsPointCounter.AttributeCount:SetTextColor( 1, 1, 1 )
-	end
-	
-	if skillPoints < 0 then
-		DiceMasterTraitEditor.StatsPointCounter.SkillCount:SetTextColor( 1, 0, 0 )
-	else
-		DiceMasterTraitEditor.StatsPointCounter.SkillCount:SetTextColor( 1, 1, 1 )
-	end
-	
-	Me.SetupTooltip( DiceMasterTraitEditor.StatsPointCounter, nil, "Remaining Points", nil, nil, nil, "You have "..attributePoints.." remaining Attribute points and "..skillPoints.." remaining Skill points to spend." )
 end
 
 -------------------------------------------------------------------------------
@@ -845,7 +800,7 @@ function Me.TraitEditor_CurrencyList_OnLoad()
     UIDropDownMenu_AddButton(info);
 end
 
-local SEARCH_PARAMETERS = { "name", "whiteText1", "whiteText2", "useText", "requirement", "flavorText" }
+local SEARCH_PARAMETERS = { "name", "whiteText1", "whiteText2", "useText", "requirement", "flavorText", "author" }
 
 function Me.TraitEditor_InventoryFilterChanged()
 	local filter = DiceMasterTraitEditorInventoryFrame.searchBar:GetText():lower()
@@ -869,6 +824,15 @@ function Me.TraitEditor_InventoryFilterChanged()
 end
 
 function Me.TraitEditor_CleanUpInventory()
+	local cursorIcon = DiceMasterCursorItemIcon
+	-- previous slot
+	if cursorIcon.prevButton and cursorIcon.prevButton.itemIndex then
+		cursorIcon.prevButton:Update()
+		SetItemButtonDesaturated( cursorIcon.prevButton, false );
+	end
+	-- clear cursor data
+	Me.ClearCursorActions( true, true, true )
+	
 	local tbl = {}
 	for i = 1, 42 do
 		if Me.Profile.inventory[i] and Me.Profile.inventory[i] ~= nil then
@@ -877,6 +841,9 @@ function Me.TraitEditor_CleanUpInventory()
 	end
 	
 	local function compare( a, b )
+		if a["name"] == b["name"] then
+			return a["stackCount"] > b["stackCount"]
+		end
 		return a["name"] < b["name"]
 	end
 	
@@ -973,12 +940,10 @@ function Me.ShopFrame_OnShow(self)
 	local forceUpdate = true;
 	
 	Me.ShopFrame_Update();
-	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN);
 end
 
 function Me.ShopFrame_OnHide(self)
 	ResetCursor();
-	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_CLOSE);
 end
 
 function Me.ShopFrame_OnMouseWheel(self, value)
@@ -1471,12 +1436,12 @@ function Me.TraitEditor_EffectsOnLoad(frame, level, menuList)
 	info.func = Me.TraitEditor_EffectsOnClick;
 	info.icon = "Interface/Icons/Spell_Holy_WordFortitude"
 	info.text = "Apply Buff"
-	info.checked = Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"] and Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"].name and not Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"].blank;
+	info.checked = Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"] and Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"].name and Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"].name ~= "";
 	info.arg1 = Me.BuffEditor_Open;
 	UIDropDownMenu_AddButton(info, level)
 	info.icon = "Interface/Icons/Spell_Shadow_SacrificialShield"
 	info.text = "Remove Buff"
-	info.checked = Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"] and Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"].name and not Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"].blank;
+	info.checked = Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"] and Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"].name and Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"].name ~= "";
 	info.arg1 = Me.RemoveBuffEditor_Open;
 	UIDropDownMenu_AddButton(info, level)
 	info.icon = "Interface/Icons/inv_misc_drum_01"
@@ -1576,23 +1541,6 @@ function Me.TraitEditor_OnLoad( self )
 	self:SetScript( "OnDragStart", self.StartMoving )
 	self:SetScript( "OnDragStop", self.StopMovingOrSizing )
 	
-	-- self.trait_buttons = {}
-	
-	-- -- create trait buttons
-	-- for i = 1,5 do
-		-- self.trait_buttons[i] = CreateFrame( "DiceMasterTraitButton", "DiceMasterTraitButton" .. i, self )
-
-		-- local x = 150 + 35*(i-1)
-
-		-- self.trait_buttons[i]:SetPoint( "TOPLEFT", x, -26 ) 
-		-- self.trait_buttons[i]:SetFrameLevel(4)
-		-- self.trait_buttons[i].editable_trait = true
-	  
-		-- self.trait_buttons[i]:SetScript( "OnMouseDown", function( self, button )
-			-- Me.TraitEditor_OnTraitClicked( self, button )
-		-- end)
-	-- end
-	
 	-- create icon map
 	self.trait_picker_buttons = {}
 	local index = 0
@@ -1616,18 +1564,8 @@ end
 --
 function Me.TraitEditor_OnCloseClicked() 
 	PlaySound(840); 
-	Me.IconPicker_Close()
-	--Me.AnimationPicker_Close()
-	Me.ModelPicker_Close()
-	Me.ColourPicker_Close()
-	Me.ItemEditor_Close()				  
-	Me.CurrencyEditor_Close()				  
 	Me.editor:Hide()
-	Me.buffeditor:Hide()
-	Me.removebuffeditor:Hide()
-	Me.setdiceeditor:Hide()
-	DiceMasterSoundPicker:Hide()
-	DiceMasterEffectPicker:Hide()
+	Me.CloseAllEditors( nil, nil, true )
 end
 
 -------------------------------------------------------------------------------
@@ -1752,14 +1690,20 @@ end
 -- current offset.
 --
 function Me.TraitPicker_RefreshGrid()
+	local list = filteredList or Me.db.global.traitsList
+
 	for i = 1, #DiceMasterTraitEditor.trait_picker_buttons do
 		local button = DiceMasterTraitEditor.trait_picker_buttons[ i ]
-		local trait = Me.db.global.traitsList[ startOffset + i ]
+		local trait = list[ startOffset + i ]
 		if trait then
 			button:Show()
 			button:SetCustomTooltip( nil )
 			button:SetTrait( trait, true )
-			button.traitIndex = startOffset + i;
+			if filteredList then
+				button.traitIndex = trait.index
+			else
+				button.traitIndex = startOffset + i;
+			end
 			button:SetScript( "OnMouseDown", function( self, button )
 				Me.TraitPicker_OnTraitClicked( self, button )
 			end)
@@ -1784,12 +1728,39 @@ function Me.TraitPicker_RefreshGrid()
 end
 
 -------------------------------------------------------------------------------
+-- Called when the user types into the search box.
+--
+function Me.TraitPicker_FilterChanged()
+	local filter = DiceMasterTraitPicker.search:GetText():lower()
+	if #filter < 3 then
+		-- Ignore filters less than three characters
+		if filteredList then
+			filteredList = nil
+			Me.TraitPicker_RefreshScroll()
+			Me.TraitPicker_RefreshGrid()
+		end
+	else
+		-- build new list
+		filteredList = {}
+		for k,v in ipairs( Me.db.global.traitsList ) do
+			local name = v.name
+			local desc = v.desc
+			if name:lower():find( filter ) or desc:lower():find( filter ) then
+				v.index = k
+				table.insert( filteredList, v )
+			end	
+		end
+		Me.TraitPicker_RefreshScroll()
+	end
+end
+
+-------------------------------------------------------------------------------
 -- When we change the size of the list, update the scroll bar range.
 --
 -- @param reset Reset the scroll bar to the beginning.
 --
 function Me.TraitPicker_RefreshScroll( reset )
-	local list = Me.db.global.traitsList 
+	local list = filteredList or Me.db.global.traitsList 
 	local max = math.floor((#list - 18) / 3) + 1
 	if max < 0 then max = 0 end
 	DiceMasterTraitPicker.scroller:SetMinMaxValues( 0, max )
@@ -1830,49 +1801,26 @@ function Me.TraitEditor_Refresh()
 	end
 	
 	scrollFrame.descEditor:SetText( trait.desc )
-	
-	local buff = Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"] or nil
-	if buff and buff.blank == false then
-		scrollFrame.applyBuff:Show()
-		scrollFrame.applyBuff.Icon:SetTexture(buff.icon)
-		scrollFrame.applyBuff.Name:SetText(buff.name)
-		scrollFrame.removeBuff:SetPoint("TOPLEFT", scrollFrame.applyBuff, "BOTTOMLEFT", 0, -20)
-		Me.SetupTooltip( scrollFrame.applyBuff, nil, "|cFFffd100"..buff.name, nil, nil, Me.FormatDescTooltip( buff.desc or "" ) )
-	else
-		scrollFrame.applyBuff:Hide()
-		scrollFrame.removeBuff:SetPoint("TOPLEFT", scrollFrame.descEditor, "BOTTOMLEFT", 0, -30)
-	end
-	
-	local debuff = Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"] or nil
-	if debuff and debuff.blank == false then
-		scrollFrame.removeBuff:Hide()
-		scrollFrame.removeBuff.Name:SetText(debuff.name)
-		scrollFrame.removeBuff.Icon:SetTexture("Interface/Icons/Spell_Shadow_SacrificialShield")
-		
-		if not Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"] then return end
-		
-		for i = 1,5 do
-			if Me.db.global.traitsList[i]["effects"]["buff"] and Me.db.global.traitsList[i]["effects"]["removebuff"].name == debuff.name then
-				scrollFrame.removeBuff.Icon:SetTexture(Me.db.global.traitsList[i]["effects"]["removebuff"].icon)
-				scrollFrame.removeBuff:Show()
-				Me.SetupTooltip( scrollFrame.removeBuff, nil, "|cFFffd100"..Me.db.global.traitsList[i]["effects"]["removebuff"].name, nil, nil, Me.FormatDescTooltip( Me.db.global.traitsList[i]["effects"]["removebuff"].desc or "" ) )
-				break
-			end
-		end
-	else
-		scrollFrame.removeBuff:Hide()
-	end
 end
 
 -------------------------------------------------------------------------------
 -- Call this after changing a trait's data.
 --
 local function TraitUpdated()
+	local traitsList = Me.db.global.traitsList
+	local traits = Me.Profile.traits
+	
+	for x = 1, #traitsList do
+		for y = 1, #traits do
+			if traitsList[x].guid == traits[y].guid then
+				Me.Profile.traits[y] = traitsList[x];
+				Me.Profile.traits[y].guid = traitsList[x].guid;
+				Me.Inspect_OnTraitUpdated( UnitName("player"), y )
+			end
+		end
+	end
 
-	local trait = Me.db.global.traitsList[Me.editing_trait]
-	-- TODO
 	-- Me.BumpSerial( Me.db.char.traitSerials, Me.editing_trait )
-	Me.Inspect_OnTraitUpdated( UnitName("player"), Me.editing_trait )
 	Me.UpdatePanelTraits()
 end
 
@@ -1889,6 +1837,7 @@ function Me.TraitEditor_CreateTrait()
 		["icon"] = "Interface/Icons/inv_misc_questionmark";
 		["desc"] = "Type a description for your trait here.";
 		["effects"] = {};
+		["traitIndex"] = #Me.db.global.traitsList;
 	}
 	
 	-- copy officer approval
@@ -1985,8 +1934,14 @@ function Me.TraitEditor_ChangeUsage( button )
 		Me.editor.scrollFrame.Container.traitCooldown:Hide()
 	else
 		Me.editor.scrollFrame.Container.traitRange:Show()
+		Me.editor.scrollFrame.Container.traitRange.text:SetText( Me.FormatRange( trait.range or Me.TRAIT_RANGE_MODES[1] ) )
+		Me.editor.scrollFrame.Container.traitRange:SetWidth(Me.editor.scrollFrame.Container.traitRange.text:GetStringWidth())
 		Me.editor.scrollFrame.Container.traitCastTime:Show()
+		Me.editor.scrollFrame.Container.traitCastTime.text:SetText( Me.FormatCastTime( trait.castTime or Me.TRAIT_CAST_TIME_MODES[1] ) )
+		Me.editor.scrollFrame.Container.traitCastTime:SetWidth(Me.editor.scrollFrame.Container.traitCastTime.text:GetStringWidth())
 		Me.editor.scrollFrame.Container.traitCooldown:Show()
+		Me.editor.scrollFrame.Container.traitCooldown.text:SetText( Me.FormatCooldown( trait.cooldown or Me.TRAIT_COOLDOWN_MODES[1] ) )
+		Me.editor.scrollFrame.Container.traitCooldown:SetWidth(Me.editor.scrollFrame.Container.traitCooldown.text:GetStringWidth())
 	end
 	
 	-- update text
@@ -2190,10 +2145,6 @@ end
 -- Show the trait editor.
 --
 function Me.TraitEditor_Open()
-	
-	-- for i = 1,5 do
-		-- Me.editor.trait_buttons[i]:SetPlayerTrait( UnitName( "player" ), i ) 
-	-- end
 	 
 	--get name, race, class
 	local charName, charRace, charClass, charColor = Me.GetCharInfo()

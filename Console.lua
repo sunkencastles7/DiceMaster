@@ -29,34 +29,19 @@ function SlashCmdList.DICE( msg, editBox )
 	end
 	
 	local dice = DiceMasterPanelDice:GetText()
-	local rollType = nil
 	local stat = nil
-	local modifier = 0
+	local modifier = Me.GetModifierFromStatistic( msg:lower() )
+	dice = Me.FormatDiceString( dice, modifier )
 	
-	for k, v in pairs( Me.RollList ) do
-		for i = 1, #v do
-			if v[i].name:lower() == msg:lower() then
-				rollType = v[i].name
-				stat = v[i].stat
-			end
+	local rollType
+	for i = 1, #Me.Profile.stats do
+		if Me.Profile.stats[i].name:lower() == msg:lower() then
+			rollType = Me.Profile.stats[i].name;
+			break
 		end
 	end
 	
-	if rollType and stat then
-		for i = 1,#Profile.stats do
-			if Profile.stats[i] and ( Profile.stats[i].name == stat or Profile.stats[i].name == rollType ) then
-				modifier = modifier + Profile.stats[i].value
-			end
-		end
-		for i = 1, #Profile.buffsActive do
-			if Profile.buffsActive[i].statistic == rollType then
-				modifier = modifier + Profile.buffsActive[i].statAmount
-			end
-		end
-		msg = Me.FormatDiceString( dice, modifier ) or "D20"
-	end
-	
-	Me.Roll( msg, rollType ) 
+	Me.Roll( dice, rollType ) 
 end 
 
 -------------------------------------------------------------------------------

@@ -22,10 +22,12 @@ Inspect.lua
 DM3Import.lua
 DM4Import.lua
 Lists/IconList.lua
+Lists/TextureList.lua
 Lists/SoundList.lua
 Lists/ModelList.lua
 Lists/RollList.lua
 Pickers/IconPicker.lua
+Pickers/TexturePicker.lua
 Pickers/ColourPicker.lua
 Pickers/SoundPicker.lua
 Pickers/ModelPicker.lua
@@ -36,7 +38,9 @@ Editors/SetDiceEditor.lua
 Editors/ScriptEditor.lua
 Editors/MessageEditor.lua
 Editors/ProduceItemEditor.lua
+Editors/ConsumeItemEditor.lua
 Editors/ProduceCurrencyEditor.lua
+Editors/ScreenEffectEditor.lua
 ChatLinks.lua
 Names.lua
 MinimapButton.lua

@@ -270,11 +270,12 @@
 		  </OnLoad>
 		  <OnEditFocusLost>
 			DiceMaster4.ItemEditor_SaveName()
+			self:HighlightText(0,0) 
 		  </OnEditFocusLost>
 		  <OnEscapePressed function="EditBox_ClearFocus"/>
 		  <OnEnterPressed function="EditBox_ClearFocus"/>
 		  <OnTabPressed>
-			--DiceMasterBuffEditorBuffDesc.EditBox:SetFocus()
+			DiceMasterItemEditor.whiteText1:SetFocus()
 		  </OnTabPressed>
 		</Scripts>
 	  </EditBox>
@@ -334,11 +335,12 @@
 		  </OnLoad>
 		  <OnEditFocusLost>
 			DiceMaster4.ItemEditor_SaveWhiteText1()
+			self:HighlightText(0,0) 
 		  </OnEditFocusLost>
 		  <OnEscapePressed function="EditBox_ClearFocus"/>
 		  <OnEnterPressed function="EditBox_ClearFocus"/>
 		  <OnTabPressed>
-			--DiceMasterBuffEditorBuffDesc.EditBox:SetFocus()
+			DiceMasterItemEditor.whiteText2:SetFocus()
 		  </OnTabPressed>
 		</Scripts>
 	  </EditBox>
@@ -366,11 +368,12 @@
 		  </OnLoad>
 		  <OnEditFocusLost>
 			DiceMaster4.ItemEditor_SaveWhiteText2()
+			self:HighlightText(0,0) 
 		  </OnEditFocusLost>
 		  <OnEscapePressed function="EditBox_ClearFocus"/>
 		  <OnEnterPressed function="EditBox_ClearFocus"/>
 		  <OnTabPressed>
-			--DiceMasterBuffEditorBuffDesc.EditBox:SetFocus()
+			DiceMasterItemEditor.useText:SetFocus()
 		  </OnTabPressed>
 		</Scripts>
 	  </EditBox>
@@ -398,11 +401,12 @@
 		  </OnLoad>
 		  <OnEditFocusLost>
 			DiceMaster4.ItemEditor_SaveUseText()
+			self:HighlightText(0,0) 
 		  </OnEditFocusLost>
 		  <OnEscapePressed function="EditBox_ClearFocus"/>
 		  <OnEnterPressed function="EditBox_ClearFocus"/>
 		  <OnTabPressed>
-			--DiceMasterBuffEditorBuffDesc.EditBox:SetFocus()
+			DiceMasterItemEditor.flavorText:SetFocus()
 		  </OnTabPressed>
 		</Scripts>
 	  </EditBox>
@@ -430,12 +434,10 @@
 		  </OnLoad>
 		  <OnEditFocusLost>
 			DiceMaster4.ItemEditor_SaveFlavorText()
+			self:HighlightText(0,0) 
 		  </OnEditFocusLost>
 		  <OnEscapePressed function="EditBox_ClearFocus"/>
 		  <OnEnterPressed function="EditBox_ClearFocus"/>
-		  <OnTabPressed>
-			--DiceMasterBuffEditorBuffDesc.EditBox:SetFocus()
-		  </OnTabPressed>
 		</Scripts>
 	  </EditBox>
 	  
@@ -487,25 +489,25 @@
 		</Scripts>
 	  </CheckButton>
 	  
-	  <CheckButton name="$parentSoulbound" parentKey="soulbound" inherits="ChatConfigCheckButtonTemplate">
+	  <CheckButton name="$parentItemBind" parentKey="itemBind" inherits="ChatConfigCheckButtonTemplate">
 		<Anchors>
 		  <Anchor point="TOPLEFT" relativeKey="$parent.consumeable" relativePoint="BOTTOMLEFT" x="0" y="0" />
 		</Anchors>
 		
 		<Scripts>
 			<OnLoad>
-				_G[self:GetName().."Text"]:SetText("|cFFFFD100Binds on Pickup")
-				self.tooltip = "Toggles whether this item becomes Soulbound when obtained."
+				_G[self:GetName().."Text"]:SetText("|cFFFFD100Bind on Use")
+				self.tooltip = "Toggles whether this item becomes Soulbound after it is used."
 			</OnLoad>
 			<OnClick>
-				DiceMaster4.ItemEditor_SaveSoulbound()
+				DiceMaster4.ItemEditor_SaveBinding()
 			</OnClick>
 		</Scripts>
 	  </CheckButton>
 	  
 	  <CheckButton name="$parentCopyable" parentKey="copyable" inherits="ChatConfigCheckButtonTemplate">
 		<Anchors>
-		  <Anchor point="TOPLEFT" relativeKey="$parent.soulbound" relativePoint="BOTTOMLEFT" x="0" y="0" />
+		  <Anchor point="TOPLEFT" relativeKey="$parent.itemBind" relativePoint="BOTTOMLEFT" x="0" y="0" />
 		</Anchors>
 		
 		<Scripts>

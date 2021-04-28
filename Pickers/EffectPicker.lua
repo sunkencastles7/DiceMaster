@@ -144,7 +144,7 @@ function Me.EffectPicker_Refresh( effectIndex )
 			DiceMasterEffectPicker.selectedID = effect.effectID
 			DiceMasterEffectPicker.selectedName = effect.effectName;
 		end
-		DiceMasterEffectPicker.delay:SetText( effect.delay )
+		DiceMasterEffectPicker.delay:SetText( effect.delay or 0 )
 	end
 	if effect.target then
 		DiceMasterEffectPicker.sendToTarget:SetChecked( true )
@@ -379,17 +379,8 @@ end
 -- Open the effect picker window.
 --
 function Me.EffectPicker_Open( parent )
-	-- TODO: Close all open menus
-	-- Me.AnimationPicker_Close()
-	-- Me.ShopEditor_Close()
-	-- Me.ItemEditor_Close()
-	-- Me.ModelPicker_Close()
-	-- Me.CurrencyEditor_Close()
-	-- Me.SoundPicker_Close()
-	-- Me.buffeditor:Hide()
-	-- Me.removebuffeditor:Hide()
-	-- Me.setdiceeditor:Hide()
 	if parent then
+		Me.CloseAllEditors( nil, nil, true )
 		DiceMasterEffectPicker.parent = parent
 		DiceMasterEffectPicker:ClearAllPoints()
 		DiceMasterEffectPicker:SetPoint( "LEFT", parent, "RIGHT" )
@@ -399,6 +390,7 @@ function Me.EffectPicker_Open( parent )
 		DiceMasterEffectPickerDeleteButton:SetPoint( "BOTTOMRIGHT", -6, 4 )
 		DiceMasterEffectPickerDeleteButton:SetText( "Cancel" )
 	else
+		Me.CloseAllEditors()
 		DiceMasterEffectPicker.parent = nil
 		DiceMasterEffectPicker:ClearAllPoints()
 		DiceMasterEffectPicker:SetPoint( "LEFT", DiceMasterTraitEditor, "RIGHT" )

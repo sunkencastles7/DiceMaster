@@ -113,7 +113,6 @@ function Me.BuffEditor_DeleteBuff()
 		Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"] = nil
 	end
 	
-	PlaySound(840); 
 	Me.IconPicker_Close()
 	Me.buffeditor:Hide()
 	Me.TraitEditor_Refresh()
@@ -152,7 +151,6 @@ function Me.BuffEditor_Save()
 		buff.range = 0
 	end
 	buff.stackable = Me.buffeditor.buffStackable:GetChecked()
-	buff.blank = false
 	if Me.buffeditor.parent then
 		if Me.ItemEditing then
 			tinsert( Me.ItemEditing.effects, buff )
@@ -197,7 +195,6 @@ function Me.BuffEditor_SaveEdits()
 		buff.range = 0
 	end
 	buff.stackable = Me.buffeditor.buffStackable:GetChecked()
-	buff.blank = false
 	
 	if Me.ItemEditing then
 		Me.ItemEditing.effects[ Me.EffectEditingIndex ] = buff
@@ -232,8 +229,8 @@ function Me.BuffDuration_OnValueChanged( self, value, userInput )
 end
 
 function Me.BuffEditor_OnCloseClicked()
-	PlaySound(840); 
 	Me.IconPicker_Close()
+	Me.BuffEditor_Refresh()
 	Me.buffeditor.parent = nil
 	Me.buffeditor:Hide()
 	Me.TraitEditor_Refresh()
@@ -241,6 +238,7 @@ end
 
 function Me.BuffEditor_Open( parent )
 	if parent then
+		Me.CloseAllEditors( nil, nil, true )
 		Me.buffeditor.parent = parent
 		Me.buffeditor:SetPoint( "LEFT", parent, "RIGHT" )
 		DiceMasterBuffEditorSaveButton:ClearAllPoints()
@@ -249,6 +247,7 @@ function Me.BuffEditor_Open( parent )
 		DiceMasterBuffEditorDeleteButton:SetPoint( "BOTTOMRIGHT", -6, 4 )
 		DiceMasterBuffEditorDeleteButton:SetText( "Cancel" )
 	else
+		Me.CloseAllEditors()
 		Me.buffeditor.parent = nil
 		Me.buffeditor:SetPoint( "LEFT", DiceMasterTraitEditor, "RIGHT" )
 		DiceMasterBuffEditorSaveButton:ClearAllPoints()
@@ -256,13 +255,6 @@ function Me.BuffEditor_Open( parent )
 		DiceMasterBuffEditorDeleteButton:ClearAllPoints()
 		DiceMasterBuffEditorDeleteButton:SetPoint( "BOTTOMRIGHT", -6, 4 )
 		DiceMasterBuffEditorDeleteButton:SetText( "Delete" )
-	end
-	
-	Me.SoundPicker_Close()
-	Me.EffectPicker_Close()
-	if Me.removebuffeditor:IsShown() or Me.setdiceeditor:IsShown() then
-		Me.removebuffeditor:Hide()
-		Me.setdiceeditor:Hide()
 	end
 	
 	DiceMasterBuffEditorSaveButton:SetScript( "OnClick", function()
