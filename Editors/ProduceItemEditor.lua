@@ -96,7 +96,7 @@ function Me.ProduceItemEditor_ProduceItem( data )
 		Me.ProduceItem( data.guid, data.amount )
 	else
 		if item then
-			Me.CreateItem( item, amount )
+			Me.CreateItem( item, data.amount )
 		else
 			UIErrorsFrame:AddMessage( "Error producing item.", 1.0, 0.0, 0.0, 53, 5 );
 			return
