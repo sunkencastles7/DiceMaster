@@ -336,32 +336,6 @@
 		</Frames>
   </Frame>
   
-  <!-- Cursor Drag Icon -->
-	<Frame name="DiceMasterTraitPickerCursorIcon" parent="UIParent" frameStrata="DIALOG" toplevel="true" hidden="true">
-		<Size x="32" y="32"/>
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture parentKey="icon" setAllPoints="true" file="Interface/Icons/inv_misc_questionmark">
-				</Texture>
-			</Layer>
-			<Layer level="BORDER">
-				<Texture parentKey="border" file="Interface/AddOns/DiceMaster/Texture/traits-border">
-					<Size x="48" y="48"/>	
-					<Anchors>
-						<Anchor point="CENTER"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-		</Layers>
-		<Scripts>
-			<OnUpdate>
-				local cursorX, cursorY = GetCursorPosition();
-				local uiScale = UIParent:GetScale();
-				self:SetPoint("TOP", UIParent, "BOTTOMLEFT", cursorX / uiScale, cursorY / uiScale + 25);
-			</OnUpdate>
-		</Scripts>
-	</Frame>
-  
   <!-- Trait editor frame. -->
   
   <Frame name="DiceMasterTraitEditor" enableMouse="true" movable="true" resizable="false" frameStrata="HIGH" hidden="true" parent="UIParent" inherits="ButtonFrameTemplate">
@@ -628,111 +602,6 @@
         </ScrollChild>
         
       </ScrollFrame>
-	  
-	  <Frame name="DiceMasterTraitPicker" parentKey="TraitPicker" hidden="true">
-		<Size x="160" y="379"/>
-		<Anchors>
-			<Anchor point="TOPLEFT" x="6" y="-62"/>
-			<Anchor point="BOTTOMLEFT" x="6" y="42"/>
-		</Anchors>
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture name="store-category-bg" file="Interface\Store\Store-Main" >
-					<TexCoords left="0.00097656" right="0.18261719" top="0.46289063" bottom="0.8"/>	
-				</Texture>
-			</Layer>
-			<Layer level="OVERLAY" textureSubLevel="2">
-				<Texture name="$parentTLCorner" atlas="Talent-TopLeftCurlies" useAtlasSize="true">
-					<Anchors>
-						<Anchor point="TOPLEFT" x="-1" y="-1"/>
-					</Anchors>
-				</Texture>
-				<Texture name="$parentTRCorner" atlas="Talent-TopRightCurlies" useAtlasSize="true">
-					<Anchors>
-						<Anchor point="TOPRIGHT" x="1" y="-1"/>
-					</Anchors>
-				</Texture>
-				<Texture name="$parentBLCorner" atlas="Talent-BottomLeftCurlies" useAtlasSize="true">
-					<Anchors>
-						<Anchor point="BOTTOMLEFT" x="-1"/>
-					</Anchors>
-				</Texture>
-				<Texture name="$parentBRCorner" atlas="Talent-BottomRightCurlies" useAtlasSize="true">
-					<Anchors>
-						<Anchor point="BOTTOMRIGHT" x="1"/>
-					</Anchors>
-				</Texture>
-				<Texture atlas="_Talent-Top-Tile" horizTile="true">
-					<Size x="0" y="11"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeTo="$parentTLCorner" relativePoint="TOPRIGHT" x="0" y="1"/>
-						<Anchor point="TOPRIGHT" relativeTo="$parentTRCorner" relativePoint="TOPLEFT" x="0" y="1"/>
-					</Anchors>
-				</Texture>
-				<Texture atlas="_Talent-Bottom-Tile" horizTile="true">
-					<Size x="0" y="4"/>
-					<Anchors>
-						<Anchor point="BOTTOMLEFT" relativeTo="$parentBLCorner" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
-						<Anchor point="BOTTOMRIGHT" relativeTo="$parentBRCorner" relativePoint="BOTTOMLEFT" x="0" y="0"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-		</Layers>
-		<Frames>
-			<EditBox parentKey="search" inherits="SearchBoxTemplate">
-				<Size x="128" y="8" />
-				<Anchors>
-				  <Anchor point="TOP" x="2" y="-28" />
-				</Anchors>
-				
-				<Scripts>
-				  <OnTextChanged>
-					SearchBoxTemplate_OnTextChanged(self);
-					DiceMaster4.TraitPicker_FilterChanged()
-				  </OnTextChanged>
-				  
-				  
-				  <OnEscapePressed function="EditBox_ClearFocus"/>
-				</Scripts>
-			</EditBox>
-			
-			<Slider parentKey="scroller" inherits="UIPanelScrollBarTrimTemplate" minvalue="0" maxvalue="1" valuestep="3">
-            
-            <Anchors>
-              <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="24" y="-16" />
-              <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="24" y="12" />
-            </Anchors>
-            
-            <Layers>
-              <Layer level="BACKGROUND">
-                
-                <!-- scroller background -->
-                <Texture setAllPoints="true">
-                  <Color r="0" g="0" b="0" a="0.25"/>
-                </Texture>
-                
-              </Layer>
-            </Layers>
-            <Scripts>
-              <OnLoad>
-                self:SetValueStep(1)
-                self.scrollStep = 4
-              </OnLoad>
-              <OnValueChanged>
-                DiceMaster4.TraitPicker_ScrollChanged( value )
-              </OnValueChanged>
-            </Scripts>
-          </Slider>
-		</Frames>
-		<Scripts>
-			<OnLoad>
-				self:EnableMouseWheel( true )
-			</OnLoad>
-			<OnMouseWheel>
-				DiceMaster4.TraitPicker_MouseScroll( delta )
-			</OnMouseWheel>
-		</Scripts>
-	  </Frame>
 	  
 	  <Frame parentKey="StatsWarning" enableMouse="true" hidden="true">
 		<Size x="298" y="309"/>
@@ -1104,7 +973,7 @@
 		</Layers>
 		<Frames>
 			<Button parentKey="createButton" inherits="MagicButtonTemplate" text="Create">
-				<Size x="78" y="22"/>
+				<Size x="62" y="22"/>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" x="6" y="12"/>
 				</Anchors>
@@ -1116,7 +985,7 @@
 				</Scripts>
 		    </Button>
 			<Button parentKey="editButton" inherits="MagicButtonTemplate" text="Edit">
-				<Size x="78" y="22"/>
+				<Size x="62" y="22"/>
 				<Anchors>
 					<Anchor point="LEFT" relativeKey="$parent.createButton" relativePoint="RIGHT" x="0" y="0"/>
 				</Anchors>
@@ -1127,7 +996,7 @@
 				</Scripts>
 		    </Button>
 			<Button parentKey="copyButton" inherits="MagicButtonTemplate" text="Copy">
-				<Size x="78" y="22"/>
+				<Size x="62" y="22"/>
 				<Anchors>
 					<Anchor point="LEFT" relativeKey="$parent.editButton" relativePoint="RIGHT" x="0" y="0"/>
 				</Anchors>
@@ -1138,16 +1007,31 @@
 				</Scripts>
 		    </Button>
 			<Button parentKey="sellButton" inherits="MagicButtonTemplate" text="Sell">
-				<Size x="78" y="22"/>
+				<Size x="62" y="22"/>
 				<Anchors>
 					<Anchor point="LEFT" relativeKey="$parent.copyButton" relativePoint="RIGHT" x="0" y="0"/>
 				</Anchors>
 				<Scripts>
-					<OnLoad>
-						--self:Disable()
-					</OnLoad>
 					<OnClick>
 						DiceMaster4.TraitEditor_SellItem()
+					</OnClick>
+				</Scripts>
+		    </Button>
+			<Button parentKey="lootButton" inherits="MagicButtonTemplate" text="Loot">
+				<Size x="62" y="22"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent.sellButton" relativePoint="RIGHT" x="0" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnUpdate>
+						if DiceMaster4.IsLeader( true ) then	
+							self:Enable()
+						else
+							self:Disable()
+						end
+					</OnUpdate>
+					<OnClick>
+						DiceMaster4.TraitEditor_GroupLootItem()
 					</OnClick>
 				</Scripts>
 		    </Button>
@@ -1440,24 +1324,17 @@
 			<Scripts>
 				<OnClick>
 					HelpPlate_Hide( false );
-					DiceMaster4.editor:SetWidth( 336 )
-					DiceMasterTraitsFrame:SetPoint( "TOPLEFT", 10, -64 )
-					DiceMasterTraitEditor.FormatBar:SetPoint( "BOTTOMLEFT", 20, 4 )
 					DiceMaster4.editor.Inset:SetPoint("BOTTOMLEFT", 4, 40)
-					DiceMaster4.editor.Bg:SetPoint("TOPLEFT", 0, -64)
 					DiceMaster4.editor.Bg:SetPoint("BOTTOMRIGHT", -6, 40)
 					DiceMaster4.editor.Inset:Show();
 					DiceMaster4.editor.Bg:Show()
 					PanelTemplates_SetTab(DiceMaster4.editor, 1);
                     DiceMasterTraitsFrame:Show();
-                    -- DiceMasterTraitPicker:Show();
 					DiceMasterTraitEditor.StatsWarning:Hide()
 					DiceMasterTraitEditorExperienceBar:Hide()
 					DiceMasterTraitEditor.FormatBar:Show();
-					DiceMasterTraitEditorTraitsExpandButton:Show()
-					DiceMasterTraitEditorTraitsExpandButton:SetExpanded( false )
 					for i = 1,5 do
-						-- DiceMaster4.editor.trait_buttons[i]:Show();
+						DiceMaster4.editor.trait_buttons[i]:Show();
 					end
                     DiceMasterStatsFrame:Hide();
 					DiceMasterPetFrame:Hide();
@@ -1477,20 +1354,16 @@
 		<Scripts>
 			<OnClick>
 				HelpPlate_Hide( false );
-				DiceMaster4.editor:SetWidth( 336 )
 				DiceMaster4.editor.Inset:SetPoint("BOTTOMLEFT", 4, 26)
-				DiceMaster4.editor.Bg:SetPoint("TOPLEFT", 0, -64)
 				DiceMaster4.editor.Bg:SetPoint("BOTTOMRIGHT", -6, 26)
 				DiceMaster4.editor.Inset:Show();
 				DiceMaster4.editor.Bg:Show()
 				PanelTemplates_SetTab(DiceMaster4.editor, 2);
 				DiceMasterTraitsFrame:Hide();
-				DiceMasterTraitPicker:Hide();
-				DiceMasterTraitEditorTraitsExpandButton:Hide();
 				DiceMasterTraitEditorExperienceBar:Show()
 				DiceMasterTraitEditor.FormatBar:Hide();
 				for i = 1,5 do
-					-- DiceMaster4.editor.trait_buttons[i]:Hide();
+					DiceMaster4.editor.trait_buttons[i]:Hide();
 				end
 				DiceMasterStatsFrame:Show();
 				DiceMasterPetFrame:Hide();
@@ -1510,20 +1383,17 @@
 		<Scripts>
 			<OnClick>
 				HelpPlate_Hide( false );
-				DiceMaster4.editor:SetWidth( 336 )
 				DiceMaster4.editor.Inset:SetPoint("BOTTOMLEFT", 4, 26)
 				DiceMaster4.editor.Bg:SetPoint("BOTTOMRIGHT", -6, 26)
 				DiceMaster4.editor.Inset:Show();
 				DiceMaster4.editor.Bg:Show()
 				PanelTemplates_SetTab(DiceMaster4.editor, 3);
 				DiceMasterTraitsFrame:Hide();
-				DiceMasterTraitPicker:Hide();
 				DiceMasterTraitEditor.StatsWarning:Hide()
 				DiceMasterTraitEditorExperienceBar:Hide()
 				DiceMasterTraitEditor.FormatBar:Hide();
-				DiceMasterTraitEditorTraitsExpandButton:Hide();
 				for i = 1,5 do
-					-- DiceMaster4.editor.trait_buttons[i]:Hide();
+					DiceMaster4.editor.trait_buttons[i]:Hide();
 				end
 				DiceMasterStatsFrame:Hide();
 				DiceMasterPetFrame:Show();
@@ -1566,19 +1436,16 @@
 			<OnClick>
 				if button == "LeftButton" then
 					HelpPlate_Hide( false );
-					DiceMaster4.editor:SetWidth( 336 )
 					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 					PanelTemplates_SetTab(DiceMaster4.editor, 0);
 					DiceMaster4.editor.Inset:Hide();
 					DiceMaster4.editor.Bg:Hide();
 					DiceMasterTraitsFrame:Hide();
-					DiceMasterTraitPicker:Hide();
 					DiceMasterTraitEditor.StatsWarning:Hide()
 					DiceMasterTraitEditorExperienceBar:Hide()
 					DiceMasterTraitEditor.FormatBar:Hide();
-					DiceMasterTraitEditorTraitsExpandButton:Hide();
 					for i = 1,5 do
-						-- DiceMaster4.editor.trait_buttons[i]:Hide();
+						DiceMaster4.editor.trait_buttons[i]:Hide();
 					end
 					DiceMasterStatsFrame:Hide();
 					DiceMasterPetFrame:Hide();
@@ -1636,19 +1503,16 @@
 			<OnClick>
 				if button == "LeftButton" then
 					HelpPlate_Hide( false );
-					DiceMaster4.editor:SetWidth( 336 )
 					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 					PanelTemplates_SetTab(DiceMaster4.editor, 0);
 					DiceMaster4.editor.Inset:Hide();
 					DiceMaster4.editor.Bg:Hide();
 					DiceMasterTraitsFrame:Hide();
-					DiceMasterTraitPicker:Hide();
 					DiceMasterTraitEditor.StatsWarning:Hide()
 					DiceMasterTraitEditorExperienceBar:Hide()
-					DiceMasterTraitEditorTraitsExpandButton:Hide();
 					DiceMasterTraitEditor.FormatBar:Hide();
 					for i = 1,5 do
-						-- DiceMaster4.editor.trait_buttons[i]:Hide();
+						DiceMaster4.editor.trait_buttons[i]:Hide();
 					end
 					DiceMasterStatsFrame:Hide();
 					DiceMasterPetFrame:Hide();
@@ -1675,43 +1539,6 @@
 		<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
 		<CheckedTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"/>
 	  </CheckButton>
-	  
-	  <Button name="$parentTraitsExpandButton" parentKey="traitsExpandButton" inherits="UIExpandingButtonTemplate">
-		<Size x="" y="" />
-		<Anchors>
-			<Anchor point="TOPLEFT" x="70" y="-28"/>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				self.Label:SetText( "Traits" )
-				self.Label:ClearAllPoints()
-				self.Label:SetPoint( "LEFT", self, "RIGHT", 5, 0 )
-				self:SetUp( false, "LEFT");
-			</OnLoad>
-			<OnClick>
-				HelpPlate_Hide( false );
-				self:SetExpanded( not self:IsCurrentlyExpanded() )
-				if not self:IsCurrentlyExpanded() then
-					DiceMasterTraitPicker:Hide()
-					DiceMaster4.editor:SetWidth( 336 )
-					DiceMasterTraitsFrame:SetPoint( "TOPLEFT", 10, -64 )
-					DiceMasterTraitEditor.FormatBar:SetPoint( "BOTTOMLEFT", 20, 4 )
-					DiceMaster4.editor.Bg:SetPoint("TOPLEFT", 0, -64)
-					DiceMaster4.editor.Inset:Show();
-					DiceMaster4.editor.Bg:Show()
-				else
-					DiceMasterTraitPicker:Show()
-					DiceMaster4.editor:SetWidth( 520 )
-					DiceMasterTraitsFrame:SetPoint( "TOPLEFT", 194, -64 )
-					DiceMasterTraitEditor.FormatBar:SetPoint( "BOTTOMLEFT", 200, 4 )
-					DiceMaster4.editor.Bg:SetPoint("TOPLEFT", 184, -64)
-					DiceMaster4.editor.Inset:Show();
-					DiceMaster4.editor.Bg:Show()
-				end
-				PlaySound(841)
-			</OnClick>
-		</Scripts>
-	  </Button>
 	  
 	  <Button parentKey="Tutorial" inherits="MainHelpPlateButton" mixin="DiceMasterTraitEditorTutorialMixin">
 		<Anchors>

@@ -156,7 +156,7 @@ function Me.ItemEditorNewAction_OnLoad(frame, level, menuList)
 	info.text = "Visual Effect"
 	info.arg1 = Me.EffectPicker_Open;
 	UIDropDownMenu_AddButton(info, level)
-	info.icon = "Interface/Icons/spell_arcane_blast"
+	info.icon = "Interface/Icons/spell_nature_astralrecal"
 	info.text = "Screen Effect"
 	info.arg1 = Me.ScreenEffectEditor_Open;
 	UIDropDownMenu_AddButton(info, level)
@@ -297,7 +297,7 @@ local DICEMASTER_ITEM_EFFECTS = {
 	},
 	["screeneffect"] = {
 		name = "Screen Effect";
-		icon = "Interface/Icons/spell_arcane_blast";
+		icon = "Interface/Icons/spell_nature_astralrecal";
 		detail = "texture"
 	},
 	["message"] = {
@@ -308,12 +308,12 @@ local DICEMASTER_ITEM_EFFECTS = {
 	["produce"] = {
 		name = "Produce Item";
 		icon = "Interface/Icons/Spell_ChargePositive";
-		detail = "itemData";
+		detail = "item";
 	},
 	["consume"] = {
 		name = "Consume Item";
 		icon = "Interface/Icons/Spell_ChargeNegative";
-		detail = "itemData";
+		detail = "item";
 	},
 	["removebuff"] = {
 		name = "Remove Buff";
@@ -542,7 +542,7 @@ end
 --
 function Me.ItemEditor_CreateItem()
 	
-	if #Me.Profile.inventory >= 42 then
+	if Me.FindTotalEmptySlots() < 1 then
 		UIErrorsFrame:AddMessage( "Inventory is full.", 1.0, 0.0, 0.0, 53, 5 ); 
 		return
 	end

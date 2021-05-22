@@ -19,6 +19,7 @@ local DB_DEFAULTS = {
 		hideInspect = false; -- hide inspect frame when panel is hidden
 		hideStats   = false; -- hide stats button from inspect frame.
 		hidePet   = false; -- hide pet portrait frame from inspect frame.
+		hideInventory = false; -- hide inventory from other players
 		hideTips	= true; -- turn enhanced tooltips on for newbies
 		hideTracker = false; -- hide the roll tracker.
 		trackerAnchor = "RIGHT";
@@ -36,8 +37,6 @@ local DB_DEFAULTS = {
 		bloodEffects = true;
 		miniFrames = false;
 		snapping = false;
-		dm4ImportedAlpha = false;
-		traitsList = {};
 	};
 	
 	char = { 
@@ -109,6 +108,11 @@ local DB_DEFAULTS = {
 			};
 		};
 		currencyActive = 1;
+		buffs			 = {};
+		removebuffs 	 = {};
+		playsounds  	 = {};
+		setdice     	 = {};
+		visualeffects	 = {};
 		buffsActive  	 = {};
 		stats = {
 		};
@@ -267,8 +271,22 @@ Me.configOptions = {
 			get = function( info ) return Me.db.global.hidePet end;
 		};
 		
-		hideTips = {
+		hideInventory = {
 			order = 10;
+			name  = "Hide Inventory from Other Players";
+			desc  = "Hide your inventory from other players.|n|nNote: Changes may take a few moments to take effect.";
+			type  = "toggle";
+			width = "double";
+			set = function( info, val )
+				Me.db.global.hideInventory = val
+				Me.Inspect_Open( Me.inspectName )
+				-- refresh hidden status.
+			end;
+			get = function( info ) return Me.db.global.hideInventory end;
+		};
+		
+		hideTips = {
+			order = 11;
 			name  = "Enable Enhanced Tooltips";
 			desc  = "Enable helpful DiceMaster term definitions next to trait tooltips.";
 			type  = "toggle";
@@ -280,7 +298,7 @@ Me.configOptions = {
 		};
 		
 		hideTypeTracker = {
-			order = 11;
+			order = 12;
 			name  = "Enable Typing Tracker";
 			desc  = "Enable the Typing Tracker to alert you when group members are writing in say, emote, party, and raid.";
 			type  = "toggle";
@@ -292,7 +310,7 @@ Me.configOptions = {
 		};
 		
 		enableTurnTracker = {
-			order = 12;
+			order = 13;
 			name  = "Enable Combat Turn Tracker";
 			desc  = "Displays the Turn Tracker frame when turn-based combat begins.";
 			width = "full";
@@ -307,7 +325,7 @@ Me.configOptions = {
 		};
 		
 		allowSounds = {
-			order = 13;
+			order = 14;
 			name  = "Allow Sounds from Other Players";
 			desc  = "Allow other players to play sound effects.";
 			type  = "toggle";
@@ -319,7 +337,7 @@ Me.configOptions = {
 		};
 		
 		allowEffects = {
-			order = 14;
+			order = 15;
 			name  = "Allow Effects from Other Players";
 			desc  = "Allow the group leader to send you fullscreen visual effects.";
 			type  = "toggle";
@@ -331,7 +349,7 @@ Me.configOptions = {
 		};
 		
 		allowIcons = {
-			order = 15;
+			order = 16;
 			name  = "Display Icons in Chat";
 			desc  = "Display icons linked by players in public chat channels.";
 			type  = "toggle";
@@ -343,7 +361,7 @@ Me.configOptions = {
 		};
 		
 		enableRoundBanners = {
-			order = 16;
+			order = 17;
 			name  = "Allow Roll Prompt Banners";
 			desc  = "Allow the group leader to send you visual prompts when it's your turn to roll.";
 			type  = "toggle";
@@ -355,7 +373,7 @@ Me.configOptions = {
 		};
 		
 		enableMapNodes = {
-			order = 17;
+			order = 18;
 			name  = "Display Group Leader's Map Nodes";
 			desc  = "Display the group leader's map nodes when you're in a party or raid.";
 			type  = "toggle";
@@ -368,13 +386,13 @@ Me.configOptions = {
 		};
 		
 		headerFrames = {
-			order = 18;
+			order = 19;
 			name  = " ";
 			type  = "description";
 		};
 		
 		unlockFrames = {
-			order = 19;
+			order = 20;
 			name  = "Unlock Frames";
 			desc  = "Unlock all frames, allowing you to click and drag them around your UI.";
 			type  = "execute";
@@ -386,7 +404,7 @@ Me.configOptions = {
 		};
 		
 		lockFrames = {
-			order = 20;
+			order = 21;
 			name  = "Lock Frames";
 			desc  = "Lock all frames so they can no longer be dragged.";
 			type  = "execute";
@@ -398,7 +416,7 @@ Me.configOptions = {
 		};
 		
 		resetFrames = {
-			order = 21;
+			order = 22;
 			name  = "Reset Frame Positions";
 			desc  = "Resets all frames to their default positions.";
 			type  = "execute";
@@ -420,7 +438,7 @@ Me.configOptions = {
 		};
 		
 		discordLink = {
-			order = 22;
+			order = 23;
 			name  = "Discord";
 			type  = "input";
 			width = "double";

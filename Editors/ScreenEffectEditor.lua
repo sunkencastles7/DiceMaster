@@ -67,9 +67,10 @@ function Me.ScreenEffectEditor_Refresh()
 	DiceMasterScreenEffectEditor.sendToTarget:SetChecked( false )
 	DiceMasterScreenEffectEditor.delay:SetText("")
 	UIDropDownMenu_SetText( DiceMasterScreenEffectEditor.textureDropdown, Me.textureList["Mage"][1].file )
-	DiceMasterScreenEffectEditor.previewTextureTop:SetTexture( Me.textureList["Mage"][1].id )
-	DiceMasterScreenEffectEditor.previewTextureLeft:SetTexture( nil )
-	DiceMasterScreenEffectEditor.previewTextureRight:SetTexture( nil )
+	DiceMasterScreenEffectEditor.previewTextureTop:SetTexture( nil )
+	DiceMasterScreenEffectEditor.previewTextureLeft:SetTexture( Me.textureList["Mage"][1].id )
+	DiceMasterScreenEffectEditor.previewTextureLeft:SetTexCoord( 1, 0, 0, 1 );
+	DiceMasterScreenEffectEditor.previewTextureRight:SetTexture( Me.textureList["Mage"][1].id )
 	
 	Me.EffectEditingIndex = nil;
 end
@@ -80,6 +81,16 @@ function Me.ScreenEffectEditor_PlayEffect( data )
 	end
 	
 	local id, orientation = GetIDFromTextureName( data.texture )
+	
+	if data.target and ( UnitExists("target") and UnitIsPlayer("target") and UnitIsFriend("target", "player") and UnitIsSameServer("target") and UnitIsConnected("target") )then
+		local data = Me:Serialize( "SCEFFECT", {
+			type = "screeneffect";
+			texture = data.texture;
+		})
+		Me:SendCommMessage( "DCM4", data, "WHISPER", UnitName("target"), "ALERT" )
+		return
+	end
+	
 	if id and orientation then
 		if orientation == "HORIZONTAL" then
 			SpellActivationOverlay_ShowOverlay( DiceMasterScreenEffectFrame, id, id, "TOP", 1, 255, 255, 255, false, false )

@@ -436,7 +436,7 @@ function Me.AffixEditor_SaveUnit()
 	data.st = editor.enable:GetChecked()
 	data.ba = Me.db.global.allowBuffs
 	data.bl = Me.db.global.bloodEffects
-	--data.buffs = Me.UnitEditing.buffsActive or {}
+	data.buffs = Me.UnitEditing.buffsActive or {}
 	data.vs = true;
 	data.zo = Me.UnitEditing.zone
 	data.co = Me.UnitEditing.continent
@@ -518,7 +518,11 @@ function Me.AffixEditor_Save()
 	data.st = editor.enable:GetChecked()
 	data.ba = Me.db.global.allowBuffs
 	data.bl = Me.db.global.bloodEffects
-	data.buffs = Me.UnitEditing.buffsActive or {}
+	data.buffs = {}
+	for i = 1, #Me.UnitEditing.buffsActive do
+		tinsert( data.buffs, Me.UnitEditing.buffsActive[i] )
+	end
+	
 	data.ra = Me.db.global.allowAssistantTalkingHeads
 	
 	Me.UnitEditing:SetData( data )

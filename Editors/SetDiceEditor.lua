@@ -26,7 +26,7 @@ function Me.SetDiceEditor_Refresh( effectIndex )
 		
 		Me.EffectEditingIndex = effectIndex
 	else
-		setdice = Me.db.global.traitsList[Me.editing_trait]["effects"]["setdice"] or nil
+		setdice = Profile.setdice[Me.editing_trait] or nil
 	end
 	if not setdice then
 		setdice = {
@@ -35,7 +35,7 @@ function Me.SetDiceEditor_Refresh( effectIndex )
 			blank = true,
 		}
 		if not Me.setdiceeditor.parent then
-			Me.db.global.traitsList[Me.editing_trait]["effects"]["setdice"] = dice
+			Profile.setdice[Me.editing_trait] = dice
 		end
 	end
 	Me.setdiceeditor.diceValue:SetText( setdice.value )
@@ -70,7 +70,7 @@ function Me.SetDiceEditor_Save()
 		end
 		Me.ItemEditorEffectsList_Update()
 	else
-		Me.db.global.traitsList[Me.editing_trait]["effects"]["setdice"] = setdice
+		Profile.setdice[Me.editing_trait] = setdice
 	end
 end
 
@@ -102,7 +102,7 @@ end
 
 function Me.SetDiceEditor_Delete()
 	if not Me.setdiceeditor.parent then
-		Me.db.global.traitsList[Me.editing_trait]["effects"]["setdice"] = nil
+		Profile.setdice[Me.editing_trait] = nil
 	end
 	
 	Me.setdiceeditor:Hide()

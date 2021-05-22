@@ -21,16 +21,6 @@ local function GetTotalNumberOfItem( itemIndex )
 	return total
 end
 
-local FindAllStacks = function( guid )
-	local t = {}
-	for i = 1, #Me.Profile.inventory do
-		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == guid then
-			tinsert( t, i );
-		end
-	end
-	return t;
-end
-
 function Me.ShopEditorAmount_OnLoad( self )
 	local item = DiceMasterTraitEditorInventoryFrame["Item"..Me.newShopItem.itemIndex]:GetItem();
 	
@@ -398,12 +388,13 @@ end
 function Me.ShopEditor_RequestItem( data, dist, sender )	 
 	-- sanitize message
 	
-	if not data.itemId then
+	if not data.guid then
 	   
 		return
 	end
 	
-	local item = Me.Profile.inventory[ data.itemId ];
+	local item = Me.GetItemInfo( data.guid );
+	local itemID = Me.FindFirstStackSlot( data.guid )
 	
 	if not item then
 		return
@@ -411,7 +402,7 @@ function Me.ShopEditor_RequestItem( data, dist, sender )
 	
 	local icon = item.icon
 	local colorHex = ITEM_QUALITY_COLORS[ item.quality ].hex or "|cffffffff";
-	local itemLink = string.format("|T" .. item.icon.. ":16|t " .. colorHex .. "|HDiceMaster4Item:" .. UnitName("player") .. ":" .. data.itemId .. "|h[%s]|h|r", item.name );
+	local itemLink = string.format("|T" .. item.icon.. ":16|t " .. colorHex .. "|HDiceMaster4Item:" .. UnitName("player") .. ":" .. itemID .. "|h[%s]|h|r", item.name );
 	
 	if item.stackCount > 1 then
 		Me.PrintMessage( "|cFFFFFF00" .. sender .. " has requested " .. itemLink .. "x" .. item.stackCount .. " from your inventory.|r", "SYSTEM" )
@@ -548,21 +539,17 @@ function Me.ShopEditor_ReceiveItem( data, dist, sender )
 		end
 	end
 	
-	local amount = data.amount
-	local stacks = FindAllStacks( item.guid );
+	local stacks = Me.FindAllStacks( item.guid );
 	
-	for k,v in pairs( stacks ) do
-		local deltaAmount = math.min( amount, Me.Profile.inventory[ v ].stackSize - Me.Profile.inventory[ v ].stackCount )
-		Me.Profile.inventory[ v ].stackCount = Me.Profile.inventory[ v ].stackCount + deltaAmount
-		amount = amount - deltaAmount;
-		if amount <= 0 then
-			break;
+	if Me.FindTotalStacks( item.guid ) > 0 then
+		Me.ProduceItem( item.guid, data.amount )
+	else
+		if item then
+			Me.CreateItem( item, data.amount )
+		else
+			UIErrorsFrame:AddMessage( "Error producing item.", 1.0, 0.0, 0.0, 53, 5 );
+			return
 		end
-	end
-	
-	if #stacks == 0 or amount > 0 then
-		item.stackCount = amount;
-		tinsert( Me.Profile.inventory, item )
 	end
 	
 	currency.value = currency.value - tonumber( item.price )

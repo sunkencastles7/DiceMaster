@@ -23,6 +23,9 @@ local MessageHandlers = {
 	ROLL    = "Dice_OnRollMessage";
 	
 	ITEM    = "LootToast_OnToast";
+	ITEMLOOT = "LootToast_OnGroupLoot";
+	ITEMROLL = "LootToast_OnGroupLootRoll";
+	ITEMMSG = "LootToast_OnGroupLootMessage";
 	ITEMREQ = "ShopEditor_RequestItem";
 	ITEMBUY = "ShopEditor_BuyItem";
 	ITEMGET = "ShopEditor_ReceiveItem";
@@ -46,6 +49,7 @@ local MessageHandlers = {
 	
 	SOUND   = "SoundPicker_OnSoundMessage";
 	EFFECT  = "OnFullscreenEffectMessage";
+	SCEFFECT  = "ScreenEffectEditor_PlayEffect";
 	
 	MORALE  = "MoraleBar_OnStatusMessage";
 	MORREQ  = "MoraleBar_OnStatusRequest";

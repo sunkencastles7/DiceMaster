@@ -11,26 +11,28 @@ local Profile = Me.Profile
 
 Me.consumeItem = {}
 
-local FindAllStacks = function( guid )
-	local t = {}
-	for i = 1, #Me.Profile.inventory do
+local GetItemName = function( guid )
+	local name = "Unknown Item"
+	for i = 1, 42 do
 		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == guid then
-			tinsert( t, i );
+			local name = Me.Profile.inventory[i].name
+			return name;
 		end
 	end
-	return t;
+	return name;
 end
 
 function Me.ConsumeItemEditorAmount_OnLoad( self )
-	local item = Me.consumeItem
+	local guid = Me.consumeItem.guid
+	local totalAmount = Me.FindTotalStacks( guid )
 	
-	if not item then
+	if not guid then
 		self:Disable()
 		return
 	end
 	
 	self:Enable()
-	self:SetMinMaxValues(1, item.stackSize or 1)
+	self:SetMinMaxValues(1, math.max( totalAmount, 1 ) )
 	self:SetObeyStepOnDrag( true )
 	self:SetValueStep( 1 )
 	self:SetValue(1)
@@ -43,7 +45,6 @@ end
 
 function Me.ConsumeItemEditorAmount_OnValueChanged( self, value, userInput )
 	_G[self:GetName().."Text"]:SetText("|cFFFFD100Amount: "..value)
-	Me.consumeItem.stackCount = value;
 	DiceMasterConsumeItemEditor.itemCount:SetText( value )
 end
 
@@ -70,8 +71,8 @@ function Me.ConsumeItemEditor_LoadItem( itemIndex )
 		return
 	end
 	
-	Me.consumeItem = item
-	Me.consumeItem.itemIndex = itemIndex
+	Me.consumeItem.item = item
+	Me.consumeItem.guid = item.guid
 	
 	local data = DiceMasterTraitEditorInventoryFrame["Item"..itemIndex]:GetItem();
 	local editor = DiceMasterConsumeItemEditor
@@ -96,27 +97,13 @@ function Me.ConsumeItemEditor_Refresh()
 end
 
 function Me.ConsumeItemEditor_ConsumeItem( data )
-	if not data or not data.type or not data.itemData or not data.amount or data.type ~= "consume" then
+	if not data or not data.type or not data.guid or not data.amount or data.type ~= "consume" then
 		return
 	end
 	
-	local item = data.itemData
-	local amount = data.amount
+	local stacks = Me.FindAllStacks( data.guid );
 	
-	local stacks = FindAllStacks( item.guid );
-	for k,v in pairs( stacks ) do
-		local deltaAmount = math.min( amount, Me.Profile.inventory[ v ].stackCount )
-		Me.Profile.inventory[ v ].stackCount = Me.Profile.inventory[ v ].stackCount - deltaAmount
-		if Me.Profile.inventory[ v ].stackCount == 0 then
-			Me.Profile.inventory[ v ] = nil;
-		end
-		amount = amount - deltaAmount;
-		if amount <= 0 then
-			break;
-		end
-	end
-	
-	Me.TraitEditor_UpdateInventory()
+	Me.ConsumeItem( data.guid, data.amount )
 end
 
 function Me.ConsumeItemEditor_Load( effectIndex )
@@ -133,17 +120,29 @@ function Me.ConsumeItemEditor_Load( effectIndex )
 	end
 	
 	Me.EffectEditingIndex = effectIndex
+	Me.consumeItem.item = effect.item
+	Me.consumeItem.guid = effect.guid or nil
 	
-	local itemData = effect.itemData
-	Me.consumeItem = itemData
-	Me.consumeItem.itemIndex = effect.itemIndex
+	local item
+	-- find the item by the guid
+	for i = 1, 42 do
+		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == Me.consumeItem.guid then
+			item = Me.Profile.inventory[i];
+			break
+		end
+	end
 	
-	DiceMasterConsumeItemEditor.Name:SetText( itemData.name or "" )
-	DiceMasterConsumeItemEditor.itemIcon:SetTexture( itemData.icon or "Interface/Icons/inv_misc_questionmark" )
-	DiceMasterConsumeItemEditor.itemCount:SetText( effect.amount )
-	DiceMasterConsumeItemEditor.delay:SetText( effect.delay )
-	_G["DiceMasterConsumeItemEditorAmountText"]:SetText("|cFFFFD100Amount: " .. effect.amount )
+	if not item then
+		Me.ConsumeItemEditor_Refresh()
+		return
+	end
+	
+	DiceMasterConsumeItemEditor.Name:SetText( item.name or "" )
+	DiceMasterConsumeItemEditor.itemIcon:SetTexture( item.icon or "Interface/Icons/inv_misc_questionmark" )
 	Me.ConsumeItemEditorAmount_OnLoad( DiceMasterConsumeItemEditor.amount )
+	DiceMasterConsumeItemEditor.itemCount:SetText( effect.amount or 1 )
+	DiceMasterConsumeItemEditor.delay:SetText( effect.delay or 0 )
+	_G["DiceMasterConsumeItemEditorAmountText"]:SetText("|cFFFFD100Amount: " .. effect.amount or 0 )
 	
 	DiceMasterConsumeItemEditorSaveButton:SetScript( "OnClick", function()
 		Me.ConsumeItemEditor_SaveEdits()
@@ -151,17 +150,11 @@ function Me.ConsumeItemEditor_Load( effectIndex )
 end
 
 function Me.ConsumeItemEditor_SaveEdits()
-	if not Me.ItemEditingIndex or not Me.consumeItem.itemIndex or not Me.EffectEditingIndex then
+	if not Me.ItemEditingIndex or not Me.consumeItem.guid or not Me.EffectEditingIndex then
 		return
 	end
 	
-	local itemData = Me.consumeItem;
-	
-	if not itemData then
-		return
-	end
-	
-	local itemIndex = Me.consumeItem.itemIndex
+	local guid = Me.consumeItem.guid
 	local amount = tonumber( DiceMasterConsumeItemEditor.itemCount:GetText() )
 	local delay = tonumber( DiceMasterConsumeItemEditor.delay:GetText() )
 	
@@ -169,10 +162,19 @@ function Me.ConsumeItemEditor_SaveEdits()
 		delay = 0;
 	end
 	
+	local item
+	-- find the item by the guid
+	for i = 1, 42 do
+		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == Me.consumeItem.guid then
+			item = Me.Profile.inventory[i];
+			break
+		end
+	end
+	
 	local consumeData = {
 		type = "consume";
-		itemData = itemData;
-		itemIndex = itemIndex;
+		item = item;
+		guid = guid;
 		amount = amount;
 		delay = delay;
 	}
@@ -188,18 +190,12 @@ function Me.ConsumeItemEditor_SaveEdits()
 end
 
 function Me.ConsumeItemEditor_Save()
-	if not Me.ItemEditingIndex or not Me.consumeItem.itemIndex then
+	if not Me.ItemEditingIndex or not Me.consumeItem.guid then
 		UIErrorsFrame:AddMessage( "Invalid item.", 1.0, 0.0, 0.0, 53, 5 );
 		return
 	end
 	
-	local itemData = DiceMasterTraitEditorInventoryFrame["Item"..Me.consumeItem.itemIndex]:GetItem();
-	
-	if not itemData then
-		return
-	end
-	
-	local itemIndex = Me.consumeItem.itemIndex
+	local guid = Me.consumeItem.guid
 	local amount = tonumber( DiceMasterConsumeItemEditor.itemCount:GetText() )
 	local delay = tonumber( DiceMasterConsumeItemEditor.delay:GetText() )
 	
@@ -207,10 +203,19 @@ function Me.ConsumeItemEditor_Save()
 		delay = 0;
 	end
 	
+	local item
+	-- find the item by the guid
+	for i = 1, 42 do
+		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == Me.consumeItem.guid then
+			item = Me.Profile.inventory[i];
+			break
+		end
+	end
+	
 	local consumeData = {
 		type = "consume";
-		itemData = itemData;
-		itemIndex = itemIndex;
+		item = item;
+		guid = guid;
 		amount = amount;
 		delay = delay;
 	}
@@ -221,7 +226,6 @@ function Me.ConsumeItemEditor_Save()
 		tinsert( Me.newItem.effects, consumeData )
 	end
 	
-	--tinsert( Me.Profile.inventory[Me.ItemEditingIndex].effects, scriptData )
 	Me.ConsumeItemEditor_Close()
 	Me.ItemEditorEffectsList_Update()
 end

@@ -54,6 +54,19 @@ local function ItemIsInShop( guid )
 	return found
 end
 
+local function ItemIsBeingLooted( guid )
+	-- check if it's being rolled for
+	local found = false;
+	for i = 1, 4 do
+		local frame = _G["DiceMasterGroupLootFrame"..i];
+		if frame:IsShown() and frame.itemData and frame.itemData.guid == guid then
+			found = true;
+			break
+		end
+	end
+	return found
+end
+
 -------------------------------------------------------------------------------
 Me.playerItemTooltipOpen = false
 Me.playerItemTooltipName = nil
@@ -124,7 +137,7 @@ StaticPopupDialogs["DICEMASTER4_CUSTOMITEMBINDONUSE"] = {
 		return
 	end
 	item.soulbound = true;
-	item.lastCastTime = GetTime()
+	item.lastCastTime = time()
 	CooldownFrame_Set( data.Cooldown, GetTime(), item.cooldown, 1 )
 	
 	if item.effects then
@@ -215,7 +228,7 @@ function Me.OpenItemTooltip( owner, item, index, isShopItem )
 	
 	GameTooltip:ClearLines()
 	
-	if item.name then		
+	if item.name then
 		if item.icon then
 			-- icon with name
 			DiceMasterTooltipIcon.icon:SetTexture( item.icon )
@@ -318,12 +331,10 @@ function Me.OpenItemTooltip( owner, item, index, isShopItem )
 	
 	if item.cooldown and owner.Cooldown then
 		if owner.Cooldown:GetCooldownDuration() > 0 then
-			local currentTime = GetTime()
-			local startTime, duration = owner:GetCooldown()
+			local total, elapsed = owner:GetCooldown()
 			
-			local timeElapsed = math.ceil( duration - ( currentTime - startTime ) )
-			timeElapsed = string.lower( SecondsToTime( timeElapsed, false ) )
-			if timeElapsed and timeElapsed ~= "" then
+			if elapsed and elapsed < total then
+				timeElapsed = string.lower( SecondsToTime( total - elapsed, false ) )
 				GameTooltip:AddLine( "Cooldown remaining: " .. timeElapsed, 1, 1, 1, true )
 			end
 			
@@ -371,6 +382,8 @@ local function OnEnter( self )
 		if item then
 			if self.itemPlayer == UnitName( "player" ) then
 				if DiceMasterCursorItemIcon.editCursor and ItemIsInShop( item.guid ) then
+					SetCursor("CAST_ERROR_CURSOR");
+				elseif DiceMasterCursorItemIcon.lootCursor and item.soulbound then
 					SetCursor("CAST_ERROR_CURSOR");
 				elseif DiceMasterCursorItemIcon.sellCursor and ( ItemIsInShop( item.guid ) or item.soulbound ) then
 					SetCursor("CAST_ERROR_CURSOR");
@@ -431,6 +444,8 @@ function Me.ClearCursorActions( clearItem, hideCursor, hideOverlay )
 	
 	cursorIcon.sellCursor = nil;
 	
+	cursorIcon.lootCursor = nil;
+	
 	cursorIcon.splitItem = nil;
 	cursorIcon.splitAmount = nil;
 	
@@ -473,8 +488,14 @@ end
 local function OnClick( self, button )
 	local item = Me.Profile.inventory[self.itemIndex]
 	local cursorIcon = DiceMasterCursorItemIcon
-	local startTime, duration = self:GetCooldown()
+	local total, elapsed = self:GetCooldown()
 	StaticPopup_Hide("DICEMASTER4_DESTROYCUSTOMITEM")
+	
+	if self.hasItem and ItemIsBeingLooted( item.guid ) then
+		UIErrorsFrame:AddMessage( "You cannot interact with an item while it is being rolled for.", 1.0, 0.0, 0.0, 53, 5 );
+		return
+	end
+	
 	if ( button == "LeftButton" ) then
 		if cursorIcon.editCursor and self.hasItem then
 			-- check if it's our item first!
@@ -551,6 +572,18 @@ local function OnClick( self, button )
 			Me.ClearCursorActions( true, true, true )
 			Me.ShopEditor_Open( DiceMasterTraitEditor )
 			Me.ShopEditor_LoadItem( self.itemIndex )
+		elseif cursorIcon.lootCursor and self.hasItem then
+			-- check if it's our item first!
+			if item.author ~= UnitName("player") then
+				UIErrorsFrame:AddMessage( "You don't have permission to dispense that item.", 1.0, 0.0, 0.0, 53, 5 );
+				return
+			elseif item.soulbound then
+				UIErrorsFrame:AddMessage( "You cannot dispense a soulbound item.", 1.0, 0.0, 0.0, 53, 5 );
+				return
+			end
+			Me.ClearCursorActions( true, true, true )
+			Me.GroupLootFrame_GroupLoot( item )
+			SetItemButtonDesaturated( self, true )
 		elseif cursorIcon.itemID then
 			if self.hasItem then
 				local itemOne = Me.Profile.inventory[self.itemIndex]
@@ -699,7 +732,7 @@ local function OnClick( self, button )
 			-- clear cursor data
 			Me.ClearCursorActions( true, true, true )
 			PlaySound( 1203 )
-		elseif duration > 0 then
+		elseif elapsed then
 			-- item is on cooldown
 			UIErrorsFrame:AddMessage( "Item is not ready yet.", 1.0, 0.0, 0.0, 53, 5 ); 
 		elseif item then
@@ -709,7 +742,7 @@ local function OnClick( self, button )
 				return
 			end
 			
-			item.lastCastTime = GetTime()
+			item.lastCastTime = time()
 			CooldownFrame_Set( self.Cooldown, GetTime(), item.cooldown, 1 )
 			
 			if item.effects then
@@ -744,7 +777,7 @@ local function OnPlayerInventoryClick( self, button )
 			Me.ClearCursorActions( true, true, true )
 			-- Request the item.
 			local msg = Me:Serialize( "ITEMREQ", {
-				itemId = self.itemIndex;
+				guid = item.guid;
 			})
 				
 			Me:SendCommMessage( "DCM4", msg, "WHISPER", self.itemPlayer, "ALERT" )
@@ -1049,15 +1082,18 @@ local methods = {
 			if not self.itemShop then
 				self.showCD = true;
 				-- set up item cooldown
-				local startTime, duration = self:GetCooldown()
-				CooldownFrame_Set( self.Cooldown, startTime, duration, 1 );
+				local total, elapsed = self:GetCooldown()
+				
+				if not(elapsed) or elapsed > total then
+					self.Cooldown:Hide();
+				else
+					CooldownFrame_Set( self.Cooldown, GetTime() - (elapsed), total, 1 );
+				end
 				if self:GetParent() ~= Me.statinspector.inventoryFrame then
-					for i = 1, #Me.Profile.shop do
-						if Me.Profile.shop[i].guid == item.guid then
-							self.InShopIcon:Show()
-							break
-						end
+					if ItemIsInShop( item.guid ) then
+						self.InShopIcon:Show()
 					end
+					SetItemButtonDesaturated( self, ItemIsBeingLooted( item.guid ) )
 				end
 			end
 		else
@@ -1076,15 +1112,15 @@ local methods = {
 		local item = Me.inspectData[self.itemPlayer].inventory[self.itemIndex] or nil
 		
 		if not item then
-			return GetTime(), 0;
+			return 0;
 		end
 		
 		local lastCastTime = item.lastCastTime
 		local cooldown = item.cooldown
-		if GetTime() - lastCastTime < cooldown then
-			return lastCastTime, cooldown;
+		if time() - lastCastTime < cooldown then
+			return cooldown, time() - lastCastTime;
 		end
-		return GetTime(), 0;
+		return cooldown;
 	end;
 	
 	SplitStack = function( button, split )

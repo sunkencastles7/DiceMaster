@@ -141,22 +141,7 @@
 		</OnLoad>
 		<OnClick>
 			if button == "RightButton" then
-				ResetCursor();
-				ClearCursor();
-				self:Hide();
-				DiceMasterCursorItemIcon.item:SetTexture(nil)
-				DiceMasterCursorItemIcon.itemID = nil
-				DiceMasterCursorItemIcon.copyCursor = nil
-				DiceMasterCursorItemIcon.copyItem = nil
-				DiceMasterCursorItemIcon.copyAmount = nil
-				DiceMasterCursorItemIcon.editCursor = nil
-				DiceMasterCursorItemIcon.sellCursor = nil
-				DiceMasterCursorItemIcon.splitItem = nil
-				DiceMasterCursorItemIcon.splitAmount = nil
-				DiceMasterCursorItemIcon.chooseCursor = nil
-				DiceMasterCursorItemIcon.requestCursor = nil
-				DiceMasterCursorItemIcon.requestItem = nil
-				DiceMasterCursorItemIcon.inspectCursor = nil
+				DiceMaster4.ClearCursorActions( true, true, true )
 				if DiceMasterCursorItemIcon.prevButton then
 					SetItemButtonDesaturated(DiceMasterCursorItemIcon.prevButton, false);
 					PlaySound(1203)

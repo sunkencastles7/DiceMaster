@@ -7,6 +7,16 @@
 --
 
 local Me = DiceMaster4
+local Profile = Me.Profile
+
+local groupLootItems = {}
+local groupLootItemsRecipient = {}
+
+local ITEM_BIND_TYPES = {
+	"Binds when picked up",
+	"Binds when equipped",
+	"Binds when used",
+}
 
 local DICEMASTER_LOOT_BORDERS = {
 	[1] = nil,
@@ -18,14 +28,35 @@ local DICEMASTER_LOOT_BORDERS = {
 	[7] = "loottoast-itemborder-heirloom",
 }
 
+local function GetItemLink( author, guid )
+	local found_item = false;
+	
+	for i = 1, 42 do
+		if Me.inspectData[author].inventory[i] and Me.inspectData[author].inventory[i].guid == guid then
+			found_item = i;
+			break
+		end
+	end
+	
+	if not found_item then
+		return
+	end
+	
+	local icon = Me.inspectData[author].inventory[tonumber(found_item)].icon
+	local name = Me.inspectData[author].inventory[tonumber(found_item)].name
+	local colorHex = ITEM_QUALITY_COLORS[ Me.inspectData[author].inventory[tonumber(found_item)].quality ].hex or "|cffffffff";
+	return string.format("|T"..icon..":16|t "..colorHex.."|HDiceMaster4Item:".. author ..":"..found_item.."|h[%s]|h|r", name);
+end
+
 function Me.LootToastFrame_OnEnter( self )
 	GameTooltip:SetOwner( self, "ANCHOR_RIGHT" )
-	-- TODO: Set item tooltip
 	local color = ITEM_QUALITY_COLORS[ self.itemData.quality ];
 	GameTooltip:AddLine( self.itemData.name, color.r, color.g, color.b, true )
 	
 	if self.itemData.soulbound then
 		GameTooltip:AddLine( "Binds when picked up", 1, 1, 1, true)
+	elseif self.itemData.itemBind and self.itemData.itemBind > 0 then
+		GameTooltip:AddLine( ITEM_BIND_TYPES[ self.itemData.itemBind ], 1, 1, 1, true )
 	end
 	
 	if self.itemData.whiteText1 or self.itemData.whiteText2 then
@@ -175,8 +206,309 @@ function Me.LootToastFrame_OnLoad( self )
 	self:SetUserPlaced( true )
 end
 
+-- Group Loot Frame
+
+local function CanRollNeedOnLoot( itemData )
+
+	if #Profile.inventory >= 42 then
+		return false, "Inventory is full."
+	end
+	
+	return true
+end
+
+local function CanRollGreedOnLoot( itemData )
+
+	if #Profile.inventory >= 42 then
+		return false, "Inventory is full."
+	end
+	
+	return true
+end
+
+function Me.GroupLootContainer_OnLoad(self)
+	self.rollFrames = {};
+	self.reservedSize = 100;
+	Me.GroupLootContainer_CalcMaxIndex(self);
+
+	local alertSystem = AlertFrame:AddExternallyAnchoredSubSystem(self);
+	AlertFrame:SetSubSystemAnchorPriority(alertSystem, 30);
+end
+
+function Me.GroupLootContainer_CalcMaxIndex(self)
+	local maxIdx = 0;
+	for k, v in pairs(self.rollFrames) do
+		maxIdx = max(maxIdx, k);
+	end
+	self.maxIndex = maxIdx;
+end
+
+function Me.GroupLootContainer_AddFrame(self, frame)
+	local idx = self.maxIndex + 1;
+	for i=1, self.maxIndex do
+		if ( not self.rollFrames[i] ) then
+			idx = i;
+			break;
+		end
+	end
+	self.rollFrames[idx] = frame;
+
+	if ( idx > self.maxIndex ) then
+		self.maxIndex = idx;
+	end
+
+	Me.GroupLootContainer_Update(self);
+	frame:Show();
+end
+
+function Me.GroupLootContainer_RemoveFrame(self, frame)
+	local idx = nil;
+	for k, v in pairs(self.rollFrames) do
+		if ( v == frame ) then
+			idx = k;
+			break;
+		end
+	end
+
+	if ( idx ) then
+		self.rollFrames[idx] = nil;
+		if ( idx == self.maxIndex ) then
+			GroupLootContainer_CalcMaxIndex(self);
+		end
+	end
+	frame:Hide();
+	Me.GroupLootContainer_Update(self);
+end
+
+function Me.GroupLootContainer_ReplaceFrame(self, oldFrame, newFrame)
+	for k, v in pairs(self.rollFrames) do
+		if ( v == oldFrame ) then
+			v:Hide();
+			self.rollFrames[k] = newFrame;
+			Me.GroupLootContainer_Update(self);
+			newFrame:Show();
+			return true;
+		end
+	end
+	return false;	--Didn't find a frame to replace.
+end
+
+function Me.GroupLootContainer_Update(self)
+	local lastIdx = nil;
+
+	for i=1, self.maxIndex do
+		local frame = self.rollFrames[i];
+		if ( frame ) then
+			frame:ClearAllPoints();
+			frame:SetPoint("CENTER", self, "BOTTOM", 0, self.reservedSize * (i-1 + 0.5));
+			lastIdx = i;
+		end
+	end
+
+	if ( lastIdx ) then
+		self:SetHeight(self.reservedSize * lastIdx);
+		self:Show();
+	else
+		self:Hide();
+	end
+end
+
+function Me.GroupLootFrame_OpenNewFrame( itemData, rollTime, sender )
+	local frame;
+	for i=1, 4 do
+		frame = _G["DiceMasterGroupLootFrame"..i];
+		if ( not frame:IsShown() ) then
+			frame.itemData = itemData;
+			frame.rollTime = rollTime;
+			frame.sender = sender;
+			frame.Timer:SetMinMaxValues(0, 60);
+			groupLootItemsRecipient[ itemData.guid ] = {};
+			
+			for k, v in pairs( itemData ) do
+				groupLootItemsRecipient[ itemData.guid ][k] = v;
+			end
+			
+			Me.GroupLootContainer_AddFrame(DiceMasterGroupLootContainer, frame);
+			return;
+		end
+	end
+end
+
+function Me.GroupLootFrame_EnableLootButton(button)
+	button:Enable();
+	button:SetAlpha(1.0);
+	SetDesaturation(button:GetNormalTexture(), false);
+end
+
+function Me.GroupLootFrame_DisableLootButton(button)
+	button:Disable();
+	button:SetAlpha(0.35);
+	SetDesaturation(button:GetNormalTexture(), true);
+end
+
+local function PickGroupLootWinner( guid, dist, channel )
+	if not groupLootItems[ guid ] then
+		return
+	end
+	
+	local playerName = "";
+	local roll = 0;
+	local rollType = "Greed";
+	
+	for i = 1, #groupLootItems[guid].rolls do
+		if groupLootItems[guid].rolls[i].rollType == "Greed" and rollType == "Need" then
+			-- ignore
+		elseif groupLootItems[guid].rolls[i].roll > roll then
+			playerName = groupLootItems[guid].rolls[ i ].name;
+			roll = groupLootItems[guid].rolls[ i ].roll
+			rollType = groupLootItems[guid].rolls[ i ].rollType
+		end
+	end
+	
+	if playerName == "" and roll == 0 then
+		-- everyone passed
+		local msg = Me:Serialize( "ITEMMSG", {
+			ro = "Pass";
+			guid = guid;
+			amount = groupLootItems[ guid ].amount;
+		});
+		Me:SendCommMessage( "DCM4", msg, dist, channel, "ALERT" )
+	else
+		local msg = Me:Serialize( "ITEMMSG", {
+			pn = playerName;
+			ro = roll;
+			rt = rollType;
+			wi = true;
+			guid = guid;
+			amount = groupLootItems[ guid ].amount;
+		});
+		Me:SendCommMessage( "DCM4", msg, dist, channel, "ALERT" )
+		
+		Me.ConsumeItem( guid, groupLootItems[ guid ].amount )
+	end
+	
+	Me.TraitEditor_UpdateInventory()
+	
+	groupLootItems[ guid ] = nil
+end
+
+function Me.GroupLootFrame_GroupLoot( item )
+	
+	if not Me.IsLeader( true ) then
+		UIErrorsFrame:AddMessage( "You must be the group leader or a raid assistant to dispense items.", 1.0, 0.0, 0.0, 53, 5 );
+		return
+	end
+	
+	local dist = "WHISPER"
+	local channel = UnitName( "player" )
+	if IsInRaid( LE_PARTY_CATEGORY_HOME ) then
+		dist = "RAID"
+		channel = nil
+	elseif IsInGroup( LE_PARTY_CATEGORY_HOME ) then
+		dist = "RAID"
+		channel = nil
+	end
+	
+	Me.Inspect_SendStatus( dist, channel )
+	
+	groupLootItems[ item.guid ] = {
+		rolls = {};
+		amount = item.stackCount;
+	}
+	
+	C_Timer.After( 60, function() 
+		PickGroupLootWinner( item.guid, dist, channel )
+	end)
+	
+	local msg = Me:Serialize( "ITEMLOOT", item );
+	Me:SendCommMessage( "DCM4", msg, dist, channel, "ALERT" )
+end
+
+function Me.GroupLootFrame_Roll( self, rollType )
+	if not self:GetParent().itemData or not rollType then
+		return
+	end
+	
+	local itemLink = GetItemLink( self:GetParent().sender, self:GetParent().itemData.guid ) or "[Unknown Item]"
+	if self:GetParent().itemData.stackCount > 1 then
+		itemLink = itemLink .. "x" .. self:GetParent().itemData.stackCount
+	end	
+	
+	if rollType == "Pass" then
+		Me.PrintMessage( "|cFF00aa00[Loot]: You passed on: " .. itemLink, "SYSTEM" )
+	else
+		Me.PrintMessage( "|cFF00aa00[Loot]: You have selected " .. rollType .. " for: " .. itemLink, "SYSTEM" )
+	end
+	
+	local msg = Me:Serialize( "ITEMROLL", {
+		id = self:GetParent().itemData.guid;
+		rt = rollType;
+	});
+	Me:SendCommMessage( "DCM4", msg, "WHISPER", self:GetParent().sender, "ALERT" )
+end
+
+function Me.GroupLootFrame_OnShow(self)
+	local item = self.itemData
+	if not(item) or not(item.name) then
+		Me.GroupLootContainer_RemoveFrame(DiceMasterGroupLootContainer, self);
+		return;
+	end
+	
+	self.IconFrame.Icon:SetTexture( item.icon );
+	self.IconFrame.Border:SetAtlas(LOOT_BORDER_BY_QUALITY[ item.quality ] or nil);
+	self.Name:SetText( item.name );
+	local color = ITEM_QUALITY_COLORS[ item.quality ];
+	self.Name:SetVertexColor(color.r, color.g, color.b);
+	self.Border:SetVertexColor(color.r, color.g, color.b);
+	if ( item.stackCount > 1 ) then
+		self.IconFrame.Count:SetText( item.stackCount );
+		self.IconFrame.Count:Show();
+	else
+		self.IconFrame.Count:Hide();
+	end
+	
+	local canNeed, reasonNeed = CanRollNeedOnLoot( item )
+	local canGreed, reasonGreed = CanRollGreedOnLoot( item )
+
+	if ( canNeed ) then
+		Me.GroupLootFrame_EnableLootButton(self.NeedButton);
+		self.NeedButton.reason = nil;
+	else
+		Me.GroupLootFrame_DisableLootButton(self.NeedButton);
+		self.NeedButton.reason = reasonNeed;
+	end
+	if ( canGreed) then
+		Me.GroupLootFrame_EnableLootButton(self.GreedButton);
+		self.GreedButton.reason = nil;
+	else
+		Me.GroupLootFrame_DisableLootButton(self.GreedButton);
+		self.GreedButton.reason = reasonGreed;
+	end
+	self.Timer:SetFrameLevel(self:GetFrameLevel() - 1);
+	
+	C_Timer.After( 60, function() 
+		Me.GroupLootContainer_RemoveFrame(DiceMasterGroupLootContainer, self);
+	end)
+end
+
+local function GetTimeLeft( rollTime )
+	if time() - rollTime < 60 then
+		return 60 - ( time() - rollTime );
+	end
+	return 0;
+end
+
+function Me.GroupLootFrame_OnUpdate(self, elapsed)
+	local left = GetTimeLeft(self:GetParent().rollTime);
+	local min, max = self:GetMinMaxValues();
+	if ( (left < min) or (left > max) ) then
+		left = min;
+	end
+	self:SetValue(left);
+end
+
 ---------------------------------------------------------------------------
---  Receive a Loot Toast request.
+--  Receive a Loot Toast.
 --  na = name							string
 -- 	ic = icon							string
 --  qu = quality						number
@@ -196,18 +528,7 @@ function Me.LootToast_OnToast( data, dist, sender )
 		return
 	end
 	
-	local found_item = false;
-	
-	for i = 1, 42 do
-		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == data.guid then
-			found_item = i;
-			break
-		end
-	end
-	
-	local icon = Me.inspectData[UnitName("player")].inventory[tonumber(found_item)].icon
-	local colorHex = ITEM_QUALITY_COLORS[ Me.inspectData[UnitName("player")].inventory[tonumber(found_item)].quality ].hex or "|cffffffff";
-	local itemLink = string.format("|T"..icon..":16|t "..colorHex.."|HDiceMaster4Item:"..UnitName("player")..":"..found_item.."|h[%s]|h|r", data.name);
+	local itemLink = GetItemLink( UnitName("player"), data.guid ) or "[Unknown Item]"
 	
 	if data.amount == 1 then
 		Me.PrintMessage( "|cFF00aa00You receive item: " .. itemLink .. ".|r", "SYSTEM" )
@@ -215,9 +536,150 @@ function Me.LootToast_OnToast( data, dist, sender )
 		Me.PrintMessage( "|cFF00aa00You receive item: " .. itemLink .. "x" .. data.amount .. ".|r", "SYSTEM" )
 	end
 	
-	DiceMasterItemAnim.animIcon:SetTexture( icon );
+	DiceMasterItemAnim.animIcon:SetTexture( data.icon );
 	DiceMasterItemAnim:SetPoint( "CENTER", DiceMasterTraitEditorInventoryTab, 0, 0 )
 	DiceMasterItemAnim:Show()
 	
 	Me.LootToastFrame_SetUp( DiceMasterItemToastAlertFrame, data )
+end
+
+---------------------------------------------------------------------------
+--  Received a Group Loot Option.
+
+function Me.LootToast_OnGroupLoot( data, dist, sender )	 
+	-- sanitize message
+	
+	if not data.name or not data.icon or not data.guid then
+	   
+		return
+	end
+	
+	local itemLink = GetItemLink( sender, data.guid ) or "[Unknown Item]"
+	if data.stackCount > 1 then
+		itemLink = itemLink .. "x" .. data.stackCount
+	end
+	
+	Me.PrintMessage( "|cFF00aa00[Loot]: " .. itemLink, "SYSTEM" )
+	
+	Me.GroupLootFrame_OpenNewFrame( data, time(), sender )
+end
+
+---------------------------------------------------------------------------
+--  Received a Group Loot Option.
+
+function Me.LootToast_OnGroupLootMessage( data, dist, sender )	 
+	-- sanitize message
+	
+	if not data.guid then
+		return
+	end
+	
+	local playerName = tostring( data.pn )
+	local roll = tonumber( data.ro )
+	local rollType = tostring( data.rt )
+	
+	local itemLink = GetItemLink( sender, data.guid ) or "[Unknown Item]"
+	if data.amount and data.amount > 1 then
+		itemLink = itemLink .. "x" .. data.amount
+	end
+	
+	if data.ro == "Pass" then
+		Me.PrintMessage( "|cFF00aa00[Loot]: Everyone passed on: " .. itemLink, "SYSTEM" )
+	elseif data.wi and playerName == UnitName("player") then
+		Me.PrintMessage( "|cFF00aa00[Loot]: You (" .. rollType .. " - " .. roll .. ") Won: " .. itemLink, "SYSTEM" )
+		
+		if groupLootItemsRecipient[ data.guid ] then
+			local item = {}
+			for k, v in pairs( groupLootItemsRecipient[ data.guid ] ) do
+				item[k] = v;
+			end
+			
+			local stacks = Me.FindAllStacks( data.guid );
+			
+			if Me.FindTotalStacks( data.guid ) > 0 then
+				Me.ProduceItem( data.guid, data.amount )
+			else
+				if item then
+					Me.CreateItem( item, data.amount )
+				else
+					UIErrorsFrame:AddMessage( "Error producing item.", 1.0, 0.0, 0.0, 53, 5 );
+					return
+				end
+			end
+			
+			item.amount = data.amount
+			local msg = Me:Serialize( "ITEM", item );
+			Me:SendCommMessage( "DCM4", msg, "WHISPER", UnitName("player"), "ALERT" )
+			
+			groupLootItemsRecipient[ data.guid ] = nil;
+		end
+	elseif data.wi then
+		Me.PrintMessage( "|cFF00aa00[Loot]: " .. playerName .. " (" .. rollType .. " - " .. roll .. ") Won: " .. itemLink, "SYSTEM" )
+		Me.PrintMessage( "|cFF00aa00[Loot]: " .. playerName .. " receives loot: " .. itemLink, "SYSTEM" )
+	elseif playerName == UnitName("player") then
+		if rollType ~= "Pass" then
+			Me.PrintMessage( "|cFF00aa00[Loot]: You have rolled " .. rollType .. " - " .. roll .. " for: " .. itemLink, "SYSTEM" )
+		end
+	else
+		if rollType == "Pass" then
+			Me.PrintMessage( "|cFF00aa00[Loot]: " .. playerName .. " passed on: " .. itemLink, "SYSTEM" )
+		else
+			Me.PrintMessage( "|cFF00aa00[Loot]: " .. playerName .. " rolled " .. rollType .. " - " .. roll .. " for: " .. itemLink, "SYSTEM" )
+		end
+	end
+end
+
+---------------------------------------------------------------------------
+--  Received a Group Loot Roll.
+
+function Me.LootToast_OnGroupLootRoll( data, dist, sender )	 
+	-- sanitize message
+	if not data or not data.id or not data.rt then
+		return
+	end
+	
+	local dist = "WHISPER"
+	local channel = sender
+	if UnitInRaid( sender ) then
+		dist = "RAID";
+		channel = nil
+	elseif UnitInParty( sender ) then
+		dist = "PARTY"
+		channel = nil
+	end
+	
+	local guid = tostring( data.id )
+	local rollType = tostring( data.rt )
+	
+	if groupLootItems[ guid ] then
+		-- group loot rolls are done internally to prevent cheating :)
+		local roll = random( 100 )
+		
+		if rollType == "Pass" then
+			roll = 0;
+		end
+		
+		if groupLootItems[ guid ].rolls then
+			local rollData = {
+				name = sender;
+				roll = roll;
+				rollType = rollType;
+			}
+			tinsert( groupLootItems[ guid ].rolls, rollData );
+		end
+		
+		local msg = Me:Serialize( "ITEMMSG", {
+			pn = sender;
+			ro = roll;
+			rt = rollType;
+			guid = guid;
+			amount = groupLootItems[guid].amount;
+		});
+		Me:SendCommMessage( "DCM4", msg, dist, channel, "ALERT" )
+		
+		if #groupLootItems[ guid ].rolls >= GetNumGroupMembers( LE_PARTY_CATEGORY_HOME ) then
+			-- everyone has rolled so pick a winner
+			PickGroupLootWinner( guid, dist, channel )
+		end
+	end
 end

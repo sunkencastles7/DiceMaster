@@ -12,7 +12,7 @@ local Profile = Me.Profile
 Me.produceItem = {}
 
 function Me.ProduceItemEditorAmount_OnLoad( self )
-	local item = Me.produceItem
+	local item = Me.produceItem.item
 	
 	if not item then
 		self:Disable()
@@ -20,7 +20,7 @@ function Me.ProduceItemEditorAmount_OnLoad( self )
 	end
 	
 	self:Enable()
-	self:SetMinMaxValues(1, item.stackSize or 1)
+	self:SetMinMaxValues(1, ( item.stackSize or 1 ) * 5 )
 	self:SetObeyStepOnDrag( true )
 	self:SetValueStep( 1 )
 	self:SetValue(1)
@@ -33,7 +33,6 @@ end
 
 function Me.ProduceItemEditorAmount_OnValueChanged( self, value, userInput )
 	_G[self:GetName().."Text"]:SetText("|cFFFFD100Amount: "..value)
-	Me.produceItem.stackCount = value;
 	DiceMasterProduceItemEditor.itemCount:SetText( value )
 end
 
@@ -60,8 +59,8 @@ function Me.ProduceItemEditor_LoadItem( itemIndex )
 		return
 	end
 	
-	Me.produceItem = item
-	Me.produceItem.itemIndex = itemIndex
+	Me.produceItem.item = item
+	Me.produceItem.guid = item.guid
 	
 	local data = DiceMasterTraitEditorInventoryFrame["Item"..itemIndex]:GetItem();
 	local editor = DiceMasterProduceItemEditor
@@ -86,18 +85,27 @@ function Me.ProduceItemEditor_Refresh()
 end
 
 function Me.ProduceItemEditor_ProduceItem( data )
-	if not data or not data.type or not data.itemData or not data.amount or data.type ~= "produce" then
+	if not data or not data.type or not data.item or not data.guid or not data.amount or data.type ~= "produce" then
 		return
 	end
 	
-	local item = data.itemData
-	item.stackCount = data.amount
+	local item = data.item
+	local stacks = Me.FindAllStacks( data.guid );
 	
-	tinsert( Me.Profile.inventory, item )
+	if Me.FindTotalStacks( data.guid ) > 0 then
+		Me.ProduceItem( data.guid, data.amount )
+	else
+		if item then
+			Me.CreateItem( item, amount )
+		else
+			UIErrorsFrame:AddMessage( "Error producing item.", 1.0, 0.0, 0.0, 53, 5 );
+			return
+		end
+	end
 	
+	item.amount = data.amount
 	local msg = Me:Serialize( "ITEM", item );
 	Me:SendCommMessage( "DCM4", msg, "WHISPER", UnitName("player"), "ALERT" )
-	Me.TraitEditor_UpdateInventory()
 end
 
 function Me.ProduceItemEditor_Load( effectIndex )
@@ -114,17 +122,29 @@ function Me.ProduceItemEditor_Load( effectIndex )
 	end
 	
 	Me.EffectEditingIndex = effectIndex
+	Me.produceItem.item = effect.item
+	Me.produceItem.guid = effect.guid or nil
 	
-	local itemData = effect.itemData
-	Me.produceItem = itemData
-	Me.produceItem.itemIndex = effect.itemIndex
+	local item = effect.item
+	-- find the item by the guid
+	for i = 1, 42 do
+		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == Me.produceItem.guid then
+			item = Me.Profile.inventory[i];
+			break
+		end
+	end
 	
-	DiceMasterProduceItemEditor.Name:SetText( itemData.name or "" )
-	DiceMasterProduceItemEditor.itemIcon:SetTexture( itemData.icon or "Interface/Icons/inv_misc_questionmark" )
-	DiceMasterProduceItemEditor.itemCount:SetText( effect.amount )
-	DiceMasterProduceItemEditor.delay:SetText( effect.delay )
-	_G["DiceMasterProduceItemEditorAmountText"]:SetText("|cFFFFD100Amount: " .. effect.amount )
+	if not item then
+		Me.ProduceItemEditor_Refresh()
+		return
+	end
+	
+	DiceMasterProduceItemEditor.Name:SetText( item.name or "" )
+	DiceMasterProduceItemEditor.itemIcon:SetTexture( item.icon or "Interface/Icons/inv_misc_questionmark" )
 	Me.ProduceItemEditorAmount_OnLoad( DiceMasterProduceItemEditor.amount )
+	DiceMasterProduceItemEditor.itemCount:SetText( effect.amount or 1 )
+	DiceMasterProduceItemEditor.delay:SetText( effect.delay or 0 )
+	_G["DiceMasterProduceItemEditorAmountText"]:SetText("|cFFFFD100Amount: " .. effect.amount or 1 )
 	
 	DiceMasterProduceItemEditorSaveButton:SetScript( "OnClick", function()
 		Me.ProduceItemEditor_SaveEdits()
@@ -132,28 +152,31 @@ function Me.ProduceItemEditor_Load( effectIndex )
 end
 
 function Me.ProduceItemEditor_SaveEdits()
-	if not Me.ItemEditingIndex or not Me.produceItem.itemIndex or not Me.EffectEditingIndex then
+	if not Me.ItemEditingIndex or not Me.produceItem.guid or not Me.EffectEditingIndex then
 		return
 	end
 	
-	local itemData = Me.produceItem;
-	
-	if not itemData then
-		return
-	end
-	
-	local itemIndex = Me.produceItem.itemIndex
-	local amount = Me.produceItem.stackSize
+	local guid = Me.produceItem.guid
+	local amount = tonumber( DiceMasterProduceItemEditor.itemCount:GetText() )
 	local delay = tonumber( DiceMasterProduceItemEditor.delay:GetText() )
 	
 	if not delay or type( delay ) ~= "number" or delay <= 0 then
 		delay = 0;
 	end
 	
+	local item
+	-- find the item by the guid
+	for i = 1, 42 do
+		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == Me.produceItem.guid then
+			item = Me.Profile.inventory[i];
+			break
+		end
+	end
+	
 	local produceData = {
 		type = "produce";
-		itemData = itemData;
-		itemIndex = itemIndex;
+		item = item;
+		guid = guid;
 		amount = amount;
 		delay = delay;
 	}
@@ -169,29 +192,32 @@ function Me.ProduceItemEditor_SaveEdits()
 end
 
 function Me.ProduceItemEditor_Save()
-	if not Me.ItemEditingIndex or not Me.produceItem.itemIndex then
+	if not Me.ItemEditingIndex or not Me.produceItem.guid then
 		UIErrorsFrame:AddMessage( "Invalid item.", 1.0, 0.0, 0.0, 53, 5 );
 		return
 	end
 	
-	local itemData = DiceMasterTraitEditorInventoryFrame["Item"..Me.produceItem.itemIndex]:GetItem();
-	
-	if not itemData then
-		return
-	end
-	
-	local itemIndex = Me.produceItem.itemIndex
-	local amount = Me.produceItem.stackSize
+	local guid = Me.produceItem.guid
+	local amount = tonumber( DiceMasterProduceItemEditor.itemCount:GetText() )
 	local delay = tonumber( DiceMasterProduceItemEditor.delay:GetText() )
 	
 	if not delay or type( delay ) ~= "number" or delay <= 0 then
 		delay = 0;
 	end
 	
+	local item
+	-- find the item by the guid
+	for i = 1, 42 do
+		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == Me.produceItem.guid then
+			item = Me.Profile.inventory[i];
+			break
+		end
+	end
+	
 	local produceData = {
 		type = "produce";
-		itemData = itemData;
-		itemIndex = itemIndex;
+		item = item;
+		guid = guid;
 		amount = amount;
 		delay = delay;
 	}

@@ -732,14 +732,7 @@ function Me.TraitButtonClicked( traitButton, button )
 	if button == "LeftButton" then
 		Me.TraitEditor_Open()
 		DiceMasterTraitEditorTab1:Click()
-		if Me.Profile.traits[ traitButton.traitIndex ].guid then
-			for i = 1, #Me.db.global.traitsList do
-				if Me.Profile.traits[ traitButton.traitIndex ].guid == Me.db.global.traitsList[i].guid then
-					DiceMaster4.TraitEditor_StartEditing( i )
-					break
-				end
-			end
-		end
+		DiceMaster4.TraitEditor_StartEditing( traitButton.traitIndex )
 	elseif button == "RightButton" then
 		local cooldown = Profile.traits[ traitButton.traitIndex ].cooldown or "NONE";
 		if cooldown ~= "NONE" then
@@ -1244,7 +1237,6 @@ function Me:OnEnable()
 	--Me.ItemTrade_Init()
 	Me.MinimapButton:OnLoad()
 	Me.ImportDM3Saved()
-	Me.ImportDM4Saved()
 	
 	Me.ApplyKeybindings()
 	Me.ApplyUiScale()

@@ -67,7 +67,7 @@ function Me.BuffEditor_Refresh( effectIndex )
 		
 		Me.EffectEditingIndex = effectIndex
 	else
-		buff = Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"] or nil
+		buff = Profile.buffs[Me.editing_trait] or nil
 	end
 	if not buff then
 		buff = {
@@ -85,7 +85,7 @@ function Me.BuffEditor_Refresh( effectIndex )
 			blank = true,
 		}
 		if not Me.buffeditor.parent then
-			Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"] = buff
+			Profile.buffs[Me.editing_trait] = buff
 		end
 	end
 	Me.buffeditor.buffIcon:SetTexture( buff.icon )
@@ -110,7 +110,7 @@ end
 
 function Me.BuffEditor_DeleteBuff()
 	if not Me.buffeditor.parent then
-		Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"] = nil
+		Profile.buffs[Me.editing_trait] = nil
 	end
 	
 	Me.IconPicker_Close()
@@ -130,7 +130,7 @@ function Me.BuffEditor_Save()
 			type = "buff";
 		}
 	else
-		buff = Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"]
+		buff = Profile.buffs[Me.editing_trait]
 	end
 	buff.name = Me.buffeditor.buffName:GetText()
 	buff.icon = Me.buffeditor.buffIcon.icon:GetTexture()
@@ -159,7 +159,7 @@ function Me.BuffEditor_Save()
 		end
 		Me.ItemEditorEffectsList_Update()
 	else
-		Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"] = buff
+		Profile.buffs[Me.editing_trait] = buff
 	end
 end
 
@@ -208,7 +208,7 @@ end
 
 function Me.BuffEditor_SelectIcon( texture )
 	if not Me.buffeditor.parent then
-		Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"]["icon"] = texture
+		Profile.buffs[Me.editing_trait]["icon"] = texture
 	end
 	DiceMasterBuffEditor.buffIcon:SetTexture( texture )
 end

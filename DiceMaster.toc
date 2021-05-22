@@ -15,12 +15,12 @@ Console.lua
 Events.lua
 Editors/TraitEditor.lua
 Editors/ItemEditor.lua
+ItemActions.lua
 ItemTrade.lua
 Editors/ShopEditor.lua
 StatInspector.lua
 Inspect.lua
 DM3Import.lua
-DM4Import.lua
 Lists/IconList.lua
 Lists/TextureList.lua
 Lists/SoundList.lua

@@ -23,7 +23,7 @@ function Me.UnitFrame_SendStatus( visibleframes, id, status )
 			vf = tonumber( 0 );
 		})
 		
-		Me:SendCommMessage( "DCM4", msg, "RAID", nil, "NORMAL" )
+		Me:SendCommMessage( "DCM4", msg, "RAID", nil, "ALERT" )
 		return
 	end
 	
@@ -31,7 +31,7 @@ function Me.UnitFrame_SendStatus( visibleframes, id, status )
 	local statusID	   = id
 	local statusName   = status.name
 	local statusModel  = status.model
-	local statusAnim   = status.animation
+	local statusAnim   = status.animations
 	local statusModelData = status.modelData
 	local statusSymbol = status.symbol
 	local statusHealth = status.healthCurrent
@@ -61,7 +61,7 @@ function Me.UnitFrame_SendStatus( visibleframes, id, status )
 		hc = tonumber( statusHealth );
 		hm = tonumber( statusMaxHealth );
 		ar = tonumber( statusArmor );
-		ce = tonumber( statusCastBar );
+		ce = statusCastBar;
 		ct = tonumber( statusCastText );
 		cc = tonumber( statusCast );
 		cm = tonumber( statusCastMax );
@@ -75,7 +75,7 @@ function Me.UnitFrame_SendStatus( visibleframes, id, status )
 		ra = statusRaidAssistantAllowed;
 	})
 	
-	Me:SendCommMessage( "DCM4", msg, "RAID", nil, "NORMAL" )
+	Me:SendCommMessage( "DCM4", msg, "RAID", nil, "ALERT" )
 end
 
 ---------------------------------------------------------------------------

@@ -26,7 +26,7 @@ function Me.RemoveBuffEditor_Refresh( effectIndex )
 		
 		Me.EffectEditingIndex = effectIndex
 	else
-		removebuff = Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"] or nil
+		removebuff = Profile.removebuffs[Me.editing_trait] or nil
 	end
 	if not removebuff then
 		removebuff = {
@@ -34,7 +34,7 @@ function Me.RemoveBuffEditor_Refresh( effectIndex )
 			count = 1,
 		}
 		if not Me.removebuffeditor.parent then
-			Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"] = removebuff
+			Profile.removebuffs[Me.editing_trait] = removebuff
 		end
 	end
 	Me.removebuffeditor.buffName:SetText( removebuff.name )
@@ -64,7 +64,7 @@ function Me.RemoveBuffEditor_Save()
 			name = Me.removebuffeditor.buffName:GetText();
 			count = Me.removebuffeditor.buffCount:GetText();
 		}
-		Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"] = removebuff
+		Profile.removebuffs[Me.editing_trait] = removebuff
 	end
 	Me.RemoveBuffEditor_OnCloseClicked()
 end
@@ -97,7 +97,7 @@ end
 
 function Me.RemoveBuffEditor_DeleteBuff()
 	if not Me.removebuffeditor.parent then
-		Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"] = nil
+		Profile.removebuffs[Me.editing_trait] = nil
 	end
 	
 	Me.removebuffeditor:Hide()

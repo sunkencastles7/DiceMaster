@@ -122,7 +122,7 @@ function Me.EffectPicker_Refresh( effectIndex )
 		
 		Me.EffectEditingIndex = effectIndex
 	else
-		effect = Me.db.global.traitsList[ Me.editing_trait ]["effects"]["effect"] or nil
+		effect = Profile.visualeffects[Me.editing_trait] or nil
 	end
 	if not effect then
 		effect = {
@@ -131,7 +131,7 @@ function Me.EffectPicker_Refresh( effectIndex )
 			target = false;
 		}
 		if not DiceMasterEffectPicker.parent then
-			Me.db.global.traitsList[ Me.editing_trait ]["effects"]["effect"] = effect;
+			Profile.visualeffects[Me.editing_trait] = effect;
 		end
 		DiceMasterEffectPicker.delay:SetText( 0 )
 	else
@@ -233,7 +233,7 @@ end
 
 function Me.EffectPicker_Delete()
 	if not DiceMasterEffectPicker.parent then
-		Me.db.global.traitsList[ Me.editing_trait ]["effects"]["effect"] = nil
+		Profile.visualeffects[Me.editing_trait] = nil
 	end
 	
 	PlaySound(840); 
@@ -279,14 +279,14 @@ function Me.EffectPicker_Save()
 		Me.ItemEditorEffectsList_Update()
 	else
 		if DiceMasterEffectPicker.customEffect:GetChecked() then
-			Me.db.global.traitsList[ Me.editing_trait ]["effects"]["effect"] = {
+			Profile.visualeffects[Me.editing_trait] = {
 				effectID = DiceMasterEffectPicker.customEffectID:GetText();
 				effectName = "";
 				target = DiceMasterEffectPicker.sendToTarget:GetChecked();
 				delay = delay;
 			}
 		else	
-			Me.db.global.traitsList[ Me.editing_trait ]["effects"]["effect"] = {
+			Profile.visualeffects[Me.editing_trait] = {
 				effectID = DiceMasterEffectPicker.selectedID;
 				effectName = DiceMasterEffectPicker.selectedName;
 				target = DiceMasterEffectPicker.sendToTarget:GetChecked();

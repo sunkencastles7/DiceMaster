@@ -107,7 +107,7 @@ StaticPopupDialogs["DICEMASTER4_EXPORT"] = {
 }
 
 StaticPopupDialogs["DICEMASTER4_IMPORTTRAIT"] = {
-  text = "Paste an import code into the field below and select 'Import' to import the trait.|n|nThis will add the trait to the end of your traits list.",
+  text = "Paste an import code into the field below and select 'Import' to import the trait.|n|nThis will overwrite your currently selected trait!",
   button1 = "Import",
   button2 = "Cancel",
   OnShow = function (self, data)
@@ -127,9 +127,8 @@ StaticPopupDialogs["DICEMASTER4_IMPORTTRAIT"] = {
 	RunScript("T=" .. data);
 	
 	if T and type( T ) == "table" and T.name and T.usage and T.desc and T.icon then
-		tinsert( Me.db.global.traitsList, T )
+		Profile.traits[Me.editing_trait] = T;
 		Me.PrintMessage( "|T" .. T.icon .. ":16|t " .. T.name .. " has been imported.", "SYSTEM" )
-		Me.TraitPicker_RefreshScroll()
 	else
 		UIErrorsFrame:AddMessage( "Corrupt trait data found. Unable to import code.", 1.0, 0.0, 0.0, 53, 5 );
 	end
@@ -204,11 +203,6 @@ StaticPopupDialogs["DICEMASTER4_DELETETRAIT"] = {
   button1 = "Yes",
   button2 = "No",
   OnAccept = function (self, data)
-	if #Me.db.global.traitsList <= 5 then
-		UIErrorsFrame:AddMessage( "You cannot have less than five traits.", 1.0, 0.0, 0.0, 53, 5 ); 
-		return
-	end
-  
 	Me.TraitEditor_SelectIcon( "Interface/Icons/inv_misc_questionmark" )
     Me.editor.scrollFrame.Container.traitName:SetText("Trait Name")
 	Me.editor.scrollFrame.Container.descEditor:SetText("")
@@ -216,19 +210,13 @@ StaticPopupDialogs["DICEMASTER4_DELETETRAIT"] = {
 	Me.TraitEditor_SaveDescription()
 	if not Me.editing_trait then return end
 	
-	Me.PrintMessage( "|T" .. Me.db.global.traitsList[Me.editing_trait].icon .. ":16|t " .. Me.db.global.traitsList[Me.editing_trait].name .. " has been deleted.", "SYSTEM" )
-	tremove( Me.db.global.traitsList, Me.editing_trait );
-	
-	if #Me.db.global.traitsList < 1 then
-		Me.TraitEditor_CreateTrait()
-	end
+	Me.PrintMessage( "|T" .. Profile.traits[Me.editing_trait].icon .. ":16|t " .. Profile.traits[Me.editing_trait].name .. " has been deleted.", "SYSTEM" )
 	
 	if Me.editing_trait == 1 then
 		Me.TraitEditor_StartEditing( Me.editing_trait )
 	else
 		Me.TraitEditor_StartEditing( Me.editing_trait - 1 )
 	end
-	Me.TraitPicker_RefreshScroll()
   end,
   timeout = 0,
   whileDead = true,
@@ -239,11 +227,9 @@ StaticPopupDialogs["DICEMASTER4_DELETETRAIT"] = {
 -- TUTORIAL STRINGS
 
 local TRAIT_EDITOR_TUTORIAL = {
-	"Click the Traits button to see a full list of your characters' traits.",
+	"Left click on a trait to begin editing.",
 	"You can choose a custom name, icon, description, and more for your trait in the Trait Editor.",
 	"The format bar allows you to insert icons, colours, DiceMaster terms, and more into your trait's description.",
-	"Click the Traits button to collapse the traits list.",
-	"Left click on a trait from the traits list to edit.|n|nDrag a trait from the traits list to any slot on the Dice Panel to equip that trait.|n|nCreate a new trait by clicking the 'Create a New Trait' icon at the end of the traits list.",
 }
 
 local STATS_TUTORIAL = {
@@ -261,7 +247,7 @@ local PETS_TUTORIAL = {
 local INVENTORY_TUTORIAL = {
 	"Use the search box to search for specific items based on keyword.|n|nClick the Clean Up Inventory button to clean up your bags. It auto-sorts and moves items out of the way to make room for new items.",
 	"Custom items occupy a slot in your inventory, up to a maximum of 42 slots.",
-	"You can create, edit, copy, or sell items from your inventory by using these buttons.",
+	"You can create, edit, copy, or sell items from your inventory by using these buttons.|n|nDungeon Masters can use the Loot button to allow group members to roll on an item in their inventory.",
 	"Right click the currency frame to change which of your custom currencies is displayed, or create a new one.",
 }
 
@@ -1192,6 +1178,21 @@ function Me.TraitEditor_SellItem()
 	cursorIcon.sellCursor = true;
 	SetCursor( "CAST_CURSOR" )
 end
+
+function Me.TraitEditor_GroupLootItem()
+	local cursorIcon = DiceMasterCursorItemIcon
+	
+	if cursorIcon.itemID then
+		-- previous slot
+		cursorIcon.prevButton:Update()
+		SetItemButtonDesaturated( cursorIcon.prevButton, false );
+	end
+	
+	Me.ClearCursorActions( true, true, false )
+	DiceMasterCursorOverlay:Show()
+	cursorIcon.lootCursor = true;
+	SetCursor( "CAST_CURSOR" )
+end
 -------------------------------------------------------------------------------
 -- Reload pet data and update the UI.
 --
@@ -1436,27 +1437,27 @@ function Me.TraitEditor_EffectsOnLoad(frame, level, menuList)
 	info.func = Me.TraitEditor_EffectsOnClick;
 	info.icon = "Interface/Icons/Spell_Holy_WordFortitude"
 	info.text = "Apply Buff"
-	info.checked = Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"] and Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"].name and Me.db.global.traitsList[Me.editing_trait]["effects"]["buff"].name ~= "";
+	info.checked = Profile.buffs[Me.editing_trait] and Profile.buffs[Me.editing_trait].name and Profile.buffs[Me.editing_trait].name ~= "";
 	info.arg1 = Me.BuffEditor_Open;
 	UIDropDownMenu_AddButton(info, level)
 	info.icon = "Interface/Icons/Spell_Shadow_SacrificialShield"
 	info.text = "Remove Buff"
-	info.checked = Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"] and Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"].name and Me.db.global.traitsList[Me.editing_trait]["effects"]["removebuff"].name ~= "";
+	info.checked = Profile.removebuffs[Me.editing_trait] and Profile.removebuffs[Me.editing_trait].name and Profile.removebuffs[Me.editing_trait].name ~= "";
 	info.arg1 = Me.RemoveBuffEditor_Open;
 	UIDropDownMenu_AddButton(info, level)
 	info.icon = "Interface/Icons/inv_misc_drum_01"
 	info.text = "Play Sound"
-	info.checked = Me.db.global.traitsList[Me.editing_trait]["effects"]["sound"] and Me.db.global.traitsList[Me.editing_trait]["effects"]["sound"].soundID ~= nil;
+	info.checked = Profile.playsounds[Me.editing_trait] and Profile.playsounds[Me.editing_trait].soundID ~= nil;
 	info.arg1 = Me.SoundPicker_Open;
 	UIDropDownMenu_AddButton(info, level)
 	info.icon = "Interface/Icons/INV_Misc_Dice_01"
 	info.text = "Roll Dice"
-	info.checked = Me.db.global.traitsList[Me.editing_trait]["effects"]["setdice"] and Me.db.global.traitsList[Me.editing_trait]["effects"]["setdice"].value;
+	info.checked = Profile.setdice[Me.editing_trait] and Profile.setdice[Me.editing_trait].value;
 	info.arg1 = Me.SetDiceEditor_Open;
 	UIDropDownMenu_AddButton(info, level)
 	info.icon = "Interface/Icons/spell_arcane_blast"
 	info.text = "Visual Effect"
-	info.checked = Me.db.global.traitsList[Me.editing_trait]["effects"]["effect"] and Me.db.global.traitsList[Me.editing_trait]["effects"]["effect"].effectID;
+	info.checked = Profile.visualeffects[Me.editing_trait] and Profile.visualeffects[Me.editing_trait].effectID;
 	info.arg1 = Me.EffectPicker_Open;
 	UIDropDownMenu_AddButton(info, level)
 end
@@ -1493,16 +1494,9 @@ function DiceMasterTraitEditorTutorialMixin:ToggleHelpInfo()
 		self.helpInfo[i] = nil;
 	end
 	if ( DiceMasterTraitsFrame:IsShown() ) then
-		if DiceMasterTraitEditorTraitsExpandButton:IsCurrentlyExpanded() then
-			self.helpInfo[1] = { ButtonPos = { x = 140,	y = 2 }, HighLightBox = { x = 60, y = -2, width = 120, height = 39 },	ToolTipDir = "DOWN", ToolTipText = TRAIT_EDITOR_TUTORIAL[4] };
-			self.helpInfo[2] = { ButtonPos = { x = 330,	y = -202 }, HighLightBox = { x = 194, y = -47, width = 322, height = 338 },	ToolTipDir = "DOWN", ToolTipText = TRAIT_EDITOR_TUTORIAL[2] };
-			self.helpInfo[3] = { ButtonPos = { x = 68,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 155, height = 338 },	ToolTipDir = "DOWN", ToolTipText = TRAIT_EDITOR_TUTORIAL[5] };
-			self.helpInfo[4] = { ButtonPos = { x = 330,	y = -386 }, HighLightBox = { x = 194, y = -390, width = 322, height = 39 },	ToolTipDir = "UP", ToolTipText = TRAIT_EDITOR_TUTORIAL[3] };
-		else
-			self.helpInfo[1] = { ButtonPos = { x = 140,	y = 2 }, HighLightBox = { x = 60, y = -2, width = 120, height = 39 },	ToolTipDir = "DOWN", ToolTipText = TRAIT_EDITOR_TUTORIAL[1] };
-			self.helpInfo[2] = { ButtonPos = { x = 146,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 320, height = 338 },	ToolTipDir = "DOWN", ToolTipText = TRAIT_EDITOR_TUTORIAL[2] };
-			self.helpInfo[3] = { ButtonPos = { x = 146,	y = -386 }, HighLightBox = { x = 10, y = -390, width = 320, height = 39 },	ToolTipDir = "UP", ToolTipText = TRAIT_EDITOR_TUTORIAL[3] };
-		end
+		self.helpInfo[1] = { ButtonPos = { x = 140,	y = 2 }, HighLightBox = { x = 60, y = -2, width = 200, height = 39 },	ToolTipDir = "DOWN", ToolTipText = TRAIT_EDITOR_TUTORIAL[1] };
+		self.helpInfo[2] = { ButtonPos = { x = 146,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 320, height = 338 },	ToolTipDir = "DOWN", ToolTipText = TRAIT_EDITOR_TUTORIAL[2] };
+		self.helpInfo[3] = { ButtonPos = { x = 146,	y = -386 }, HighLightBox = { x = 10, y = -390, width = 320, height = 39 },	ToolTipDir = "UP", ToolTipText = TRAIT_EDITOR_TUTORIAL[3] };
 	elseif ( DiceMasterStatsFrame:IsShown() ) then
 		self.helpInfo[1] = { ButtonPos = { x = 146,	y = 2 }, HighLightBox = { x = 50, y = -2, width = 280, height = 39 },	ToolTipDir = "DOWN", ToolTipText = STATS_TUTORIAL[1] };
 		self.helpInfo[2] = { ButtonPos = { x = 146,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 320, height = 352 },	ToolTipDir = "DOWN", ToolTipText = STATS_TUTORIAL[2] };
@@ -1541,22 +1535,18 @@ function Me.TraitEditor_OnLoad( self )
 	self:SetScript( "OnDragStart", self.StartMoving )
 	self:SetScript( "OnDragStop", self.StopMovingOrSizing )
 	
-	-- create icon map
-	self.trait_picker_buttons = {}
-	local index = 0
-	for y = 0,5 do
-	  for x = 0,2 do
-		index = index + 1
-		local btn = CreateFrame( "DiceMasterTraitButton", "DiceMasterTraitPickerButton" .. index, DiceMasterTraitPicker )
-		btn.pickerIndex = index
-		btn:SetPoint( "TOPLEFT", "DiceMasterTraitPicker", 45*x+14, -45*y-46 )
-		btn:SetSize( 42, 42 )
-		
-		table.insert( self.trait_picker_buttons, btn )
-		btn.pickerIndex = #self.trait_picker_buttons
-	  end
+	self.trait_buttons = {}
+	-- create trait buttons
+	for i = 1,5 do
+		self.trait_buttons[i] = CreateFrame( "DiceMasterTraitButton", "DiceMasterTraitButton" .. i, self )
+		local x = 70 + 35*(i-1)
+		self.trait_buttons[i]:SetPoint( "TOPLEFT", x, -26 ) 
+		self.trait_buttons[i]:SetFrameLevel(4)
+		self.trait_buttons[i].editable_trait = true
+		self.trait_buttons[i]:SetScript( "OnMouseDown", function( self, button )
+			Me.TraitEditor_OnTraitClicked( self, button )
+		end)
 	end
-	 
 end
 
 -------------------------------------------------------------------------------
@@ -1576,11 +1566,9 @@ function Me.TraitEditor_StartEditing( index )
 	EditBox_ClearFocus( Me.editor.scrollFrame.Container.traitName )
 	Me.editing_trait = index
 	
---	DiceMasterIconSelect_Hide() todo
 	PlaySound(54130)
 	
 	Me.TraitEditor_Refresh() 
-	Me.TraitPicker_RefreshGrid()
 	Me.buffeditor:Hide()
 	Me.removebuffeditor:Hide()
 	Me.setdiceeditor:Hide()
@@ -1633,150 +1621,18 @@ function Me.TraitEditor_OnTraitClicked( self, button )
 				string.format( "[DiceMaster4:%s:%d:%s]", UnitName("player"), self.traitIndex, name ) ) 
 			
 		else
-			--
-		end
-	end
-end
-
--------------------------------------------------------------------------------
--- When a trait button is clicked.
---
-function Me.TraitPicker_OnTraitClicked( self, button )
-	if not self.traitIndex then return end -- this handler is only for the player's traits
-	
-	if button == "LeftButton" then
-		if not self.noteditable then
-			Me.TraitEditor_StartEditing( self.traitIndex ) 
-			if Me.buffeditor:IsShown() then
-				Me.buffeditor:Hide()
-			end
-			if Me.removebuffeditor:IsShown() then
-				Me.removebuffeditor:Hide()
-			end
-			if Me.setdiceeditor:IsShown() then
-				Me.setdiceeditor:Hide()
-			end
-			if DiceMasterSoundPicker:IsShown() then
-				DiceMasterSoundPicker:Hide()
-			end
-			if DiceMasterEffectPicker:IsShown() then
-				DiceMasterEffectPicker:Hide()
+			if not self.noteditable then
+				Me.TraitEditor_StartEditing( self.traitIndex )
 			end
 		end
 	end
-end
-
--------------------------------------------------------------------------------
--- When the mousewheel is used on the trait picker map.
---
-function Me.TraitPicker_MouseScroll( delta )
-
-	local a = DiceMasterTraitPicker.scroller:GetValue() - delta
-	DiceMasterTraitPicker.scroller:SetValue( a )
-end
-
--------------------------------------------------------------------------------
--- When the scrollbar's value is changed.
---
-function Me.TraitPicker_ScrollChanged( value )
-	
-	-- Our "step" is 3 icons, which is one line.
-	startOffset = math.floor(value) * 3
-	Me.TraitPicker_RefreshGrid()
-end
-
--------------------------------------------------------------------------------
--- Set the textures of the icon grid from the icons in the list at the
--- current offset.
---
-function Me.TraitPicker_RefreshGrid()
-	local list = filteredList or Me.db.global.traitsList
-
-	for i = 1, #DiceMasterTraitEditor.trait_picker_buttons do
-		local button = DiceMasterTraitEditor.trait_picker_buttons[ i ]
-		local trait = list[ startOffset + i ]
-		if trait then
-			button:Show()
-			button:SetCustomTooltip( nil )
-			button:SetTrait( trait, true )
-			if filteredList then
-				button.traitIndex = trait.index
-			else
-				button.traitIndex = startOffset + i;
-			end
-			button:SetScript( "OnMouseDown", function( self, button )
-				Me.TraitPicker_OnTraitClicked( self, button )
-			end)
-			button:Select( Me.editing_trait == button.traitIndex )
-		elseif ( startOffset + i == #Me.db.global.traitsList + 1 ) then
-			button:Show()
-			button.traitIndex = nil;
-			button:SetTexture("Interface/PaperDollInfoFrame/Character-Plus")
-			button:SetCustomTooltip( "Create a New Trait" )
-			button:SetScript( "OnMouseDown", function( self, button)
-				Me.TraitEditor_CreateTrait()
-			end)
-			button:Select( false )
-		else
-			button:SetTrait( nil )
-			button.traitIndex = nil;
-			button:SetCustomTooltip( nil )
-			button:SetScript( "OnMouseDown", nil )
-			button:Hide()
-		end
-	end
-end
-
--------------------------------------------------------------------------------
--- Called when the user types into the search box.
---
-function Me.TraitPicker_FilterChanged()
-	local filter = DiceMasterTraitPicker.search:GetText():lower()
-	if #filter < 3 then
-		-- Ignore filters less than three characters
-		if filteredList then
-			filteredList = nil
-			Me.TraitPicker_RefreshScroll()
-			Me.TraitPicker_RefreshGrid()
-		end
-	else
-		-- build new list
-		filteredList = {}
-		for k,v in ipairs( Me.db.global.traitsList ) do
-			local name = v.name
-			local desc = v.desc
-			if name:lower():find( filter ) or desc:lower():find( filter ) then
-				v.index = k
-				table.insert( filteredList, v )
-			end	
-		end
-		Me.TraitPicker_RefreshScroll()
-	end
-end
-
--------------------------------------------------------------------------------
--- When we change the size of the list, update the scroll bar range.
---
--- @param reset Reset the scroll bar to the beginning.
---
-function Me.TraitPicker_RefreshScroll( reset )
-	local list = filteredList or Me.db.global.traitsList 
-	local max = math.floor((#list - 18) / 3) + 1
-	if max < 0 then max = 0 end
-	DiceMasterTraitPicker.scroller:SetMinMaxValues( 0, max )
-	
-	if reset then
-		DiceMasterTraitPicker.scroller:SetValue( 0 )
-	end
-	
-	Me.TraitPicker_ScrollChanged( DiceMasterTraitPicker.scroller:GetValue() )
 end
 
 -------------------------------------------------------------------------------
 -- Reload trait data and update the UI.
 --
 function Me.TraitEditor_Refresh()
-	local trait = Me.db.global.traitsList[Me.editing_trait]
+	local trait = Profile.traits[Me.editing_trait]
 	local scrollFrame = Me.editor.scrollFrame.Container
 	
 	scrollFrame.traitIcon:SetTexture( trait.icon )
@@ -1801,59 +1657,25 @@ function Me.TraitEditor_Refresh()
 	end
 	
 	scrollFrame.descEditor:SetText( trait.desc )
+	
+	for i = 1, 5 do
+		Me.editor.trait_buttons[i]:Refresh()
+		Me.editor.trait_buttons[i]:Select( false )
+	end
+	Me.editor.trait_buttons[Me.editing_trait]:Select( true )
 end
 
 -------------------------------------------------------------------------------
 -- Call this after changing a trait's data.
 --
 local function TraitUpdated()
-	local traitsList = Me.db.global.traitsList
-	local traits = Me.Profile.traits
-	
-	for x = 1, #traitsList do
-		for y = 1, #traits do
-			if traitsList[x].guid == traits[y].guid then
-				Me.Profile.traits[y] = traitsList[x];
-				Me.Profile.traits[y].guid = traitsList[x].guid;
-				Me.Inspect_OnTraitUpdated( UnitName("player"), y )
-			end
-		end
-	end
-
-	-- Me.BumpSerial( Me.db.char.traitSerials, Me.editing_trait )
+	local trait = Profile.traits[Me.editing_trait]
+	Me.BumpSerial( Me.db.char.traitSerials, Me.editing_trait )
 	Me.UpdatePanelTraits()
 end
 
--------------------------------------------------------------------------------
--- Create a new trait.
---
-function Me.TraitEditor_CreateTrait()
-	local trait = {
-		["name"] = "New Trait";
-		["usage"] = Me.TRAIT_USAGE_MODES[1];
-		["range"] = Me.TRAIT_RANGE_MODES[1];
-		["castTime"] = Me.TRAIT_CAST_TIME_MODES[1];
-		["cooldown"] = Me.TRAIT_COOLDOWN_MODES[1];
-		["icon"] = "Interface/Icons/inv_misc_questionmark";
-		["desc"] = "Type a description for your trait here.";
-		["effects"] = {};
-		["traitIndex"] = #Me.db.global.traitsList;
-	}
-	
-	-- copy officer approval
-	if Me.PermittedUse() then
-		trait["approved"] = false;
-		trait["officers"] = {};
-	end
-	
-	tinsert( Me.db.global.traitsList, trait )
-	Me.editing_trait = #Me.db.global.traitsList
-	Me.TraitPicker_RefreshScroll()
-	Me.TraitEditor_StartEditing( Me.editing_trait )
-end
-
 function Me.TraitEditor_ExportTrait()
-	local data = Me.db.global.traitsList[ Me.editing_trait ]
+	local data = Profile.traits[ Me.editing_trait ]
 	
 	if not data then
 		return
@@ -1879,7 +1701,7 @@ end
 --               "RightButton" = use previous usage
 --
 function Me.TraitEditor_ChangeUsage( button )
-	local trait = Me.db.global.traitsList[Me.editing_trait]
+	local trait = Profile.traits[Me.editing_trait]
 	
 	local delta
 	if button == "LeftButton" then
@@ -1957,7 +1779,7 @@ end
 --               "RightButton" = use previous range
 --
 function Me.TraitEditor_ChangeRange( button )
-	local trait = Me.db.global.traitsList[Me.editing_trait]
+	local trait = Profile.traits[Me.editing_trait]
 	
 	local delta
 	if button == "LeftButton" then
@@ -2003,7 +1825,7 @@ end
 --               "RightButton" = use previous cast time
 --
 function Me.TraitEditor_ChangeCastTime( button )
-	local trait = Me.db.global.traitsList[Me.editing_trait]
+	local trait = Profile.traits[Me.editing_trait]
 	
 	local delta
 	if button == "LeftButton" then
@@ -2049,7 +1871,7 @@ end
 --               "RightButton" = use previous cooldown
 --
 function Me.TraitEditor_ChangeCooldown( button )
-	local trait = Me.db.global.traitsList[Me.editing_trait]
+	local trait = Profile.traits[Me.editing_trait]
 	
 	local delta
 	if button == "LeftButton" then
@@ -2093,20 +1915,19 @@ end
 -- @param texture Path to texture file to use for the current trait.
 --
 function Me.TraitEditor_SelectIcon( texture )
-	local trait = Me.db.global.traitsList[Me.editing_trait]
+	local trait = Profile.traits[Me.editing_trait]
 	trait.icon = texture or "Interface/Icons/inv_misc_questionmark"
-	--Me.editor.trait_buttons[Me.editing_trait]:Refresh()
+	Me.editor.trait_buttons[Me.editing_trait]:Refresh()
 	Me.editor.scrollFrame.Container.traitIcon:SetTexture( texture )
 	
 	TraitUpdated()
-	Me.TraitPicker_RefreshScroll()
 end
 
 -------------------------------------------------------------------------------
 -- Handler for when the name editor loses focus.
 --
 function Me.TraitEditor_SaveName()
-	local trait = Me.db.global.traitsList[Me.editing_trait]
+	local trait = Profile.traits[Me.editing_trait]
 	trait.name = Me.editor.scrollFrame.Container.traitName:GetText()
 	TraitUpdated()
 end
@@ -2120,7 +1941,7 @@ function Me.TraitEditor_EditDescription()
 		return
 	end
 
-	local trait = Me.db.global.traitsList[Me.editing_trait]
+	local trait = Profile.traits[Me.editing_trait]
 	if trait.approved and trait.approved > 0 and trait.officers and #trait.officers > 0 then
 		StaticPopup_Show("DICEMASTER4_EDITTRAITDESCRIPTION", nil, nil, trait.desc)
 	else
@@ -2132,7 +1953,7 @@ end
 -- Handler for when the text editor loses focus.
 --
 function Me.TraitEditor_SaveDescription( noReset )
-	local trait = Me.db.global.traitsList[Me.editing_trait]
+	local trait = Profile.traits[Me.editing_trait]
 	trait.desc = Me.editor.scrollFrame.Container.descEditor:GetText()
 	if not noReset then
 		trait.approved = 0;
@@ -2145,6 +1966,9 @@ end
 -- Show the trait editor.
 --
 function Me.TraitEditor_Open()
+	for i = 1,5 do
+		Me.editor.trait_buttons[i]:SetPlayerTrait( UnitName( "player" ), i ) 
+	end
 	 
 	--get name, race, class
 	local charName, charRace, charClass, charColor = Me.GetCharInfo()
@@ -2156,7 +1980,6 @@ function Me.TraitEditor_Open()
 	Me.editor.CloseButton:SetScript("OnClick",Me.TraitEditor_OnCloseClicked)
    
 	Me.TraitEditor_Refresh()
-	Me.TraitPicker_RefreshScroll( true )
 	Me.PetEditor_Refresh()
 	Me.TraitEditor_UpdateInventory()
 	Me.ShopFrame_Update()			  

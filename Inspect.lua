@@ -769,7 +769,7 @@ local function DoSendStatus()
 			msg.buffs = {}
 		end
 		
-		if #Profile.inventory > 0 then
+		if not Me.db.global.hideInventory and Me.FindTotalEmptySlots() < 42 then
 			msg.inv = Profile.inventory
 			msg.invIcon = Profile.inventoryIcon
 		else
@@ -1098,7 +1098,7 @@ function Me.Inspect_OnStatusMessage( data, dist, sender )
 		store.currency = Me.Profile.currency[1]
 		store.currencyActive = 1;
 	end
-	if data.shop then
+	if data.shop and #data.shop > 0 then
 		store.shop = data.shop
 		store.shopIcon = data.shopIcon
 	else

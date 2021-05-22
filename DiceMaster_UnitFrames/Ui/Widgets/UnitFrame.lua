@@ -247,7 +247,7 @@ local methods = {
 		framedata.symbol = self.symbol.State or 9;
 		framedata.healthCurrent = self.healthCurrent or 3
 		framedata.healthMax = self.healthMax or 3
-		framedata.castEnabled = self.castEnabled or false
+		framedata.castEnabled = self.castEnabled
 		framedata.castText = self.castText or "Casting..."
 		framedata.castCurrent = self.castCurrent or 0
 		framedata.castMax = self.castMax or 3
@@ -764,6 +764,10 @@ end
 -- Update the UI for the castbar frame.
 --
 function Me.RefreshCastbarFrame( self, castValue, castMax, castText, castType )
+	
+	local castValue = castValue or 0;
+	local castMax = castMax or 3;
+	
 	self:SetMinMaxValues( 0, castMax )
 	self:SetValue( castValue )
 	self.Text:SetText( castText or "Casting..." )
@@ -800,6 +804,10 @@ end
 function Me.OnUnitBarCastClicked( self, button )
 	if Me.IsLeader( false ) then
 		local unit = self:GetParent()
+		
+		unit.castCurrent = unit.castCurrent or 0
+		unit.castMax = unit.castMax or 3
+		unit.castType = unit.castType or 1
 
 		local delta = 0
 		if button == "LeftButton" then
