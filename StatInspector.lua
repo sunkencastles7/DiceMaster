@@ -19,10 +19,9 @@ local SHOP_ITEMS_PER_PAGE = 12;
 --
 function Me.StatInspector_Update()
 
-	if Me.inspectName then
-		Me.statInspectName = Me.inspectName
-		SetPortraitTexture( Me.statinspector.portrait, "target" )
-		Me.statinspector.TitleText:SetText( Me.GetTargetCharInfo() )
+	if Me.inspectName and Me.inspectData[Me.inspectName].hasDM4 then
+		Me.statInspectName = Me.inspectName		
+		Me.StatInspector_OnTabChanged()
 	end
 	
 	if not Me.statInspectName then
@@ -69,6 +68,27 @@ function Me.StatInspector_Update()
 
 	Me.StatInspector_UpdateStats();
 	
+	if store.hideInventory then
+		DiceMasterStatInspectorInventoryTab.Icon:SetDesaturated( true )
+		DiceMasterStatInspectorInventoryTab:SetChecked( false )
+		DiceMasterStatInspectorInventoryTab:Disable()
+	else
+		DiceMasterStatInspectorInventoryTab.Icon:SetDesaturated( false )
+		DiceMasterStatInspectorInventoryTab:Enable()
+	end
+	
+	if store.hideShop then
+		DiceMasterStatInspectorShopTab.Icon:SetDesaturated( true )
+		DiceMasterStatInspectorShopTab:SetChecked( false )
+		DiceMasterStatInspectorShopTab:Disable()
+	else
+		DiceMasterStatInspectorShopTab.Icon:SetDesaturated( false )
+		DiceMasterStatInspectorShopTab:Enable()
+	end
+	
+	Me.StatInspector_UpdatePet()
+	Me.StatInspector_UpdateInventory()
+	Me.StatInspectorShopFrame_Update()
 end
 
 -------------------------------------------------------------------------------
@@ -109,16 +129,6 @@ function Me.StatInspector_RequestItem()
 	DiceMasterCursorOverlay:Show()
 	cursorIcon.requestCursor = true;
 	SetCursor( "CAST_CURSOR" )
-end
-
-local function RecycleInventorySlots()
-	local tbl = {}
-	for i = 1, #Me.inspectData[Me.statInspectName].inventory do
-		if Me.inspectData[Me.statInspectName].inventory[i] ~= nil then
-			table.insert( tbl, Me.inspectData[Me.statInspectName].inventory[i] )
-		end
-	end
-	Me.inspectData[Me.statInspectName].inventory = tbl
 end
 
 function Me.StatInspector_UpdateInventory()
@@ -167,8 +177,20 @@ function Me.StatInspector_UpdateInventory()
 	local button;
 	for i=1, frame.size do
 		button = frame["Item"..i];
-		button:SetPlayerItem( Me.statInspectName or nil, i );
-		button:Update()
+		if not Me.inspectData[Me.statInspectName].hideInventory then
+			button:SetPlayerItem( Me.statInspectName or nil, i );
+			button:Update()
+			button:Enable()
+		else
+			button:SetTexture( nil )
+			button:Disable()
+		end
+	end
+	
+	if Me.inspectData[Me.statInspectName].hideInventory then
+		if frame:IsShown() then
+			DiceMasterStatInspectorTab1:Click()
+		end
 	end
 	
 	local currencyActive = Me.inspectData[Me.statInspectName].currencyActive or 1;
@@ -262,8 +284,17 @@ function Me.StatInspectorShopFrame_Update()
 		GameTooltip:AddLine( "|nTotal: |cFFFFFFFF" .. amount .. "|r", nil, nil, nil, true );
 		GameTooltip:Show();
 	end)
+
+	local shop = Me.inspectData[ Me.statInspectName ].shop
 	
-	local numMerchantItems = #Me.inspectData[ Me.statInspectName ].shop
+	if Me.inspectData[Me.statInspectName].hideShop then
+		shop = {}
+		if DiceMasterStatInspectorShopFrame:IsShown() then
+			DiceMasterStatInspectorTab1:Click()
+		end
+	end
+	
+	local numMerchantItems = #shop
 	
 	DiceMasterStatInspectorShopFramePageText:SetFormattedText(MERCHANT_PAGE_NUMBER, DiceMasterStatInspectorShopFrame.page, math.ceil(numMerchantItems / 12));
 
@@ -277,7 +308,7 @@ function Me.StatInspectorShopFrame_Update()
 		removeButton:Hide()
 		
 		if ( index <= numMerchantItems ) then
-			local item = Me.inspectData[ Me.statInspectName ].shop[index]
+			local item = shop[index]
 			name = item.name
 			texture = item.icon
 			whiteText1 = item.whiteText1
@@ -554,6 +585,27 @@ function Me.StatInspector_OnLoad( self )
 end
 
 -------------------------------------------------------------------------------
+-- When a new tab is selected.
+--
+function Me.StatInspector_OnTabChanged()
+	if Me.statInspectName then
+		SetPortraitTexture( Me.statinspector.portrait, Me.statInspectName or "none" )
+		Me.statinspector.TitleText:SetText( Me.GetTargetCharInfo( Me.statInspectName ) )
+	else
+		return
+	end
+	
+	if DiceMasterStatInspectorShopFrame:IsShown() then
+		if Me.inspectData[Me.statInspectName].shopModel then
+			SetPortraitTextureFromCreatureDisplayID( Me.statinspector.portrait, Me.inspectData[Me.statInspectName].shopModel )
+		end
+		if Me.inspectData[Me.statInspectName].shopName then
+			Me.statinspector.TitleText:SetText( Me.inspectData[Me.statInspectName].shopName ) 
+		end
+	end
+end
+
+-------------------------------------------------------------------------------
 -- When the stat inspector's close button is pressed.
 --
 function Me.StatInspector_OnCloseClicked() 
@@ -572,8 +624,5 @@ function Me.StatInspector_Open()
 	Me.statinspector.CloseButton:SetScript("OnClick",Me.StatInspector_OnCloseClicked)
 
 	Me.StatInspector_Update()
-	Me.StatInspector_UpdatePet()
-	Me.StatInspector_UpdateInventory()
-	Me.StatInspectorShopFrame_Update()
 	Me.statinspector:Show()
 end

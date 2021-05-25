@@ -13,9 +13,10 @@ local HBDPins = LibStub("HereBeDragons-Pins-2.0")
 
 local pinCache = {}
 local mapPins = {}
-local pinCount = 0
+local pinCount = 0;
 
 local function recyclePin(pin)
+	pin.Ping:Finish()
 	pin:Hide()
 	pinCache[pin] = true
 end
@@ -27,7 +28,7 @@ local function clearAllPins()
 	end
 end
 
-local function getNewPin()
+local function getNewMapPin( i )
 	local pin = next(pinCache)
 	if pin then
 		pinCache[pin] = nil -- remove it from the cache
@@ -35,7 +36,22 @@ local function getNewPin()
 	end
 	-- create a new pin
 	pinCount = pinCount + 1
-	pin = CreateFrame("Button", "DiceMasterPin"..pinCount, Minimap, "DiceMasterMapNodeTemplate")
+	pin = CreateFrame("Button", "DiceMasterMapPin"..i, Minimap, "DiceMasterMapNodeTemplate")
+	pin:SetPoint("CENTER", Minimap, "CENTER")
+	pin:SetFrameLevel(5)
+	pin:SetMovable(true)
+	pin:Hide()
+	return pin
+end
+
+local function getNewMinimapPin( i )
+	local pin = next(pinCache)
+	if pin then
+		pinCache[pin] = nil -- remove it from the cache
+		return pin
+	end
+	-- create a new pin
+	pin = CreateFrame("Button", "DiceMasterMinimapPin"..i, Minimap, "DiceMasterMapNodeTemplate")
 	pin:SetPoint("CENTER", Minimap, "CENTER")
 	pin:SetFrameLevel(5)
 	pin:SetMovable(true)
@@ -72,7 +88,7 @@ local function OnLeave( self )
 	DiceMasterTooltipIcon.elite:Hide()
 	
 	self:ResizeMapIcon( 0.7 )
-	self:SetFrameStrata( "MEDIUM" )
+	self:SetFrameStrata( "HIGH" )
 end
 
 local function OnDragStart( self, button )
@@ -124,7 +140,7 @@ local function OnUpdate( self )
 end
 
 local function OnClick( self, button )
-	if button == "RightButton" and IsShiftKeyDown() then
+	if button == "LeftButton" and IsShiftKeyDown() then
 		local channels = {
 			"PARTY",
 			"RAID",
@@ -160,7 +176,7 @@ local function OnClick( self, button )
 	if button == "RightButton" then
 		DiceMasterRollFrame:Show()
 		DiceMasterRollFrameTab4:Click()
-		
+		DiceMasterMapNodes.selected = self.id
 		Me.DiceMasterMapNodes_Update()
 	end
 end
@@ -189,23 +205,18 @@ local methods = {
 		--self:SetScale( 32 * scale, 32 * scale )
 		self.Icon:SetSize( self.iconWidth * scale, self.iconHeight * scale )
 		self.Highlight:SetSize( self.iconWidth * scale, self.iconHeight * scale )
-	end;
-	
-	Flash = function( self )
-		-- TODO
 	end;	
 }
 
 function Me.DeleteDuplicateMapIcons()
 	for i = 1, pinCount do
-		if _G["DiceMasterPin" .. i] then
-			local pin = _G["DiceMasterPin"..i];
-			-- World Map icons are even; Minimap icons are odd.
-			if (i % 2 == 0) then
-				HBDPins:RemoveWorldMapIcon( "DiceMasterMapIcon", pin )
-			else
-				HBDPins:RemoveMinimapIcon( "DiceMasterMapIcon", pin )
-			end
+		if _G["DiceMasterMapPin" .. i] then
+			local pin = _G["DiceMasterMapPin"..i];
+			HBDPins:RemoveWorldMapIcon( "DiceMasterMapIcon", pin )
+		end
+		if _G["DiceMasterMinimapPin" .. i] then
+			local pin = _G["DiceMasterMinimapPin"..i];
+			HBDPins:RemoveMinimapIcon( "DiceMasterMapIcon", pin )
 		end
 	end
 end
@@ -241,9 +252,9 @@ function Me.UpdateAllMapNodes()
 
 	for i = 1, #mapNodes do
 		local iconData = mapNodes[i]
-		local icon = getNewPin();
+		local icon = getNewMinimapPin( i );
 		icon:SetParent(Minimap);
-		icon:SetFrameStrata( "MEDIUM" );
+		icon:SetFrameStrata( "HIGH" );
 		icon:SetFrameLevel(frameLevel);
 		icon.coordY, icon.coordX, _, icon.Instance = UnitPosition( "player" )
 		if ( iconData.coordX and iconData.coordY and iconData.mapID ) then
@@ -294,7 +305,7 @@ function Me.UpdateAllMapNodes()
 		
 		-- Create the World Map Frame pin.
 		
-		local icon = getNewPin()
+		local icon = getNewMapPin( i )
 		icon:SetParent(WorldMapFrame.ScrollContainer.Child)
 		--icon.unitData = unitData
 		icon.coordY, icon.coordX, _, icon.Instance = UnitPosition( "player" )
@@ -357,5 +368,5 @@ function Me.MapNode_Init( self )
 	self:SetScript( "OnDragStop", OnDragStop )
 	
 	self:RegisterForDrag("LeftButton")
-	self:RegisterForClicks("RightButtonUp")
+	self:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 end

@@ -172,6 +172,10 @@ function Me.ItemEditorNewAction_OnLoad(frame, level, menuList)
 	info.text = "Add/Remove Currency"
 	info.arg1 = Me.ProduceCurrencyEditor_Open;
 	UIDropDownMenu_AddButton(info, level)
+	info.icon = "Interface/Icons/petbattle_health"
+	info.text = "Add/Remove Health"
+	info.arg1 = Me.AdjustHealthEditor_Open;
+	UIDropDownMenu_AddButton(info, level)
 	info.icon = "Interface/Icons/inv_scroll_03"
 	info.text = "Run Script"
 	info.arg1 = Me.ScriptEditor_Open;
@@ -205,6 +209,7 @@ local EffectHandlers = {
 	["effect"] = { "EffectPicker_Open", "EffectPicker_Refresh" };
 	["screeneffect"] = { "ScreenEffectEditor_Open", "ScreenEffectEditor_Load" };
 	["sound"] = { "SoundPicker_Open", "SoundPicker_Refresh" };
+	["health"] = { "AdjustHealthEditor_Open", "AdjustHealthEditor_Load" };
 }
 
 function Me.ItemEditorEffects_Edit()
@@ -334,6 +339,11 @@ local DICEMASTER_ITEM_EFFECTS = {
 		name = "Roll Dice";
 		icon = "Interface/Icons/inv_misc_dice_01";
 		detail = "value";
+	},
+	["health"] = {
+		name = "Add/Remove Health";
+		icon = "Interface/Icons/petbattle_health";
+		detail = "health";
 	},
 }
 
@@ -500,7 +510,11 @@ end
 --
 function Me.ItemEditor_SaveFlavorText()
 	local text = DiceMasterItemEditor.flavorText:GetText()
-	DiceMasterItemEditorPreviewTooltipTextLeft5:SetText( "\"" .. text .. "\"" )
+	if text and text~= "" then
+		DiceMasterItemEditorPreviewTooltipTextLeft5:SetText( "\"" .. text .. "\"" )
+	else
+		DiceMasterItemEditorPreviewTooltipTextLeft5:SetText( "" )
+	end
 	DiceMasterItemEditorPreviewTooltipTextLeft5:SetTextColor( 1, 0.81, 0 )
 	Me.newItem.flavorText = text;
 end

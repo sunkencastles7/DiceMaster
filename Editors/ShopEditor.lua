@@ -306,7 +306,7 @@ function Me.ShopEditor_SellItem()
 	
 	item.price = Me.newShopItem.price or 0;
 	item.stackCount = Me.newShopItem.stackSize or 1;
-	item.stackSize = Me.newShopItem.stackSize or 1;
+	--item.stackSize = Me.newShopItem.stackSize or 1;
 	if Me.newShopItem.limited then
 		item.numAvailable = item.amount;
 	else
@@ -321,8 +321,7 @@ function Me.ShopEditor_SellItem()
 	item.requiredClass = Me.newShopItem.requiredClass or {};
 	item.requiredLevel = Me.newShopItem.requiredLevel or nil;
 	
-	local colorHex = ITEM_QUALITY_COLORS[ item.quality ].hex or "|cffffffff";
-	local itemLink = string.format("|T".. item.icon ..":16|t "..colorHex.."|HDiceMaster4Item:"..UnitName("player")..":"..Me.newShopItem.itemIndex.."|h[%s]|h|r", item.name);
+	local itemLink = Me.GetItemLink( UnitName("player"), item.guid )
 	
 	Me.PrintMessage( "|cFFFFFF00" .. itemLink .. " has been added to your shop.|r", "SYSTEM" )
 	PlaySound(895)
@@ -400,9 +399,7 @@ function Me.ShopEditor_RequestItem( data, dist, sender )
 		return
 	end
 	
-	local icon = item.icon
-	local colorHex = ITEM_QUALITY_COLORS[ item.quality ].hex or "|cffffffff";
-	local itemLink = string.format("|T" .. item.icon.. ":16|t " .. colorHex .. "|HDiceMaster4Item:" .. UnitName("player") .. ":" .. itemID .. "|h[%s]|h|r", item.name );
+	local itemLink = Me.GetItemLink( UnitName("player"), item.guid )
 	
 	if item.stackCount > 1 then
 		Me.PrintMessage( "|cFFFFFF00" .. sender .. " has requested " .. itemLink .. "x" .. item.stackCount .. " from your inventory.|r", "SYSTEM" )
@@ -454,22 +451,7 @@ function Me.ShopEditor_BuyItem( data, dist, sender )
 	
 	PlaySound(120)
 	
-	if item.numAvailable then
-		item.numAvailable = item.numAvailable - data.amount
-		if item.numAvailable == 0 then
-			C_Timer.After( 3, function() 
-				tremove( Me.Profile.shop, data.itemId )
-				Me.ShopFrame_Update()
-			end )
-		end
-	end
-	
-	Me.ShopFrame_Update()
-	Me.TraitEditor_UpdateInventory()
-	
-	local icon = item.icon
-	local colorHex = ITEM_QUALITY_COLORS[ item.quality ].hex or "|cffffffff";
-	local itemLink = string.format("|T" .. item.icon.. ":16|t " .. colorHex .. "|HDiceMaster4Item:" .. UnitName("player") .. ":" .. data.itemId .. "|h[%s]|h|r", item.name );
+	local itemLink = Me.GetItemLink( UnitName("player"), item.guid )
 	
 	if item.stackCount > 1 then
 		Me.PrintMessage( "|cFFFFFF00" .. sender .. " has purchased " .. itemLink .. "x" .. item.stackCount .. " from your shop.|r", "SYSTEM" )
@@ -481,6 +463,20 @@ function Me.ShopEditor_BuyItem( data, dist, sender )
 	else
 		Me.PrintMessage( "|cFF00aa00You receive currency: |cFFFFFFFF[" .. currency.name .. "]|rx" .. item.price .. ".|r", "SYSTEM" )
 	end
+	
+	if item.numAvailable then
+		item.numAvailable = item.numAvailable - data.amount
+		if item.numAvailable == 0 then
+			Me.PrintMessage( "|cFFFFFF00" .. itemLink .. " is out of stock in your shop!|r", "SYSTEM" )
+			C_Timer.After( 3, function() 
+				--tremove( Me.Profile.shop, data.itemId )
+				Me.ShopFrame_Update()
+			end )
+		end
+	end
+	
+	Me.ShopFrame_Update()
+	Me.TraitEditor_UpdateInventory()
 end
 
 ---------------------------------------------------------------------------
@@ -558,6 +554,11 @@ function Me.ShopEditor_ReceiveItem( data, dist, sender )
 	local msg = Me:Serialize( "ITEM", item );
 	Me:SendCommMessage( "DCM4", msg, "WHISPER", UnitName("player"), "ALERT" )
 	
+	if item.numAvailable then
+		C_Timer.After( 3, function() 
+			Me.StatInspectorShopFrame_Update()
+		end )
+	end
 	Me.ShopFrame_Update()
 	Me.TraitEditor_UpdateInventory()
 	

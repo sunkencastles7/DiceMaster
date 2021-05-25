@@ -28,26 +28,6 @@ local DICEMASTER_LOOT_BORDERS = {
 	[7] = "loottoast-itemborder-heirloom",
 }
 
-local function GetItemLink( author, guid )
-	local found_item = false;
-	
-	for i = 1, 42 do
-		if Me.inspectData[author].inventory[i] and Me.inspectData[author].inventory[i].guid == guid then
-			found_item = i;
-			break
-		end
-	end
-	
-	if not found_item then
-		return
-	end
-	
-	local icon = Me.inspectData[author].inventory[tonumber(found_item)].icon
-	local name = Me.inspectData[author].inventory[tonumber(found_item)].name
-	local colorHex = ITEM_QUALITY_COLORS[ Me.inspectData[author].inventory[tonumber(found_item)].quality ].hex or "|cffffffff";
-	return string.format("|T"..icon..":16|t "..colorHex.."|HDiceMaster4Item:".. author ..":"..found_item.."|h[%s]|h|r", name);
-end
-
 function Me.LootToastFrame_OnEnter( self )
 	GameTooltip:SetOwner( self, "ANCHOR_RIGHT" )
 	local color = ITEM_QUALITY_COLORS[ self.itemData.quality ];
@@ -346,6 +326,17 @@ function Me.GroupLootFrame_DisableLootButton(button)
 	SetDesaturation(button:GetNormalTexture(), true);
 end
 
+local function GetNumActiveGroupLootFrames()
+	local f = 0
+	for i = 1, 4 do
+		frame = _G["DiceMasterGroupLootFrame"..i];
+		if ( frame:IsShown() ) then
+			f = f + 1
+		end
+	end
+	return f
+end
+
 local function PickGroupLootWinner( guid, dist, channel )
 	if not groupLootItems[ guid ] then
 		return
@@ -354,14 +345,15 @@ local function PickGroupLootWinner( guid, dist, channel )
 	local playerName = "";
 	local roll = 0;
 	local rollType = "Greed";
+	local rolls = groupLootItems[guid].rolls;
 	
-	for i = 1, #groupLootItems[guid].rolls do
-		if groupLootItems[guid].rolls[i].rollType == "Greed" and rollType == "Need" then
+	for i = 1, #rolls do
+		if rolls[i].rollType == "Greed" and rollType == "Need" then
 			-- ignore
-		elseif groupLootItems[guid].rolls[i].roll > roll then
-			playerName = groupLootItems[guid].rolls[ i ].name;
-			roll = groupLootItems[guid].rolls[ i ].roll
-			rollType = groupLootItems[guid].rolls[ i ].rollType
+		elseif rolls[i].roll > roll or ( rolls[i].rollType == "Need" and rollType == "Greed" ) then
+			playerName = rolls[ i ].name;
+			roll = rolls[ i ].roll
+			rollType = rolls[ i ].rollType
 		end
 	end
 	
@@ -383,21 +375,29 @@ local function PickGroupLootWinner( guid, dist, channel )
 			amount = groupLootItems[ guid ].amount;
 		});
 		Me:SendCommMessage( "DCM4", msg, dist, channel, "ALERT" )
-		
-		Me.ConsumeItem( guid, groupLootItems[ guid ].amount )
 	end
 	
 	Me.TraitEditor_UpdateInventory()
-	
-	groupLootItems[ guid ] = nil
 end
 
-function Me.GroupLootFrame_GroupLoot( item )
+function Me.GroupLootFrame_GroupLoot( item, button )
 	
 	if not Me.IsLeader( true ) then
 		UIErrorsFrame:AddMessage( "You must be the group leader or a raid assistant to dispense items.", 1.0, 0.0, 0.0, 53, 5 );
 		return
 	end
+	
+	if groupLootItems[ item.guid ] then
+		UIErrorsFrame:AddMessage( "You are already dispensing that item.", 1.0, 0.0, 0.0, 53, 5 );
+		return
+	end
+	
+	if GetNumActiveGroupLootFrames() >= 4 then
+		UIErrorsFrame:AddMessage( "You can only dispense four items at a time.", 1.0, 0.0, 0.0, 53, 5 );
+		return
+	end
+	
+	SetItemButtonDesaturated( button, true )
 	
 	local dist = "WHISPER"
 	local channel = UnitName( "player" )
@@ -409,7 +409,7 @@ function Me.GroupLootFrame_GroupLoot( item )
 		channel = nil
 	end
 	
-	Me.Inspect_SendStatus( dist, channel )
+	Me.Inspect_SendItemSlot( button.itemIndex, false, dist, channel )
 	
 	groupLootItems[ item.guid ] = {
 		rolls = {};
@@ -429,7 +429,7 @@ function Me.GroupLootFrame_Roll( self, rollType )
 		return
 	end
 	
-	local itemLink = GetItemLink( self:GetParent().sender, self:GetParent().itemData.guid ) or "[Unknown Item]"
+	local itemLink = Me.GetItemLink( self:GetParent().sender, self:GetParent().itemData.guid ) or "[Unknown Item]"
 	if self:GetParent().itemData.stackCount > 1 then
 		itemLink = itemLink .. "x" .. self:GetParent().itemData.stackCount
 	end	
@@ -528,7 +528,7 @@ function Me.LootToast_OnToast( data, dist, sender )
 		return
 	end
 	
-	local itemLink = GetItemLink( UnitName("player"), data.guid ) or "[Unknown Item]"
+	local itemLink = Me.GetItemLink( UnitName("player"), data.guid ) or "[Unknown Item]"
 	
 	if data.amount == 1 then
 		Me.PrintMessage( "|cFF00aa00You receive item: " .. itemLink .. ".|r", "SYSTEM" )
@@ -554,7 +554,7 @@ function Me.LootToast_OnGroupLoot( data, dist, sender )
 		return
 	end
 	
-	local itemLink = GetItemLink( sender, data.guid ) or "[Unknown Item]"
+	local itemLink = Me.GetItemLink( sender, data.guid ) or "[Unknown Item]"
 	if data.stackCount > 1 then
 		itemLink = itemLink .. "x" .. data.stackCount
 	end
@@ -578,7 +578,7 @@ function Me.LootToast_OnGroupLootMessage( data, dist, sender )
 	local roll = tonumber( data.ro )
 	local rollType = tostring( data.rt )
 	
-	local itemLink = GetItemLink( sender, data.guid ) or "[Unknown Item]"
+	local itemLink = Me.GetItemLink( sender, data.guid )
 	if data.amount and data.amount > 1 then
 		itemLink = itemLink .. "x" .. data.amount
 	end
@@ -626,6 +626,12 @@ function Me.LootToast_OnGroupLootMessage( data, dist, sender )
 		else
 			Me.PrintMessage( "|cFF00aa00[Loot]: " .. playerName .. " rolled " .. rollType .. " - " .. roll .. " for: " .. itemLink, "SYSTEM" )
 		end
+	end
+	
+	if data.wi and sender == UnitName("player") and groupLootItems[ data.guid ] then
+		Me.ConsumeItem( data.guid, groupLootItems[ data.guid ].amount )
+		Me.TraitEditor_UpdateInventory()
+		groupLootItems[ data.guid ] = nil
 	end
 end
 

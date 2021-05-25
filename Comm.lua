@@ -13,6 +13,7 @@ local MessageHandlers = {
  
 	INSP    = "Inspect_OnInspectMessage";
 	TRAIT   = "Inspect_OnTraitMessage";
+	INV		= "Inspect_OnItemSlotMessage";
 	STATUS  = "Inspect_OnStatusMessage";
 	STATS   = "Inspect_OnStatsMessage";
 	APPROVE = "Inspect_OnTraitApprove";

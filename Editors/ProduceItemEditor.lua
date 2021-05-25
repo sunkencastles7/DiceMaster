@@ -152,7 +152,7 @@ function Me.ProduceItemEditor_Load( effectIndex )
 end
 
 function Me.ProduceItemEditor_SaveEdits()
-	if not Me.ItemEditingIndex or not Me.produceItem.guid or not Me.EffectEditingIndex then
+	if not Me.produceItem.guid or not Me.EffectEditingIndex then
 		return
 	end
 	

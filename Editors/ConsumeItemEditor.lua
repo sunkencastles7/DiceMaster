@@ -150,7 +150,7 @@ function Me.ConsumeItemEditor_Load( effectIndex )
 end
 
 function Me.ConsumeItemEditor_SaveEdits()
-	if not Me.ItemEditingIndex or not Me.consumeItem.guid or not Me.EffectEditingIndex then
+	if not Me.consumeItem.guid or not Me.EffectEditingIndex then
 		return
 	end
 	

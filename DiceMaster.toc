@@ -41,6 +41,8 @@ Editors/ProduceItemEditor.lua
 Editors/ConsumeItemEditor.lua
 Editors/ProduceCurrencyEditor.lua
 Editors/ScreenEffectEditor.lua
+Editors/AdjustHealthEditor.lua
+Editors/MerchantEditor.lua
 ChatLinks.lua
 Names.lua
 MinimapButton.lua

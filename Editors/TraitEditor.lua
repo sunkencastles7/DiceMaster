@@ -27,6 +27,12 @@ local function FindStatByName( name )
 	end
 end
 
+local function TraitUpdated()
+	local trait = Profile.traits[Me.editing_trait]
+	Me.BumpSerial( Me.db.char.traitSerials, Me.editing_trait )
+	Me.UpdatePanelTraits()
+end
+
 StaticPopupDialogs["DICEMASTER4_CREATESTAT"] = {
   text = "Create New Statistic",
   button1 = "Create Statistic",
@@ -89,6 +95,47 @@ StaticPopupDialogs["DICEMASTER4_REMOVESHOPITEM"] = {
   preferredIndex = 3,
 }
 
+StaticPopupDialogs["DICEMASTER4_RESTOCKSHOPITEM"] = {
+  text = "Amount to restock:",
+  button1 = "Accept",
+  button2 = "Cancel",
+  OnShow = function (self, data)
+	local item = Me.Profile.shop[ data ]
+	if not item or not item.numAvailable or item.numAvailable > 0 then
+		return
+	end
+	
+	local maxAmount = Me.FindTotalAmount( item.guid ) or 1;
+	
+    self.editBox:SetText( maxAmount )
+	self.editBox:HighlightText()
+	self.editBox:SetFocus()
+  end,
+  OnAccept = function (self, data)
+	local item = Me.Profile.shop[ data ]
+	if not item or not item.numAvailable or item.numAvailable > 0 then
+		return
+	end
+	PlaySound(895)
+	
+	local maxAmount = Me.FindTotalAmount( item.guid ) or 1;
+	local amount = tonumber( self.editBox:GetText() ) or 1;
+	
+	if amount > maxAmount then
+		return
+	end
+	
+	Me.Profile.shop[ data ].numAvailable = amount
+	Me.ShopFrame_Update()
+	Me.Inspect_ShareStatusWithParty()
+  end,
+  hasEditBox = true,
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  preferredIndex = 3,
+}
+
 StaticPopupDialogs["DICEMASTER4_EXPORT"] = {
   text = "Copy the following import code:",
   button1 = "Okay",
@@ -132,6 +179,8 @@ StaticPopupDialogs["DICEMASTER4_IMPORTTRAIT"] = {
 	else
 		UIErrorsFrame:AddMessage( "Corrupt trait data found. Unable to import code.", 1.0, 0.0, 0.0, 53, 5 );
 	end
+	TraitUpdated()
+	Me.TraitEditor_StartEditing( Me.editing_trait )
   end,
   hasEditBox = true,
   timeout = 0,
@@ -205,7 +254,7 @@ StaticPopupDialogs["DICEMASTER4_DELETETRAIT"] = {
   OnAccept = function (self, data)
 	Me.TraitEditor_SelectIcon( "Interface/Icons/inv_misc_questionmark" )
     Me.editor.scrollFrame.Container.traitName:SetText("Trait Name")
-	Me.editor.scrollFrame.Container.descEditor:SetText("")
+	Me.editor.scrollFrame.Container.descEditor:SetText("Type a description for your trait here.")
 	Me.TraitEditor_SaveName()
 	Me.TraitEditor_SaveDescription()
 	if not Me.editing_trait then return end
@@ -252,6 +301,7 @@ local INVENTORY_TUTORIAL = {
 }
 
 local SHOP_TUTORIAL = {
+	"Toggle whether or not your shop is active, allowing other players to access your shop from the Inspect Frame.",
 	"You can add items to your shop from your inventory, enabling other players to browse and purchase them using a custom currency.",
 	"Right click the currency frame to change which of your custom currencies is displayed, or create a new one.",
 }
@@ -905,7 +955,7 @@ function Me.TraitEditor_UpdateInventory()
 		end
 		GameTooltip:Show();
 	end)
-	Me.Inspect_SendStatus( "RAID" )
+	Me.Inspect_ShareStatusWithParty()
 end
 
 function Me.ShopFrame_SelectIcon( texture )
@@ -945,7 +995,7 @@ function Me.ShopFrame_OnMouseWheel(self, value)
 end
 
 function Me.ShopFrame_Update()
-	DiceMasterTraitEditorShopTab.Icon:SetTexture( Me.Profile.shopIcon or "Interface/Icons/garrison_building_tradingpost" )
+	DiceMasterTraitEditorShopTab.Icon:SetTexture( Me.Profile.shopIcon or "Interface/Icons/garrison_building_tradingpost" )	
 	local currencyActive = Me.Profile.currencyActive or 1;
 	local currency = Me.Profile.currency[currencyActive]
 	DiceMasterTraitEditorShopFrameMoneyBgMoney:SetText( currency.value .. "|T" .. currency.icon .. ":12|t" )
@@ -975,6 +1025,7 @@ function Me.ShopFrame_Update()
 		local merchantButton = _G["DiceMasterTraitEditorShopFrameItem"..i];
 		local merchantMoney = _G["DiceMasterTraitEditorShopFrameItem"..i.."MoneyFrame"];		
 		local removeButton = _G["DiceMasterTraitEditorShopFrameItem"..i.."RemoveButton"];		
+		local restockButton = _G["DiceMasterTraitEditorShopFrameItem"..i.."RestockButton"];		
 		if ( index <= numMerchantItems ) then
 			local item = Me.Profile.shop[index]
 			name = item.name
@@ -1022,6 +1073,7 @@ function Me.ShopFrame_Update()
 			itemButton.description = description
 			
 			removeButton:Show()
+			restockButton:Hide()
 
 			if ( quality ) then
 				merchantButton.Name:SetTextColor(ITEM_QUALITY_COLORS[quality].r, ITEM_QUALITY_COLORS[quality].g, ITEM_QUALITY_COLORS[quality].b);
@@ -1068,6 +1120,7 @@ function Me.ShopFrame_Update()
 					SetItemButtonTextureVertexColor(itemButton, 0.5, 0.5, 0.5);
 					SetItemButtonNormalTextureVertexColor(itemButton,0.5, 0.5, 0.5);
 				end
+				restockButton:Show()
 			elseif ( tintRed ) then
 				SetItemButtonNameFrameVertexColor(merchantButton, 1.0, 0, 0);
 				SetItemButtonSlotVertexColor(merchantButton, 1.0, 0, 0);
@@ -1119,7 +1172,7 @@ function Me.ShopFrame_Update()
 	MerchantItem7:SetPoint("TOPLEFT", "MerchantItem5", "BOTTOMLEFT", 0, -8);
 	MerchantItem9:SetPoint("TOPLEFT", "MerchantItem7", "BOTTOMLEFT", 0, -8);
 	
-	Me.Inspect_SendStatus( "RAID" )
+	Me.Inspect_ShareStatusWithParty()
 end
 
 function Me.ShopFramePrevPageButton_OnClick()
@@ -1467,7 +1520,7 @@ DiceMasterTraitEditorTutorialMixin = {}
 function DiceMasterTraitEditorTutorialMixin:OnLoad()
 	self.helpInfo = {
 		FramePos = { x = 0,	y = -20 },
-		FrameSize = { width = 336, height = 444	},
+		FrameSize = { width = 336, height = 430	},
 	};
 end
 
@@ -1494,25 +1547,26 @@ function DiceMasterTraitEditorTutorialMixin:ToggleHelpInfo()
 		self.helpInfo[i] = nil;
 	end
 	if ( DiceMasterTraitsFrame:IsShown() ) then
-		self.helpInfo[1] = { ButtonPos = { x = 140,	y = 2 }, HighLightBox = { x = 60, y = -2, width = 200, height = 39 },	ToolTipDir = "DOWN", ToolTipText = TRAIT_EDITOR_TUTORIAL[1] };
-		self.helpInfo[2] = { ButtonPos = { x = 146,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 320, height = 338 },	ToolTipDir = "DOWN", ToolTipText = TRAIT_EDITOR_TUTORIAL[2] };
-		self.helpInfo[3] = { ButtonPos = { x = 146,	y = -386 }, HighLightBox = { x = 10, y = -390, width = 320, height = 39 },	ToolTipDir = "UP", ToolTipText = TRAIT_EDITOR_TUTORIAL[3] };
+		self.helpInfo[1] = { ButtonPos = { x = 135,	y = 2 }, HighLightBox = { x = 64, y = -2, width = 190, height = 39 },	ToolTipDir = "DOWN", ToolTipText = TRAIT_EDITOR_TUTORIAL[1] };
+		self.helpInfo[2] = { ButtonPos = { x = 135,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 295, height = 335 },	ToolTipDir = "DOWN", ToolTipText = TRAIT_EDITOR_TUTORIAL[2] };
+		self.helpInfo[3] = { ButtonPos = { x = 145,	y = -381 }, HighLightBox = { x = 10, y = -385, width = 315, height = 35 },	ToolTipDir = "UP", ToolTipText = TRAIT_EDITOR_TUTORIAL[3] };
 	elseif ( DiceMasterStatsFrame:IsShown() ) then
-		self.helpInfo[1] = { ButtonPos = { x = 146,	y = 2 }, HighLightBox = { x = 50, y = -2, width = 280, height = 39 },	ToolTipDir = "DOWN", ToolTipText = STATS_TUTORIAL[1] };
-		self.helpInfo[2] = { ButtonPos = { x = 146,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 320, height = 352 },	ToolTipDir = "DOWN", ToolTipText = STATS_TUTORIAL[2] };
-		self.helpInfo[3] = { ButtonPos = { x = 146,	y = -392 }, HighLightBox = { x = 10, y = -403, width = 320, height = 24 },	ToolTipDir = "UP", ToolTipText = STATS_TUTORIAL[3] };
+		self.helpInfo[1] = { ButtonPos = { x = 145,	y = 2 }, HighLightBox = { x = 50, y = -2, width = 280, height = 39 },	ToolTipDir = "DOWN", ToolTipText = STATS_TUTORIAL[1] };
+		self.helpInfo[2] = { ButtonPos = { x = 135,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 295, height = 346 },	ToolTipDir = "DOWN", ToolTipText = STATS_TUTORIAL[2] };
+		self.helpInfo[3] = { ButtonPos = { x = 145,	y = -388 }, HighLightBox = { x = 110, y = -397, width = 120, height = 24 },	ToolTipDir = "UP", ToolTipText = STATS_TUTORIAL[3] };
 	elseif ( DiceMasterPetFrame:IsShown() ) then
-		self.helpInfo[1] = { ButtonPos = { x = 146,	y = 2 }, HighLightBox = { x = 50, y = -2, width = 280, height = 39 },	ToolTipDir = "DOWN", ToolTipText = PETS_TUTORIAL[1] };
-		self.helpInfo[2] = { ButtonPos = { x = 146,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 320, height = 352 },	ToolTipDir = "DOWN", ToolTipText = PETS_TUTORIAL[2] };
-		self.helpInfo[3] = { ButtonPos = { x = 146,	y = -392 }, HighLightBox = { x = 10, y = -403, width = 320, height = 24 },	ToolTipDir = "UP", ToolTipText = PETS_TUTORIAL[3] };
+		self.helpInfo[1] = { ButtonPos = { x = 145,	y = 2 }, HighLightBox = { x = 50, y = -2, width = 275, height = 39 },	ToolTipDir = "DOWN", ToolTipText = PETS_TUTORIAL[1] };
+		self.helpInfo[2] = { ButtonPos = { x = 145,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 315, height = 348 },	ToolTipDir = "DOWN", ToolTipText = PETS_TUTORIAL[2] };
+		self.helpInfo[3] = { ButtonPos = { x = 145,	y = -388 }, HighLightBox = { x = 110, y = -397, width = 120, height = 24 },	ToolTipDir = "UP", ToolTipText = PETS_TUTORIAL[3] };
 	elseif ( DiceMasterTraitEditorInventoryFrame:IsShown() ) then
-		self.helpInfo[1] = { ButtonPos = { x = 95,	y = -2 }, HighLightBox = { x = 100, y = -9, width = 224, height = 32 },	ToolTipDir = "DOWN", ToolTipText = INVENTORY_TUTORIAL[1] };
-		self.helpInfo[2] = { ButtonPos = { x = 146,	y = -180 }, HighLightBox = { x = 15, y = -47, width = 308, height = 312 },	ToolTipDir = "DOWN", ToolTipText = INVENTORY_TUTORIAL[2] };
-		self.helpInfo[3] = { ButtonPos = { x = 146,	y = -358 }, HighLightBox = { x = 10, y = -365, width = 320, height = 32 },	ToolTipDir = "UP", ToolTipText = INVENTORY_TUTORIAL[3] };
-		self.helpInfo[4] = { ButtonPos = { x = 150,	y = -392 }, HighLightBox = { x = 160, y = -403, width = 180, height = 24 },	ToolTipDir = "UP", ToolTipText = INVENTORY_TUTORIAL[4] };
+		self.helpInfo[1] = { ButtonPos = { x = 145,	y = -2 }, HighLightBox = { x = 70, y = -9, width = 249, height = 32 },	ToolTipDir = "DOWN", ToolTipText = INVENTORY_TUTORIAL[1] };
+		self.helpInfo[2] = { ButtonPos = { x = 145,	y = -180 }, HighLightBox = { x = 15, y = -47, width = 303, height = 310 },	ToolTipDir = "DOWN", ToolTipText = INVENTORY_TUTORIAL[2] };
+		self.helpInfo[3] = { ButtonPos = { x = 145,	y = -353 }, HighLightBox = { x = 10, y = -364, width = 315, height = 24 },	ToolTipDir = "UP", ToolTipText = INVENTORY_TUTORIAL[3] };
+		self.helpInfo[4] = { ButtonPos = { x = 150,	y = -387 }, HighLightBox = { x = 160, y = -397, width = 175, height = 24 },	ToolTipDir = "UP", ToolTipText = INVENTORY_TUTORIAL[4] };
 	elseif ( DiceMasterTraitEditorShopFrame:IsShown() ) then
-		self.helpInfo[1] = { ButtonPos = { x = 146,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 320, height = 352 },	ToolTipDir = "DOWN", ToolTipText = SHOP_TUTORIAL[1] };
-		self.helpInfo[2] = { ButtonPos = { x = 150,	y = -392 }, HighLightBox = { x = 160, y = -403, width = 180, height = 24 },	ToolTipDir = "UP", ToolTipText = SHOP_TUTORIAL[2] };
+		self.helpInfo[1] = { ButtonPos = { x = 145,	y = 2 }, HighLightBox = { x = 50, y = -2, width = 275, height = 39 },	ToolTipDir = "DOWN", ToolTipText = SHOP_TUTORIAL[1] };
+		self.helpInfo[2] = { ButtonPos = { x = 145,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 315, height = 348 },	ToolTipDir = "DOWN", ToolTipText = SHOP_TUTORIAL[2] };
+		self.helpInfo[3] = { ButtonPos = { x = 150,	y = -387 }, HighLightBox = { x = 160, y = -397, width = 175, height = 24 },	ToolTipDir = "UP", ToolTipText = SHOP_TUTORIAL[3] };
 	end
 
 	if ( not HelpPlate:IsShown() and traitFrame:IsShown()) then
@@ -1546,6 +1600,23 @@ function Me.TraitEditor_OnLoad( self )
 		self.trait_buttons[i]:SetScript( "OnMouseDown", function( self, button )
 			Me.TraitEditor_OnTraitClicked( self, button )
 		end)
+	end
+end
+
+-------------------------------------------------------------------------------
+-- When a new tab is selected.
+--
+function Me.TraitEditor_OnTabChanged()
+	local charName, charRace, charClass, charColor = Me.GetCharInfo()
+	SetPortraitTexture( Me.editor.portrait, "player" )
+	Me.editor.TitleText:SetText( charName )
+	if DiceMasterTraitEditorShopFrame:IsShown() then
+		if Me.Profile.shopModel then
+			SetPortraitTextureFromCreatureDisplayID( Me.editor.portrait, Me.Profile.shopModel )
+		end
+		if Me.Profile.shopName then
+			Me.editor.TitleText:SetText( Me.Profile.shopName ) 
+		end
 	end
 end
 
@@ -1663,15 +1734,6 @@ function Me.TraitEditor_Refresh()
 		Me.editor.trait_buttons[i]:Select( false )
 	end
 	Me.editor.trait_buttons[Me.editing_trait]:Select( true )
-end
-
--------------------------------------------------------------------------------
--- Call this after changing a trait's data.
---
-local function TraitUpdated()
-	local trait = Profile.traits[Me.editing_trait]
-	Me.BumpSerial( Me.db.char.traitSerials, Me.editing_trait )
-	Me.UpdatePanelTraits()
 end
 
 function Me.TraitEditor_ExportTrait()

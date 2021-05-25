@@ -23,6 +23,7 @@ local EffectHandlers = {
 	["effect"]	= "EffectPicker_PlayEffect";
 	["screeneffect"] = "ScreenEffectEditor_PlayEffect";
 	["sound"]	= "SoundPicker_PlaySound";
+	["health"] = "AdjustHealthEditor_AdjustHealth",
 }
 
 local function ExecuteEffects( effects )
@@ -397,7 +398,7 @@ local function OnEnter( self )
 		end
 	elseif self.itemShop then
 		Me.OpenItemTooltip( self, self.itemShop, self.itemIndex, true )
-		if ( self:CanAffordShopItem() == false ) then
+		if ( self:CanAffordShopItem() == false or self:OutOfStock() ) then
 			SetCursor("BUY_ERROR_CURSOR");
 		else
 			SetCursor("BUY_CURSOR");
@@ -582,8 +583,7 @@ local function OnClick( self, button )
 				return
 			end
 			Me.ClearCursorActions( true, true, true )
-			Me.GroupLootFrame_GroupLoot( item )
-			SetItemButtonDesaturated( self, true )
+			Me.GroupLootFrame_GroupLoot( item, self )
 		elseif cursorIcon.itemID then
 			if self.hasItem then
 				local itemOne = Me.Profile.inventory[self.itemIndex]
@@ -675,7 +675,8 @@ local function OnClick( self, button )
 			if dist == "WHISPER" then
 				channel = ACTIVE_CHAT_EDIT_BOX:GetAttribute("tellTarget") or nil
 			end
-			Me.Inspect_SendStatus( dist, channel )
+			-- Me.Inspect_SendStatus( dist, channel )
+			Me.Inspect_SendItemSlot( self.itemIndex, false, dist, channel )
 			-- Create chat link.
 			
 			-- We convert item names' spaces to U+00A0 No-Break Space
@@ -691,7 +692,7 @@ local function OnClick( self, button )
 			--                                            no-break-space -'
 			
 			ChatEdit_InsertLink(
-				string.format( "[DiceMaster4Item:%s:%d:%s]", UnitName("player"), self.itemIndex, name ) ) 
+				string.format( "[DiceMaster4Item:%s:%s:%s]", UnitName("player"), item.guid, name ) ) 
 			
 		elseif self.hasItem and IsShiftKeyDown() and item.stackCount > 1 then
 			-- split item stackCount
@@ -782,9 +783,7 @@ local function OnPlayerInventoryClick( self, button )
 				
 			Me:SendCommMessage( "DCM4", msg, "WHISPER", self.itemPlayer, "ALERT" )
 			
-			local icon = item.icon
-			local colorHex = ITEM_QUALITY_COLORS[ item.quality ].hex or "|cffffffff";
-			local itemLink = string.format("|T" .. icon .. ":16|t " .. colorHex .. "|HDiceMaster4Item:" .. self.itemPlayer .. ":" .. self.itemIndex .. "|h[%s]|h|r", item.name );
+			local itemLink = Me.GetItemLink( self.itemPlayer, item.guid )
 			
 			if item.stackCount > 1 then
 				Me.PrintMessage( "|cFFFFFF00You have requested " .. itemLink .. "x" .. item.stackCount .. " from " .. self.itemPlayer .. ".|r", "SYSTEM" )
@@ -811,7 +810,8 @@ local function OnPlayerInventoryClick( self, button )
 			if dist == "WHISPER" then
 				channel = ACTIVE_CHAT_EDIT_BOX:GetAttribute("tellTarget") or nil
 			end
-			Me.Inspect_SendStatus( dist, channel )
+			-- Me.Inspect_SendStatus( dist, channel )
+			Me.Inspect_SendItemSlot( self.itemIndex, false, dist, channel )
 			-- Create chat link.
 			
 			-- We convert item names' spaces to U+00A0 No-Break Space
@@ -827,7 +827,7 @@ local function OnPlayerInventoryClick( self, button )
 			--                                            no-break-space -'
 			
 			ChatEdit_InsertLink(
-				string.format( "[DiceMaster4Item:%s:%d:%s]", self.itemPlayer, self.itemIndex, name ) ) 
+				string.format( "[DiceMaster4Item:%s:%s:%s]", self.itemPlayer, item.guid, name ) ) 
 		end
 	end
 end
@@ -863,6 +863,11 @@ local function PurchaseItem( item, amount )
 		end
 		
 		if data.price * amount > currency.value then
+			UIErrorsFrame:AddMessage( "You don't have enough " .. currency.name .. ".", 1.0, 0.0, 0.0, 53, 5 );
+			return
+		end
+		
+		if item:OutOfStock() then
 			UIErrorsFrame:AddMessage( "You do not have the required items for that purchase.", 1.0, 0.0, 0.0, 53, 5 );
 			return
 		end
@@ -903,7 +908,7 @@ local function PurchaseItem( item, amount )
 		-- Send purchase approval.
 		local msg = Me:Serialize( "ITEMBUY", {
 			itemId = item.itemIndex;
-			amount = amount * data.stackSize;
+			amount = amount * data.stackCount;
 		})
 			
 		Me:SendCommMessage( "DCM4", msg, "WHISPER", item.itemShop, "ALERT" )
@@ -1127,6 +1132,17 @@ local methods = {
 		if ( split > 0 ) then
 			Me.ShopFrame_PurchaseItem( self.itemIndex, split )
 		end
+	end;
+	
+	OutOfStock = function( self )
+		if Me.inspectData[self.itemShop].shop[self.itemIndex] then
+			local item = Me.inspectData[self.itemShop].shop[self.itemIndex]
+			
+			if not item.numAvailable or item.numAvailable > 0 then
+				return false;
+			end
+		end
+		return true;
 	end;
 	
 	CanAffordShopItem = function( self, amount )

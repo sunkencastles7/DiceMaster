@@ -54,7 +54,7 @@ function Me.ScriptEditor_Load( effectIndex )
 end
 
 function Me.ScriptEditor_SaveEdits()
-	if not Me.ItemEditingIndex or not Me.EffectEditingIndex then
+	if not Me.EffectEditingIndex then
 		return
 	end
 	

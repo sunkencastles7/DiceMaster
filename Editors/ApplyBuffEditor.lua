@@ -164,7 +164,7 @@ function Me.BuffEditor_Save()
 end
 
 function Me.BuffEditor_SaveEdits()
-	if not Me.ItemEditingIndex or not Me.EffectEditingIndex then
+	if not Me.EffectEditingIndex then
 		return
 	end
 	

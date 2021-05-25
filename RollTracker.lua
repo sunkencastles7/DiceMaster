@@ -2384,7 +2384,7 @@ function Me.RollTracker_OnMapNodesMessage( data, dist, sender )
 	end
 	
 	-- store in database
-	Me.inspectData[sender].mapNodes = data.nodes
+	Me.inspectData[sender].mapNodes = data.nodes or {}
 	
 	Me.UpdateAllMapNodes();
 end

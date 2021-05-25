@@ -277,6 +277,41 @@
 				<HighlightTexture file="Interface\Buttons\UI-GroupLoot-Pass-Highlight" alphaMode="ADD"/>
 				<PushedTexture file="Interface\Buttons\UI-GroupLoot-Pass-Down"/>
 			</Button>
+			<Button parentKey="RestockButton" name="$parentRestockButton" hidden="true">
+				<Size x="16" y="16"/>
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.RemoveButton" relativePoint="LEFT" x="0" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK" textureSubLevel="5">
+						<Texture parentKey="Icon" file="Interface\Buttons\UI-RefreshButton">
+							<Size x="16" y="16"/>
+							<Anchors>
+								<Anchor point="CENTER" x="-1" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnMouseDown>
+						self.Icon:SetPoint("CENTER", self, "CENTER", -2, -1);
+					</OnMouseDown>
+					<OnMouseUp>
+						self.Icon:SetPoint("CENTER", self, "CENTER", -1, 0);
+					</OnMouseUp>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+						GameTooltip:SetText( "Restock" )
+						GameTooltip:Show()
+					</OnEnter>
+					<OnClick>
+						StaticPopup_Show("DICEMASTER4_RESTOCKSHOPITEM", nil, nil, self:GetParent().ItemButton:GetID())
+					</OnClick>
+					<OnLeave>
+						GameTooltip:Hide()
+					</OnLeave>
+				</Scripts>
+			</Button>
 			<Frame name="$parentMoneyFrame" hidden="false">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="$parentNameFrame" relativePoint="BOTTOMLEFT">
@@ -367,6 +402,7 @@
         DiceMaster4.TraitEditor_OnLoad( self )
 		PanelTemplates_SetNumTabs(self, 3);
 	    PanelTemplates_SetTab(self, 1);
+		DiceMaster4.TraitEditor_OnTabChanged()
       </OnLoad>
       <OnShow>
         
@@ -1138,6 +1174,61 @@
 			</Layer>
 		</Layers>
 		<Frames>
+			<Button parentKey="EditMerchantButton" name="$parentEditMerchantButton">
+				<Size x="16" y="16"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativeTo="DiceMasterTraitEditorPortrait" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK" textureSubLevel="5">
+						<Texture parentKey="Icon" file="Interface\Buttons\UI-OptionsButton">
+							<Size x="16" y="16"/>
+							<Anchors>
+								<Anchor point="CENTER" x="-1" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnMouseDown>
+						self.Icon:SetPoint("CENTER", self, "CENTER", -2, -1);
+					</OnMouseDown>
+					<OnMouseUp>
+						self.Icon:SetPoint("CENTER", self, "CENTER", -1, 0);
+					</OnMouseUp>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+						GameTooltip:SetText( "Edit Merchant" )
+						GameTooltip:Show()
+					</OnEnter>
+					<OnClick>
+						DiceMaster4.MerchantEditor_Open( DiceMasterTraitEditor )
+					</OnClick>
+					<OnLeave>
+						GameTooltip:Hide()
+					</OnLeave>
+				</Scripts>
+			</Button>
+			<CheckButton name="$parentEnable" parentKey="enable" inherits="UICheckButtonTemplate">
+				<Size x="24" y="24"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" relativeTo="DiceMasterTraitEditor" x="58" y="-22"/>
+				</Anchors>
+				
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("Enable Shop") 
+					</OnLoad>
+					<OnShow>
+						self:SetChecked( not( DiceMaster4.Profile.hideShop ) )
+					</OnShow>
+					<OnClick>
+						DiceMaster4.Profile.hideShop = not( self:GetChecked() )
+						DiceMaster4.Inspect_ShareStatusWithParty()
+						PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+					</OnClick>
+				</Scripts>
+			</CheckButton>
 			<Frame name="$parentItem1" inherits="DiceMasterShopItemTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="7" y="-8"/>
@@ -1343,6 +1434,7 @@
 					DiceMasterTraitEditorShopFrame:Hide()
 					DiceMasterTraitEditorShopTab:SetChecked( false )
 					PlaySound(841)
+					DiceMaster4.TraitEditor_OnTabChanged()
 				</OnClick>
 			</Scripts>
 		</Button>
@@ -1372,6 +1464,7 @@
 				DiceMasterTraitEditorShopFrame:Hide()
 				DiceMasterTraitEditorShopTab:SetChecked( false )									
 				PlaySound(841)
+				DiceMaster4.TraitEditor_OnTabChanged()
 			</OnClick>
 		</Scripts>
 	  </Button>
@@ -1402,6 +1495,7 @@
 				DiceMasterTraitEditorShopFrame:Hide()
 				DiceMasterTraitEditorShopTab:SetChecked( false )									
 				PlaySound(841)
+				DiceMaster4.TraitEditor_OnTabChanged()
 			</OnClick>
 		</Scripts>
 	  </Button>
@@ -1457,6 +1551,7 @@
 					self:SetChecked( not self:GetChecked() )
 					DiceMaster4.IconPicker_Open( DiceMasterTraitEditorInventoryTab, true )
 				end
+				DiceMaster4.TraitEditor_OnTabChanged()
 			</OnClick>
 			<OnEnter>
 				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
@@ -1524,6 +1619,7 @@
 					self:SetChecked( not self:GetChecked() )
 					DiceMaster4.IconPicker_Open( DiceMasterTraitEditorShopTab, true )
 				end
+				DiceMaster4.TraitEditor_OnTabChanged()
 			</OnClick>
 			<OnEnter>
 				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");

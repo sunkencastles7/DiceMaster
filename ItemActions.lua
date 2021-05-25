@@ -27,6 +27,16 @@ function Me.FindTotalStacks( guid )
 	return c;
 end
 
+function Me.FindTotalAmount( guid )
+	local c = 0
+	for i = 1, 42 do
+		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == guid then
+			c = c + Me.Profile.inventory[i].stackCount
+		end
+	end
+	return c;
+end
+
 function Me.FindFirstStack( guid )
 	for i = 1, 42 do
 		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == guid then
@@ -77,6 +87,11 @@ function Me.GetItemInfo( guid )
 	end
 	
 	return data;
+end
+
+function Me.GetItemGUID()
+	
+
 end
 
 function Me.InsertItem( item, amount )
@@ -183,4 +198,24 @@ function Me.ConsumeItem( guid, amount )
 		end
 	end
 	Me.TraitEditor_UpdateInventory()
+end
+
+function Me.GetItemLink( player, guid )
+	local found_item = false;
+	
+	for i = 1, 42 do
+		if Me.inspectData[player].inventory[i] and Me.inspectData[player].inventory[i].guid == guid then
+			found_item = i;
+			break
+		end
+	end
+	
+	if not found_item then
+		return "|TInterface/Icons/inv_misc_questionmark:16|t |cffffffff[Unknown Item]|r";
+	end
+	
+	local icon = Me.inspectData[player].inventory[tonumber(found_item)].icon
+	local name = Me.inspectData[player].inventory[tonumber(found_item)].name
+	local colorHex = ITEM_QUALITY_COLORS[ Me.inspectData[player].inventory[tonumber(found_item)].quality ].hex or "|cffffffff";
+	return string.format("|T"..icon..":16|t "..colorHex.."|HDiceMaster4Item:".. player ..":"..guid.."|h[%s]|h|r", name);
 end

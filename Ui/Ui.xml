@@ -216,6 +216,7 @@
   <Include file="Ui\Editors\TraitEditor.xml"/>
   <Include file="Ui\Editors\ItemEditor.xml"/>
   <Include file="Ui\Editors\ShopEditor.xml"/>
+  <Include file="Ui\Editors\MerchantEditor.xml"/>
   <Include file="Ui\Editors\ApplyBuffEditor.xml"/>
   <Include file="Ui\Editors\RemoveBuffEditor.xml"/>
   <Include file="Ui\Editors\SetDiceEditor.xml"/>
@@ -225,6 +226,7 @@
   <Include file="Ui\Editors\ConsumeItemEditor.xml"/>
   <Include file="Ui\Editors\ProduceCurrencyEditor.xml"/>
   <Include file="Ui\Editors\ScreenEffectEditor.xml"/>
+  <Include file="Ui\Editors\AdjustHealthEditor.xml"/>
   <Include file="Ui\Editors\Book.xml"/>
   
   <!-- Pickers -->

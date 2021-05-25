@@ -143,7 +143,7 @@ function Me.ScreenEffectEditor_Load( effectIndex )
 end
 
 function Me.ScreenEffectEditor_SaveEdits()
-	if not Me.ItemEditingIndex or not Me.EffectEditingIndex then
+	if not Me.EffectEditingIndex then
 		return
 	end
 	

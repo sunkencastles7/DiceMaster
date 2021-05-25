@@ -99,6 +99,9 @@ local DB_DEFAULTS = {
 		inventoryIcon = "Interface/Buttons/Button-Backpack-Up";
 		shop		 = {};
 		shopIcon = "Interface/Icons/garrison_building_tradingpost";
+		shopName = false;
+		shopModel = false;
+		hideShop = false;
 		currency     = {
 			{
 				name = "DiceMaster Coins";
@@ -280,7 +283,7 @@ Me.configOptions = {
 			set = function( info, val )
 				Me.db.global.hideInventory = val
 				Me.Inspect_Open( Me.inspectName )
-				-- refresh hidden status.
+				Me.Inspect_ShareStatusWithParty()
 			end;
 			get = function( info ) return Me.db.global.hideInventory end;
 		};

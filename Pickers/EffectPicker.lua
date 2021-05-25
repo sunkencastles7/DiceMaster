@@ -298,7 +298,7 @@ function Me.EffectPicker_Save()
 end
 
 function Me.EffectPicker_SaveEdits()
-	if not Me.ItemEditingIndex or not Me.EffectEditingIndex then
+	if not Me.EffectEditingIndex then
 		return
 	end
 	

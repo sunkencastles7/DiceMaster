@@ -142,7 +142,7 @@ function Me.ProduceCurrencyEditor_Save()
 end
 
 function Me.ProduceCurrencyEditor_SaveEdits()
-	if not Me.ItemEditingIndex or not Me.EffectEditingIndex then
+	if not Me.EffectEditingIndex then
 		return
 	end
 	

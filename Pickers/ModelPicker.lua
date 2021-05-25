@@ -263,17 +263,29 @@ function Me.ModelPickerButton_OnClick( self, button )
 	end
 	
 	if button == "LeftButton" then
-		if Me.ModelEditing and ( Me.ModelEditing == DiceMasterPetFrame.petModel or Me.IsLeader( true ) ) then
-			Me.ModelEditing:ClearModel()
-			Me.ModelEditing:SetDisplayInfo(value)
-			PlaySound(83)
-			
-			Me.ModelEditing.checked = value;
-			self.check:Show()
-			
-			Me.ModelEditing.scrollposition = DiceMasterModelPicker.selectorFrame.scroller:GetValue()
-			Me.UpdateUnitFrames()
-			Me.ModelPicker_RefreshGrid()
+		if Me.ModelEditing then
+			if Me.ModelEditing == DiceMasterMerchantEditor.merchantPreview then
+				SetPortraitTextureFromCreatureDisplayID( Me.ModelEditing, value )
+				Me.MerchantEditor_SaveModel( value )
+				PlaySound(83)
+				
+				Me.ModelEditing.checked = value;
+				self.check:Show()
+				
+				Me.ModelEditing.scrollposition = DiceMasterModelPicker.selectorFrame.scroller:GetValue()
+				Me.ModelPicker_RefreshGrid()
+			elseif Me.ModelEditing == DiceMasterPetFrame.petModel or Me.IsLeader( true ) then
+				Me.ModelEditing:ClearModel()
+				Me.ModelEditing:SetDisplayInfo(value)
+				PlaySound(83)
+				
+				Me.ModelEditing.checked = value;
+				self.check:Show()
+				
+				Me.ModelEditing.scrollposition = DiceMasterModelPicker.selectorFrame.scroller:GetValue()
+				Me.UpdateUnitFrames()
+				Me.ModelPicker_RefreshGrid()
+			end
 		end
 	elseif button == "RightButton" then
 		local height = self:GetHeight()

@@ -86,8 +86,12 @@ local function PrimeInspectData( name )
 		};
 		inventory	  = {};
 		inventoryIcon = "Interface/Buttons/Button-Backpack-Up";
+		hideInventory = false;
 		shop		  = {};
 		shopIcon = "Interface/Icons/garrison_building_tradingpost";
+		shopName = false;
+		shopModel = false;
+		hideShop = false;
 		currency 	  = {};
 		currencyActive = 1;
 		mapNodes 	  = {};
@@ -105,6 +109,8 @@ end
 --
 setmetatable( Me.inspectData, {
 	__index = function( table, key )
+		
+		if key == nil then return end
 		
 		PrimeInspectData( key )
 		return table[key]
@@ -459,9 +465,7 @@ function Me.Inspect_Open( name )
 	end
 	if name == nil then return end
 	
-	Me.StatInspector_Update()
-	Me.StatInspector_UpdatePet()
-	Me.StatInspector_UpdateInventory()							   
+	Me.StatInspector_Update()				   
 	
 	Me.Inspect_UpdatePlayer( name )
 	Me.Inspect_Refresh( true, "all" ) 
@@ -721,6 +725,95 @@ function Me.Inspect_SendTrait( index, dist, channel )
     Me:SendCommMessage( "DCM4", msg, dist, channel, "ALERT" )
 end
 
+local function DoSendInventory( dist, channel )
+
+	if Me.db.global.hideInventory then
+		return
+	end
+
+	for i = 1, 42 do
+		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid then
+			Me.Inspect_SendItemSlot( i, false, dist, channel )
+		end
+	end
+end
+
+local function DoSendShop( dist, channel )
+
+	if Me.Profile.hideShop then
+		return
+	end
+
+	for i = 1, #Me.Profile.shop do
+		if Me.Profile.shop[i] and Me.Profile.shop[i].guid then
+			Me.Inspect_SendItemSlot( i, true, dist, channel )
+		end
+	end
+end
+
+-------------------------------------------------------------------------------
+-- Send data for one of your inventory slots.
+--
+-- @param index   Index of Me.Profile.inventory
+-- @param dist    Addon message distribution.
+-- @param channel Whisper target or channel name.
+--
+function Me.Inspect_SendItemSlot( index, isShop, dist, channel )
+	local item, itemType
+	if isShop then
+		item = Profile.shop[ index ]
+		itemType = "shop"
+	else
+		item = Profile.inventory[ index ]
+		itemType = "inv"
+	end
+	
+	if not item then
+		return
+	end
+	
+	local msg = {
+		i = index;
+		it = itemType;
+		n = tostring( item.name ) or "Item";
+		t = tostring( item.icon ) or "Interface/Icons/inv_misc_questionmark";
+		q = tonumber( item.quality ) or 1;
+		b = item.itemBind or false;
+		s = item.soulbound or false;
+		w1 = item.whiteText1 or "";
+		w2 = item.whiteText2 or "";
+		u = item.useText or "";
+		f = item.flavorText or "";
+		rc = item.requiredClass or {};
+		rr = item.requiredRank or {};
+		rl = item.requiredLevel or false;
+		ss = tonumber( item.stackSize ) or 1;
+		sc = tonumber( item.stackCount ) or 1;
+		c = tonumber( item.cooldown ) or 1;
+		l = tonumber( item.lastCastTime ) or 0;
+		cn = item.consumeable or false;
+		co = item.copyable or false;
+		a = tostring( item.author );
+		g = item.guid or 0;
+		e = item.effects or {};
+	}
+	
+	if isShop then
+		msg.na = item.numAvailable;
+		msg.cu = {
+			name = tostring( item.currency.name ) or Me.Profile.currency[1].name;
+			icon = tostring( item.currency.icon ) or Me.Profile.currency[1].icon;
+			guid = item.currency.guid or Me.Profile.currency[1].guid;
+		}
+		msg.p = tonumber( item.price ) or 0;
+	end
+	
+	msg = Me:Serialize( "INV", msg )
+	
+	if (channel and (not type(channel) == "number")) then channel = tostring(channel) end
+    Me:SendCommMessage( "DCM4", msg, dist, channel, "ALERT" )
+end
+
 local sendStatusQueue   = {}
 local sendStatusStarted = false
 
@@ -769,22 +862,31 @@ local function DoSendStatus()
 			msg.buffs = {}
 		end
 		
-		if not Me.db.global.hideInventory and Me.FindTotalEmptySlots() < 42 then
-			msg.inv = Profile.inventory
+		if Me.FindTotalEmptySlots() < 42 then
+			DoSendInventory( dist, channel )
+		end
+		
+		if Profile.inventoryIcon then
 			msg.invIcon = Profile.inventoryIcon
 		else
-			msg.inv = {}
-			msg.invIcon = "Interface/Icons/inv_misc_bag_08"
+			msg.invIcon = "Interface/Buttons/Button-Backpack-Up"
 		end
+		
+		msg.invHide = Me.db.global.hideInventory or false
+		msg.shopHide = Profile.hideShop or false
+		msg.shopName = Profile.shopName or false
+		msg.shopModel = Profile.shopModel or false
 		
 		msg.cur = Profile.currency
 		msg.cura = Profile.currencyActive
 		
 		if #Profile.shop > 0 then
-			msg.shop = Profile.shop
+			DoSendShop( dist, channel )
+		end
+		
+		if Profile.shopIcon then
 			msg.shopIcon = Profile.shopIcon
 		else
-			msg.shop = {}
 			msg.shopIcon = "Interface/Icons/garrison_building_tradingpost"
 		end
 		
@@ -1001,6 +1103,86 @@ function Me.Inspect_OnTraitMessage( data, dist, sender )
 end
 
 ---------------------------------------------------------------------------
+-- Received item slot data.
+--
+function Me.Inspect_OnItemSlotMessage( data, dist, sender )
+	
+	-- Ignore our own data.
+	if sender == UnitName( "player" ) then return end
+	
+	-- sanitize message
+	if not data.i or not data.it or not data.g then
+		-- we require index, itemType, and guid in message
+		return
+	end
+	
+	data.i = tonumber( data.i )
+	data.it = tostring( data.it )
+	data.n = tostring( data.n )
+	data.t = tostring( data.t )
+	data.q = tonumber( data.q )
+	data.b = data.b or false
+	data.s = data.s or false
+	data.w1 = tostring( data.w1 )
+	data.w2 = tostring( data.w2 )
+	data.u = tostring( data.u )
+	data.f = tostring( data.f )
+	data.rc = data.rc or {}
+	data.rr = data.rr or {}
+	data.rl = data.rl or nil
+	data.ss = tonumber( data.ss )
+	data.sc = tonumber( data.sc )
+	data.c = tonumber( data.c )
+	data.l = tonumber( data.l )
+	data.cn = data.cn or false
+	data.co = data.co or false
+	data.a = tostring( data.a )
+	data.g = data.g
+	data.e = data.e or {}
+	
+	if not data.i or not data.it or not data.g then 
+		-- another pass after number sanitization
+		return 
+	end
+	
+	local item = {
+		name = data.n;
+		icon = data.t;
+		quality = data.q;
+		itemBind = data.b;
+		soulbound = data.s;
+		whiteText1 = data.w1;
+		whiteText2 = data.w2;
+		useText = data.u;
+		flavorText = data.f;
+		requiredClass = data.rc;
+		requiredRank = data.rr;
+		requiredLevel = data.rl;
+		stackSize = data.ss;
+		stackCount = data.sc;
+		cooldown = data.c;
+		lastCastTime = data.l;
+		consumeable = data.cn;
+		copyable = data.co;
+		author = data.a;
+		guid = data.g;
+		effects = data.e;
+	}
+	
+	-- store in database
+	if data.it == "shop" then
+		item.numAvailable = data.na;
+		item.currency = data.cu;
+		item.price = data.p;
+		Me.inspectData[sender].shop[data.i] = item
+	else
+		Me.inspectData[sender].inventory[data.i] = item
+	end
+	
+	Me.StatInspector_Update()
+end
+
+---------------------------------------------------------------------------
 -- Received STATUS data.
 --
 function Me.Inspect_OnStatusMessage( data, dist, sender )
@@ -1084,11 +1266,9 @@ function Me.Inspect_OnStatusMessage( data, dist, sender )
 		store.pet.healthMax    	= data.phm
 		store.pet.armor        	= data.pa
 	end
-	if data.inv then
-		store.inventory = data.inv
-		store.inventoryIcon = store.invIcon
+	if data.invIcon then
+		store.inventoryIcon = data.invIcon
 	else
-		store.inventory = {};
 		store.inventoryIcon = "Interface/Icons/inv_misc_bag_08";
 	end
 	if data.cur then
@@ -1098,13 +1278,17 @@ function Me.Inspect_OnStatusMessage( data, dist, sender )
 		store.currency = Me.Profile.currency[1]
 		store.currencyActive = 1;
 	end
-	if data.shop and #data.shop > 0 then
-		store.shop = data.shop
+	if data.shopIcon then
 		store.shopIcon = data.shopIcon
+		store.shopName = data.shopName or false
+		store.shopModel = data.shopModel or false
 	else
-		store.shop = {};
 		store.shopIcon = "Interface/Icons/garrison_building_tradingpost"
+		store.shopName = false
+		store.shopModel = false
 	end
+	store.hideShop = data.shopHide or false
+	store.hideInventory = data.invHide or false
 	store.hasDM4         = true
 	
 	Me.Inspect_OnStatusUpdated( sender )
@@ -1182,6 +1366,8 @@ end
 local healthAnimationPlaying = false;
 local healAmount = {};
 local damageAmount = 0;
+local armourGained = {};
+local armourLost = 0;
 
 function Me.Inspect_OnSetHPMessage( data, dist, sender )
 	
@@ -1213,6 +1399,16 @@ function Me.Inspect_OnSetHPMessage( data, dist, sender )
 		damageAmount = damageAmount + ( Profile.health - data.h )
 	end
 	
+	if data.ar > Profile.armor then
+		if not armourGained[ sender ] then
+			armourGained[ sender ] = data.ar - Profile.armor;
+		else
+			armourGained[ sender ] = armourGained[ sender ] + ( data.ar - Profile.armor )
+		end
+	elseif data.ar < Profile.armor then
+		armourLost = armourLost + ( Profile.armor - data.ar )
+	end
+	
 	if not healthAnimationPlaying and Me.db.global.allowEffects then
 		healthAnimationPlaying = true
 		Me.ResetFullscreenEffect()
@@ -1224,6 +1420,12 @@ function Me.Inspect_OnSetHPMessage( data, dist, sender )
 		elseif data.h < Profile.health then
 			model:ApplySpellVisualKit( 29078, true )
 			PlaySound( 32878 )
+		elseif data.ar > Profile.armor then
+			model:ApplySpellVisualKit( 30834, true )
+			PlaySound( 32882 )
+		elseif data.ar < Profile.armor then
+			model:ApplySpellVisualKit( 29938, true )
+			PlaySound( 32881 )
 		end
 	end
 	
@@ -1236,9 +1438,19 @@ function Me.Inspect_OnSetHPMessage( data, dist, sender )
 		if damageAmount > 0 then
 			Me.PrintMessage( "You have lost |cFFFFFFFF" .. damageAmount .. "|r|TInterface/AddOns/DiceMaster/Texture/health-heart:12|t!", "RAID" )
 		end
+		if type(next(armourGained)) ~= "nil"  then
+			for k, v in pairs( armourGained ) do
+				Me.PrintMessage( k .. " has granted you |cFFFFFFFF" .. v .. "|r|TInterface/AddOns/DiceMaster/Texture/armour-icon:12|t!", "RAID" )
+			end
+		end
+		if armourLost > 0 then
+			Me.PrintMessage( "You have lost |cFFFFFFFF" .. armourLost .. "|r|TInterface/AddOns/DiceMaster/Texture/armour-icon:12|t!", "RAID" )
+		end
 		healthAnimationPlaying = false
 		healAmount = {};
 		damageAmount = 0;
+		armourGained = {};
+		armourLost = 0;
 	end )
 	
 	Profile.health = data.h

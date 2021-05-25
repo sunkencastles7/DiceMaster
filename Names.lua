@@ -51,21 +51,21 @@ function Me.GetCharInfo()
 	return name, race, class, class_color
 end
 
-function Me.GetTargetCharInfo()
+function Me.GetTargetCharInfo( target )
 	
-	local name  = UnitName( "target" )
+	local name  = target or UnitName( "target" )
 	local realm = GetRealmName()
 	realm = realm:gsub( "[ -]", "" )
 	
 	if TRP3_API then
 		-- Player is using TRP3.
 		
-		name = TRP3_API.chat.getFullnameForUnitUsingChatMethod( name.."-"..realm ) or UnitName("target")
+		name = TRP3_API.chat.getFullnameForUnitUsingChatMethod( name.."-"..realm ) or name
 		
 	elseif AddOn_XRP then
 		-- Player is using XRP.
 		
-		name = AddOn_XRP.Characters.byName[UnitName("target")]["NA"] or UnitName("target")
+		name = AddOn_XRP.Characters.byName[ name ]["NA"] or name
 	elseif mrp then
 		-- 2019 and still using mrp? x)))
 		

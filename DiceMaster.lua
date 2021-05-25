@@ -100,6 +100,7 @@ StaticPopupDialogs["DICEMASTER4_SETHEALTHVALUE"] = {
   end,
   OnAccept = function (self, data)
     local text = tonumber(self.editBox:GetText()) or data.health
+	text = math.floor( text )
 	if Me.OutOfRange( text, 0, data.healthMax ) then
 		return
 	end
@@ -131,6 +132,7 @@ StaticPopupDialogs["DICEMASTER4_SETHEALTHMAX"] = {
   end,
   OnAccept = function (self, data)
     local text = tonumber(self.editBox:GetText()) or data.healthMax
+	text = math.floor( text )
 	if Me.OutOfRange( text, 1, 1000 ) then
 		return
 	end
@@ -1068,6 +1070,7 @@ function Me.CloseAllEditors( notPickers, notEditors, notItems )
 		Me.ConsumeItemEditor_Close()
 		Me.CurrencyEditor_Close()
 		Me.ScreenEffectEditor_Close()
+		Me.AdjustHealthEditor_Close()
 	end
 	if not ( notItems ) then
 		Me.ItemEditor_Close()

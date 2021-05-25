@@ -120,8 +120,21 @@ local function ChatFilter( self, event, msg, sender, ... )
 		-- (See trait editor code for a better explanation.)
 		item = item:gsub( " ", " " )
 		
-		local icon = Me.inspectData[name].inventory[tonumber(guid)].icon
-		local colorHex = ITEM_QUALITY_COLORS[ Me.inspectData[name].inventory[tonumber(guid)].quality ].hex or "|cffffffff";
+		local found_item = false;
+	
+		for i = 1, 42 do
+			if Me.inspectData[name].inventory[i] and Me.inspectData[name].inventory[i].guid == guid then
+				found_item = i;
+				break
+			end
+		end
+		
+		if not found_item then
+			return "|TInterface/Icons/inv_misc_questionmark:16|t |cffffffff[Unknown Item]|r";
+		end
+		
+		local icon = Me.inspectData[name].inventory[found_item].icon
+		local colorHex = ITEM_QUALITY_COLORS[ Me.inspectData[name].inventory[found_item].quality ].hex or "|cffffffff";
 		
 		-- convert into chat link
         return string.format("|T"..icon..":16|t "..colorHex.."|HDiceMaster4Item:"..name..":"..guid.."|h[%s]|h|r", item);
@@ -336,11 +349,19 @@ function ItemRefTooltip:SetHyperlink(link)
 			-- we need to hook the chatbox code for copying links
 		else
 			local linkType, name, guid = strsplit(":", link)
-			guid = tonumber(guid) 
-			if not guid or guid < 1 then return end
+			if not guid then return end
+			
+			local found_item = false;
+	
+			for i = 1, 42 do
+				if Me.inspectData[name].inventory[i] and Me.inspectData[name].inventory[i].guid == guid then
+					found_item = i;
+					break
+				end
+			end
 			
 			Me.itemRefOpen   = true
-			Me.itemRefItem  = Me.inspectData[ name ].inventory[guid]
+			Me.itemRefItem  = Me.inspectData[ name ].inventory[ found_item ]
 			Me.itemRefTrait  = nil
 			Me.itemRefIndex  = guid
 			Me.itemRefPlayer = name

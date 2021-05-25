@@ -74,7 +74,7 @@ function Me.MessageEditor_Load( effectIndex )
 end
 
 function Me.MessageEditor_SaveEdits()
-	if not Me.ItemEditingIndex or not Me.EffectEditingIndex then
+	if not Me.EffectEditingIndex then
 		return
 	end
 	

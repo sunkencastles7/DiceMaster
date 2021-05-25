@@ -70,7 +70,7 @@ function Me.RemoveBuffEditor_Save()
 end
 
 function Me.RemoveBuffEditor_SaveEdits()
-	if not Me.ItemEditingIndex or not Me.EffectEditingIndex then
+	if not Me.EffectEditingIndex then
 		return
 	end
 	

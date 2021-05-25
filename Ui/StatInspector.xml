@@ -618,6 +618,7 @@
 					DiceMasterStatInspectorInventoryTab:SetChecked( false )
 					DiceMasterStatInspectorShopFrame:Hide();
 					DiceMasterStatInspectorShopTab:SetChecked( false )
+					DiceMaster4.StatInspector_OnTabChanged()
 				</OnClick>
 			</Scripts>
 		</Button>
@@ -639,6 +640,7 @@
 				DiceMasterStatInspectorInventoryTab:SetChecked( false )
 				DiceMasterStatInspectorShopFrame:Hide();
 				DiceMasterStatInspectorShopTab:SetChecked( false )
+				DiceMaster4.StatInspector_OnTabChanged()
 			</OnClick>
 		</Scripts>
 	  </Button>
@@ -679,6 +681,7 @@
 				self:SetChecked(true);
 				DiceMasterStatInspectorShopFrame:Hide();
 				DiceMasterStatInspectorShopTab:SetChecked( false )
+				DiceMaster4.StatInspector_OnTabChanged()
 			</OnClick>
 			<OnEnter>
 				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
@@ -730,6 +733,7 @@
 				DiceMasterStatInspectorInventoryTab:SetChecked( false );
 				DiceMasterStatInspectorShopFrame:Show();
 				DiceMasterStatInspectorShopTab:SetChecked( true )
+				DiceMaster4.StatInspector_OnTabChanged()
 			</OnClick>
 			<OnEnter>
 				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
