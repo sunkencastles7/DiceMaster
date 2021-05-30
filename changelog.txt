@@ -1,16 +1,21 @@
 ### 5.1.5
-- Added Shadowlands icons to the icon libraries.
-- Added a new option to the Visual Effects editor to send effects to a targeted player.
-- Added a new inventory tab to the Trait Editor.
-- You can now create, edit, and copy custom items from the inventory tab in the Trait Editor.
-- You can also create your own custom currencies to trade with other players. Disclaimer: these "currencies" are for roleplaying and D20 commerce purposes only and have no gameplay or real world value.
-- Added a new default "DiceMaster Coins" currency to the inventory tab. 
-- Added a new inventory tab to the Inspector frame, allowing you to view other players' inventories and custom currency values.
-- You can request an item from another player by clicking the 'Request Item' button from their inventory on the Inspector frame, then selecting the desired item.
-- You can now display a casting bar below Unit Frames to imitate a spellcast.
-- Fixed an issue where XRP users were unable to see their full name in the Trait Editor.
-- Fixed the Inspector frame to display the character's full name. 
-- Added smooth transitions to the Typing Tracker.
+- Patch 9.1 support
+- You can now export traits from the Trait Editor, generating a unique code which others players can use to import the trait data to their own profile.
+- You can also export an entire Statistics sheet, allowing other players to import each of your custom statistics' data to their own profile.
+- Added help systems to the Trait Editor and DM Manager frames to provide concise information on how to use each feature.
+- You can now shift-click custom map nodes to link them in chat. Players in your group who click these links will be able to view them on the World Map.
+- You can now affect the health bar of other players in your group! Players with 'Allow Effects from Other Players' enabled in the config menu will see an appropriate visual effect above their character's head when healed or damaged by another player.
+- Unit Frames can now display a casting bar beneath the frame with adjustable values and appearances.
+- Added a 'Send to targeted player' option to the Visual Effects Editor, allowing you to send effects to other players with 'Allow Effects from Other Players' enabled in the config menu.
+- Added a new Inventory tab to the Trait Editor, allowing players to create custom items with a variety of on-use action options which can be shared with other players. You can view other players' Inventories from the Inspector Frame.
+- Added a new Shop tab to the Trait Editor, allowing players to sell their custom items in a merchant-style interface. You can view other players' Shops from the Inspector Frame.
+- New Edit Merchant option on the Trait Editor's Shop tab allows you to choose a custom portrait/name for your shop.
+- Added a new custom currency system which allows players to create custom currencies and resources that can be traded or used to make purchases with other players.
+- Added a new 'Loot Toast' frame which displays whenever a new custom item is created, purchased, or obtained for the first time.
+- Updated the Typing Tracker to fade in and out more smoothly. Note: the frame may have changed position on your UI.
+- Added a variety of new skin options to the Progress Bar and Charges Bar.
+- Fixed an issue where the Range Radar was producing looping errors.
+- Fixed an old issue where map nodes would sometimes disappear when clicked.
 
 ### 5.1.4
 - Patch 9.0 support
