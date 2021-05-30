@@ -14,7 +14,7 @@ local refreshCounter = 0;
 
 C_Timer.NewTicker( 7, function() refreshCounter = 0 end )
 
-Me.effectList = 109302
+Me.effectCount = #Me.effectList
 
 function Me.UnitPickerDropDown_OnClick(self, arg1, arg2, checked)
 	UIDropDownMenu_SetText(DiceMasterUnitPicker.filter, self:GetText()) 
@@ -215,30 +215,26 @@ StaticPopupDialogs["DICEMASTER4_DELETECOLLECTIONEFFECTS"] = {
 function Me.UnitPickerButton_OnClick( self, button )
 
 	local value = math.floor(self:GetParent().scroller:GetValue())*4 + self.pickerIndex
-	if filteredList then value = filteredList[value] end
+	if filteredList then
+		value = filteredList[value]
+	else
+		value = Me.effectList[value]
+	end
 	
 	-- Apply the model to the edited frame and close the picker. ) 
 		
 	if button=="LeftButton" and Me.IsLeader( true ) then
-		if Me.UnitEditing then
-			Me.UnitEditing:SetDisplayInfo(Me.UnitEditing:GetDisplayInfo())
-			Me.UnitEditing.spellvisualkit = value
-			if Me.UnitEditing.healthCurrent == 0 then
-				Me.UnitEditing.dead = true;
-				Me.UnitEditing:SetAnimation(6)
-			else
-				Me.UnitEditing.dead = false;
-				Me.UnitEditing:SetAnimation(Me.UnitEditing.animation)
-			end
-			Me.UnitEditing:SetSpellVisualKit(value)
-			Me.UnitEditing:SetPortraitZoom(0)
-			Me.UnitEditing:SetPortraitZoom(0.6)
+		if Me.ModelEditing then
+			local displayInfo = Me.ModelEditing:GetDisplayInfo()
+			Me.ModelEditing:ClearModel()
+			Me.ModelEditing:SetDisplayInfo( displayInfo )
+			Me.ModelEditing.spellvisualkit = value
+			Me.ModelEditing:SetSpellVisualKit(value)
 			PlaySound(83)
 			
 			DiceMasterUnitPicker.checked = value;
 			self.check:Show()
 			
-			Me.UnitEditing.effectscrollposition = DiceMasterUnitPicker.selectorFrame.scroller:GetValue()
 			Me.UpdateUnitFrames()
 			Me.UnitPicker_RefreshGrid()
 		end
@@ -256,19 +252,14 @@ end
 -- Handler for resetting effects that taint the model.
 --
 function Me.UnitPicker_ResetEffect()
-	if Me.UnitEditing then
-		Me.UnitEditing.spellvisualkit = 0
-		Me.UnitEditing:SetDisplayInfo(Me.UnitEditing:GetDisplayInfo())
-		if Me.UnitEditing.healthCurrent == 0 then
-			Me.UnitEditing.dead = true;
-			Me.UnitEditing:SetAnimation(6)
-		else
-			Me.UnitEditing.dead = false;
-			Me.UnitEditing:SetAnimation(Me.UnitEditing.animation)
-		end
-		Me.UnitEditing:SetSpellVisualKit(0)
-		Me.UnitEditing:SetPortraitZoom(0)
-		Me.UnitEditing:SetPortraitZoom(0.6)
+	if Me.ModelEditing then
+		local displayInfo = Me.ModelEditing:GetDisplayInfo()
+		Me.ModelEditing:ClearModel()
+		Me.ModelEditing.spellvisualkit = 0
+		Me.ModelEditing:SetDisplayInfo( displayInfo )
+		Me.ModelEditing:SetSpellVisualKit(0)
+		
+		DiceMasterAffixEditor.Model.Ticker:Cancel()
 		
 		DiceMasterUnitPicker.checked = nil
 		Me.UnitPicker_RefreshGrid()
@@ -283,7 +274,11 @@ function Me.UnitPickerButton_ShowTooltip( self )
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 	
 	local value = math.floor(self:GetParent().scroller:GetValue())*4 + self.pickerIndex
-	if filteredList then value = filteredList[value] end
+	if filteredList then
+		value = filteredList[value]
+	else
+		value = Me.effectList[value]
+	end
     GameTooltip:AddLine( "ID: " .. value, 1, 1, 1, true )
     GameTooltip:Show()
 end
@@ -304,23 +299,6 @@ end
 function Me.UnitPicker_ScrollChanged( value )
 	-- Our "step" is 5 icons, which is one line.
 	startOffset = math.floor(value) * 4
-	
-	-- Mitigate memory usage to prevent crashes.
-	refreshCounter = refreshCounter + 1
-	if refreshCounter == 20 then
-		DiceMasterUnitPicker.selectorFrame.Spinner:Show()
-		C_Timer.After( 2, function() 
-			refreshCounter = 0
-			DiceMasterUnitPicker.selectorFrame.Spinner:Hide()
-			Me.UnitPicker_RefreshGrid()
-		end )
-		return
-	end
-	
-	if refreshCounter > 20 then
-		return
-	end
-	
 	Me.UnitPicker_RefreshGrid()
 end
 
@@ -333,20 +311,21 @@ function Me.UnitPicker_RefreshGrid()
 	for k,v in ipairs( DiceMasterUnitPicker.icons ) do
 		UIDropDownMenu_Initialize( DiceMasterUnitPickerFilter, DiceMaster4.UnitPickerDropDown_OnLoad )
 		UIDropDownMenu_Initialize( v, DiceMaster4.MyEffectsDropDown_OnLoad )
-		v:SetHeight(97)
 		
-		local tex = startOffset + k
-		if filteredList then tex = list[startOffset + k] end
+		local tex
+		if list[startOffset + k] then
+			tex = list[startOffset + k]
+		end
 		if tex then
 		
 			v:Show()
 			v:ClearModel()
-			v:SetDisplayInfo(Me.UnitEditing:GetDisplayInfo() or 243)
+			v:SetDisplayInfo(31)
 			v.spellvisualkit = tex
-			v:SetAnimation(Me.UnitEditing.animation or 0)
 			v:SetSpellVisualKit(tex)
-			v:SetPortraitZoom(0)	
-			v:SetPortraitZoom(0.6)	
+			
+			v:SetPortraitZoom(0.7)
+			v:SetPortraitZoom(0)
 
 			if DiceMasterUnitPicker.checked == tex then
 				v.check:Show()
@@ -378,9 +357,8 @@ end
 -- @param reset Reset the scroll bar to the beginning.
 --
 function Me.UnitPicker_RefreshScroll( reset, value )
-	local list = Me.effectList 
-	if filteredList then list = #filteredList end
-	local max = math.floor((list) / 4)
+	local list = filteredList or Me.effectList
+	local max = math.floor((#list - 8) / 4)
 	if max < 0 then max = 0 end
 	DiceMasterUnitPicker.selectorFrame.scroller:SetMinMaxValues( 0, max )
 	
@@ -397,18 +375,18 @@ end
 -------------------------------------------------------------------------------
 -- Close the icon picker window. Use this instead of a direct Hide()
 --
-function Me.UnitPicker_Close( noSound )
-	DiceMasterUnitPicker.scrollposition = DiceMasterUnitPicker.selectorFrame.scroller:GetValue()
-	if not noSound then
-		PlaySound(680)
-	end
+function Me.UnitPicker_Close()
+	Me.ModelEditing = nil;
 	DiceMasterUnitPicker:Hide()
 end
     
 -------------------------------------------------------------------------------
 -- Open the icon picker window.
 --
-function Me.UnitPicker_Open( frame )
+function Me.UnitPicker_Open( frame, model )
+	DiceMasterUnitPicker:SetPoint( "LEFT", frame, "RIGHT" )
+	Me.ModelEditing = model
+	filteredList = nil
 
 	DiceMaster4UF_Saved.MyEffects = DiceMaster4UF_Saved.MyEffects or {}
 
@@ -419,6 +397,5 @@ function Me.UnitPicker_Open( frame )
 	else
 		Me.UnitPicker_RefreshScroll( true )
 	end 
-	PlaySound(679)
 	DiceMasterUnitPicker:Show()
 end

@@ -4,21 +4,53 @@
     <Anchors>
 		<Anchor point="BOTTOMLEFT" relativeTo="ChatFrame1Tab" relativePoint="TOPLEFT" x="0" y="-2"/>
 	</Anchors>
-	<Size x="301" y="28"/>
+	<Size x="301" y="32"/>
     <Layers>
 		<Layer level="BACKGROUND">
-			<Texture parentKey="Background" file="Interface/FriendsFrame/SocialQueuingToast" setAllPoints="true" hidden="true">
-				<TexCoords left="0" right="0.59" top="0" bottom="0.5"/>
-			</Texture>
+			<Texture parentKey="Background" alpha="0" alphaMode="BLEND" atlas="quickjoin-toast-background" setAllPoints="true"/>
 		</Layer>
 		<Layer level="ARTWORK">
-			<FontString parentKey="Message" inherits="GameFontNormal" hidden="true" setAllPoints="true">
+			<FontString parentKey="Message" alpha="0" inherits="GameFontNormalSmall2" justifyH="LEFT">
+				<Size x="272" y="11"/>
 				<Anchors>
-					<Anchor point="LEFT" x="8" y="0"/>
+					<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="2"/>
 				</Anchors>
+				<Color r="0.8" g="0.8" b="0.8"/>
 			</FontString>
 		</Layer>
+		<Layer level="OVERLAY">
+			<Texture parentKey="Line" hidden="false" alpha="0" alphaMode="BLEND" atlas="quickjoin-toast-lines" useAtlasSize="true">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent.Background" x="0" y="2"/>
+				</Anchors>
+			</Texture>
+		</Layer>
 	</Layers>
+	<Animations>
+		<AnimationGroup parentKey="FadeInAnim" setToFinalAlpha="true">
+			<Scale childKey="Background" startDelay="0" duration="0.3" order="1" fromScaleX="1.1" fromScaleY="1.1" toScaleX="1" toScaleY="1"/>
+			<Scale childKey="Line" startDelay="0" duration="0.6" order="1" fromScaleX="0" fromScaleY="1" toScaleX="1" toScaleY="1"/>
+			<Alpha childKey="Message" startDelay="0" smoothing="OUT" duration="0.3" order="1" fromAlpha="0" toAlpha="1"/>
+			<Alpha childKey="Background" startDelay="0" smoothing="OUT" duration="0.3" order="1" fromAlpha="0" toAlpha="1"/>
+			<Alpha childKey="Line" startDelay="0" smoothing="NONE" duration="0.4" order="1" fromAlpha="0" toAlpha="0.5"/>
+			<Alpha childKey="Line" startDelay="0.4" smoothing="NONE" duration="0.4" order="1" fromAlpha="0.5" toAlpha="0"/>
+			<Scripts>
+				<OnFinished>
+					self:GetParent():Show()
+				</OnFinished>
+			</Scripts>
+		</AnimationGroup>
+		<AnimationGroup parentKey="FadeOutAnim" setToFinalAlpha="true">
+			<Alpha childKey="Message" startDelay="0" smoothing="OUT" duration="0.6" order="1" fromAlpha="1" toAlpha="0"/>
+			<Alpha childKey="Background" startDelay="0" smoothing="OUT" duration="0.6" order="1" fromAlpha="1" toAlpha="0"/>
+			<Scale childKey="Background" startDelay="0" duration="0.6" order="1" fromScaleX="1" fromScaleY="1" toScaleX="0.8" toScaleY="0.8"/>
+			<Scripts>
+				<OnFinished>
+					self:GetParent():Hide()
+				</OnFinished>
+			</Scripts>
+		</AnimationGroup>
+	</Animations>
 	<Frames>
 		<Frame name="$parentDragFrame" inherits="DiceMasterDragFrameTemplate" setAllPoints="true"/>
 	</Frames>

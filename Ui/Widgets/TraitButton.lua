@@ -4,22 +4,8 @@
 
 local Me = DiceMaster4
 
-local DICEMASTER_TERMS = {
-	-- Glossary Terms
-	{ "Advantage", "Advantage", "Allows the character to roll the same dice twice, and take the greater of the two resulting numbers." },
-	{ "Control[sleding]*", "Control", "Allows the character to take command of a target until the effect expires." },
-	{ "Disadvantage", "Disadvantage", "Allows the character to roll the same dice twice, and take the lesser of the two resulting numbers." },
-	{ "Double or Nothing", "Double or Nothing", "An unmodified D40 roll. If the roll succeeds, the character is rewarded with a critical success; however, if the roll fails, the character suffers critically failure." },
-	{ "Immunity", "Immunity", "Prevents a character from suffering the effects of a failure this round." },
-	{ "NAT1", "Natural 1", "A roll of 1 that is achieved before dice modifiers are applied that results in critical failure." },
-	{ "NAT20", "Natural 20", "A roll of 20 that is achieved before dice modifiers are applied that results in critical success." },
-	{ "Poison[seding]*", "Poison", "Causes additional damage to a target each round." },
-	{ "Reload[edsing]*", "Reload", "Grants the character's active trait another use." },
-	{ "Reviv[desing]*", "Revive", "Allows a character with |cFFFFFFFF0|r|TInterface/AddOns/DiceMaster/Texture/health-heart:12|t|cFFffd100 remaining to return to battle with diminished health." },
-	{ "Stun[snedig]*", "Stun", "Incapacitates a target, preventing them from performing any action next round." },
-	-- Icons
-	{ "Armo[u]*r", "Armour (|TInterface/AddOns/DiceMaster/Texture/armour-icon:12|t)", "Extends a character's Health beyond the maximum amount by a certain value. Damage taken will always be deducted from Armour before Health." },
-	{ "Health", "Health (|TInterface/AddOns/DiceMaster/Texture/health-heart:12|t)", "A measure of a character's health or an object's integrity. Damage taken decreases Health, and healing restores Health." },
+local TRAIT_COOLDOWN_TIMES = {
+	["15S"] = 15; ["20S"] = 20; ["30S"] = 30; ["1M"] = 60; ["2M"] = 120; ["3M"] = 180; ["4M"] = 240; ["5M"] = 300; ["10M"] = 600; ["15M"] = 900; ["20M"] = 1200; ["30M"] = 1800; ["1H"] = 3600; ["2H"] = 7200; ["3H"] = 10800; ["4H"] = 14400; ["5H"] = 18000; ["1D"] = 86400; ["2D"] = 172800; ["3D"] = 259200; ["4D"] = 345600; ["5D"] = 432000; ["1W"] = 604800;
 }
 
 -------------------------------------------------------------------------------
@@ -30,28 +16,38 @@ Me.playerTraitTooltipIndex = nil
 -------------------------------------------------------------------------------
 
 function Me.CheckTooltipForTerms( text )
-	local termsString = ""
-	for i=1,#DICEMASTER_TERMS do
-		if string.match( text, DICEMASTER_TERMS[i][1] ) then
-			if termsString~="" then 
-				termsString = termsString .. "|n|n"
-			end
-			termsString = termsString .. "|cFFFFFFFF" .. DICEMASTER_TERMS[i][2] .. "|r|n|cFFffd100" .. DICEMASTER_TERMS[i][3] .. "|r"
-		end
-	end
+	local termsTable = {}
 	for k, v in pairs( Me.RollList ) do
 		for i = 1, #v do
-			if string.match( text, v[i].subName ) then
-				if termsString~="" then 
-					termsString = termsString .. "|n|n"
-				end
+			local matchFound = string.match( text, "<" .. v[i].subName .. ">" )
+			if matchFound then
 				local desc = gsub( v[i].desc, "Roll", "An attempt" )
-				termsString = termsString .. "|cFFFFFFFF" .. v[i].name .. "|r|n|cFFffd100" .. desc .. "|r|n|cFF707070(Modified by " .. v[i].stat .. " + " .. v[i].name .. ")|r"
+				local termsString = Me.FormatIcon( v[i].iconID ) .. " |cFFFFFFFF" .. v[i].name .. "|r|n|cFFffd100" .. desc .. "|r|n|cFF707070(Modified by " .. v[i].stat .. " + " .. v[i].name .. ")|r"
+				
+				if not tContains( termsTable, termsString ) then
+					tinsert( termsTable, termsString )
+				end
 			end
 		end
 	end
-	if termsString~="" then
-		DiceMasterTooltip.TextLeft1:SetText( termsString )
+	for k, v in pairs( Me.TermsList ) do
+		for i = 1, #v do
+			local matchFound = string.match( text, "<" .. v[i].subName .. ">" )
+			if matchFound then
+				local termsString = Me.FormatIcon( v[i].iconID ) .. " |cFFFFFFFF" .. v[i].name .. "|r|n|cFFffd100" .. v[i].desc .. "|r"
+				if not tContains( termsTable, termsString ) then
+					tinsert( termsTable, termsString )
+				end
+			end
+		end
+	end
+	if #termsTable > 0 then
+		table.sort( termsTable )
+		local tooltip = termsTable[1]
+		for i = 2, #termsTable do
+			tooltip = tooltip .. "|n|n" .. termsTable[i]
+		end
+		DiceMasterTooltip.TextLeft1:SetText( tooltip )
 		DiceMasterTooltip:Show()
 	end
 end
@@ -65,7 +61,7 @@ function Me.UpdateTraitTooltip( name, index )
 end
 
 -------------------------------------------------------------------------------
-function Me.OpenTraitTooltip( owner, trait, index )
+function Me.OpenTraitTooltip( owner, trait, index, isTraitsList )
 	local playername = nil
 	
 	if type(trait) == "string" then
@@ -86,37 +82,104 @@ function Me.OpenTraitTooltip( owner, trait, index )
 	
 	GameTooltip:ClearLines()
 	
-	if trait.name then
+	if trait.name then		
 		if trait.icon then
 			-- icon with name
-			GameTooltip:AddLine( "|T"..trait.icon..":32|t "..trait.name, 1, 1, 1, true )
+			DiceMasterTooltipIcon.icon:SetTexture( trait.icon )
+			DiceMasterTooltipIcon:Show()
+			if index == 5 then
+				DiceMasterTooltipIcon.elite:Show()
+			else
+				DiceMasterTooltipIcon.elite:Hide()
+			end
 		else
-			GameTooltip:AddLine( trait.name, 1, 1, 1, true )
+			DiceMasterTooltipIcon:Hide()
+			DiceMasterTooltipIcon.elite:Hide()
 		end
+		GameTooltip:AddLine( trait.name, 1, 1, 1, true )
 	end
 	 
 	if trait.usage then
 		local usage = Me.FormatUsage( trait.usage, playername )
-		GameTooltip:AddDoubleLine( usage, nil, 1, 1, 1, 1, 1, 1, true )
+		local range = Me.FormatRange( trait.range or nil )
+		
+		if trait.usage == "NONE" then
+			usage = nil
+		end
+		
+		if not ( trait.range ) or trait.range == "NONE" then
+			range = nil
+		end
+		
+		if usage and usage ~= "Passive" and range then
+			local range = Me.FormatRange( trait.range )
+			GameTooltip:AddDoubleLine( usage, range, 1, 1, 1, 1, 1, 1, true )
+		elseif range and not ( usage ) then
+			GameTooltip:AddLine( range, 1, 1, 1, true )
+		elseif usage and not ( range ) then
+			GameTooltip:AddDoubleLine( usage, nil, 1, 1, 1, 1, 1, 1, true )
+		end
+		
+		if trait.usage and usage ~= "Passive" and trait.castTime then
+			local castTime = Me.FormatCastTime( trait.castTime )
+			if trait.cooldown and trait.cooldown ~= "NONE" then
+				local cooldown = Me.FormatCooldown( trait.cooldown )
+				GameTooltip:AddDoubleLine( castTime, cooldown, 1, 1, 1, 1, 1, 1, true )
+			else
+				GameTooltip:AddDoubleLine( castTime, nil, 1, 1, 1, 1, 1, 1, true )
+			end
+		end
 	end
 	
+	DiceMasterTooltipIcon.approved:Hide()
 	if trait.approved and trait.approved > 0 and Me.PermittedUse() then
 		if trait.approved == 1 then
-			DiceMasterTooltipApproved.icon:SetTexture("Interface/AddOns/DiceMaster/Texture/trait-unapproved")
+			DiceMasterTooltipIcon.approved:SetTexCoord( 0, 0.5, 0.5, 1 )
 		elseif trait.approved == 2 then
-			DiceMasterTooltipApproved.icon:SetTexture("Interface/AddOns/DiceMaster/Texture/trait-approved")
+			DiceMasterTooltipIcon.approved:SetTexCoord( 0, 0.5, 0, 0.5 )
 		end
-		DiceMasterTooltipApproved:Show()
+		DiceMasterTooltipIcon.approved:Show()
 	end
-	 
-    GameTooltip:AddLine( nil, 1, 1, 1, true )
+	
+	if owner and owner.editable_trait then
+		owner:SetScript( "OnUpdate", nil )
+	end
+	
+	if trait.cooldown and owner and owner.editable_trait then
+		if owner.cooldown:GetCooldownDuration() > 0 then
+			local currentTime = GetTime()
+			local startTime = owner.cooldown.StartTime
+			local duration = TRAIT_COOLDOWN_TIMES[ trait.cooldown ] or 0
+			
+			local timeElapsed = math.ceil( duration - ( currentTime - startTime ) )
+			timeElapsed = string.lower( SecondsToTime( timeElapsed, false ) )
+			if timeElapsed and timeElapsed ~= "" then
+				GameTooltip:AddLine( "Cooldown remaining: " .. timeElapsed, 1, 1, 1, true )
+			end
+			
+			owner:SetScript( "OnUpdate", function( self )
+				if GameTooltip:IsOwned( self ) then
+					self:GetScript("OnEnter")( self )
+				end
+			end)
+		end
+		if owner.cooldown.text:IsShown() then
+			local cooldown = owner.cooldown.text:GetText()
+			cooldown = cooldown:gsub( "T", "" )
+			if cooldown == "1" then
+				GameTooltip:AddLine( "Cooldown remaining: " .. cooldown .. " turn", 1, 1, 1, true )
+			else
+				GameTooltip:AddLine( "Cooldown remaining: " .. cooldown .. " turns", 1, 1, 1, true )
+			end
+		end
+	end
 	
 	if trait.desc then
 		if Me.db.global.hideTips then
 			Me.CheckTooltipForTerms( trait.desc )
 		end
 		local desc = Me.FormatDescTooltip( trait.desc )
-		GameTooltip:AddLine( desc, 1, 0.81, 0, true )
+		GameTooltip:AddLine( desc, 1, 0.82, 0, true )
 	end
 	
 	local usable = ""
@@ -139,25 +202,30 @@ function Me.OpenTraitTooltip( owner, trait, index )
 		end
 	end
 	
-	if owner and owner.editable_trait then
-		if Me.Profile.buffs[ index ] and owner:GetParent():GetName() == "DiceMasterPanel" then
-			if Me.Profile.buffs[ index ].blank == false then
-				usable = usable .. "<Right Click to Use>|n"
-			end
-		end
-		if Me.Profile.removebuffs[ index ] and owner:GetParent():GetName() == "DiceMasterPanel" then
-			if Me.Profile.removebuffs[ index ].blank == false then
-				usable = usable .. "<Right Click to Use>|n"
-			end
-		end
-		if Me.Profile.setdice[ index ] and owner:GetParent():GetName() == "DiceMasterPanel" then
-			if Me.Profile.setdice[ index ].blank == false then
-				usable = usable .. "<Right Click to Use>|n"
-			end
-		end
-		usable = usable .. "<Left Click to Edit>|n"
+	if trait.effects and next(trait.effects) and owner and owner:GetParent():GetName() == "DiceMasterPanel" then
+		usable = usable .. "<Right Click to Use>|n"
 	end
+	
+	if owner and owner:GetParent():GetName() == "DiceMasterPanel" then
+		GameTooltip:AddLine( "<Left Click to Edit>", 0.44, 0.44, 0.44, true )
+	end
+	
 	GameTooltip:AddLine( usable .. "<Shift+Click to Link to Chat>", 0.44, 0.44, 0.44, true )
+	
+	if trait.officers and Me.PermittedUse() then
+		local approval
+		if trait.officers[2] then
+			approval = "|TInterface/AddOns/DiceMaster/Texture/trait-approved:14:14:0:0:32:32:2:14:2:14|t Approved by " .. trait.officers[1] .. " and " .. trait.officers[2]
+			GameTooltip:AddLine( approval, 0, 1, 0, true )
+		elseif trait.officers[1] then
+			approval = "|TInterface/AddOns/DiceMaster/Texture/trait-approved:14:14:0:0:32:32:2:14:18:30|t Approved by " .. trait.officers[1]
+			GameTooltip:AddLine( approval, 1, 1, 0, true )
+		end
+	end
+	
+	if Me.useCorruptedSkins then
+		GameTooltip_SetBackdropStyle( GameTooltip, GAME_TOOLTIP_BACKDROP_STYLE_CORRUPTED_ITEM );
+	end
 	
     GameTooltip:Show()
 end
@@ -166,7 +234,9 @@ end
 function Me.CloseTraitTooltip()
 	Me.playerTraitTooltipOpen = false
     GameTooltip:Hide()
-	DiceMasterTooltipApproved:Hide()
+	DiceMasterTooltipIcon:Hide()
+	DiceMasterTooltipIcon.approved:Hide()
+	DiceMasterTooltipIcon.elite:Hide()
 	DiceMasterTooltip:Hide()
 end
 
@@ -188,7 +258,7 @@ local function OnEnter( self )
 	if not self.trait and not self.traitPlayer then return end
 	
 	if self.trait then
-		Me.OpenTraitTooltip( self, self.trait )
+		Me.OpenTraitTooltip( self, self.trait, nil, self.isTraitsList )
 	elseif self.traitPlayer then 
 		Me.OpenTraitTooltip( self, self.traitPlayer, self.traitIndex )
 	else
@@ -204,8 +274,11 @@ local function OnLeave( self )
 	if self.traitPlayer then
 		Me.playerTraitTooltipOpen = false
 	end
+	
     GameTooltip:Hide()
-	DiceMasterTooltipApproved:Hide()
+	DiceMasterTooltipIcon:Hide()
+	DiceMasterTooltipIcon.approved:Hide()
+	DiceMasterTooltipIcon.elite:Hide()
 	DiceMasterTooltip:Hide()
 end
 
@@ -219,15 +292,29 @@ local methods = {
 	SetTexture = function( self, tex )
 		self.trait       = nil
 		self.traitPlayer = nil
-		self.traitIndex  = nil
+		--self.traitIndex  = nil
+		self.isTraitsList = nil
 		self.icon:SetTexture( tex )
+		self.icon:SetVertexColor( 1, 1, 1 )
+		self.count:SetText( "")
+		self.count:Hide()
 	end;
 	
 	---------------------------------------------------------------------------
 	-- Hook this button up to a direct trait.
 	--
-	SetTrait = function( self, trait )
+	SetTrait = function( self, trait, isTraitsList )
 		self.trait = trait
+		self.isTraitsList = isTraitsList
+		if isTraitsList then
+			self:RegisterForDrag("LeftButton")
+			self:SetScript("OnDragStart", function()
+				self:OnDragStart( self )
+			end)
+			self:SetScript("OnDragStop", function()
+				self:OnDragStop( self )
+			end)
+		end
 		self:Refresh()
 	end;
 	
@@ -238,6 +325,7 @@ local methods = {
 		self.trait = nil
 		self.traitPlayer = player
 		self.traitIndex  = index
+		self.isTraitsList = nil
 		-- Add the gold dragon border if this is the command trait.
 		if self.traitIndex == 5 then
 			self.border:SetTexture("Interface/AddOns/DiceMaster/Texture/elite-trait-border")
@@ -251,10 +339,21 @@ local methods = {
 	-- Refresh after a trait changes.
 	--
 	Refresh = function( self )
+		self.icon:SetVertexColor( 1, 1, 1 )
+		self.count:SetText( "")
+		self.count:Hide()
 		if self.trait then
 			self.icon:SetTexture( self.trait.icon )
-		elseif self.traitPlayer then
+		elseif self.traitPlayer then		
 			self.icon:SetTexture( Me.inspectData[self.traitPlayer].traits[self.traitIndex].icon )
+			if Me.db.global.showUses and self:GetParent() == DiceMasterPanel then
+				local usage = Me.inspectData[self.traitPlayer].traits[self.traitIndex].usage or "PASSIVE"
+				if usage:find("USE") then
+					local uses = usage:gsub( "USE", "" )
+					self.count:SetText( uses )
+					self.count:Show()
+				end
+			end
 		end
 	end;
 	
@@ -275,6 +374,24 @@ local methods = {
 	SetCustomTooltip = function( self, text )
 		self.customTooltip = text
 	end;
+	
+	OnDragStart = function( self )
+		if not ( self.trait and self.isTraitsList ) then
+			return
+		end 
+		
+		DiceMasterTraitPickerCursorIcon:Show()
+		DiceMasterTraitPickerCursorIcon.data = self.trait
+		DiceMasterTraitPickerCursorIcon.guid = self.trait.guid
+		DiceMasterTraitPickerCursorIcon.icon:SetTexture( self.trait.icon )
+		PlaySound(832)
+	end;
+	
+	OnDragStop = function( self )
+		PlaySound(833)
+		DiceMasterTraitPickerCursorIcon:Hide()
+		DiceMasterTraitPickerCursorIcon.icon:SetTexture( nil )
+	end;
 }
 
 -------------------------------------------------------------------------------
@@ -287,7 +404,7 @@ function Me.TraitButton_Init( self )
 	end
 	 
 	self:SetScript( "OnEnter", OnEnter )
-	self:SetScript( "OnLeave", OnLeave ) 
+	self:SetScript( "OnLeave", OnLeave )
 	self.editable_trait = false 
 end
 

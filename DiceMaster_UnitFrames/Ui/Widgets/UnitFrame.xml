@@ -3,7 +3,7 @@
   <Script file="UnitFrame.lua"/>
   
   <!-- Template for unit frames. -->
-  <CinematicModel name="DiceMasterUnitFrame" virtual="true" inherits="ModelTemplate">
+  <PlayerModel name="DiceMasterUnitFrame" inherits="ModelTemplate" virtual="true">
     <Size x="197" y="223"/>
     <Layers>
 	
@@ -39,16 +39,11 @@
 		  </Anchors>
           
         </Texture>
-        <Texture parentKey="speakerIcon" file="Interface/GossipFrame/GossipGossipIcon" hidden="true">
-          
-          <Size x="16" y="16"/>	
-          <Anchors>
-            <Anchor point="BOTTOMRIGHT" x="-24" y="7" />
-		  </Anchors>
-          
-        </Texture>
-		<FontString parentKey="damageText" inherits="SystemFont_World" setallpoints="true">
-			<Color r="1" g="0" b="0"/>
+		<FontString parentKey="name" inherits="GameFontHighlightSmall" justifyH="center">
+			<Color r="1" g="0.82" b="0"/>
+			<Anchors>
+			  <Anchor point="BOTTOM" x="0" y="-15"/> 
+			</Anchors>
 		</FontString>
 	  </Layer>
       
@@ -100,73 +95,72 @@
 							if self.State == 0 then self.State = 9 end
 						end
 						self:SetNormalTexture("Interface/TARGETINGFRAME/UI-RaidTargetingIcon_" .. self.State )
-						if self.State == 9 then self:SetNormalTexture(nil) end
+						if DiceMaster4.UnitEditing == self:GetParent() then
+							DiceMasterAffixEditorUnitSymbol:SetNormalTexture("Interface/TARGETINGFRAME/UI-RaidTargetingIcon_" .. self.State )
+							DiceMasterAffixEditorUnitSymbol.State = self.State
+						end
+						if self.State == 9 then 
+						self:SetNormalTexture(nil) 
+						if DiceMaster4.UnitEditing == self:GetParent() then
+							DiceMasterAffixEditorUnitSymbol:SetNormalTexture(nil)
+						end
+						end
 						PlaySound(823)
 						DiceMaster4.UpdateUnitFrames()
 					end
 				</OnClick>
 			  </Scripts>
 		</Button>
-		<CheckButton parentKey="toggleIcon" inherits="UICheckButtonTemplate">
+		<Button parentKey="visibleButton">
 			 <Size x="24" y="24"/>	
 			  <Anchors>
-				<Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
+				<Anchor point="BOTTOMRIGHT" x="-4" y="0" />
 			  </Anchors>
 			  <Scripts>
 				<OnLoad>
-					self:SetChecked(false)
-					DiceMaster4.SetupTooltip( self, nil, "Hidden", nil, nil, nil, "Your group cannot see this unit." )
+					self:RegisterForClicks("LeftButtonUp", "RightButtonDown");					self:SetNormalTexture("Interface/AddOns/DiceMaster_UnitFrames/Texture/visible-icon")
+					self:SetAlpha(0.5);
+					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to toggle whether players can see this unit.")
 				</OnLoad>
 				<OnClick>
 					if DiceMaster4.IsLeader( false ) then
-						if self:GetChecked() then
-							DiceMaster4.SetupTooltip( self, nil, "Visible", nil, nil, nil, "Your group can see this unit." )
+						if self:GetParent().state == true then
+							self:GetParent().state = false;
+							self:SetAlpha(0.5);
 						else
-							DiceMaster4.SetupTooltip( self, nil, "Hidden", nil, nil, nil, "Your group cannot see this unit." )
+							self:GetParent().state = true;
+							self:SetAlpha(1);
+							self:GetParent():SendAnimation( "Aggro" )
 						end
-						PlaySound(905)
-						self:GetScript("OnEnter")(self)
+						
+						if DiceMasterAffixEditor:IsShown() then
+							DiceMasterAffixEditorEnable:SetChecked( self:GetParent().state )
+						end
+						
+						PlaySound(823)
 						DiceMaster4.UpdateUnitFrames()
 					end
 				</OnClick>
-				<OnUpdate>
-					if DiceMaster4.IsLeader( false ) then
-						self:Show()
-					else
-						self:Hide()
-					end
-				</OnUpdate>
-				<OnShow>
-					if self:GetParent().highlight:IsShown() then
-						self:GetParent().highlight:Hide()
-						DiceMaster4.UnitFrameTargeted = nil;
-					end
-				</OnShow>
 			  </Scripts>
-		</CheckButton>
-		<EditBox parentKey="name" font="GameFontHighlightSmall">
-			<Size x="130" y="12"/> 
-			<Anchors>
-			  <Anchor point="BOTTOM" x="0" y="-15"/> 
-			</Anchors>
-			<Scripts> 
-			  <OnLoad>
-				self:SetFont("Fonts\\FRIZQT__.TTF", 10, nil)
-				self:SetAutoFocus( false )
-				self:SetTextColor( 1, 0.82, 0 )
-				self:SetMaxLetters( 23 )
-			  </OnLoad>
-			  <OnEditFocusLost>
-				DiceMaster4.UpdateUnitFrames()
-			  </OnEditFocusLost>
-			  <OnEscapePressed function="EditBox_ClearFocus"/>
-			  <OnEnterPressed function="EditBox_ClearFocus"/>
-			  <OnUpdate>
-				self:EnableMouse( DiceMaster4.IsLeader( false ) )
-			  </OnUpdate>
-			</Scripts>
-			<FontString inherits="GameFontHighlightSmall" justifyH="center" />
-		  </EditBox>
+		</Button>
+		<Button parentKey="talkingHeadButton">
+			 <Size x="24" y="24"/>	
+			  <Anchors>
+				<Anchor point="BOTTOMLEFT" x="4" y="0" />
+			  </Anchors>
+			  <Scripts>
+				<OnLoad>
+					self:RegisterForClicks("LeftButtonUp", "RightButtonDown");					self:SetNormalTexture("Interface/GossipFrame/GossipGossipIcon")
+					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to send a talking head dialogue from this unit.")
+				</OnLoad>
+				<OnClick>
+					if DiceMaster4.IsLeader( false ) then
+						StaticPopup_Show("DICEMASTER4_SENDTALKINGHEAD", nil, nil, self:GetParent(), DiceMasterTalkingHeadOptionsDropdown)
+						PlaySound(823)
+					end
+				</OnClick>
+			  </Scripts>
+		</Button>
 	   <Frame parentkey="health">
         <Size x="160" y="20"/>
         <Anchors>
@@ -189,6 +183,7 @@
 				<Texture parentKey="frame" setAllPoints="true" >
 				</Texture>
 				<Texture parentKey="spark" alphaMode="ADD"/>
+				<Texture parentKey="barGlow" inherits="OverAbsorbGlowTemplate"/>
 		    </Layer>
 			<Layer level="HIGHLIGHT">
 				<FontString parentKey="text" inherits="TextStatusBarText" setallpoints="true">
@@ -203,7 +198,6 @@
 			self.fill:SetPoint("TOPLEFT");
 			self.fill:SetPoint("BOTTOMLEFT");
 			self.fill:SetWidth(self:GetWidth());
-			
 			self.armor:SetTexture("Interface/AddOns/DiceMaster/Texture/health-bar")
 			self.armor:SetTexCoord( 0, 1, 0.75, 1 )
 			self.armor:ClearAllPoints();
@@ -211,12 +205,15 @@
 			self.armor:SetPoint("BOTTOMLEFT");
 			self.armor:SetWidth(self:GetWidth());
 			
+			self.barGlow:ClearAllPoints();
+			self.barGlow:SetHeight(self:GetHeight()/2);
+			self.barGlow:SetWidth(self:GetHeight()*0.8);
+			self.barGlow:SetPoint("LEFT", self.fill, "RIGHT", -6, 0);
 			self.spark:SetTexture("Interface/UNITPOWERBARALT/Generic1Player_Horizontal_Spark")
 			self.spark:ClearAllPoints();
 			self.spark:SetHeight(self:GetHeight());
 			self.spark:SetWidth(self:GetHeight()/4);
 			self.spark:SetPoint("LEFT", self.fill, "RIGHT", -2, 0);
-			
 			self.frame:SetTexture("Interface/AddOns/DiceMaster/Texture/health-bar")
 			self.frame:SetTexCoord( 0, 1, 0, 0.25 )
 			self.background:SetTexture("Interface/AddOns/DiceMaster/Texture/health-bar")
@@ -227,6 +224,80 @@
           </OnMouseDown>
         </Scripts>
       </Frame>
+	  <StatusBar parentKey="castBar" drawLayer="BORDER" hidden="true">
+		<Size>
+			<AbsDimension x="150" y="10"/>
+		</Size>
+		<Anchors>
+          <Anchor point="BOTTOM" x="0" y="-75"/> 
+        </Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true">
+					<Color r="0" g="0" b="0" a="0.5"/>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Border" file="Interface\CastingBar\UI-CastingBar-Border-Small">
+					<Size>
+						<AbsDimension x="0" y="49"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-23" y="20"/>
+						<Anchor point="TOPRIGHT" x="23" y="20"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Text" inherits="SystemFont_Shadow_Small" text="Casting...">
+					<Size>
+						<AbsDimension x="0" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="0" y="4"/>
+						<Anchor point="TOPRIGHT" x="0" y="4"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Spark" file="Interface\CastingBar\UI-CastingBar-Spark" alphaMode="ADD">
+					<Size>
+						<AbsDimension x="32" y="32"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="Flash" file="Interface\CastingBar\UI-CastingBar-Flash-Small" alphaMode="ADD">
+					<Size>
+						<AbsDimension x="0" y="49"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-23" y="20"/>
+						<Anchor point="TOPRIGHT" x="23" y="20"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:SetMinMaxValues( 0, 3 )
+				self:SetValue( 0 )
+				self.Spark:Hide()
+				self.Flash:Hide()
+				self:Hide()
+			</OnLoad>
+			<OnShow>
+				self:GetParent().buffFrame:SetPoint( "TOP", self:GetParent(), "BOTTOM", 0, -75 )
+			</OnShow>
+			<OnHide>
+				self:GetParent().buffFrame:SetPoint( "TOP", self:GetParent(), "BOTTOM", 0, -45 )
+			</OnHide>
+			<OnMouseDown>
+				DiceMaster4.OnUnitBarCastClicked( self, button )
+			</OnMouseDown>
+		</Scripts>
+		<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+		<BarColor r="1.0" g="0.7" b="0.0"/>
+	  </StatusBar>
 	  <Frame name="$parentBuffFrame" parentKey="buffFrame">
 		<Size x="180" y="32"/>
 		<Anchors>
@@ -258,6 +329,8 @@
 		self.name:SetText("Unit Name")
 		self.visible = true
 		self:Reset()
+		Model_OnLoad(self, nil, nil, 0);
+		self:SetCamDistanceScale(1.3);
       </OnLoad>
       <OnSizeChanged>
         
@@ -272,16 +345,8 @@
 					DiceMaster4.DeleteUnitFrame( self )
 				end
 				return
-			elseif IsControlKeyDown() then
-				DiceMaster4.MarkUnitFrame( self )
-				return
 			elseif button=="LeftButton" then
 				DiceMaster4.AffixEditor_Open( self )
-				return
-			end
-		elseif DiceMaster4.IsLeader( true ) then
-			if IsControlKeyDown() then
-				DiceMaster4.MarkUnitFrame( self )
 				return
 			end
 		end
@@ -293,31 +358,11 @@
 		if self.dead then
 			self:SetAnimation(6)
 		elseif self:IsShown() then
-			self:SetAnimation(self.animation or 0)
-			self:SetSpellVisualKit(self.spellvisualkit or 0)
+			self:SetAnimation(self.animations["PreAggro"].id or 0)
 		end
 	  </OnAnimFinished>
-	  <OnUpdate>
-		if self.collapsed then
-			self:SetPortraitZoom(0)
-			self:SetPortraitZoom(0.9)
-		else
-			self:SetPortraitZoom(0)
-			self:SetPortraitZoom(0.6)
-		end
-	  </OnUpdate>
     </Scripts>
-	<Animations>
-        <AnimationGroup parentKey="damageTextAnim">
-			<Translation childKey="damageText" duration="2" order="1" offsetX="0" offsetY="50"/>
-			<Scripts>
-				<OnPlay>
-					UIFrameFadeOut(self:GetParent().damageText, 1, 1, 0)
-				</OnPlay>
-			</Scripts>
-		</AnimationGroup>
-	</Animations>
     
-  </CinematicModel>
+  </PlayerModel>
 
 </Ui>

@@ -1,0 +1,228 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <Frame name="DiceMasterUnitFramesBuffEditor" parent="UIParent" inherits="ButtonFrameTemplate" hidden="true" frameStrata="DIALOG" topLevel="true">
+    <Size x="384" y="310" />
+    <Anchors>
+      <Anchor point="CENTER" />
+    </Anchors>
+	
+	<Layers>
+		<Layer level="ARTWORK">
+		</Layer>
+	</Layers>
+    
+    <Scripts>
+      <OnLoad>	
+	    if self.NineSlice then
+			self.NineSlice:SetFrameLevel(1)
+		end
+		self:SetClampedToScreen( true )
+		self:SetMovable(true)
+		self:EnableMouse(true)
+        self:RegisterForDrag( "LeftButton" )
+        self:SetScript( "OnDragStart", self.StartMoving )
+        self:SetScript( "OnDragStop", self.StopMovingOrSizing )
+		self:SetScale(0.8)
+        self:SetUserPlaced( true )
+		
+		self.TitleText:SetText("Apply Buff")
+      </OnLoad>
+    </Scripts>
+    <Frames>
+	
+	  <DiceMasterTraitButton name="$parentBuffIconButton" parentKey="buffIcon" >
+        <Size x="42" y="42"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="DiceMasterUnitFramesBuffEditorInset" relativePoint="TOPLEFT" x="12" y="-12"/> 
+		</Anchors>
+        <Scripts>
+          <OnLoad>
+            
+            self:SetCustomTooltip( "|cFFFFD100Click to select an icon for this buff." )
+            
+          </OnLoad>
+          <OnClick>
+            PlaySound(54132)
+            DiceMaster4.IconPicker_Open( self:GetParent() )
+          </OnClick>
+        </Scripts>
+      </DiceMasterTraitButton>
+      
+	  <EditBox name="$parentBuffName" parentKey="buffName" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<Size x="290" y="12"/> 
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.buffIcon" relativePoint="RIGHT" x="16" y="0"/> 
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+		  <FontString name="$parentBuffNameTitle" inherits="GameFontNormalLeft" justifyH="left" text="Buff Name">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="0" y="20"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<Scripts> 
+		  <OnLoad>
+			self:SetAutoFocus( false )
+			self:SetTextColor( 1, 1, 1 )
+			self:SetMaxLetters( 200 )
+		  </OnLoad>
+		  <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEnterPressed function="EditBox_ClearFocus"/>
+		  <OnTabPressed>
+			self:GetParent().buffDesc.EditBox:SetFocus()
+		  </OnTabPressed>
+		</Scripts>
+	  </EditBox>
+	  
+	  <ScrollFrame parentKey="buffDesc" name="$parentBuffDesc" inherits="InputScrollFrameTemplate">
+		<Size x="340" y="64"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeKey="$parent.buffIcon" relativePoint="BOTTOMLEFT" x="4" y="-24"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+		  <FontString name="$parentBuffDescTitle" inherits="GameFontNormalLeft" justifyH="left" text="Description">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="0" y="20"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<KeyValues>
+			<KeyValue key="instructions" value="A description of this buff."/>
+			<KeyValue key="hideCharCount" value="true" type="boolean"/>
+		</KeyValues>
+		<Scripts>
+			<OnLoad>
+				InputScrollFrame_OnLoad(self);
+				--self.EditBox:SetScript("OnEditFocusLost", DiceMaster4.AffixEditor_SaveDescription)
+			</OnLoad>
+		</Scripts>
+		</ScrollFrame>
+		
+		<CheckButton name="$parentBuffCancelable" parentKey="buffCancelable" inherits="ChatConfigCheckButtonTemplate">
+			<Anchors>
+			  <Anchor point="TOPLEFT" relativeKey="$parent.buffDesc" relativePoint="BOTTOMLEFT" x="-8" y="-20" />
+			</Anchors>
+			
+			<Scripts>
+				<OnLoad>
+					_G[self:GetName().."Text"]:SetText("|cFFFFD100Lasts until cancelled")
+					self.tooltip = "Enables this buff to persist until it is manually removed."
+				</OnLoad>
+				<OnClick>
+					if self:GetChecked() then
+						self:GetParent().buffDuration:Hide()
+					else
+						self:GetParent().buffDuration:Show()
+					end
+				</OnClick>
+			</Scripts>
+		</CheckButton>
+		
+		<Slider name="$parentBuffDuration" parentKey="buffDuration" inherits="OptionsSliderTemplate" orientation="HORIZONTAL" enableMouse="true">
+			<Size x="190" y="20"/>
+			<Anchors>
+			  <Anchor point="LEFT" relativeTo="DiceMasterUnitFramesBuffEditorBuffCancelableText" relativePoint="RIGHT" x="18" y="0" />
+			</Anchors>
+			
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.BuffDuration_OnLoad( self )
+				</OnLoad>
+				<OnValueChanged>
+					DiceMaster4.BuffDuration_OnValueChanged( self, value, userInput )
+				</OnValueChanged>
+			</Scripts>
+		</Slider>
+		
+		<CheckButton name="$parentBuffStackable" parentKey="buffStackable" inherits="ChatConfigCheckButtonTemplate">
+			<Anchors>
+			  <Anchor point="TOPLEFT" relativeKey="$parent.buffCancelable" relativePoint="BOTTOMLEFT" x="0" y="0" />
+			</Anchors>
+			
+			<Scripts>
+				<OnLoad>
+					_G[self:GetName().."Text"]:SetText("|cFFFFD100Stackable")
+					self.tooltip = "Enables this buff to stack more than once on the same target."
+				</OnLoad>
+			</Scripts>
+		</CheckButton>
+		
+		<Button name="$parentLoadButton" parentKey="LoadButton" enableMouse="true" inherits="UIPanelButtonTemplate">
+			<Size x="80" y="16"/>
+			<Anchors>
+			  <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="4" y="4"/> 
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to load a saved buff.")
+				</OnLoad>
+			  <OnShow>
+				UIDropDownMenu_Initialize( self, DiceMaster4.UnitFramesBuffEditorDropDown_OnLoad )
+				UIDropDownMenu_SetText(self, "Load")
+				--UIDropDownMenu_SetWidth(self, 80)
+				self:SetHeight(22)
+			  </OnShow>
+			  <OnClick>
+				ToggleDropDownMenu(1, nil, self, self, 0, 0)
+				self:SetHeight(22)
+			  </OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button parentKey="SaveButton" inherits="UIPanelButtonTemplate" text="Save">
+			<Size x="80" y="22"/>
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeKey="$parent.LoadButton" relativePoint="TOPRIGHT" x="0" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to save this buff.")
+				</OnLoad>
+				<OnClick>
+					local name = self:GetParent().buffName:GetText()
+					if DiceMaster4UF_Saved.FavouriteAffixes[name] then
+					StaticPopup_Show("DICEMASTER4_OVERWRITEBUFF")
+					else
+					DiceMaster4.UnitFramesBuffEditor_SaveBuff()
+					end
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button parentKey="DeleteButton" inherits="UIPanelButtonTemplate" text="Delete">
+			<Size x="80" y="22"/>
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeKey="$parent.SaveButton" relativePoint="TOPRIGHT" x="0" y="0"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to delete this buff.")
+				</OnLoad>
+				<OnClick>
+					StaticPopup_Show("DICEMASTER4_DELETEBUFF", nil, nil, self:GetParent().buffName:GetText() or "")
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button name="$parentApplyButton" inherits="UIPanelButtonTemplate" text="Apply">
+			<Size x="85" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMRIGHT" x="-6" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.UnitFramesBuffEditor_ApplyBuff()
+				</OnClick>
+			</Scripts>
+		</Button>
+
+    </Frames>
+  </Frame>
+  
+</Ui>

@@ -10,6 +10,7 @@
 --
 
 local Me = DiceMaster4
+local Profile = Me.Profile
 
 -------------------------------------------------------------------------------
 -- Which events we want to hook for filtering chat links.
@@ -50,6 +51,45 @@ local public_events = {
 	["CHAT_MSG_EMOTE"] = true;
 }
 
+local function CheckTooltipForTerms( text )
+	DiceMasterItemRefTooltip:Hide()
+	local termsTable = {}
+	for k, v in pairs( Me.RollList ) do
+		for i = 1, #v do
+			local matchFound = string.match( text, v[i].subName )
+			if matchFound then
+				local desc = gsub( v[i].desc, "Roll", "An attempt" )
+				local termsString = Me.FormatIcon( v[i].iconID ) .. " |cFFFFFFFF" .. v[i].name .. "|r|n|cFFffd100" .. desc .. "|r|n|cFF707070(Modified by " .. v[i].stat .. " + " .. v[i].name .. ")|r"
+				
+				if not tContains( termsTable, termsString ) then
+					tinsert( termsTable, termsString )
+				end
+			end
+		end
+	end
+	for k, v in pairs( Me.TermsList ) do
+		for i = 1, #v do
+			local matchFound = string.match( text, "<" .. v[i].subName .. ">" )
+			if matchFound then
+				local termsString = Me.FormatIcon( v[i].iconID ) .. " |cFFFFFFFF" .. v[i].name .. "|r|n|cFFffd100" .. v[i].desc .. "|r"
+				if not tContains( termsTable, termsString ) then
+					tinsert( termsTable, termsString )
+				end
+			end
+		end
+	end
+	if #termsTable > 0 then
+		table.sort( termsTable )
+		local tooltip = termsTable[1]
+		for i = 2, #termsTable do
+			tooltip = tooltip .. "|n|n" .. termsTable[i]
+		end
+		DiceMasterItemRefTooltip.TextLeft1:SetText( tooltip )
+		DiceMasterItemRefTooltip:Show()
+		ItemRefTooltip:HookScript("OnHide", function() DiceMasterItemRefTooltip:Hide() end )
+	end
+end
+
 -------------------------------------------------------------------------------
 -- Chat filter for processing DiceMaster4 links.
 --
@@ -72,11 +112,90 @@ local function ChatFilter( self, event, msg, sender, ... )
         return string.format("|T"..icon..":16|t |cff71d5ff|HDiceMaster4:"..name..":"..guid.."|h[%s]|h|r", ability);
 	end);
 	
+	clean = string.gsub(clean, "%[DiceMaster4Item:(.-):(.-):(.-)%]", function(name, guid, item)
+		
+		found_links = true
+		
+		-- remove the special spaces that were inserted 
+		-- (See trait editor code for a better explanation.)
+		item = item:gsub( " ", " " )
+		
+		local found_item = false;
+	
+		for i = 1, 42 do
+			if Me.inspectData[name].inventory[i] and Me.inspectData[name].inventory[i].guid == guid then
+				found_item = i;
+				break
+			end
+		end
+		
+		if not found_item then
+			return "|TInterface/Icons/inv_misc_questionmark:16|t |cffffffff[Unknown Item]|r";
+		end
+		
+		local icon = Me.inspectData[name].inventory[found_item].icon
+		local colorHex = ITEM_QUALITY_COLORS[ Me.inspectData[name].inventory[found_item].quality ].hex or "|cffffffff";
+		
+		-- convert into chat link
+        return string.format("|T"..icon..":16|t "..colorHex.."|HDiceMaster4Item:"..name..":"..guid.."|h[%s]|h|r", item);
+	end);
+	
 	if public_events[event] and found_links then
 		
 		-- if we received this over a public channel; request inspect data
 		Me.Inspect_UpdatePlayer( sender_short )
 	end
+
+	clean = string.gsub(clean, "%[DiceMaster4Roll:(.-)%]", function( statistic )
+
+		-- convert into chat link
+		return "|cffffd100|HDiceMaster4Roll:"..statistic.."|h[|TInterface/AddOns/DiceMaster/Texture/logo:12|t Roll " .. statistic .. "]|h|r";
+	end);
+	
+	clean = string.gsub(clean, "%[DiceMaster4Icon:(.-)%]", function( path )
+		
+		if not strfind( path, "%/Icons%/" ) or not Me.db.global.allowIcons then
+			return "";
+		end
+		
+		-- convert into chat link
+		return "|T" .. path .. ":16|t";
+	end);
+	
+	clean = string.gsub(clean, "%[DiceMaster4Pin:(%d-)%]", function( pin )
+		
+		if not pin then return end
+		
+		pin = tonumber( pin )
+		
+		local mapNodes = Me.Profile.mapNodes
+		
+		if IsInGroup( LE_PARTY_CATEGORY_HOME ) and not Me.IsLeader( false ) and not IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) and Me.db.global.enableMapNodes then
+			for i = 1, GetNumGroupMembers(1) do
+				local name, rank = GetRaidRosterInfo(i)
+				if rank == 2 then
+					if Me.inspectData[ name ].mapNodes then
+						mapNodes = Me.inspectData[ name ].mapNodes
+					end
+					break
+				end
+			end
+		end
+		
+		if not mapNodes or not mapNodes[pin] then return end
+		
+		local icon = mapNodes[pin].icon
+		local name = mapNodes[pin].title
+		
+		if type( icon ) == "table" then
+			icon = icon[10]
+		else
+			icon = "|T" .. icon .. ":16|t";
+		end
+		
+		-- convert into chat link
+		return "|cffffd100|HDiceMaster4Pin:"..pin.."|h["..icon.." "..name.."]|h|r";
+	end);
 	
 	return false, clean, sender, ...;
 end
@@ -84,31 +203,134 @@ end
 
 Me.itemRefOpen   = nil -- we have control over the itemreftooltip
 Me.itemRefTrait  = nil -- trait table pointer
+Me.itemRefItem  = nil  -- item table pointer
 Me.itemRefIndex  = nil -- index of the trait
 Me.itemRefPlayer = nil -- player name that owns the trait
 
 local function RefreshItemRef()
 	
 	local trait = Me.itemRefTrait
+	local item = Me.itemRefItem
 	
-	local name = string.format( "|T%s:32\124t %s", trait.icon, trait.name )
-	
-	ItemRefTooltip:ClearLines();
-	ItemRefTooltip:AddLine( name, 1,1,1,1 )
-	ItemRefTooltip:AddLine( Me.FormatUsage( trait.usage, Me.itemRefPlayer ), 1,1,1,1 )
-	
-	local desc = Me.FormatDescTooltip( trait.desc )
-	
-	if trait.approved == 2 then
-		DiceMasterItemRefApproved.icon:SetTexture("Interface/AddOns/DiceMaster/Texture/trait-approved-left")
-	elseif trait.approved == 1 then
-		DiceMasterItemRefApproved.icon:SetTexture("Interface/AddOns/DiceMaster/Texture/trait-unapproved-left")
-	else
-		DiceMasterItemRefApproved.icon:SetTexture(nil)
+	if trait then
+		if trait.icon then
+			-- icon with name
+			DiceMasterItemRefIcon.icon:SetTexture( trait.icon )
+			DiceMasterItemRefIcon:Show()
+			if Me.itemRefIndex == 5 then
+				DiceMasterItemRefIcon.elite:Show()
+			else
+				DiceMasterItemRefIcon.elite:Hide()
+			end
+		else
+			DiceMasterItemRefIcon:Hide()
+			DiceMasterItemRefIcon.approved:Hide()
+			DiceMasterItemRefIcon.elite:Hide()
+		end
+		
+		ItemRefTooltip:ClearLines();
+		ItemRefTooltip:AddLine( trait.name, 1,1,1,1 )
+		
+		if trait.usage then
+			local usage = Me.FormatUsage( trait.usage, Me.itemRefPlayer )
+			
+			if trait.usage ~= "PASSIVE" and trait.range and trait.range ~= "NONE" then
+				local range = Me.FormatRange( trait.range )
+				ItemRefTooltip:AddDoubleLine( usage, range, 1, 1, 1, 1, 1, 1, true )
+			else
+				ItemRefTooltip:AddDoubleLine( usage, nil, 1, 1, 1, 1, 1, 1, true )
+			end
+			
+			if trait.usage ~= "PASSIVE" and trait.castTime then
+				local castTime = Me.FormatCastTime( trait.castTime )
+				local cooldown = Me.FormatCooldown( trait.cooldown )
+				if trait.cooldown and trait.cooldown ~= "NONE" then
+					ItemRefTooltip:AddDoubleLine( castTime, cooldown, 1, 1, 1, 1, 1, 1, true )
+				else
+					ItemRefTooltip:AddDoubleLine( castTime, nil, 1, 1, 1, 1, 1, 1, true )
+				end
+			end
+		end
+		
+		local desc = Me.FormatDescTooltip( trait.desc )
+		
+		if trait.desc then
+			if Me.db.global.hideTips then
+				CheckTooltipForTerms( trait.desc )
+			end
+			local desc = Me.FormatDescTooltip( trait.desc )
+			ItemRefTooltip:AddLine( desc, 1,0.82,0,1 )
+		end
+		
+		if trait.approved and trait.approved > 0 and Me.PermittedUse() then
+			if trait.approved == 1 then
+				DiceMasterItemRefIcon.approved:SetTexCoord( 0, 0.5, 0.5, 1 )
+			elseif trait.approved == 2 then
+				DiceMasterItemRefIcon.approved:SetTexCoord( 0, 0.5, 0, 0.5 )
+			end
+			DiceMasterItemRefIcon.approved:Show()
+		else
+			DiceMasterItemRefIcon.approved:Hide()
+		end
+		
+		if trait.officers and Me.PermittedUse() then
+			local approval
+			if trait.officers[2] then
+				approval = "|TInterface/AddOns/DiceMaster/Texture/trait-approved:14:14:0:0:32:32:2:14:2:14|t Approved by " .. trait.officers[1] .. " and " .. trait.officers[2]
+				ItemRefTooltip:AddLine( approval, 0, 1, 0, true )
+			elseif trait.officers[1] then
+				approval = "|TInterface/AddOns/DiceMaster/Texture/trait-approved:14:14:0:0:32:32:2:14:18:30|t Approved by " .. trait.officers[1]
+				ItemRefTooltip:AddLine( approval, 1, 1, 0, true )
+			end
+		end
+	elseif item then
+		if item.icon then
+			-- icon with name
+			DiceMasterItemRefIcon.icon:SetTexture( item.icon )
+			DiceMasterItemRefIcon:Show()
+		else
+			DiceMasterItemRefIcon:Hide()
+		end
+		
+		DiceMasterItemRefIcon.approved:Hide()
+		DiceMasterItemRefIcon.elite:Hide()
+		
+		ItemRefTooltip:ClearLines();
+		
+		if item.name then
+			local color = ITEM_QUALITY_COLORS[ item.quality ]
+			ItemRefTooltip:AddLine( item.name, color.r, color.g, color.b, 1 )
+		end
+		
+		if item.soulbound then
+			ItemRefTooltip:AddLine( "Binds when picked up", 1, 1, 1, true )
+		end
+		
+		if item.whiteText1 and item.whiteText2 then
+			ItemRefTooltip:AddDoubleLine( item.whiteText1, item.whiteText2, 1, 1, 1, 1, 1, 1, true )
+		end
+		
+		if item.useText then
+			ItemRefTooltip:AddLine( item.useText, 0, 1, 0, true )
+		end
+		
+		if item.requirement then
+			ItemRefTooltip:AddLine( item.requirement, 0, 1, 0, true )
+		end
+		
+		if item.cooldown then
+			--GameTooltip:AddLine( FormatDuration( owner ) , 1, 1, 1, true )
+		end
+		
+		if item.flavorText and item.flavorText~="" then
+			ItemRefTooltip:AddLine( "\""..item.flavorText.."\"", 1, 0.81, 0, true )
+		end
+		
+		if item.author then
+			ItemRefTooltip:AddLine( "<Made by " .. item.author .. ">", 0, 1, 0, true )
+		end
 	end
-	DiceMasterItemRefApproved:Show()
 	
-	ItemRefTooltip:AddLine( desc, 1,0.83,0.09,1 )
 	ItemRefTooltip:Show();
 end
  
@@ -118,7 +340,7 @@ end
 local SetHyperlink = ItemRefTooltip.SetHyperlink
 function ItemRefTooltip:SetHyperlink(link)
 	
-    if strsub(link, 1, 12) == "DiceMaster4:" then
+	if strsub(link, 1, 16) == "DiceMaster4Item:" then
 		if IsModifiedClick("CHATLINK") then
 			-- shift-clicked
 			--ChatEdit_InsertLink("["..link.."]")
@@ -127,11 +349,17 @@ function ItemRefTooltip:SetHyperlink(link)
 			-- we need to hook the chatbox code for copying links
 		else
 			local linkType, name, guid = strsplit(":", link)
-			guid = tonumber(guid) 
-			if not guid or guid < 1 or guid > Me.traitCount then return end
+			if not guid then return end
+			
+			local slot = Me.FindFirstStackSlot( guid )
+			
+			if not slot then
+				return
+			end
 			
 			Me.itemRefOpen   = true
-			Me.itemRefTrait  = Me.inspectData[ name ].traits[guid]
+			Me.itemRefItem  = Me.inspectData[ name ].inventory[ slot ]
+			Me.itemRefTrait  = nil
 			Me.itemRefIndex  = guid
 			Me.itemRefPlayer = name
 			 
@@ -145,6 +373,94 @@ function ItemRefTooltip:SetHyperlink(link)
 			-- if trait data isn't loaded yet, the tooltip will be updated
 			-- automatically
 		end
+    elseif strsub(link, 1, 12) == "DiceMaster4:" then
+		if IsModifiedClick("CHATLINK") then
+			-- shift-clicked
+			--ChatEdit_InsertLink("["..link.."]")
+			-- this doesn't work anyway.
+			-- this might be a TODO job.
+			-- we need to hook the chatbox code for copying links
+		else
+			local linkType, name, guid = strsplit(":", link)
+			guid = tonumber(guid) 
+			if not guid or guid < 1 or guid > Me.traitCount then return end
+			
+			Me.itemRefOpen   = true
+			Me.itemRefTrait  = Me.inspectData[ name ].traits[guid]
+			Me.itemRefItem   = nil
+			Me.itemRefIndex  = guid
+			Me.itemRefPlayer = name
+			 
+			--ShowUIPanel(ItemRefTooltip); -- todo: test without this
+			if not ItemRefTooltip:IsVisible() then
+				ItemRefTooltip:SetOwner(UIParent, "ANCHOR_PRESERVE");
+			end
+			
+			RefreshItemRef()
+			
+			-- if trait data isn't loaded yet, the tooltip will be updated
+			-- automatically
+		end
+	elseif strsub(link, 1, 16) == "DiceMaster4Roll:" then
+	
+		local linkType, msg = strsplit( ":", link )
+				
+		if not msg then return end
+		
+		local dice = DiceMasterPanelDice:GetText()
+		local rollType = nil
+		local stat = nil
+		local modifier = 0;
+		
+		for k, v in pairs( Me.RollList ) do
+			for i = 1, #v do
+				if v[i].name:lower() == msg:lower() then
+					rollType = v[i].name
+					stat = v[i].stat
+				end
+			end
+		end
+		
+		if rollType and stat then
+			for i = 1,#Profile.stats do
+				if Profile.stats[i] and ( Profile.stats[i].name == stat or Profile.stats[i].name == rollType ) then
+					modifier = modifier + Profile.stats[i].value
+				end
+			end
+			for i = 1, #Profile.buffsActive do
+				if Profile.buffsActive[i].statistic == rollType then
+					modifier = modifier + Profile.buffsActive[i].statAmount
+				end
+			end
+			msg = Me.FormatDiceString( dice, modifier ) or "D20"
+		end
+		
+		Me.Roll( msg, rollType )
+	elseif strsub(link, 1, 15) == "DiceMaster4Pin:" then
+		local linkType, msg = strsplit( ":", link )
+		pinIndex = tonumber( msg ) or nil
+		if not pinIndex then return end
+		
+		local mapNodes = Me.Profile.mapNodes
+		
+		if IsInGroup( LE_PARTY_CATEGORY_HOME ) and not Me.IsLeader( false ) and not IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) and Me.db.global.enableMapNodes then
+			for i = 1, GetNumGroupMembers(1) do
+				local name, rank = GetRaidRosterInfo(i)
+				if rank == 2 then
+					if Me.inspectData[ name ].mapNodes then
+						mapNodes = Me.inspectData[ name ].mapNodes
+					end
+					break
+				end
+			end
+		end
+		
+		if not mapNodes or not mapNodes[ pinIndex ] then return end
+		
+		local info = mapNodes[ pinIndex ]
+		local mapID = info.mapID;
+		
+		OpenWorldMap( mapID )
     else
 	
 		-- release control over the tooltip if something else is clicked
@@ -153,7 +469,9 @@ function ItemRefTooltip:SetHyperlink(link)
 		if Me.itemRefOpen and not IsModifiedClick("CHATLINK") then
 			Me.itemRefOpen = false
 			ItemRefTooltip:Hide()
-			DiceMasterItemRefApproved:Hide()
+			DiceMasterItemRefIcon:Hide()
+			DiceMasterItemRefIcon.approved:Hide()
+			DiceMasterItemRefIcon.elite:Hide()
 		end
         SetHyperlink(self, link)
     end

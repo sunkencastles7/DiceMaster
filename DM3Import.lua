@@ -9,24 +9,6 @@
 local Me = DiceMaster4
 local Profile = Me.Profile
 
-function Me.EnchantDescriptionUpdate( altdesc, enchant )
-	print("test")
-	local d, m, y = string.match( altdesc , "(%d+)%/(%d+)/(%d+)" )
-	local reference = time{day=tonumber(d), year=tonumber(y), month=tonumber(m)}
-	local daysfrom = difftime(time(), reference) / (24 * 60 * 60)
-	local wholedays = math.floor(daysfrom)
-	local unit = "d"
-	if wholedays > 13 then wholedays = 2; unit = "w" end
-	if wholedays > 6 then wholedays = 1; unit = "w" end 
-	
-	if wholedays > 0 then
-		enchant = enchant:gsub("%((%d+%s%a)%)", "("..wholedays.." "..unit..")")
-	else
-		enchant = "";
-	end
-	return enchant;
-end
-
 function Me.ImportDM3Saved()
 	Me.Profile.buffsActive = {}
 	if not Me.Profile.buffs then Me.Profile.buffs = {} end
@@ -78,4 +60,24 @@ function Me.ImportDM3Saved()
 	end
 	
 	Me.db.char.dm3Imported = true
+end
+
+function Me.ImportDM4Saved()
+	if Me.db.char.dm4Imported then 
+		return
+	end
+	
+	for i = 1, 5 do
+		if Profile.traits[i] then
+			Profile.traits[i]["effects"] = {
+				["buff"] = Profile.buffs[i];
+				["removebuff"] = Profile.removebuffs[i];
+				["sound"] = Profile.playsounds[i];
+				["setdice"] = Profile.setdice[i];
+				["effect"] = Profile.visualeffects[i];
+			};
+		end
+	end
+	
+	Me.db.char.dm4Imported = true
 end

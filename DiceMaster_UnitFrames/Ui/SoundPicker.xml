@@ -1,0 +1,243 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+  
+  <!-- Template for the sound buttons in the sound selector. -->
+  <Button name="DiceMasterSoundPickerButtonTemplate" virtual="true">
+		<Size x="230" y="16"/>
+		<Frames>
+			<Button parentKey="playButton">
+				<Size x="18" y="18"/>
+				<Anchors>
+					<Anchor point="LEFT" x="5" y="0"/>
+				</Anchors>
+				<NormalTexture file="Interface/Buttons/UI-SpellbookIcon-NextPage-Up"/>
+				<PushedTexture file="Interface/Buttons/UI-SpellbookIcon-NextPage-Down"/>
+				<DisabledTexture file="Interface/Buttons/UI-SpellbookIcon-NextPage-Disabled"/>
+				<HighlightTexture file="Interface/Buttons/UI-Common-MouseHilight" alphaMode="ADD"/>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.SoundPicker_TestSound( self:GetParent() )
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Layers>
+			<Layer level="BORDER">
+				<FontString name="$parentName" inherits="GameFontHighlightSmall" justifyH="LEFT">
+					<Size x="190" y="14"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.playButton" relativePoint="RIGHT" x="1" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+			</OnLoad>
+			<OnClick>
+				DiceMaster4.SoundPickerButton_OnClick(self, button);
+				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+			</OnClick>
+		</Scripts>
+		<HighlightTexture name="$parentHighlight" file="Interface\QuestFrame\UI-QuestTitleHighlight" alphaMode="ADD">
+			<Size x="210" y="16"/>
+			<Anchors>
+				<Anchor point="TOPLEFT" x="5" y="-2"/>
+			</Anchors>
+		</HighlightTexture>
+	</Button>
+  
+    <Frame name="DiceMasterSoundPicker" parent="UIParent" hidden="true" inherits="SimplePanelTemplate" frameStrata="DIALOG" toplevel="true">
+		<Size x="256" y="380"/>
+		<Anchors>
+		  <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
+		</Anchors>
+		
+		<Layers>
+		</Layers>
+		
+		<Scripts>
+		  <OnLoad>
+			DiceMaster4.SoundPicker_OnLoad(self);
+		  </OnLoad>
+		</Scripts>
+		<Frames>
+		
+		  <!-- Search/filter box. -->
+		  <EditBox parentKey="search" inherits="SearchBoxTemplate">
+			<Size x="200" y="8" />
+			<Anchors>
+			  <Anchor point="TOP" x="0" y="-16" />
+			</Anchors>
+			<Scripts>
+			  <OnTextChanged>
+				SearchBoxTemplate_OnTextChanged(self);
+				DiceMaster4.SoundPicker_FilterChanged()
+			  </OnTextChanged>
+			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			</Scripts>
+		  </EditBox>
+		  
+		  <Button name="$parentPreAggroSound" parentKey="preAggroSound" inherits="UIMenuButtonStretchTemplate" text="Not Bound">
+			<Size x="150" y="18"/>
+			<Anchors>
+				<Anchor point="TOPRIGHT" x="-8" y="-285"/>
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString inherits="GameFontNormalSmall" justifyH="right" text="Pre Aggro">
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="DiceMasterSoundPicker" x="8" />
+							<Anchor point="BOTTOM" y="4" />
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Select a sound from above, then click to bind it.")
+				</OnLoad>
+				<OnShow>
+					self:SetText("Not Bound")
+				</OnShow>
+				<OnClick>
+					DiceMaster4.SoundPicker_BindSound( self, "PreAggro" )
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentAggroSound" parentKey="aggroSound" inherits="UIMenuButtonStretchTemplate" text="Not Bound">
+			<Size x="150" y="18"/>
+			<Anchors>
+				<Anchor point="TOP" relativeKey="$parent.preAggroSound" y="-16"/>
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString inherits="GameFontNormalSmall" justifyH="right" text="Aggro">
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="DiceMasterSoundPicker" x="8" />
+							<Anchor point="BOTTOM" y="4" />
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Select a sound from above, then click to bind it.")
+				</OnLoad>
+				<OnShow>
+					self:SetText("Not Bound")
+				</OnShow>
+				<OnClick>
+					DiceMaster4.SoundPicker_BindSound( self, "Aggro" )
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentWoundSound" parentKey="woundSound" inherits="UIMenuButtonStretchTemplate" text="Not Bound">
+			<Size x="150" y="18"/>
+			<Anchors>
+				<Anchor point="TOP" relativeKey="$parent.aggroSound" y="-16"/>
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString inherits="GameFontNormalSmall" justifyH="right" text="Wound">
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="DiceMasterSoundPicker" x="8" />
+							<Anchor point="BOTTOM" y="4" />
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Select a sound from above, then click to bind it.")
+				</OnLoad>
+				<OnShow>
+					self:SetText("Not Bound")
+				</OnShow>
+				<OnClick>
+					DiceMaster4.SoundPicker_BindSound( self, "Wound" )
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentDeathSound" parentKey="deathSound" inherits="UIMenuButtonStretchTemplate" text="Not Bound">
+			<Size x="150" y="18"/>
+			<Anchors>
+				<Anchor point="TOP" relativeKey="$parent.woundSound" y="-16"/>
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString inherits="GameFontNormalSmall" justifyH="right" text="Death">
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="DiceMasterSoundPicker" x="8" />
+							<Anchor point="BOTTOM" y="4" />
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Select a sound from above, then click to bind it.")
+				</OnLoad>
+				<OnShow>
+					self:SetText("Not Bound")
+				</OnShow>
+				<OnClick>
+					DiceMaster4.SoundPicker_BindSound( self, "Death" )
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button inherits="MagicButtonTemplate" text="Close">
+			<Size x="100" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOM"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.SoundPicker_Close()
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="DiceMasterSoundPickerButton1" inherits="DiceMasterSoundPickerButtonTemplate" id="1">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="DiceMasterSoundPicker" x="2" y="-35"/>
+			</Anchors>
+		  </Button>
+		  
+		  <!-- Area for icon selector. -->
+		  <ScrollFrame name="$parentScrollFrame" inherits="FauxScrollFrameTemplate">
+			<Size x="256" y="242"/>
+			<Anchors>
+				<Anchor point="TOPRIGHT" relativeTo="DiceMasterSoundPicker" relativePoint="TOPRIGHT" x="-33" y="-37"/>
+			</Anchors>
+			<Scripts>
+				<OnVerticalScroll>
+					FauxScrollFrame_OnVerticalScroll(self, offset, 16, DiceMaster4.SoundPicker_Update);
+				</OnVerticalScroll>
+			</Scripts>
+			<Layers>
+				<Layer level="BORDER">
+					<Texture file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+						<Size x="31" y="205"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="-2" y="5"/>
+						</Anchors>
+						<TexCoords left="0" right="0.484375" top="0" bottom="0.8"/>
+					</Texture>
+					<Texture file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+						<Size x="31" y="106"/>
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-2" y="-2"/>
+						</Anchors>
+						<TexCoords left="0.515625" right="1.0" top="0" bottom="0.4140625"/>
+					</Texture>
+				</Layer>
+			</Layers>
+		  </ScrollFrame>
+		</Frames>
+	</Frame>
+</Ui>

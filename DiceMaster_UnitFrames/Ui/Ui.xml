@@ -5,9 +5,9 @@
   
   <!-- Frames -->
   <Include file="Ui\Panels.xml"/>
-  <Include file="Ui\UnitPicker.xml"/>
   <Include file="Ui\AffixEditor.xml"/>
-  <Include file="Ui\IconPicker.xml"/>
+  <Include file="Ui\BuffEditor.xml"/>
+  <Include file="Ui\AnimationPicker.xml"/>
   <Include file="Ui\TalkingHead.xml"/>
 </Ui>
  

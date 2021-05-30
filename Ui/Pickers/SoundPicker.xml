@@ -1,0 +1,235 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+  
+  <!-- Template for the sound buttons in the sound selector. -->
+  <Button name="DiceMasterSoundPickerButtonTemplate" virtual="true">
+		<Size x="230" y="16"/>
+		<Frames>
+			<Button parentKey="playButton">
+				<Size x="18" y="18"/>
+				<Anchors>
+					<Anchor point="LEFT" x="5" y="0"/>
+				</Anchors>
+				<NormalTexture file="Interface/Buttons/UI-SpellbookIcon-NextPage-Up"/>
+				<PushedTexture file="Interface/Buttons/UI-SpellbookIcon-NextPage-Down"/>
+				<DisabledTexture file="Interface/Buttons/UI-SpellbookIcon-NextPage-Disabled"/>
+				<HighlightTexture file="Interface/Buttons/UI-Common-MouseHilight" alphaMode="ADD"/>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.SoundPicker_TestSound( self:GetParent() )
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Layers>
+			<Layer level="BORDER">
+				<FontString name="$parentName" inherits="GameFontHighlightSmall" justifyH="LEFT">
+					<Size x="190" y="14"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.playButton" relativePoint="RIGHT" x="1" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+			</OnLoad>
+			<OnClick>
+				DiceMaster4.SoundPickerButton_OnClick(self, button);
+				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+			</OnClick>
+		</Scripts>
+		<HighlightTexture name="$parentHighlight" file="Interface\QuestFrame\UI-QuestTitleHighlight" alphaMode="ADD">
+			<Size x="210" y="16"/>
+			<Anchors>
+				<Anchor point="TOPLEFT" x="5" y="-2"/>
+			</Anchors>
+		</HighlightTexture>
+	</Button>
+  
+    <Frame name="DiceMasterSoundPicker" parent="UIParent" hidden="true" inherits="SimplePanelTemplate" frameStrata="DIALOG" toplevel="true">
+		<Size x="256" y="350"/>
+		<Anchors>
+		  <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
+		</Anchors>
+		
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="header" file="Interface/AddOns/DiceMaster/Texture/dicemaster-header">
+					<TexCoords left="0" right="0.623" top="0" bottom="0.566" />
+					<Size x="160" y="72"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-16" />
+					</Anchors>
+				</Texture>
+				<FontString inherits="GameFontNormal" justifyH="center" text="Play Sound">
+					<Anchors>
+					  <Anchor point="TOP" x="0" y="-12"/> 
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		
+		<Scripts>
+		  <OnLoad>
+			DiceMaster4.SoundPicker_OnLoad(self);
+		  </OnLoad>
+		</Scripts>
+		<Frames>
+		
+		  <!-- Search/filter box. -->
+		  <EditBox parentKey="search" inherits="SearchBoxTemplate">
+			<Size x="200" y="8" />
+			<Anchors>
+			  <Anchor point="TOP" x="0" y="-32" />
+			</Anchors>
+			<Scripts>
+			  <OnTextChanged>
+				SearchBoxTemplate_OnTextChanged(self);
+				DiceMaster4.SoundPicker_FilterChanged()
+			  </OnTextChanged>
+			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			</Scripts>
+		  </EditBox>
+		  
+		  <CheckButton name="$parentAreaSound" parentKey="areaSound" inherits="ChatConfigCheckButtonTemplate">
+			<Anchors>
+			  <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="4" y="68" />
+			</Anchors>
+			
+			<Scripts>
+				<OnLoad>
+					_G[self:GetName().."Text"]:SetText("|cFFFFD100Area Sound")
+					self.tooltip = "Enables this sound to play for all group members within the specified range."
+				</OnLoad>
+			</Scripts>
+		  </CheckButton>
+		  
+		  <EditBox name="$parentRange" parentKey="range" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+			<Size x="32" y="12"/> 
+			<Anchors>
+			  <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" x="-12" y="62" />
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString name="$parentBuffRangeTitle" inherits="GameFontNormalLeft" justifyH="right" text="Range:">
+						<Anchors>
+						  <Anchor point="RIGHT" relativePoint="LEFT" x="-8" y="0"/> 
+						</Anchors>
+					</FontString>
+			  </Layer>
+			</Layers>
+			<Scripts> 
+			  <OnLoad>
+				self:SetAutoFocus( false )
+				self:SetTextColor( 1, 1, 1 )
+				self:SetMaxLetters( 2 )
+			  </OnLoad>
+			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			  <OnEnterPressed function="EditBox_ClearFocus"/>
+			</Scripts>
+		  </EditBox>
+		  
+		  <EditBox name="$parentDelay" parentKey="delay" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+			<Size x="40" y="12"/> 
+			<Anchors>
+			  <Anchor point="TOPLEFT" relativeKey="$parent.areaSound" relativePoint="BOTTOMLEFT" x="54" y="0"/> 
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString name="$parentDelayTitle" inherits="GameFontNormalLeft" justifyH="left" text="Delay:">
+						<Size x="50" y="12"/>
+						<Anchors>
+						  <Anchor point="RIGHT" relativePoint="LEFT" x="0" y="0"/> 
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts> 
+			  <OnLoad>
+				self:SetAutoFocus( false )
+				self:SetTextColor( 1, 1, 1 )
+				self:SetMaxLetters( 3 )
+			  </OnLoad>
+			  <OnEditFocusGained>
+				self.lastValue = tonumber(self:GetText()) or 0;
+			  </OnEditFocusGained>
+			  <OnEditFocusLost>
+				self:HighlightText(0, 0)
+				if self:GetText()=="" then
+					self:SetText(self.lastValue)
+				end
+				if not tonumber(self:GetText()) then
+					self:SetText(self.lastValue)
+				elseif tonumber(self:GetText()) > 300 or tonumber(self:GetText()) &lt; 0 then
+					self:SetText(self.lastValue)
+				end
+			  </OnEditFocusLost>
+			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			  <OnEnterPressed function="EditBox_ClearFocus"/>
+			</Scripts>
+		  </EditBox>
+		 
+		  <Button name="$parentDeleteButton" inherits="MagicButtonTemplate" text="Delete">
+			<Size x="100" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMLEFT"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.SoundPicker_Delete()
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="$parentSaveButton" inherits="MagicButtonTemplate" text="Save">
+			<Size x="100" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMRIGHT"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.SoundPicker_Save()
+				</OnClick>
+			</Scripts>
+		  </Button>
+		  
+		  <Button name="DiceMasterSoundPickerButton1" inherits="DiceMasterSoundPickerButtonTemplate" id="1">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="DiceMasterSoundPicker" x="2" y="-51"/>
+			</Anchors>
+		  </Button>
+		  
+		  <!-- Area for icon selector. -->
+		  <ScrollFrame name="$parentScrollFrame" inherits="FauxScrollFrameTemplate">
+			<Size x="256" y="226"/>
+			<Anchors>
+				<Anchor point="TOPRIGHT" relativeTo="DiceMasterSoundPicker" relativePoint="TOPRIGHT" x="-33" y="-53"/>
+			</Anchors>
+			<Scripts>
+				<OnVerticalScroll>
+					FauxScrollFrame_OnVerticalScroll(self, offset, 16, DiceMaster4.SoundPicker_Update);
+				</OnVerticalScroll>
+			</Scripts>
+			<Layers>
+				<Layer level="BORDER">
+					<Texture file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+						<Size x="31" y="205"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="-2" y="5"/>
+						</Anchors>
+						<TexCoords left="0" right="0.484375" top="0" bottom="0.8"/>
+					</Texture>
+					<Texture file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+						<Size x="31" y="106"/>
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-2" y="-2"/>
+						</Anchors>
+						<TexCoords left="0.515625" right="1.0" top="0" bottom="0.4140625"/>
+					</Texture>
+				</Layer>
+			</Layers>
+		  </ScrollFrame>
+		</Frames>
+	</Frame>
+</Ui>

@@ -16,7 +16,7 @@
 							<Anchors>
 								<Anchor point="RIGHT" x="-42" y="0"/>
 							</Anchors>
-							<Color r="1" g=".82" b="0"/>
+							<Color r="0.33" g="0.16" b="0.02"/>
 						</FontString>
 					</Layer>
 				</Layers>
@@ -40,7 +40,7 @@
 								<Anchor point="TOPLEFT" relativeKey="$parent.$parent.NameFrame.Name" relativePoint="BOTTOMLEFT" x="0" y="-3"/>
 								<Anchor point="BOTTOMRIGHT" x="-42" y="12"/>
 							</Anchors>
-							<Color r="1" g="1" b="1"/>
+							<Color r="0" g="0" b="0"/>
 						</FontString>
 					</Layer>
 				</Layers>
@@ -59,7 +59,7 @@
 			<Frame parentKey="BackgroundFrame" setAllPoints="true" useParentLevel="true">
 				<Layers>
 					<Layer level="BACKGROUND">
-						<Texture parentKey="TextBackground" hidden="false" alpha="0.01" alphaMode="BLEND" atlas="TalkingHeads-TextBackground" useAtlasSize="true"/>
+						<Texture parentKey="TextBackground" hidden="false" alpha="0.01" alphaMode="BLEND" atlas="TalkingHeads-Neutral-TextBackground" useAtlasSize="true"/>
 					</Layer>
 				</Layers>
 				<Animations>

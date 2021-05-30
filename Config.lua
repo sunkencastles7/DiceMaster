@@ -15,13 +15,26 @@ local DB_DEFAULTS = {
 	
 	global = {
 		version     = nil;
+		showUses    = true;
 		hideInspect = false; -- hide inspect frame when panel is hidden
 		hideStats   = false; -- hide stats button from inspect frame.
+		hidePet   = false; -- hide pet portrait frame from inspect frame.
+		hideInventory = false; -- hide inventory from other players
 		hideTips	= true; -- turn enhanced tooltips on for newbies
 		hideTracker = false; -- hide the roll tracker.
+		trackerAnchor = "RIGHT";
 		hideTypeTracker = false;
+		allowSounds = true;
 		enableRoundBanners = true;
+		enableMapNodes = true;
+		enableTurnTracker = true;
 		talkingHeads = true;
+		allowSounds = true;
+		allowEffects = true;
+		allowIcons = true;
+		allowAssistantTalkingHeads = true;
+		allowBuffs = true;
+		bloodEffects = true;
 		miniFrames = false;
 		snapping = false;
 	};
@@ -35,7 +48,9 @@ local DB_DEFAULTS = {
 		trackerScale  = 0.6;
 		trackerKeybind = nil;
 		showRaidRolls = false;
+		healthPos    = false;
 		dm3Imported   = false;
+		dm4Imported   = false;
 		statusSerial  = 1;
 		traitSerials  = {};
 		unitframes = {
@@ -54,6 +69,8 @@ local DB_DEFAULTS = {
 			max     = 3;
 			tooltip = "Represents the amount of Charges you have accumulated for certain traits.";
 			symbol	= "charge-orb";
+			flash   = true;
+			pos		= false;
 		};
 		morale = {
 			enable  = false;
@@ -67,17 +84,46 @@ local DB_DEFAULTS = {
 		};
 		health       = 5;
 		healthMax    = 5;
-		healthPos    = false;
 		armor        = 0;
 		traits       = {};
-		buffs		 = {};
-		removebuffs  = {};
-		setdice      = {};
-		buffsActive  = {};
+		pet	= {
+			enable  = false;
+			name 	= "Pet Name";
+			type    = "Pet";
+			icon 	= "Interface/Icons/inv_misc_questionmark";
+			model 	= 0;
+			health       = 5;
+			healthMax    = 5;
+			armor        = 0;
+		};
+		inventory	 = {};
+		inventoryIcon = "Interface/Buttons/Button-Backpack-Up";
+		shop		 = {};
+		shopIcon = "Interface/Icons/garrison_building_tradingpost";
+		shopName = false;
+		shopModel = false;
+		hideShop = false;
+		currency     = {
+			{
+				name = "DiceMaster Coins";
+				icon = "Interface/AddOns/DiceMaster/Texture/token";
+				value = 0;
+				guid = 0;
+			};
+		};
+		currencyActive = 1;
+		buffs			 = {};
+		removebuffs 	 = {};
+		playsounds  	 = {};
+		setdice     	 = {};
+		visualeffects	 = {};
+		buffsActive  	 = {};
 		stats = {
 		};
 		level        = 1;
 		experience   = 0;
+		dice 		 = "1D20+0";
+		mapNodes	 = {};
 	} 
 }
 
@@ -89,10 +135,15 @@ do
 		DB_DEFAULTS.profile.traits[i] = {
 			name   = "Trait " .. numbers[i];                    -- name of trait
 			usage  = Me.TRAIT_USAGE_MODES[1];                   -- usage, see USAGE_MODES
+			range  = Me.TRAIT_RANGE_MODES[1];                   -- usage, see RANGE_MODES
+			castTime = Me.TRAIT_CAST_TIME_MODES[1];				-- cast time, see CAST_TIME_MODES
+			cooldown = Me.TRAIT_COOLDOWN_MODES[1];				-- cooldown time, see COOLDOWN_MODES
 			desc   = "Type a description for your trait here."; -- trait description
 			approved = false;									-- trait approved
 			officers = {};										-- approved by
 			icon   = "Interface/Icons/inv_misc_questionmark";   -- trait icon texture path
+			effects = {};
+			traitIndex = nil;
 		}
 		
 		DB_DEFAULTS.char.traitSerials[i] = 1 -- used to optimize out duplicate requests
@@ -125,9 +176,9 @@ Me.configOptions = {
 		};
  
 		uiScale = {
-			order     = 5;
+			order     = 4;
 			name      = "UI Scale";
-			desc      = "Change the size of the Dice Panel, Trait Editor, Charges, Inspect, and Progress Bar frames.";
+			desc      = "Change the size of the Dice Panel, Charges, Target, and Progress Bar frames.";
 			type      = "range";
 			min       = 0.25;
 			max       = 10;
@@ -140,10 +191,52 @@ Me.configOptions = {
 			get = function( info ) return Me.db.char.uiScale end;
 		};
 		
-		hideInspect = {
+		showUses = {
+			order = 5;
+			name  = "Show Remaining Uses on Dice Panel";
+			desc  = "Show the number of remaining uses for traits on the Dice Panel.";
+			type  = "toggle";
+			width = "double";
+			set = function( info, val )
+				Me.db.global.showUses = val
+				Me.configOptions.args.resetUses.hidden = not val
+				Me.UpdatePanelTraits()
+			end;
+			get = function( info ) return Me.db.global.showUses end;
+		};
+		
+		resetUses = {
 			order = 6;
-			name  = "Hide Inspect Frame When Hidden";
-			desc  = "Hide the Inspect Frame when the Dice Panel is hidden.";
+			name  = "Reset Trait Uses";
+			desc  = "Reset the cooldown and number of remaining uses for traits on the Dice Panel.";
+			type  = "execute";
+			hidden   = true;
+			width = "normal";
+			func  = function()
+				for i = 1, #DiceMasterPanel.traits do
+					local traitButton = DiceMasterPanel.traits[i]
+					local traitIndex = traitButton.traitIndex
+					local trait = Me.Profile.traits[ traitIndex ]
+					local usage = trait.usage or "PASSIVE";
+					
+					if usage:find("USE") then
+						local usesTotal = usage:gsub("USE", "")
+						traitButton.count:SetText( usesTotal )
+						traitButton.icon:SetVertexColor( 1, 1, 1 )
+						traitButton.notCastable = false;
+					end
+					
+					traitButton.cooldown:SetCooldown( 0, 0 )
+					traitButton.cooldown.text:SetText("")
+					traitButton.cooldown.text:Hide()
+				end
+			end;
+		};
+		
+		hideInspect = {
+			order = 7;
+			name  = "Hide Target Frame When Hidden";
+			desc  = "Hide the Target Frame when the Dice Panel is hidden.";
 			type  = "toggle";
 			width = "double";
 			set = function( info, val )
@@ -155,9 +248,9 @@ Me.configOptions = {
 		};
 		
 		hideStats = {
-			order = 7;
-			name  = "Hide Statistics Button on Inspect Frame";
-			desc  = "Hide the Statistics button from the Inspect Frame.";
+			order = 8;
+			name  = "Hide Inspect Button on Target Frame";
+			desc  = "Hide the Inspect button from the Target Frame.";
 			type  = "toggle";
 			width = "double";
 			set = function( info, val )
@@ -168,8 +261,36 @@ Me.configOptions = {
 			get = function( info ) return Me.db.global.hideStats end;
 		};
 		
+		hidePet = {
+			order = 9;
+			name  = "Hide Pet Frame on Target Frame";
+			desc  = "Hide the Pet Portrait Frame from the Target Frame.";
+			type  = "toggle";
+			width = "double";
+			set = function( info, val )
+				Me.db.global.hidePet = val
+				Me.Inspect_Open( Me.inspectName )
+				-- refresh hidden status.
+			end;
+			get = function( info ) return Me.db.global.hidePet end;
+		};
+		
+		hideInventory = {
+			order = 10;
+			name  = "Hide Inventory from Other Players";
+			desc  = "Hide your inventory from other players.|n|nNote: Changes may take a few moments to take effect.";
+			type  = "toggle";
+			width = "double";
+			set = function( info, val )
+				Me.db.global.hideInventory = val
+				Me.Inspect_Open( Me.inspectName )
+				Me.Inspect_ShareStatusWithParty()
+			end;
+			get = function( info ) return Me.db.global.hideInventory end;
+		};
+		
 		hideTips = {
-			order = 8;
+			order = 11;
 			name  = "Enable Enhanced Tooltips";
 			desc  = "Enable helpful DiceMaster term definitions next to trait tooltips.";
 			type  = "toggle";
@@ -192,8 +313,59 @@ Me.configOptions = {
 			get = function( info ) return Me.db.global.hideTypeTracker end;
 		};
 		
-		enableRoundBanners = {
+		enableTurnTracker = {
 			order = 13;
+			name  = "Enable Combat Turn Tracker";
+			desc  = "Displays the Turn Tracker frame when turn-based combat begins.";
+			width = "full";
+			type  = "toggle";
+			set = function( info, val ) 
+				Me.db.global.enableTurnTracker = val
+				if not val then
+					DiceMasterTurnTracker:Hide()
+				end
+			end;
+			get = function( info ) return Me.db.global.enableTurnTracker end;
+		};
+		
+		allowSounds = {
+			order = 14;
+			name  = "Allow Sounds from Other Players";
+			desc  = "Allow other players to play sound effects.";
+			type  = "toggle";
+			width = "double";
+			set = function( info, val )
+				Me.db.global.allowSounds = val
+			end;
+			get = function( info ) return Me.db.global.allowSounds end;
+		};
+		
+		allowEffects = {
+			order = 15;
+			name  = "Allow Effects from Other Players";
+			desc  = "Allow the group leader to send you fullscreen visual effects.";
+			type  = "toggle";
+			width = "double";
+			set = function( info, val )
+				Me.db.global.allowEffects = val
+			end;
+			get = function( info ) return Me.db.global.allowEffects end;
+		};
+		
+		allowIcons = {
+			order = 16;
+			name  = "Display Icons in Chat";
+			desc  = "Display icons linked by players in public chat channels.";
+			type  = "toggle";
+			width = "double";
+			set = function( info, val )
+				Me.db.global.allowIcons = val
+			end;
+			get = function( info ) return Me.db.global.allowIcons end;
+		};
+		
+		enableRoundBanners = {
+			order = 17;
 			name  = "Allow Roll Prompt Banners";
 			desc  = "Allow the group leader to send you visual prompts when it's your turn to roll.";
 			type  = "toggle";
@@ -204,14 +376,27 @@ Me.configOptions = {
 			get = function( info ) return Me.db.global.enableRoundBanners end;
 		};
 		
+		enableMapNodes = {
+			order = 18;
+			name  = "Display Group Leader's Map Nodes";
+			desc  = "Display the group leader's map nodes when you're in a party or raid.";
+			type  = "toggle";
+			width = "double";
+			set = function( info, val )
+				Me.db.global.enableMapNodes = val
+				Me.UpdateAllMapNodes()
+			end;
+			get = function( info ) return Me.db.global.enableMapNodes end;
+		};
+		
 		headerFrames = {
-			order = 14;
+			order = 19;
 			name  = " ";
 			type  = "description";
 		};
 		
 		unlockFrames = {
-			order = 17;
+			order = 20;
 			name  = "Unlock Frames";
 			desc  = "Unlock all frames, allowing you to click and drag them around your UI.";
 			type  = "execute";
@@ -223,7 +408,7 @@ Me.configOptions = {
 		};
 		
 		lockFrames = {
-			order = 18;
+			order = 21;
 			name  = "Lock Frames";
 			desc  = "Lock all frames so they can no longer be dragged.";
 			type  = "execute";
@@ -235,7 +420,7 @@ Me.configOptions = {
 		};
 		
 		resetFrames = {
-			order = 19;
+			order = 22;
 			name  = "Reset Frame Positions";
 			desc  = "Resets all frames to their default positions.";
 			type  = "execute";
@@ -246,7 +431,9 @@ Me.configOptions = {
 				DiceMasterInspectFrame:SetPoint("CENTER", 0, 0)
 				DiceMasterBuffFrame:SetPoint("TOPRIGHT", BuffFrame, "TOPRIGHT", 0, 0)
 				DiceMasterInspectBuffFrame:SetPoint("BOTTOM", DiceMasterInspectFrame, "TOP", 0, 0)
+				DiceMasterInspectPetFrame:SetPoint("LEFT", DiceMasterInspectFrame, "RIGHT", 0, 0)
 				DiceMasterChargesFrame:SetPoint("CENTER", 0, 0)
+				DiceMasterPetChargesFrame:SetPoint("BOTTOM", DiceMasterChargesFrame, "TOP", 0, 0)
 				DiceMasterMoraleBar:SetPoint("TOP", DiceMasterPanel, "BOTTOM", 0, -20)
 				if IsAddOnLoaded("DiceMaster_UnitFrames") then
 					DiceMasterUnitsPanel:SetPoint("TOP", 0, -200)
@@ -254,16 +441,8 @@ Me.configOptions = {
 			end;
 		};
 		
-		curseLink = {
-			order = 20;
-			name  = "Curse Forge";
-			type  = "input";
-			width = "double";
-			get   = function( info ) return "https://www.curseforge.com/wow/addons/dicemaster" end;
-		};
-		
 		discordLink = {
-			order = 21;
+			order = 23;
 			name  = "Discord";
 			type  = "input";
 			width = "double";
@@ -331,15 +510,15 @@ Me.configOptionsCharges = {
 				
 				healthPos = {
 					order = 30;
-					name  = "Anchor Health Bar Below Traits on Inspect Frame";
-					desc  = "Move the health bar on the Inspect Frame so that it's positioned beneath the traits bar.";
+					name  = "Anchor Health Bar Below Traits on Target Frame";
+					desc  = "Move the health bar on the Target Frame so that it's positioned beneath the traits bar.";
 					width = "full";
 					type  = "toggle";
 					set = function( info, val ) 
-						Me.db.profile.healthPos = val
+						Me.db.char.healthPos = val
 						Me.Inspect_Open( UnitName( "target" ))
 					end;
-					get = function( info ) return Me.db.profile.healthPos end;
+					get = function( info ) return Me.db.char.healthPos end;
 				};
 			};
 		};
@@ -398,6 +577,7 @@ Me.configOptionsCharges = {
 					name  = "Maximum Charges";
 					desc  = "The maximum amount of charges that this character can accumulate.";
 					type  = "range"; 
+					hidden = false;
 					min   = 1;
 					max   = 8;
 					step  = 1;
@@ -408,8 +588,27 @@ Me.configOptionsCharges = {
 					get   = function( info ) return Me.db.profile.charges.max end;
 				}; 
 				
-				chargesTooltip = {
+				chargesMaxTwo = {
 					order = 50;
+					name  = "Maximum Charges";
+					desc  = "The maximum amount of charges that this character can accumulate.";
+					type  = "range";
+					hidden = true;
+					min   = 1;
+					max   = 100;
+					step  = 1;
+					set   = function( info, val ) 
+						Me.db.profile.charges.max = val
+						if Me.db.profile.charges.count > Me.db.profile.charges.max then
+							Me.db.profile.charges.count = Me.db.profile.charges.max
+						end
+						Me.OnChargesChanged()
+					end;
+					get   = function( info ) return Me.db.profile.charges.max end;
+				}; 
+				
+				chargesTooltip = {
+					order = 60;
 					name  = "Charges Description";
 					desc  = "A description for the charges bar tooltip.";
 					type  = "input";
@@ -422,7 +621,7 @@ Me.configOptionsCharges = {
 				};
 				
 				chargesSymbol = {
-					order = 60;
+					order = 70;
 					name  = "Charges Skin";
 					desc  = "Custom skin for this character's charges bar.";
 					type  = "select"; 
@@ -441,29 +640,95 @@ Me.configOptionsCharges = {
 						["Water"] = "Water",
 						["Meat"] = "Meat",
 						["UndeadMeat"] = "Undead Meat",
-						["WowUI"] = "Generic",
+						["WoWUI"] = "Generic",
 						["WoodPlank"] = "Wood Plank",
-						["WoodwithMetal"] = "Wood with Metal",
+						["WoodWithMetal"] = "Wood with Metal",
 						["Darkmoon"] = "Darkmoon",
 						["MoltenRock"] = "Molten Rock",
 						["Alliance"] = "Alliance",
 						["Horde"] = "Horde",
 						["Amber"] = "Amber",
 						["Druid"] = "Druid",
-						["FancyPanda"] = "Pandaren",
+						["FancyPanda"] = "Fancy Pandaren",
 						["Mechanical"] = "Mechanical",
+						["LightningCharges"] = "Lightning",
 						["Map"] = "Map",
 						["InquisitionTorment"] = "Inquisitor",
 						["Bamboo"] = "Bamboo",
 						["Onyxia"] = "Onyxia",
 						["StoneDesign"] = "Stone Design",
+						["NaaruCharge"] = "Naaru",
+						["ShadowPaladinBar"] = "Shadow Paladin",
+						["Xavius"] = "Xavius Nightmare",
+						["BulletBar"] = "Bullets",
+						["Azerite"] = "Azerite",
+						["Chogall"] = "Cho'gall",
+						["FuelGauge"] = "Fuel Gauge",
+						["FelCorruption"] = "Fel Corruption",
+						["Murozond"] = "Murozond Hourglass",
+						["Pride"] = "Pride",
+						["Rhyolith"] = "Rhyolith",
+						["KargathRoarCrowd"] = "Ogre",
+						["Meditation"] = "Meditation",
+						["Jaina"] = "Jaina",
+						["NZoth"] = "N'zoth",
+						["sanctum-bar"] = "Arcane Sanctum",
+						["warden-bar"] = "Warden",
+						["RevendrethAnima"] = "Revendreth",
+						["BastionAnima"] = "Bastion",
+						["MaldraxxusAnima"] = "Maldraxxus",
+						["ArdenwealdAnima"] = "Ardenweald",
+						["archer-bar"] = "Archer",
+						["phoenix-bar"] = "Phoenix",
+						["mana-gems-bar"] = "Mana Gems",
+						["holy-power-bar"] = "Holy Power",
 					};
 					set   = function( info, val ) 
 						Me.db.profile.charges.symbol = val
+						if val:find("charge") then
+							if Me.db.profile.charges.max > 8 then
+								Me.db.profile.charges.max = 8;
+							end
+							
+							if Me.db.profile.charges.count > 8 then
+								Me.db.profile.charges.count = 8
+							end
+							Me.configOptionsCharges.args.chargesGroup.args.chargesMax.hidden = false
+							Me.configOptionsCharges.args.chargesGroup.args.chargesMaxTwo.hidden = true
+						else
+							Me.configOptionsCharges.args.chargesGroup.args.chargesMax.hidden = true
+							Me.configOptionsCharges.args.chargesGroup.args.chargesMaxTwo.hidden = false
+						end
 						Me.OnChargesChanged()
 					end;
 					get   = function( info ) return Me.db.profile.charges.symbol end;
-				}; 
+				};
+				
+				chargesFlash = {
+					order = 80;
+					name  = "Enable Flash When Bar is Full";
+					desc  = "Toggle whether your charges bar flashes when filled.";
+					width = "full";
+					type  = "toggle";
+					set = function( info, val ) 
+						Me.db.profile.charges.flash = val
+						Me.OnChargesChanged() 
+					end;
+					get = function( info ) return Me.db.profile.charges.flash end;
+				};
+				
+				chargesPos = {
+					order = 90;
+					name  = "Anchor Charges Bar Below Health Bar";
+					desc  = "Move your charges bar so that it's positioned beneath your health bar.";
+					width = "full";
+					type  = "toggle";
+					set = function( info, val ) 
+						Me.db.profile.charges.pos = val
+						Me.OnChargesChanged()
+					end;
+					get = function( info ) return Me.db.profile.charges.pos end;
+				};
 			};
 		};
 	};
@@ -488,19 +753,23 @@ Me.configOptionsProgressBar = {
 			type  = "toggle";
 			set = function( info, val ) 
 				Me.db.profile.morale.enable = val 
-				Me.configOptionsProgressBar.args.moraleGroup.hidden = not val
 				Me.RefreshMoraleFrame() 
 			end;
 			get = function( info ) return Me.db.profile.morale.enable end;
 		};
 		
 		moraleGroup = {
-			name     = "Progress Bar";
+			name     = "Dungeon Master Settings";
 			inline   = true;
 			order    = 16;
 			type     = "group";
-			hidden   = true;
 			args = {
+				header = {
+					order = 0;
+					name  = "These settings only take effect when you are the leader of your party or raid.";
+					type  = "description";
+				};
+			
 				moraleName = {
 					order = 20;
 					name  = "Progress Bar Name";
@@ -570,8 +839,21 @@ Me.configOptionsProgressBar = {
 						["FelCorruption"] = "Fel Corruption",
 						["Murozond"] = "Murozond Hourglass",
 						["Pride"] = "Pride",
+						["Rhyolith"] = "Rhyolith",
+						["KargathRoarCrowd"] = "Ogre",
 						["Meditation"] = "Meditation",
 						["Jaina"] = "Jaina",
+						["NZoth"] = "N'zoth",
+						["sanctum-bar"] = "Arcane Sanctum",
+						["warden-bar"] = "Warden",
+						["RevendrethAnima"] = "Revendreth",
+						["BastionAnima"] = "Bastion",
+						["MaldraxxusAnima"] = "Maldraxxus",
+						["ArdenwealdAnima"] = "Ardenweald",
+						["archer-bar"] = "Archer",
+						["phoenix-bar"] = "Phoenix",
+						["mana-gems-bar"] = "Mana Gems",
+						["holy-power-bar"] = "Holy Power",
 					};
 					set   = function( info, val ) 
 						Me.db.profile.morale.symbol = val
@@ -596,8 +878,8 @@ Me.configOptionsProgressBar = {
 				
 				moraleCount = {
 					order = 60;
-					name  = "Start Value";
-					desc  = "The starting value of the progress bar (either full, half, or empty).";
+					name  = "Default Value";
+					desc  = "The default value of the progress bar.";
 					type  = "range"; 
 					min   = 0;
 					max   = 100;
@@ -688,8 +970,25 @@ Me.configOptionsManager = {
 			get = function( info ) return Me.db.char.trackerScale end;
 		};
 		
+		trackerAnchor = {
+			order = 30;
+			name  = "Details Frame Anchor";
+			desc  = "Choose whether the Detail Frame anchors to the left or right.";
+			type  = "select"; 
+			style = "radio";
+			values = {
+				["LEFT"] = "Left",
+				["RIGHT"] = "Right",
+			};
+			set   = function( info, val ) 
+				Me.db.global.trackerAnchor = val
+				Me.DiceMasterRollDetailFrame_Update()
+			end;
+			get   = function( info ) return Me.db.global.trackerAnchor end;
+		};
+		
 		trackerKeybind = {
-			order     = 30;
+			order     = 40;
 			name	  = "Toggle Key";
 			desc      = "Set a keybinding for the DM Manager frame.";
 			type      = "keybinding";
@@ -720,14 +1019,12 @@ Me.configOptionsUF = {
 			type  = "toggle";
 			set   = function( info, val ) 
 				if IsAddOnLoaded("DiceMaster_UnitFrames") then
-					if Me.IsLeader( false ) then
-						if val then
-							Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Unit Frames enabled.", "SYSTEM")
-						else
-							Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Unit Frames disabled.", "SYSTEM")
-						end
-						Me.ShowUnitPanel( val )
+					if val then
+						Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Unit Frames enabled.", "SYSTEM")
+					else
+						Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Unit Frames disabled.", "SYSTEM")
 					end
+					Me.ShowUnitPanel( val )
 				else
 					Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t DiceMaster Unit Frames module not found. Enable the module from your AddOns list.", "SYSTEM")
 				end
@@ -779,6 +1076,84 @@ Me.configOptionsUF = {
 			end;
 			get = function( info ) return Me.db.global.talkingHeads end;
 		};
+		
+		soundEffects = {
+			order = 20;
+			name  = "Enable Sound Effects";
+			desc  = "Allow the party leader to use sound effects with Unit Frames.";
+			type  = "toggle";
+			width = "full";
+			set = function( info, val )
+				Me.db.global.soundEffects = val
+			end;
+			get = function( info ) return Me.db.global.soundEffects end;
+		};
+		
+		dungeonMasterGroup = {
+			name     = "Dungeon Master Settings";
+			inline   = true;
+			order    = 30;
+			type     = "group";
+			args = {
+				header = {
+					order = 0;
+					name  = "These settings only take effect when you are the leader of your party or raid.";
+					type  = "description";
+				};
+				
+				allowAssistantTalkingHeads = {
+					order = 10;
+					name  = "Allow Raid Assistants to Send Talking Heads";
+					desc  = "Toggle whether raid assistants are allowed to send Talking Heads.";
+					width = "full";
+					type  = "toggle";
+					set = function( info, val ) 
+						Me.db.global.allowAssistantTalkingHeads = val
+						if Me.IsLeader( false ) then
+							for i = 1, #DiceMasterUnitsPanel.unitframes do
+								DiceMasterUnitsPanel.unitframes[i].allowRaidAssistant = val
+							end
+							Me.UpdateUnitFrames()
+						end
+					end;
+					get = function( info ) return Me.db.global.allowAssistantTalkingHeads end;
+				};
+				
+				allowBuffs = {
+					order = 20;
+					name  = "Allow Players to Buff Unit Frames";
+					desc  = "Toggle whether players can apply buffs to Unit Frames.";
+					width = "full";
+					type  = "toggle";
+					set = function( info, val ) 
+						Me.db.global.allowBuffs = val
+						if Me.IsLeader( false ) then
+							for i = 1, #DiceMasterUnitsPanel.unitframes do
+								DiceMasterUnitsPanel.unitframes[i].allowBuffs = val
+							end
+						end
+					end;
+					get = function( info ) return Me.db.global.allowBuffs end;
+				};
+				
+				bloodEffects = {
+					order = 30;
+					name  = "Enable Blood Effects on Unit Frames";
+					desc  = "Toggle whether Unit Frames display blood spray effects when they lose health.";
+					width = "full";
+					type  = "toggle";
+					set = function( info, val ) 
+						Me.db.global.bloodEffects = val
+						if Me.IsLeader( false ) then
+							for i = 1, #DiceMasterUnitsPanel.unitframes do
+								DiceMasterUnitsPanel.unitframes[i].bloodEnabled = val
+							end
+						end
+					end;
+					get = function( info ) return Me.db.global.bloodEffects end;
+				};
+			};
+		};
 	};
 }
 
@@ -816,7 +1191,7 @@ function Me.SetupDB()
 	Me.configProfiles = AceConfigDialog:AddToBlizOptions( "DiceMaster Profiles", "Profiles", "DiceMaster" )
 	
 	local function CreateLogo( frame )
-		local logo = CreateFrame('Frame', nil, frame)
+		local logo = CreateFrame('Frame', nil, frame, BackdropTemplateMixin and "BackdropTemplate")
 		logo:SetFrameLevel(4)
 		logo:SetSize(64, 64)
 		logo:SetPoint('TOPRIGHT', 8, 24)
@@ -838,8 +1213,22 @@ local interfaceOptionsNeedsInit = true
 --
 function Me.OpenConfig() 
 	Me.configOptionsCharges.args.chargesGroup.hidden = not Me.db.profile.charges.enable
-	Me.configOptionsProgressBar.args.moraleGroup.hidden = not Me.db.profile.morale.enable
+	Me.configOptions.args.resetUses.hidden = not Me.db.profile.showUses
 	Me.configOptionsCharges.args.healthGroup.args.healthCurrent.max = Me.db.profile.healthMax
+	
+	if Me.db.profile.charges.enable and Me.db.profile.charges.symbol:find("charge") then
+		if Me.db.profile.charges.max > 8 then
+			Me.db.profile.charges.max = 8;
+		end
+		if Me.db.profile.charges.count > 8 then
+			Me.db.profile.charges.count = 8
+		end
+		Me.configOptionsCharges.args.chargesGroup.args.chargesMax.hidden = false
+		Me.configOptionsCharges.args.chargesGroup.args.chargesMaxTwo.hidden = true
+	else
+		Me.configOptionsCharges.args.chargesGroup.args.chargesMax.hidden = true
+		Me.configOptionsCharges.args.chargesGroup.args.chargesMaxTwo.hidden = false
+	end
 	
 	if Me.db.profile.health > Me.db.profile.healthMax then
 		Me.db.profile.health = Me.db.profile.healthMax
@@ -857,7 +1246,7 @@ end
 -------------------------------------------------------------------------------
 function Me.ApplyConfig( onload )
 	Me.configOptionsCharges.args.chargesGroup.hidden = not Me.db.profile.charges.enable
-	Me.configOptionsProgressBar.args.moraleGroup.hidden = not Me.db.profile.morale.enable
+	Me.configOptions.args.resetUses.hidden = not Me.db.profile.showUses
 	Me.configOptionsCharges.args.healthGroup.args.healthCurrent.max = Me.db.profile.healthMax
 	
 	-- bump all serials, everything is considered dirty
@@ -868,8 +1257,10 @@ function Me.ApplyConfig( onload )
 	Me.Inspect_ShareStatusWithParty()
 	
 	Me.ApplyUiScale()
+	Me.RefreshHealthbarFrame( DiceMasterChargesFrame.healthbar, Me.db.profile.health, Me.db.profile.healthMax, Me.db.profile.armor )
 	Me.RefreshChargesFrame( true, true )  
 	Me.TraitEditor_Refresh()
+	Me.TraitEditor_UpdateInventory()
+	Me.ShopFrame_Update()	
 	Me.UpdatePanelTraits()
-	Me.configOptions.args.enableRoundBanners.hidden = not Me.PermittedUse()
 end

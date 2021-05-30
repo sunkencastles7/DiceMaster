@@ -25,7 +25,6 @@ setmetatable( Me.Profile, {
 })
 
 local Profile = Me.Profile
-local wasLeader = false;
 
 ------------------------------------------------------------------------
 
@@ -34,62 +33,37 @@ frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("GROUP_ROSTER_UPDATE");
 frame:RegisterEvent("PARTY_LEADER_CHANGED");
 frame:RegisterEvent("GROUP_LEFT");
-frame:RegisterEvent("ZONE_CHANGED_NEW_AREA");
 
 function frame:OnEvent(event, arg1, ...)
 	if event == "ADDON_LOADED" and arg1 == "DiceMaster_UnitFrames" then
 		DiceMaster4UF_Saved = DiceMaster4UF_Saved or {}
 		if DiceMaster4UF_Saved.VisibleFrames == 0 then DiceMaster4UF_Saved.VisibleFrames = 1 end
-
-		if IsInGroup(1) and not Me.IsLeader( false ) then
-			DiceMasterUnitsPanel:Hide()
-			for i=1, MAX_RAID_MEMBERS do
-				local name, rank = GetRaidRosterInfo(i)
-				if UnitIsGroupLeader( name ) then
-					local msg = Me:Serialize( "UFREQ", "request")
-					Me:SendCommMessage( "DCM4", msg, "WHISPER", name, "ALERT" )
-					break
-				end
-			end
+	end
+	
+	if IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) then
+		return
+	end
+	
+	if event == "PARTY_LEADER_CHANGED" and IsInGroup( LE_PARTY_CATEGORY_HOME ) and not Me.db.char.unitframes.enable then
+		if Me.IsLeader( false ) then
+			DiceMasterUnitsPanel:Show()
 		else
-			Me.UpdateUnitFrames(1)
-		end
-		
-		Me.DMSAY_Init()
-	end
-	if event == "PARTY_LEADER_CHANGED" and IsInGroup(1) then
-		Me.enableMessageUF = true;
-		wasLeader = false;
-		if Me.IsLeader( false ) and not DiceMasterUnitsPanel:IsShown() and GetNumGroupMembers(1) > 1 then
-			Me.ShowUnitPanel( true )
+			DiceMasterUnitsPanel:Hide()
 		end
 		Me.UpdateUnitFrames()
 	end
-	if event == "GROUP_ROSTER_UPDATE" and IsInGroup(1) and UnitIsGroupLeader("player") and not Me.db.char.unitframes.enable then
-		wasLeader = true;
+	if event == "GROUP_ROSTER_UPDATE" and IsInGroup( LE_PARTY_CATEGORY_HOME ) and UnitIsGroupLeader("player") and not Me.db.char.unitframes.enable then
 		Me.UpdateUnitFrames()
 	end
-	if event == "GROUP_LEFT" and not IsInGroup(1) and Me.IsLeader( false ) then
-		if wasLeader then
-			wasLeader = false;
-			return
-		end
+	if event == "GROUP_LEFT" and not IsInGroup( LE_PARTY_CATEGORY_HOME ) and Me.IsLeader( false ) and not Me.db.char.unitframes.enable then
 		local unitframes = DiceMasterUnitsPanel.unitframes
 		for i=1,#unitframes do
 			unitframes[i]:ClearModel()
 			unitframes[i]:Reset()
 			unitframes[i]:Hide()
 		end
+		DiceMasterUnitsPanel:Show()
 		Me.UpdateUnitFrames(1)
-		Me.enableMessageUF = true;
-		if not DiceMasterUnitsPanel:IsShown() then
-			Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Unit Frames disabled.", "SYSTEM")
-		end
-	end
-	if event == "ZONE_CHANGED_NEW_AREA" then
-		for i=1,#DiceMasterUnitsPanel.unitframes do
-			DiceMasterUnitsPanel.unitframes[i]:SetBackground()
-		end
 	end
 end
 
@@ -97,8 +71,8 @@ frame:SetScript("OnEvent", frame.OnEvent);
 
 function Me.ApplyUiScaleUF()
 	DiceMasterUnitsPanel:SetScale( Me.db.char.unitframes.scale * 1.4 )
-	DiceMasterAffixEditor:SetScale( Me.db.char.unitframes.scale * 1.4 )
-	DiceMasterUnitPicker:SetScale( Me.db.char.unitframes.scale * 1.4 )
+	DiceMasterAffixEditor:SetScale( Me.db.char.uiScale * 1.4 )
+	DiceMasterUnitFramesBuffEditor:SetScale( Me.db.char.uiScale * 1.4 )
 	
 	for i = 1,#DiceMasterUnitsPanel.unitframes do
 		DiceMasterUnitsPanel.unitframes[i]:Collapse( Me.db.global.miniFrames )
@@ -111,13 +85,19 @@ function Me.ShowUnitPanel( show )
 	
 	if not show then
 		DiceMasterUnitsPanel:Hide()
-		if Me.IsLeader( true ) then
-			Me.UnitFrame_SendStatus( 0, 1 )
-		end
 	else
 		DiceMasterUnitsPanel:Show()
-		if Me.IsLeader( true ) then
-			Me.UpdateUnitFrames()
+		if IsInGroup( LE_PARTY_CATEGORY_HOME ) and not Me.IsLeader( false ) then
+			for i=1, MAX_RAID_MEMBERS do
+				local name, rank = GetRaidRosterInfo(i)
+				if UnitIsGroupLeader( name ) then
+					local msg = Me:Serialize( "UFREQ", "request")
+					Me:SendCommMessage( "DCM4", msg, "WHISPER", name, "ALERT" )
+					break
+				end
+			end
+		else
+			Me.UpdateUnitFrames(1)
 		end
 	end
 

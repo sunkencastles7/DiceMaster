@@ -1,0 +1,13 @@
+## Interface: 90002
+## Title: LibRPMedia-1.0
+## Notes: LibRPMedia provides a common database of in-game resources for use by RP addons.
+## Author: Daniel "Meorawr" Yates <me@meorawr.io>
+## Version: v1.1.6
+
+## X-Category: Library
+## X-License: Public Domain
+## X-Website: https://github.com/wow-rp-addons/LibRPMedia
+## X-Curse-Project-ID: 324111
+## X-WoWI-ID: 25019
+
+LibRPMedia-1.0.xml

@@ -1,7 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
  
   <Button name="DiceMasterStatInspectButtonTemplate" hidden="false" virtual="true">
-	<Size x="230" y="24"/>
+	<Size x="290" y="24"/>
 	<Layers>
 		<Layer level="BACKGROUND">
 			<Texture name="$parentBackground" parentKey="background">
@@ -75,10 +75,11 @@
 			self:SetUserPlaced( true )
 			
 			self:RegisterForClicks("LeftButtonUp");
-			DiceMaster4.SetupTooltip( self, nil, "Statistics", nil, nil, nil, "Click to view the character's statistics." )
+			DiceMaster4.SetupTooltip( self, nil, "Inspect", nil, nil, nil, nil, "Click to view the character's Statistics, Pet, Inventory, and Shop." )
 		</OnLoad>
 		<OnClick>
 			DiceMaster4.StatInspector_Open()
+			DiceMasterStatInspectorTab1:Click()
 		</OnClick>
 	</Scripts>
 	<NormalTexture file="Interface/MINIMAP/TRACKING/None"/>
@@ -99,7 +100,7 @@
   <!-- Trait editor frame. -->
   
   <Frame name="DiceMasterStatInspector" enableMouse="true" movable="true" resizable="false" frameStrata="DIALOG" hidden="true" parent="UIParent" inherits="ButtonFrameTemplate" toplevel="true">
-    <Size x="265" y="384"/>
+    <Size x="336" y="444"/>
     <Anchors>
       <Anchor point="TOP" x="0" y="-90" />
     </Anchors>
@@ -107,7 +108,7 @@
     <Layers>
       
 	  <Layer level="BACKGROUND" textureSubLevel="-4">
-			<Texture name="$parentBg" file="Interface/TradeSkillFrame/Tradeskills" parentKey="Bg">
+			<Texture name="$parentBg2" file="Interface/TradeSkillFrame/Tradeskills" parentKey="Bg2">
 				<TexCoords left="0" right="0.294921875" top="0" bottom="0.751953125" />
 				<Anchors>
 					<Anchor point="TOPLEFT" x="4" y="-60" />
@@ -125,6 +126,8 @@
         self:SetScale(0.8)
 		self.portrait:SetTexture( "Interface/AddOns/DiceMaster/Texture/logo" )
         DiceMaster4.StatInspector_OnLoad( self )
+		PanelTemplates_SetNumTabs(self, 2);
+	    PanelTemplates_SetTab(self, 1);
       </OnLoad>
       <OnShow>
         
@@ -138,7 +141,7 @@
 	  <StatusBar name="$parentExperienceBar" parentKey="experienceBar" hidden="false">
 		<Size x="230" y="14"/>
 		<Anchors>
-			<Anchor point="TOPLEFT" x="80" y="-50"/>
+			<Anchor point="TOPLEFT" x="80" y="-41"/>
 		</Anchors>
 		<HitRectInsets>
 			<AbsInset left="-25" right="0" top="-15" bottom="0"/>
@@ -198,10 +201,9 @@
 			<OnLoad>
 				self:SetMinMaxValues(0, 100)
 				self:SetValue(0)
-				self:SetScale(0.8)
 				self:SetStatusBarTexture(1, 1, 1, "BORDER", -1);
 				self:GetStatusBarTexture():SetGradient("VERTICAL", 8/255, 93/255, 72/255, 11/255, 136/255, 105/255);
-				self:SetStatusBarColor(0.48, 0.1, 0.7);
+				self:SetStatusBarColor( 0.2, 0.6, 1.0 );
 			</OnLoad>
 			<OnEnter>
 				GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
@@ -282,6 +284,471 @@
         
       </ScrollFrame>
 	  
+	  <Frame name="$parentPetFrame" parentKey="petFrame" enableMouse="true" hidden="true" frameStrata="DIALOG">
+		<Size x="298" y="309"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" x="4" y="-60"/>
+			<Anchor point="BOTTOMRIGHT" x="-6" y="26"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="PetStable-ModelBG" file="Interface\PetStableFrame\PetStable-Parts">
+						<Size x="314" y="281"/>
+						<TexCoords left="0.16406250" right="0.77734375" top="0.00195313" bottom="0.55078125"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture name="$parentPetIcon" parentKey="petIcon">
+					<Size x="42" y="42"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="10" y="-10"/> 
+					</Anchors>
+				</Texture>
+				<FontString name="$parentPetName" parentKey="petName" inherits="GameFontNormalMed2">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentPetIcon" relativePoint="TOPRIGHT" x="5" y="-8"/> 
+					</Anchors>
+				</FontString>
+				<FontString parentKey="levelText" inherits="GameFontHighlightSmallLeft">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentPetName" relativePoint="BOTTOMLEFT" x="0" y="0"/> 
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<PlayerModel parentKey="petModel" enableMouse="true" inherits="ModelWithControlsTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="2" y="-60"/>
+					<Anchor point="BOTTOMRIGHT" x="-3" y="3"/>
+                </Anchors>
+                <Scripts>
+					<OnLoad>
+						Model_OnLoad(self);
+						self:SetCamDistanceScale(1.3);
+						self:SetDisplayInfo(31)
+						hooksecurefunc(self, "SetDisplayInfo", DiceMaster4.PetEditor_SaveModel)
+					</OnLoad>
+                </Scripts>
+				<Frames>
+					<Frame parentKey="petModelShadow" inherits="ShadowOverlayTemplate" useParentLevel="true">
+						<Anchors>
+							<Anchor point="TOPLEFT" x="-1" y="1"/>
+							<Anchor point="BOTTOMRIGHT" x="1" y="-1"/>
+						</Anchors>
+					</Frame>
+				</Frames>
+			</PlayerModel>
+		</Frames>
+	  </Frame>
+	  
+	  <Frame name="$parentInventoryFrame" parentKey="inventoryFrame" enableMouse="true" hidden="true" frameStrata="DIALOG">
+		<Size x="298" y="309"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" x="4" y="-60"/>
+			<Anchor point="BOTTOMRIGHT" x="-6" y="26"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="BG1" atlas="bank-slots" useAtlasSize="true" >
+					<Anchors>
+						<Anchor point="TOPLEFT" x="10" y="-6"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture atlas="bank-slots-shadow" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.BG1" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="requestButton" inherits="MagicButtonTemplate" text="Request Item">
+				<Size x="150" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOM" x="0" y="12"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.StatInspector_RequestItem()
+					</OnClick>
+				</Scripts>
+		    </Button>
+			<Frame name="$parentMoneyInset" inherits="InsetFrameTemplate" useParentLevel="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterStatInspector" relativePoint="BOTTOMRIGHT" x="-171" y="27"/>
+					<Anchor point="BOTTOMRIGHT" relativeTo="DiceMasterStatInspector" relativePoint="BOTTOMRIGHT" x="-5" y="4"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentMoneyBg" inherits="ThinGoldEdgeTemplate" >
+				<Size x="120" y="30"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="DiceMasterStatInspector" relativePoint="BOTTOMRIGHT" x="-7" y="25"/>
+					<Anchor point="BOTTOMLEFT" relativeTo="DiceMasterStatInspector" relativePoint="BOTTOMRIGHT" x="-166" y="6"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentMoney" parentKey="money" inherits="NumberFontNormalRight" justifyH="RIGHT">
+							<Anchors>
+								<Anchor point="RIGHT" x="-3" y="0"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip:SetText( "DiceMaster Coins", 1, 1, 1 );
+						GameTooltip:AddLine("A universal currency used by all DiceMaster users.", nil, nil, nil, true);
+						GameTooltip:Show();
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnShow>
+				DiceMaster4.StatInspector_UpdateInventory()
+			</OnShow>
+		</Scripts>
+	  </Frame>
+	  
+	  <Frame name="$parentShopFrame" parentKey="shopFrame" enableMouse="true" hidden="true" useParentLevel="true" inherits="InsetFrameTemplate">
+		<Anchors>
+			<Anchor point="TOPLEFT" x="4" y="-60" />
+			<Anchor point="BOTTOMRIGHT" x="-6" y="26" />
+		</Anchors>
+		<Layers>
+			<Layer level="BORDER">
+				<FontString name="$parentPageText" inherits="GameFontNormal" text="Page">
+					<Size x="104" y="0"/>
+					<Anchors>
+						<Anchor point="BOTTOM" x="0" y="15"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame name="$parentItem1" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="7" y="-8"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem2" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem1" relativePoint="TOPRIGHT" x="12" y="0"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem3" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem1" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem4" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem3" relativePoint="TOPRIGHT" x="12" y="0"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem5" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem3" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem6" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem5" relativePoint="TOPRIGHT" x="12" y="0"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem7" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem5" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem8" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem7" relativePoint="TOPRIGHT" x="12" y="0"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem9" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem7" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem10" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem9" relativePoint="TOPRIGHT" x="12" y="0"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem11" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem9" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentItem12" inherits="DiceMasterShopItemTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentItem11" relativePoint="TOPRIGHT" x="12" y="0"/>
+				</Anchors>
+			</Frame>
+			<Button name="$parentPrevPageButton">
+				<Size x="32" y="32"/>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="4" y="4"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<FontString inherits="GameFontNormal" justifyH="LEFT" text="PREV">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT"/>
+							</Anchors>
+						</FontString>
+						<Texture file="Interface\Buttons\UI-PageButton-Background">
+							<Size x="32" y="32"/>
+							<Anchors>
+								<Anchor point="CENTER" x="0" y="1"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.StatInspectorShopFramePrevPageButton_OnClick()
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Down"/>
+				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Disabled"/>
+				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
+			</Button>
+			<Button name="$parentNextPageButton">
+				<Size x="32" y="32"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-4" y="4"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<FontString inherits="GameFontNormal" justifyH="RIGHT" text="NEXT">
+							<Anchors>
+								<Anchor point="RIGHT" relativePoint="LEFT" x="-3" y="0"/>
+							</Anchors>
+						</FontString>
+						<Texture file="Interface\Buttons\UI-PageButton-Background">
+							<Size x="32" y="32"/>
+							<Anchors>
+								<Anchor point="CENTER" x="0" y="1"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.StatInspectorShopFrameNextPageButton_OnClick()
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
+				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled"/>
+				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
+			</Button>
+			<Frame name="$parentMoneyInset" inherits="InsetFrameTemplate" useParentLevel="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterStatInspector" relativePoint="BOTTOMRIGHT" x="-171" y="27"/>
+					<Anchor point="BOTTOMRIGHT" relativeTo="DiceMasterStatInspector" relativePoint="BOTTOMRIGHT" x="-5" y="4"/>
+				</Anchors>
+			</Frame>
+			<Frame name="$parentMoneyBg" inherits="ThinGoldEdgeTemplate">
+				<Size x="120" y="30"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="DiceMasterStatInspector" relativePoint="BOTTOMRIGHT" x="-7" y="25"/>
+					<Anchor point="BOTTOMLEFT" relativeTo="DiceMasterStatInspector" relativePoint="BOTTOMRIGHT" x="-166" y="6"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentMoney" parentKey="money" inherits="NumberFontNormalRight" justifyH="RIGHT">
+							<Anchors>
+								<Anchor point="RIGHT" x="-3" y="0"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self.page = 1;
+			</OnLoad>
+			<OnHide>
+				DiceMaster4.StatInspectorShopFrame_OnHide(self)
+			</OnHide>
+			<OnShow>
+				DiceMaster4.StatInspectorShopFrame_OnShow(self)
+			</OnShow>
+			<OnMouseWheel> 
+				DiceMaster4.StatInspectorShopFrame_OnMouseWheel(self, delta)
+			</OnMouseWheel>
+			<OnUpdate>
+				DiceMaster4.StatInspectorShopFrame_OnUpdate(self)
+			</OnUpdate>
+		</Scripts>
+
+	  </Frame>
+	  
+	  <Button name="$parentTab1" parentKey="Tab1" useParentLevel="true" inherits="CharacterFrameTabButtonTemplate" id="1" text="Statistics">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" y="2"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					PanelTemplates_SetTab(DiceMasterStatInspector, 1);
+					DiceMasterStatInspectorInset:Show();
+					DiceMasterStatInspectorBg2:Show();
+                    DiceMasterStatInspectorStatsFrame:Show();
+                    DiceMasterStatInspectorExperienceBar:Show();
+					DiceMasterStatInspectorPetFrame:Hide();
+					DiceMasterStatInspectorInventoryFrame:Hide();	 
+					PlaySound(841)
+					DiceMasterStatInspectorInventoryTab:SetChecked( false )
+					DiceMasterStatInspectorShopFrame:Hide();
+					DiceMasterStatInspectorShopTab:SetChecked( false )
+					DiceMaster4.StatInspector_OnTabChanged()
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+	  <Button name="$parentTab2" parentKey="Tab2" useParentLevel="true" inherits="CharacterFrameTabButtonTemplate" id="2" text="Pet">
+		<Anchors>
+			<Anchor point="LEFT" relativeKey="$parent.Tab1" relativePoint="RIGHT" x="-16"/>
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				PanelTemplates_SetTab(DiceMasterStatInspector, 2);
+				DiceMasterStatInspectorInset:Show();
+				DiceMasterStatInspectorBg2:Show();
+				DiceMasterStatInspectorStatsFrame:Hide();
+				DiceMasterStatInspectorExperienceBar:Hide();
+				DiceMasterStatInspectorPetFrame:Show();
+				DiceMasterStatInspectorInventoryFrame:Hide();								 
+				PlaySound(841)
+				DiceMasterStatInspectorInventoryTab:SetChecked( false )
+				DiceMasterStatInspectorShopFrame:Hide();
+				DiceMasterStatInspectorShopTab:SetChecked( false )
+				DiceMaster4.StatInspector_OnTabChanged()
+			</OnClick>
+		</Scripts>
+	  </Button>
+	  
+	  <CheckButton name="$parentInventoryTab" frameLevel="510">
+		<Size x="32" y="32"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="-36"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture file="Interface\SpellBook\SpellBook-SkillLineTab">
+					<Size x="64" y="64"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-3" y="11"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			  <Layer level="ARTWORK">
+				<Texture parentKey="Icon" file="Interface/Buttons/Button-Backpack-Up">
+				  <Size x="32" y="32"/>
+				  <Anchors>
+					<Anchor point="CENTER"/>
+				  </Anchors>
+				</Texture>
+			  </Layer>
+		</Layers>
+		<Scripts>
+			<OnClick>
+				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+				PanelTemplates_SetTab(DiceMasterStatInspector, 0);
+				DiceMasterStatInspectorInset:Hide();
+				DiceMasterStatInspectorBg2:Hide();
+				DiceMasterStatInspectorStatsFrame:Hide();
+				DiceMasterStatInspectorExperienceBar:Hide();
+				DiceMasterStatInspectorPetFrame:Hide();
+				DiceMasterStatInspectorInventoryFrame:Show();
+				self:SetChecked(true);
+				DiceMasterStatInspectorShopFrame:Hide();
+				DiceMasterStatInspectorShopTab:SetChecked( false )
+				DiceMaster4.StatInspector_OnTabChanged()
+			</OnClick>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+				GameTooltip:SetText( "Inventory" );
+				GameTooltip:Show();
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide();
+			</OnLeave>
+		</Scripts>
+		<NormalTexture/>
+		<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+		<CheckedTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"/>
+	  </CheckButton>
+	
+	  <CheckButton name="$parentShopTab" frameLevel="510">
+		<Size x="32" y="32"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="-86"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture file="Interface\SpellBook\SpellBook-SkillLineTab">
+					<Size x="64" y="64"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-3" y="11"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			  <Layer level="ARTWORK">
+				<Texture parentKey="Icon" file="Interface/Icons/garrison_building_tradingpost">
+				  <Size x="32" y="32"/>
+				  <Anchors>
+					<Anchor point="CENTER"/>
+				  </Anchors>
+				</Texture>
+			  </Layer>
+		</Layers>
+		<Scripts>
+			<OnClick>
+				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+				PanelTemplates_SetTab(DiceMasterStatInspector, 0);
+				DiceMasterStatInspectorInset:Hide();
+				DiceMasterStatInspectorBg2:Hide();
+				DiceMasterStatInspectorStatsFrame:Hide();
+				DiceMasterStatInspectorExperienceBar:Hide();
+				DiceMasterStatInspectorPetFrame:Hide();
+				DiceMasterStatInspectorInventoryFrame:Hide();
+				DiceMasterStatInspectorInventoryTab:SetChecked( false );
+				DiceMasterStatInspectorShopFrame:Show();
+				DiceMasterStatInspectorShopTab:SetChecked( true )
+				DiceMaster4.StatInspector_OnTabChanged()
+			</OnClick>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+				GameTooltip:SetText( "Shop" );
+				GameTooltip:Show();
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide();
+			</OnLeave>
+		</Scripts>
+		<NormalTexture/>
+		<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+		<CheckedTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"/>
+	  </CheckButton>
+	
     </Frames>
   </Frame>
   

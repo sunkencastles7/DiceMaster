@@ -2,7 +2,7 @@
 
   <Script file="TraitButton.lua"/>
   
-  <Frame name="DiceMasterTooltip" frameStrata="TOOLTIP" hidden="true" parent="UIParent" inherits="TooltipBorderedFrameTemplate">
+  <Frame name="DiceMasterTooltip" frameStrata="TOOLTIP" hidden="true" parent="GameTooltip" inherits="TooltipBorderedFrameTemplate">
 	<Size>
 		<AbsDimension x="10" y="32"/>
 	</Size>
@@ -24,43 +24,154 @@
 	</Layers>
 	<Scripts>
 			<OnShow>
+				self:ClearAllPoints()
 				self:SetPoint("TOPLEFT", GameTooltip, "TOPRIGHT")
 				if self.TextLeft1:GetWidth() > 230 then self.TextLeft1:SetWidth( 230 ); end
 				self:SetWidth( self.TextLeft1:GetWidth() + 20 );	
 				self:SetHeight( self.TextLeft1:GetHeight() + 20 )
+				if self:GetRight() and self:GetRight() > GetScreenWidth() then
+					self:ClearAllPoints()
+					self:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT")
+				end
+				if self:GetBottom() and 0 > self:GetBottom() then
+					self:ClearAllPoints()
+					self:SetPoint("BOTTOMLEFT", GameTooltip, "TOPLEFT")
+				end
+				if self:GetTop() and self:GetTop() > GetScreenHeight() then
+					self:ClearAllPoints()
+					self:SetPoint("TOPRIGHT", GameTooltip, "TOPLEFT", 0, -45)
+				end
 			</OnShow>
 	</Scripts>
   </Frame>
   
-  <Frame name="DiceMasterTooltipApproved" frameStrata="TOOLTIP" hidden="true" parent="GameTooltip">
-	<Size x="64" y="64"/>
+  <Frame name="DiceMasterTooltipIcon" frameStrata="TOOLTIP" hidden="true" parent="GameTooltip">
+	<Size x="42" y="42"/>
 	<Layers>
 		<Layer level="ARTWORK">
-			<Texture parentKey="icon" setAllPoints="true" file="Interface/AddOns/DiceMaster/Texture/trait-unapproved">
+			<Texture parentKey="icon" setAllPoints="true" file="Interface/Icons/inv_misc_questionmark">
+			</Texture>
+		</Layer>
+		<Layer level="OVERLAY">
+			<Texture parentKey="approved" file="Interface/AddOns/DiceMaster/Texture/trait-approved" hidden="true">
+				<Size x="24" y="24"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="8" y="-8"/>
+				</Anchors>
+			</Texture>
+			<Texture parentKey="elite" file="Interface/Garrison/GarrisonMissionUI2" hidden="true">
+				<Size x="64" y="64"/>
+				<TexCoords left="0.994141" right="0.920898" top="0.233398" bottom="0.298828" />
+				<Anchors>
+					<Anchor point="CENTER" x="-8" y="0" />
+				</Anchors>
 			</Texture>
 		</Layer>
 	</Layers>
 	<Scripts>
 		<OnShow>
-			self:SetPoint("TOPRIGHT", GameTooltip, "TOPRIGHT", -1, -1)
+			self:SetPoint("TOPRIGHT", GameTooltip, "TOPLEFT", -2, -2)
 		</OnShow>
 	</Scripts>
   </Frame>
   
-  <Frame name="DiceMasterItemRefApproved" frameStrata="TOOLTIP" hidden="true" parent="ItemRefTooltip">
-	<Size x="64" y="64"/>
+  <Frame name="DiceMasterItemRefTooltip" frameStrata="TOOLTIP" hidden="true" parent="ItemRefTooltip" inherits="TooltipBorderedFrameTemplate">
+	<Size>
+		<AbsDimension x="128" y="64"/>
+	</Size>
+		<Anchors>
+			<Anchor point="LEFT"/>
+	</Anchors>
+	<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentTextLeft1" parentKey="TextLeft1" inherits="GameTooltipText">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="10" y="-10"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+	</Layers>
+	<Scripts>
+		<OnShow>
+			self:ClearAllPoints()
+			self:SetPoint("TOPLEFT", ItemRefTooltip, "TOPRIGHT")
+			if self.TextLeft1:GetWidth() > 230 then self.TextLeft1:SetWidth( 230 ); end
+			self:SetWidth( self.TextLeft1:GetWidth() + 20 );	
+			self:SetHeight( self.TextLeft1:GetHeight() + 20 )
+		</OnShow>
+	</Scripts>
+  </Frame>
+  
+  <Frame name="DiceMasterItemRefIcon" frameStrata="TOOLTIP" hidden="true" parent="ItemRefTooltip">
+	<Size x="42" y="42"/>
 	<Layers>
 		<Layer level="ARTWORK">
-			<Texture parentKey="icon" setAllPoints="true" file="Interface/AddOns/DiceMaster/Texture/trait-unapproved-left">
+			<Texture parentKey="icon" setAllPoints="true" file="Interface/Icons/inv_misc_questionmark">
+			</Texture>
+		</Layer>
+		<Layer level="OVERLAY">
+			<Texture parentKey="approved" file="Interface/AddOns/DiceMaster/Texture/trait-approved">
+				<Size x="24" y="24"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="8" y="-8"/>
+				</Anchors>
+			</Texture>
+			<Texture parentKey="elite" file="Interface/Garrison/GarrisonMissionUI2" hidden="true">
+				<Size x="64" y="64"/>
+				<TexCoords left="0.994141" right="0.920898" top="0.233398" bottom="0.298828" />
+				<Anchors>
+					<Anchor point="CENTER" x="-8" y="0" />
+				</Anchors>
 			</Texture>
 		</Layer>
 	</Layers>
 	<Scripts>
 		<OnShow>
-			self:SetPoint("TOPLEFT", ItemRefTooltip, "TOPLEFT", 1, -1)
+			self:SetPoint("TOPRIGHT", ItemRefTooltip, "TOPLEFT", -2, -2)
 		</OnShow>
 	</Scripts>
   </Frame>
+  
+  <Frame name="DiceMasterItemAnim" frameStrata="DIALOG" toplevel="true" hidden="true">
+		<Size x="30" y="30"/>
+		<Animations>
+			<AnimationGroup parentKey="flyin">
+				<Scale childKey="animIcon" fromScaleX="0.125" fromScaleY="0.125" toScaleX="1" toScaleY="1" duration="1" order="1"/>
+				<Alpha childKey="animIcon" fromAlpha="0" toAlpha="1" duration="1" order="1"/>
+				<Path childKey="animIcon" curve="SMOOTH" duration="1" order="1">
+					<ControlPoints>
+						<ControlPoint offsetX="-15" offsetY="30"/>
+						<ControlPoint offsetX="-75" offsetY="60"/>
+					</ControlPoints>
+				</Path>
+				<Scripts>
+					<OnPlay>
+						local iconFrame = self:GetParent();
+						iconFrame.animIcon:Show();
+					</OnPlay>
+					<OnFinished>
+						local iconFrame = self:GetParent();
+						iconFrame.animIcon:Hide();
+						iconFrame:Hide()
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+		</Animations>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture  parentKey="animIcon" setAllPoints="true"/>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnShow>
+				self.flyin:Play(true);
+			</OnShow>
+		</Scripts>
+	</Frame>
   
   <!-- Template for the main "trait" buttons. -->
   <Button name="DiceMasterTraitButton" enableMouse="true" intrinsic="true">
@@ -81,6 +192,15 @@
 					</Anchors>
           
         </Texture>
+		<FontString parentKey="count" inherits="NumberFontNormal" justifyH="RIGHT" hidden="true">
+			<Anchors>
+				<Anchor point="BOTTOMRIGHT">
+					<Offset>
+						<AbsDimension x="-5" y="2"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</FontString>
       </Layer>
        
       <Layer level="OVERLAY"> 
@@ -95,6 +215,19 @@
       </Layer>
       
     </Layers>
+	<Frames>
+		<Cooldown parentKey="cooldown" inherits="CooldownFrameTemplate" setAllPoints="true">
+			<Layers>
+				<Layer level="OVERLAY">
+					<FontString parentKey="text" inherits="Game15Font_o1" justifyH="CENTER" hidden="true">
+						<Anchors>
+							<Anchor point="CENTER" x="0" y="0"/>
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+		</Cooldown>
+	</Frames>
     <Scripts>
       <OnLoad>
         DiceMaster4.TraitButton_Init( self )
@@ -104,6 +237,12 @@
         local qw, qh = self:GetWidth() * 1.4, self:GetHeight() * 1.4
         self.border:SetSize( qw, qh )
         self.highlight:SetSize( qw, qh )
+		-- Add the gold dragon border if this is the command trait.
+		if self.traitIndex == 5 and not self.isTraitsList then
+			self.border:SetTexture("Interface/AddOns/DiceMaster/Texture/elite-trait-border")
+			local bx, by = self:GetSize()
+			self.border:SetSize( bx*3 ,by*3 )
+		end
       </OnSizeChanged>
     </Scripts>
     

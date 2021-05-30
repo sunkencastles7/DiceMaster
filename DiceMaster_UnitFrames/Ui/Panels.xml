@@ -22,7 +22,7 @@
 					frame:SetUserPlaced( true )
 					self.Title:SetText(self:GetParent().Title)
 					
-					for i = 1,5 do
+					for i = 1,6 do
 						frame.unitframes[i]:EnableMouse(false)
 					end
 				</OnShow>
@@ -30,7 +30,7 @@
 					local frame = self:GetParent()
 					frame:EnableMouse(false)
 					frame:RegisterForDrag( false )
-					for i = 1,5 do
+					for i = 1,6 do
 						frame.unitframes[i]:EnableMouse(true)
 					end
 				</OnHide>
@@ -51,8 +51,8 @@
         
         -- create trait buttons
         self.unitframes = {}
-        for i = 1,5 do
-          self.unitframes[i] = CreateFrame( "CinematicModel", nil, self, "DiceMasterUnitFrame" )
+        for i = 1,6 do
+          self.unitframes[i] = CreateFrame( "PlayerModel", nil, self, "DiceMasterUnitFrame" )
 		  self.unitframes[i]:SetFrameLevel(1)
           self.unitframes[i]:SetSize( 153, 182 )
           self.unitframes[i]:SetPoint( "CENTER", 280-180*(i-1), 0 )

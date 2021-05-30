@@ -6,18 +6,17 @@
 	<Layers>
 		<Layer level="OVERLAY">
 			<Texture parentKey="check" file="Interface/Buttons/UI-CheckBox-Check" hidden="true">
-					<Size x="16" y="16"/>
-					<Anchors>
-						<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-					</Anchors>
+				<Size x="16" y="16"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+				</Anchors>
 			</Texture>
 		</Layer>
 	</Layers>
     <Scripts>
 	  <OnShow>
+		self:SetPortraitZoom(0.7)
 		self:SetPortraitZoom(0)
-		self:SetPortraitZoom(0.6)
-		self:SetAnimation(DiceMaster4.UnitEditing.animation or 0)
 		self:SetSpellVisualKit(self.spellvisualkit or 0)
 	  </OnShow>
       <OnMouseDown>
@@ -30,60 +29,37 @@
         GameTooltip:Hide()
       </OnLeave>
 	  <OnAnimFinished>
-		self:SetAnimation(DiceMaster4.UnitEditing.animation or 0)
 		self:SetSpellVisualKit(self.spellvisualkit or 0)
 	  </OnAnimFinished>
     </Scripts>
   </CinematicModel>
   
   <!-- The icon selector, shown when you click on the trait icon to edit the texture. -->
-  <Frame name="DiceMasterUnitPicker" parent="UIParent" inherits="ButtonFrameTemplate" hidden="true" framestrata="DIALOG" toplevel="true">
-    <Size x="384" y="384" />
+  <Frame name="DiceMasterUnitPicker" parent="UIParent" inherits="SimplePanelTemplate" hidden="true" framestrata="DIALOG" toplevel="true">
+    <Size x="256" y="256" />
     <Anchors>
-      <Anchor point="CENTER" />
+      <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
     </Anchors>
     
     <Layers>	  
-	  <Layer level="ARTWORK">
-	  <FontString parentKey="title" inherits="GameFontHighlightSmall2" justifyH="center">
-			<Size x="150" y="12"/>
-			<Anchors>
-			  <Anchor point="TOP" x="0" y="28"/> 
-			</Anchors>
-		</FontString>
-	  </Layer>
     </Layers>
     
     <Scripts>
       <OnLoad>
-		self:SetClampedToScreen( true )
-		self:SetMovable(true)
-		self:EnableMouse(true)
-        self:RegisterForDrag( "LeftButton" )
-        self:SetScript( "OnDragStart", self.StartMoving )
-        self:SetScript( "OnDragStop", self.StopMovingOrSizing )
-		self:SetScale(0.8)
-        self:SetUserPlaced( true )
-		
-		SetPortraitToTexture( self.portrait, "Interface/Reforging/Reforge-Portrait" )
-		self.TitleText:SetText("Effects")
         -- create icon map
         self.icons = {}
         for y = 0,2 do
           for x = 0,3 do
             local btn = CreateFrame( "CinematicModel", nil, self.selectorFrame, "DiceMasterUnitPickerButton" )
             btn.pickerIndex = index
-            btn:SetPoint( "TOPLEFT", 87*x-50, -97*y-6 )
-            btn:SetSize( 87, 97 )
+            btn:SetPoint( "TOPLEFT", self.selectorFrame, "TOPLEFT", 53*x, -65*y-2 )
+			btn:SetSize( 53, 65 )
             
             table.insert( self.icons, btn )
             btn.pickerIndex = #self.icons
           end
         end
       </OnLoad>
-	  <OnHide>
-		DiceMaster4.UnitPicker_Close( true )
-	  </OnHide>
     </Scripts>
     <Frames>
 	
@@ -91,13 +67,13 @@
       <Button name="$parentFilter" parentKey="filter" enableMouse="true" inherits="UIDropDownMenuTemplate">
 			<Size x="300" y="22"/>
 			<Anchors>
-			  <Anchor point="TOPLEFT" x="42" y="-28"/> 
+			  <Anchor point="TOPLEFT" x="-16" y="-2"/> 
 			</Anchors>
 			<Scripts>
 			  <OnLoad>
 				UIDropDownMenu_Initialize( self, DiceMaster4.UnitPickerDropDown_OnLoad )
 				UIDropDownMenu_SetText(DiceMasterUnitPicker.filter, "Default") 
-				UIDropDownMenu_SetWidth(self, 130, 5)
+				UIDropDownMenu_SetWidth(self, 110, 5)
 			  </OnLoad>
 			</Scripts>
 		</Button>
@@ -134,8 +110,8 @@
 			</Scripts>
 		</Button>
 		
-		<Button name="$parentResetButton" inherits="UIPanelButtonTemplate" text="Clear Effect">
-			<Size x="110" y="24"/>
+		<Button name="$parentResetButton" inherits="UIPanelButtonTemplate" text="Clear">
+			<Size x="70" y="24"/>
 			<Anchors>
 				<Anchor point="TOPLEFT" relativeTo="$parentDeleteButton" relativePoint="TOPRIGHT" x="2" y="0"/> 
 			</Anchors>
@@ -148,12 +124,24 @@
 				</OnLoad>
 			</Scripts>
 		</Button>
+		
+		<Button inherits="MagicButtonTemplate" text="CLOSE">
+		<Size x="100" y="22"/>
+		<Anchors>
+			<Anchor point="BOTTOM"/>
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				DiceMaster4.UnitPicker_Close()
+			</OnClick>
+		</Scripts>
+	  </Button>
       
       <!-- Area for icon selector. -->
       <Frame parentKey="selectorFrame">
         <Anchors>
-          <Anchor point="TOPLEFT" x="58" y="-58"/>
-          <Anchor point="BOTTOMRIGHT" x="-30" y="22"/>
+          <Anchor point="TOPLEFT" relativeKey="$parent.Inset" x="5" y="-3"/>
+			<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Inset" x="-5" y="3"/>
         </Anchors>
         <Scripts>
           <OnLoad>
@@ -165,36 +153,13 @@
         </Scripts>
         
         <Frames>
-		
-		  <!-- Loading spinner -->
-		  <Frame parentKey="Spinner" inherits="LoadingSpinnerTemplate" hidden="true">
-				<Anchors>
-					<Anchor point="CENTER" x="-24" y="0" />
-				</Anchors>
-				<Layers>
-					<Layer level="OVERLAY">
-						<Texture parentKey="BG">
-							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="DiceMasterUnitPickerInset" x="4" y="-4"/>
-								<Anchor point="BOTTOMRIGHT" relativeTo="DiceMasterUnitPickerInset" x="-22" y="2"/>
-							</Anchors>
-							<Color r="0" g="0" b="0" a="0.5"/>
-						</Texture>
-					</Layer>
-				</Layers>
-				<Scripts>
-					<OnLoad>
-						self.Anim:Play();
-					</OnLoad>
-				</Scripts>
-		  </Frame>
         
           <!-- Scroll bar -->
           <Slider parentKey="scroller" inherits="UIPanelScrollBarTrimTemplate" minvalue="0" maxvalue="1" valuestep="3">
             
             <Anchors>
-              <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="5" y="-18" />
-              <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="3" y="18" />
+              <Anchor point="TOPRIGHT" relativeKey="$parent.Inset" relativePoint="TOPRIGHT" x="2" y="-16" />
+              <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Inset" relativePoint="BOTTOMRIGHT" x="2" y="14" />
             </Anchors>
             
             <Layers>
@@ -210,7 +175,7 @@
             <Scripts>
               <OnLoad>
                 self:SetValueStep(1)
-                self.scrollStep = 3
+                self.scrollStep = 4
               </OnLoad>
               <OnValueChanged>
                 DiceMaster4.UnitPicker_ScrollChanged( value )

@@ -1,0 +1,358 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+ 
+  <!-- Shop editor frame. -->
+  
+  <Frame name="DiceMasterShopEditor" frameStrata="DIALOG" hidden="true" parent="UIParent" inherits="SimplePanelTemplate" toplevel="true">>
+    <Size x="256" y="360"/>
+    <Anchors>
+      <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
+    </Anchors>
+    
+    <Scripts>
+      <OnLoad>
+		if self.NineSlice then
+			self.NineSlice:SetFrameLevel(1)
+		end
+		--self.Inset:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -6, 120)
+      </OnLoad>
+      <OnShow>
+        
+        -- opening sound
+        PlaySound(839)
+      </OnShow>
+    </Scripts>
+	
+	<Layers>
+		<Layer level="BACKGROUND">
+			<Texture name="$parentSlotTexture" file="Interface\Buttons\UI-EmptySlot">
+				<Size x="64" y="64"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" x="6" y="-38"/>
+				</Anchors>
+			</Texture>
+			<FontString inherits="GameFontNormalLeft" justifyH="left" text="Preview">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="BOTTOMLEFT" relativeTo="$parentSlotTexture" relativePoint="TOPLEFT" x="12" y="-8"/> 
+				</Anchors>
+			</FontString>
+			<Texture name="$parentNameFrame" file="Interface\MerchantFrame\UI-Merchant-LabelSlots">
+				<Size x="128" y="78"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentSlotTexture" relativePoint="RIGHT" x="-9" y="-18"/>
+				</Anchors>
+			</Texture>
+			<FontString parentKey="Name" name="$parentName" inherits="GameFontNormalSmall" text="Item Name" justifyH="LEFT">
+				<Size x="100" y="30"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentSlotTexture" relativePoint="RIGHT" x="-5" y="7"/>
+				</Anchors>
+			</FontString>
+			<FontString inherits="GameFontNormalLeft" justifyH="left" text="Purchase Requirements">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="18" y="-220"/> 
+				</Anchors>
+			</FontString>
+		</Layer>
+		<Layer level="ARTWORK">
+			<Texture parentKey="itemIcon" file="Interface/Icons/inv_misc_questionmark">
+				<Size x="38" y="38"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentSlotTexture" relativePoint="TOPLEFT" x="12" y="-12"/> 
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="ARTWORK" textureSubLevel="1">
+			<FontString parentKey="itemCount" inherits="NumberFontNormal" justifyH="RIGHT">
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.itemIcon">
+						<Offset>
+							<AbsDimension x="-5" y="2"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</FontString>
+			<FontString parentKey="itemStock" inherits="NumberFontNormalYellow" justifyH="LEFT" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.itemIcon">
+						<Offset>
+							<AbsDimension x="0" y="-2"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</FontString>
+		</Layer>
+		<Layer level="OVERLAY">
+			<Texture parentKey="header" file="Interface/AddOns/DiceMaster/Texture/dicemaster-header">
+				<TexCoords left="0" right="0.623" top="0" bottom="0.566" />
+				<Size x="160" y="72"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-16" />
+				</Anchors>
+			</Texture>
+			<FontString parentKey="headerText" inherits="GameFontNormal" justifyH="center" text="Sell Item">
+				<Anchors>
+				  <Anchor point="TOP" x="0" y="-12"/> 
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+    
+    <Frames>
+	  <Frame name="$parentMoneyFrame">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="$parentName" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+		</Anchors>
+		<Size>
+			<AbsDimension x="128" y="13"/>
+		</Size>
+		<Frames>
+			<Button name="$parentItem1">
+				<Anchors>
+					<Anchor point="LEFT">
+						<Offset>
+							<AbsDimension x="13" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Size>
+					<AbsDimension x="32" y="13"/>
+				</Size>
+				<Scripts>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+						ResetCursor();
+					</OnLeave>
+				</Scripts>
+				<ButtonText name="$parentText" parentKey="Text">
+					<Anchors>
+						<Anchor point="LEFT">
+							<Offset>
+								<AbsDimension x="-13" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</ButtonText>
+				<NormalTexture name="$parentTexture">
+					<Size>
+						<AbsDimension x="13" y="13"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT"/>
+					</Anchors>
+				</NormalTexture>
+				<NormalFont style="NumberFontNormalRight"/>
+				<PushedTextOffset>
+					<AbsDimension x="0" y="0"/>
+				</PushedTextOffset>
+			</Button>
+		</Frames>
+	</Frame>
+
+	  <EditBox name="$parentItemPrice" parentKey="itemPrice" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<Size x="80" y="12"/> 
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.itemIcon" relativePoint="BOTTOMLEFT" x="2" y="-32"/> 
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentItemPriceTitle" inherits="GameFontNormalLeft" justifyH="left" text="Price">
+					<Size x="150" y="12"/>
+					<Anchors>
+					  <Anchor point="TOPLEFT" x="0" y="15"/> 
+					</Anchors>
+				</FontString>
+		  </Layer>
+		</Layers>
+		<Scripts> 
+		  <OnLoad>
+			self:SetAutoFocus( false )
+			self:SetTextColor( 1, 1, 1 )
+			self:SetMaxLetters( 7 )
+			self:SetNumeric()
+			self:SetText("0")
+		  </OnLoad>
+		  <OnEditFocusLost>
+			DiceMaster4.ShopEditor_SavePrice()
+		  </OnEditFocusLost>
+		  <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEnterPressed function="EditBox_ClearFocus"/>
+		</Scripts>
+	  </EditBox>
+	  
+	  <Button name="$parentItemCurrency" parentKey="itemCurrency" enableMouse="true" inherits="UIDropDownMenuTemplate">
+			<Size x="120" y="22"/>
+			<Anchors>
+			  <Anchor point="LEFT" relativeKey="$parent.itemPrice" relativePoint="RIGHT" x="-10" y="-2"/> 
+			</Anchors>
+			<Scripts>
+			  <OnShow>
+				UIDropDownMenu_Initialize( self, DiceMaster4.ShopEditorCurrency_OnLoad )
+				UIDropDownMenu_SetText(self, "DiceMaster Coins")
+				UIDropDownMenu_SetWidth(self, 120, 5)
+			  </OnShow>
+			</Scripts>
+	  </Button>
+	  
+	  <Slider name="$parentAmount" parentKey="amount" inherits="OptionsSliderTemplate" orientation="HORIZONTAL" enableMouse="true">
+		<Size x="100" y="20"/>
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.itemPrice" relativePoint="BOTTOMLEFT" x="-4" y="-20" />
+		</Anchors>
+		
+		<Scripts>
+			<OnShow>
+				--DiceMaster4.ShopEditorAmount_OnLoad( self )
+			</OnShow>
+			<OnValueChanged>
+				DiceMaster4.ShopEditorAmount_OnValueChanged( self, value, userInput )
+			</OnValueChanged>
+		</Scripts>
+	  </Slider>
+	  
+	  <Slider name="$parentStackSize" parentKey="stackSize" inherits="OptionsSliderTemplate" orientation="HORIZONTAL" enableMouse="true">
+		<Size x="100" y="20"/>
+		<Anchors>
+		  <Anchor point="LEFT" relativeKey="$parent.amount" relativePoint="RIGHT" x="14" y="0" />
+		</Anchors>
+		
+		<Scripts>
+			<OnShow>
+				--DiceMaster4.ShopEditorAmount_OnLoad( self )
+			</OnShow>
+			<OnValueChanged>
+				DiceMaster4.ShopEditorStackSize_OnValueChanged( self, value, userInput )
+			</OnValueChanged>
+		</Scripts>
+	  </Slider>
+	  
+	  <CheckButton name="$parentLimitedSupplyCheckBox" parentKey="limitedSupplyCheckBox" inherits="ChatConfigCheckButtonTemplate">
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.amount" relativePoint="BOTTOMLEFT" x="-4" y="0" />
+		</Anchors>
+		
+		<Scripts>
+			<OnLoad>
+				_G[self:GetName().."Text"]:SetText("|cFFFFD100Limited Supply")
+				self.tooltip = "Toggles whether this item is only available in limited supply. Once the amount listed has been sold, this item will not be available again until you restock it."
+			</OnLoad>
+			<OnClick>
+				if self:GetChecked() then
+					DiceMasterShopEditor.itemStock:Show()
+					DiceMaster4.newShopItem.limited = true;
+				else
+					DiceMasterShopEditor.itemStock:Hide()
+					DiceMaster4.newShopItem.limited = false;
+				end
+			</OnClick>
+		</Scripts>
+	  </CheckButton>
+	  
+	  <Button name="$parentGuildRankDropdown" parentKey="guildRankDropdown" enableMouse="true" inherits="UIDropDownMenuTemplate">
+			<Size x="120" y="22"/>
+			<Anchors>
+			  <Anchor point="TOPRIGHT" x="-40" y="-240"/> 
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+				  <FontString name="$parentGuildRankTitle" inherits="GameFontNormalLeft" justifyH="right" text="Guild Rank:">
+					<Size x="150" y="12"/>
+					<Anchors>
+					  <Anchor point="RIGHT" relativePoint="LEFT" x="10" y="2"/> 
+					</Anchors>
+				</FontString>
+			  </Layer>
+			</Layers>
+			<Scripts>
+			  <OnShow>
+				UIDropDownMenu_Initialize( self, DiceMaster4.ShopEditorGuildRank_OnLoad )
+				UIDropDownMenu_SetText(self, "(None)")
+				UIDropDownMenu_SetWidth(self, 120, 5)
+			  </OnShow>
+			</Scripts>
+	  </Button>
+	  
+	  <Button name="$parentClassDropdown" parentKey="classDropdown" enableMouse="true" inherits="UIDropDownMenuTemplate">
+			<Size x="120" y="22"/>
+			<Anchors>
+			  <Anchor point="TOPLEFT" relativeKey="$parent.guildRankDropdown" relativePoint="BOTTOMLEFT" x="0" y="0"/> 
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+				  <FontString name="$parentClassTitle" inherits="GameFontNormalLeft" justifyH="right" text="Class:">
+					<Size x="150" y="12"/>
+					<Anchors>
+					  <Anchor point="RIGHT" relativePoint="LEFT" x="10" y="2"/> 
+					</Anchors>
+				</FontString>
+			  </Layer>
+			</Layers>
+			<Scripts>
+			  <OnLoad>
+				UIDropDownMenu_Initialize( self, DiceMaster4.ShopEditorClass_OnLoad )
+				UIDropDownMenu_SetText(self, "(None)")
+				UIDropDownMenu_SetWidth(self, 120, 5)
+			  </OnLoad>
+			</Scripts>
+	  </Button>
+	  
+	  <EditBox name="$parentDMLevel" parentKey="dmLevel" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<Size x="40" y="12"/> 
+		<Anchors>
+		  <Anchor point="TOPRIGHT" relativeKey="$parent.classDropdown" relativePoint="BOTTOMRIGHT" x="28" y="-2"/> 
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+			  <FontString name="$parentDMLevelTitle" inherits="GameFontNormalLeft" justifyH="right" text="DiceMaster Level:">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="RIGHT" relativePoint="LEFT" x="-8" y="0"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<Scripts> 
+		  <OnLoad>
+			self:SetAutoFocus( false )
+			self:SetTextColor( 1, 1, 1 )
+			self:SetMaxLetters( 3 )
+			self:SetText("0")
+		  </OnLoad>
+		  <OnEditFocusLost>
+			DiceMaster4.ShopEditor_SaveDMLevel()
+		  </OnEditFocusLost>
+		  <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEnterPressed function="EditBox_ClearFocus"/>
+		</Scripts>
+	  </EditBox>
+		
+	  <Button parentKey="closeButton" inherits="MagicButtonTemplate" text="Close">
+		<Size x="100" y="22"/>
+		<Anchors>
+			<Anchor point="BOTTOMRIGHT"/>
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				DiceMaster4.ShopEditor_Close()
+			</OnClick>
+		</Scripts>
+	  </Button>
+	  <Button parentKey="sellButton" inherits="MagicButtonTemplate" text="Sell">
+		<Size x="100" y="22"/>
+		<Anchors>
+			<Anchor point="RIGHT" relativeKey="$parent.closeButton" relativePoint="LEFT"/>
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				DiceMaster4.ShopEditor_SellItem()
+			</OnClick>
+		</Scripts>
+	  </Button>
+    </Frames>
+  </Frame>
+  
+</Ui>

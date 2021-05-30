@@ -1,0 +1,201 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+  
+	<!-- Template for the sound buttons in the sound selector. -->
+    <Frame name="DiceMasterAnimationPickerButtonTemplate" virtual="true">
+		<Size x="230" y="24"/>
+		<Frames>
+			<Button parentKey="animation" enableMouse="true" inherits="UIDropDownMenuTemplate">
+				<Size x="110" y="22"/>
+				<Anchors>
+				  <Anchor point="RIGHT" x="-50" y="-4"/> 
+				</Anchors>
+				<Scripts>
+				  <OnLoad>
+					UIDropDownMenu_Initialize( self, DiceMaster4.AnimationPickerDropDown_OnLoad )
+					UIDropDownMenu_SetWidth(self, 110, 5)
+				  </OnLoad>
+				</Scripts>
+			</Button>
+			<Button parentKey="playButton">
+				<Size x="24" y="24"/>
+				<Anchors>
+					<Anchor point="RIGHT" x="4" y="-2"/>
+				</Anchors>
+				<NormalTexture file="Interface/Buttons/UI-SpellbookIcon-NextPage-Up"/>
+				<PushedTexture file="Interface/Buttons/UI-SpellbookIcon-NextPage-Down"/>
+				<DisabledTexture file="Interface/Buttons/UI-SpellbookIcon-NextPage-Disabled"/>
+				<HighlightTexture file="Interface/Buttons/UI-Common-MouseHilight" alphaMode="ADD"/>
+				<Scripts>
+					<OnLoad>
+						DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to preview this animation in the Unit Editor.")
+					</OnLoad>
+					<OnClick>
+						DiceMaster4.AnimationPicker_TestAnimation( self:GetParent() )
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString parentKey="name" inherits="GameFontNormalSmall" justifyH="right">
+					<Anchors>
+						<Anchor point="LEFT"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Frame>
+  
+    <Frame name="DiceMasterAnimationPicker" parent="UIParent" hidden="true" inherits="SimplePanelTemplate" frameStrata="DIALOG" toplevel="true">
+		<Size x="256" y="298"/>
+		<Anchors>
+		  <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
+		</Anchors>
+		
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="header" file="Interface/AddOns/DiceMaster/Texture/dicemaster-header">
+					<TexCoords left="0" right="0.623" top="0" bottom="0.566" />
+					<Size x="160" y="72"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-16" />
+					</Anchors>
+				</Texture>
+				<FontString inherits="GameFontNormal" justifyH="center" text="Animation Picker">
+					<Anchors>
+					  <Anchor point="TOP" x="0" y="-12"/> 
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		
+		<Scripts>
+		  <OnLoad>
+			DiceMaster4.AnimationPicker_OnLoad(self);
+		  </OnLoad>
+		</Scripts>
+		<Frames>
+			
+			<Frame name="$parentPreAggroAnimation" parentKey="preaggro" inherits="DiceMasterAnimationPickerButtonTemplate">
+				<Anchors>
+					<Anchor point="TOP" x="0" y="-36"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.name:SetText("PreAggro")
+						DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100This animation loops while the unit is idle.")
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<Frame name="$parentAggroAnimation" parentKey="aggro" inherits="DiceMasterAnimationPickerButtonTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.preaggro" relativePoint="BOTTOM" x="0" y="-4"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.name:SetText("Aggro")
+						DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100This animation plays when the unit's visibility is toggled on, when a new model is selected, or when the unit regains health after dying.")
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<Frame name="$parentMeleeAttackAnimation" parentKey="meleeAttack" inherits="DiceMasterAnimationPickerButtonTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.aggro" relativePoint="BOTTOM" x="0" y="-4"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.name:SetText("Melee Attack")
+						DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100This animation plays when the unit rolls a Melee Attack.")
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<Frame name="$parentRangedAttackAnimation" parentKey="rangedAttack" inherits="DiceMasterAnimationPickerButtonTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.meleeAttack" relativePoint="BOTTOM" x="0" y="-4"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.name:SetText("Ranged Attack")
+						DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100This animation plays when the unit rolls a Ranged Attack.")
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<Frame name="$parentSpellAttackAnimation" parentKey="spellAttack" inherits="DiceMasterAnimationPickerButtonTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.rangedAttack" relativePoint="BOTTOM" x="0" y="-4"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.name:SetText("Spell Attack")
+						DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100This animation plays when the unit rolls a Spell Attack.")
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<Frame name="$parentWoundAnimation" parentKey="wound" inherits="DiceMasterAnimationPickerButtonTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.spellAttack" relativePoint="BOTTOM" x="0" y="-4"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.name:SetText("Wound")
+						DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100This animation plays when the unit loses health.")
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<Frame name="$parentDeathAnimation" parentKey="death" inherits="DiceMasterAnimationPickerButtonTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.wound" relativePoint="BOTTOM" x="0" y="-4"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.name:SetText("Death")
+						DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100This animation plays when the unit first reaches 0 health.")
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<Frame name="$parentDeadAnimation" parentKey="dead" inherits="DiceMasterAnimationPickerButtonTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.death" relativePoint="BOTTOM" x="0" y="-4"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.name:SetText("Dead")
+						DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100This animation loops after the Death animation while the unit remains at 0 health.")
+					</OnLoad>
+				</Scripts>
+			</Frame>
+		  
+			<Button inherits="MagicButtonTemplate" text="Reset to Defaults">
+				<Size x="140" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.AnimationPicker_UnbindAllAnimations()
+					</OnClick>
+				</Scripts>
+			</Button>
+		  
+			<Button inherits="MagicButtonTemplate" text="Close">
+				<Size x="100" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PlaySound(840); 
+						DiceMaster4.AnimationPicker_Close()
+					</OnClick>
+				</Scripts>
+			</Button>		  
+		</Frames>
+	</Frame>
+</Ui>

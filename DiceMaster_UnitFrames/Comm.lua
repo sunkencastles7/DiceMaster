@@ -6,8 +6,6 @@
 
 local Me = DiceMaster4 
 
-Me.enableMessageUF = true;
-
 ---------------------------------------------------------------------------
 -- Send a status request.
 --
@@ -16,12 +14,16 @@ Me.enableMessageUF = true;
 
 function Me.UnitFrame_SendStatus( visibleframes, id, status )
 	
+	if IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) then
+		return
+	end
+	
 	if not status then
 		local msg = Me:Serialize( "UFSTAT", {
 			vf = tonumber( 0 );
 		})
 		
-		Me:SendCommMessage( "DCM4", msg, "RAID", nil, "NORMAL" )
+		Me:SendCommMessage( "DCM4", msg, "RAID", nil, "ALERT" )
 		return
 	end
 	
@@ -29,31 +31,51 @@ function Me.UnitFrame_SendStatus( visibleframes, id, status )
 	local statusID	   = id
 	local statusName   = status.name
 	local statusModel  = status.model
-	local statusAnim   = status.animation
-	local statusSVK    = status.spellvisualkit
+	local statusAnim   = status.animations
+	local statusModelData = status.modelData
 	local statusSymbol = status.symbol
 	local statusHealth = status.healthCurrent
 	local statusMaxHealth = status.healthMax
 	local statusArmor = status.armor
+	local statusCastBar = status.castEnabled
+	local statusCastText = status.castText
+	local statusCast = status.castCurrent
+	local statusCastMax = status.castMax
+	local statusCastType = status.castType
 	local statusVisible = status.visible
+	local statusBuffsAllowed = Me.db.global.allowBuffs
+	local statusBlood = Me.db.global.bloodEffects
 	local statusBuffs = status.buffs
+	local statusZone = status.zone
+	local statusContinent = status.continent
+	local statusRaidAssistantAllowed = Me.db.global.allowAssistantTalkingHeads
 	
 	local msg = Me:Serialize( "UFSTAT", {
 		vf = tonumber( statusFrames );
 		id = tonumber( statusID );
 		na = tostring( statusName );
 		md = tonumber( statusModel );
-		an = tonumber( statusAnim );
-		svk = tonumber( statusSVK );
+		an = statusAnim;
+		mx = statusModelData;
 		sy = tonumber( statusSymbol );
 		hc = tonumber( statusHealth );
 		hm = tonumber( statusMaxHealth );
 		ar = tonumber( statusArmor );
+		ce = statusCastBar;
+		ct = tonumber( statusCastText );
+		cc = tonumber( statusCast );
+		cm = tonumber( statusCastMax );
+		ch = tonumber( statusCastType );
 		vs = tostring( statusVisible );
+		ba = tostring( statusBuffsAllowed );
+		bl = statusBlood;
 		buffs = statusBuffs;
+		zo = tostring( statusZone );
+		co = tostring( statusContinent );
+		ra = statusRaidAssistantAllowed;
 	})
 	
-	Me:SendCommMessage( "DCM4", msg, "RAID", nil, "NORMAL" )
+	Me:SendCommMessage( "DCM4", msg, "RAID", nil, "ALERT" )
 end
 
 ---------------------------------------------------------------------------
@@ -63,32 +85,42 @@ end
 --  na = name							string
 --  st = visibility state				number
 --	md = model							number
---  an = model animation				number
+--  an = model animations				table
+--  mx = {								table
+--		mx.px = position x				number
+--		mx.py = position y				number
+--		mx.pz = position z				number
+--		mx.ro = rotation				number
+--		mx.zl = zoom level				number
+--  }
 --  svk = spell visual kit				number
 --	sy = symbol							number
 --	hc = current health					number
 --  hm = max health						number
 --  ar = armour							number
+--  ce = cast bar enabled?				boolean
+--  ct = cast bar text					string
+--  cc = current cast bar value			number
+--  cm = max cast bar value				number
+--  ch = cast bar type					number
 -- 	vs = visible						boolean
 --  buffs = buffs						table
+--  zo = zone							string
+--  co = continent						string
+--  ra = raid assistant privileges		boolean
 
 function Me.UnitFrame_OnStatusMessage( data, dist, sender )	
 	-- Ignore our own data.
-	if sender == UnitName( "player" )  then return end
+	if sender == UnitName( "player" ) or Me.db.char.unitframes.enable then return end
  
 	if UnitIsGroupLeader( sender ) and data.vf and data.vf == 0 then
-		Me.ShowUnitPanel( false )
 		local unitframes = DiceMasterUnitsPanel.unitframes
 		
+		DiceMasterUnitsPanel:Hide()
 		for i=data.vf+1,#unitframes do
 			unitframes[i]:ClearModel()
 			unitframes[i]:Reset()
 		end
-		if Me.enableMessageUF then
-			local sexTable = { "your group leader", "he", "she" }
-			Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t "..sender.." has enabled Unit Frames, but they are all currently hidden. They will display automatically when "..sexTable[UnitSex(sender)].." makes them visible.", "SYSTEM")
-		end
-		Me.enableMessageUF = false;
 		return
 	end
  
@@ -99,11 +131,11 @@ function Me.UnitFrame_OnStatusMessage( data, dist, sender )
 	end
 	
 	if UnitIsGroupLeader( sender ) then
-		Me.ShowUnitPanel( true )
 		local unitframes = DiceMasterUnitsPanel.unitframes
 		
 		unitframes[data.id]:SetData( data )
 		
+		DiceMasterUnitsPanel:Show()
 		for i=data.vf+1,#unitframes do
 			unitframes[i]:ClearModel()
 			unitframes[i]:Reset()
@@ -111,10 +143,6 @@ function Me.UnitFrame_OnStatusMessage( data, dist, sender )
 		end
 		
 		Me.UpdateUnitFrames( data.vf )
-		if Me.enableMessageUF then
-			Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t "..sender.." has enabled Unit Frames.", "SYSTEM")
-		end
-		Me.enableMessageUF = false;
 	end
 end
 
@@ -125,9 +153,28 @@ function Me.UnitFrame_OnStatusRequest( data, dist, sender )
 	-- Ignore our own data.
 	if sender == UnitName( "player" ) then return end
 	
-	if Me.IsLeader( false ) and IsInGroup(1) and not Me.db.char.unitframes.enable then		
+	if Me.IsLeader( false ) and IsInGroup( LE_PARTY_CATEGORY_HOME ) and not IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) and not Me.db.char.unitframes.enable then		
 		Me.UpdateUnitFrames()
 	end
+end
+
+---------------------------------------------------------------------------
+-- Received an animation request.
+--  un = unitframe							number
+--	an = animation							number
+
+function Me.UnitFrame_OnAnimationMessage( data, dist, sender )	
+	-- Ignore our own data.
+	if sender == UnitName( "player" ) or not UnitIsGroupLeader( sender ) then return end
+ 
+	-- sanitize message
+	if not data.un or not data.an then
+	   
+		return
+	end
+
+	local unitframe = DiceMasterUnitsPanel.unitframes[data.un]
+	unitframe:SetAnimation( data.an )
 end
 
 ---------------------------------------------------------------------------
@@ -135,14 +182,13 @@ end
 --  na = name							string
 --	md = model							number
 -- 	ms = message						string
---  so = sound							number
 
 function Me.UnitFrame_OnDMSAY( data, dist, sender )	
 	-- Ignore our own data.
 	if sender == UnitName( "player" ) then return end
  
 	-- sanitize message
-	if not data.na and not data.md and not data.ms then
+	if not data.na or not data.md or not data.tk or not data.ms then
 	   
 		return
 	end
@@ -150,8 +196,7 @@ function Me.UnitFrame_OnDMSAY( data, dist, sender )
 	
 	if ( UnitIsGroupLeader( sender ) or UnitIsGroupAssistant( sender ) ) then
 		if Me.db.global.talkingHeads then
-			DiceMasterTalkingHeadFrame_SetUnit(data.md, data.na, data.so)
-			DiceMasterTalkingHeadFrame_PlayCurrent(data.ms)
+			DiceMasterTalkingHeadFrame_SetUnit(data.md, data.na, data.tk, data.ms, data.so)
 		else
 			Me.PrintMessage("|cFFE6E68E"..(data.na or "Unknown").." says: "..data.ms, "RAID")
 		end
@@ -170,10 +215,10 @@ end
 
 function Me.UnitFrame_OnBuffMessage( data, dist, sender )
 	-- Only accept buffs if we're the DM.
-	if not Me.IsLeader( false ) or not IsInGroup(1) then return end
+	if not Me.IsLeader( false ) or not IsInGroup( LE_PARTY_CATEGORY_HOME ) or IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) then return end
  
 	-- sanitize message
-	if not data.un or data.un > 5 or data.un < 1 or not data.na or not data.ic or not data.de or not data.co then
+	if not data.un or data.un > 6 or data.un < 1 or not data.na or not data.ic or not data.de or not data.co then
 	   
 		return
 	end
@@ -181,6 +226,8 @@ function Me.UnitFrame_OnBuffMessage( data, dist, sender )
 	if not DiceMasterUnitsPanel.unitframes[data.un] then return end
 	
 	local unitframe = DiceMasterUnitsPanel.unitframes[data.un]
+	
+	if not Me.db.global.allowBuffs then return end
 	
 	-- search for duplicates
 	local found = false
@@ -230,7 +277,7 @@ end
 
 function Me.UnitFrame_OnRemoveBuffMessage( data, dist, sender )
 	-- Only accept buffs if we're the DM.
-	if not Me.IsLeader( false ) or not IsInGroup(1) then return end
+	if not Me.IsLeader( false ) or not IsInGroup( LE_PARTY_CATEGORY_HOME ) or IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) then return end
  
 	-- sanitize message
 	if not data.un or data.un > 5 or data.un < 1 or not data.na or not data.co then
@@ -241,6 +288,8 @@ function Me.UnitFrame_OnRemoveBuffMessage( data, dist, sender )
 	if not DiceMasterUnitsPanel.unitframes[data.un] then return end
 	
 	local unitframe = DiceMasterUnitsPanel.unitframes[data.un]
+	
+	if not Me.db.global.allowBuffs then return end
 	
 	-- search for buff
 	for i = 1, #unitframe.buffsActive do

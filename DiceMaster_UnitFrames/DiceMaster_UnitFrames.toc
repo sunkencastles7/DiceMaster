@@ -1,15 +1,15 @@
-## Interface: 80100
+## Interface: 90005
 ## Title: DiceMaster Unit Frames
 ## Author: Skylar
 ## Notes: Allows custom unit frames and targeting options for DiceMaster.
-## Version: 2.1
+## Version: 2.3
 ## RequiredDeps: DiceMaster
 ## SavedVariablesPerCharacter: DiceMaster4UF_Saved
 DiceMaster_UnitFrames.lua
 
 Comm.lua
-UnitPicker.lua
-IconPicker.lua
+AnimationList.lua
+AnimationPicker.lua
 AffixEditor.lua
 Buffs.lua
 
