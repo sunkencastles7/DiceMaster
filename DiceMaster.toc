@@ -1,0 +1,68 @@
+## Interface: 90205
+## Title: DiceMaster
+## Author: Skylar, Rennae
+## Notes: A dice-rolling tabletop addon for roleplay.
+## Version: 5.1.8
+## SavedVariables: DiceMaster4_Saved
+## SavedVariablesPerCharacter: DiceMaster_TraitOne, DiceMaster_TraitTwo, DiceMaster_TraitThree, DiceMaster_TraitFour, DiceMaster_TraitFive, DiceMaster_Charges, DiceMaster_ChargesName, DiceMaster_ChargesColor, DiceMaster_ChargesMax
+
+embeds.xml
+DiceMaster.lua
+Config.lua
+Comm.lua
+Dice.lua
+Console.lua
+Events.lua
+Editors/TraitEditor.lua
+Editors/ItemEditor.lua
+ItemActions.lua
+ItemTrade.lua
+Editors/ShopEditor.lua
+StatInspector.lua
+Inspect.lua
+DM5Import.lua
+Lists/IconList.lua
+Lists/TextureList.lua
+Lists/SoundList.lua
+Lists/ModelList.lua
+Lists/RollList.lua
+Lists/AlignmentList.lua
+Lists/HelpList.lua
+Pickers/IconPicker.lua
+Pickers/TexturePicker.lua
+Pickers/ColourPicker.lua
+Pickers/SoundPicker.lua
+Pickers/ModelPicker.lua
+Pickers/EffectPicker.lua
+Editors/SkillEditor.lua
+Editors/ApplyBuffEditor.lua
+Editors/RemoveBuffEditor.lua
+Editors/SetDiceEditor.lua
+Editors/ScriptEditor.lua
+Editors/MessageEditor.lua
+Editors/ProduceItemEditor.lua
+Editors/ConsumeItemEditor.lua
+Editors/ProduceCurrencyEditor.lua
+Editors/ScreenEffectEditor.lua
+Editors/AdjustHealthEditor.lua
+Editors/SecretEditor.lua
+Editors/RecipeEditor.lua
+Editors/MerchantEditor.lua
+ChatLinks.lua
+Names.lua
+Emojis.lua
+MinimapButton.lua
+RollTracker.lua
+RollBanner.lua
+PostTracker.lua
+MoraleBar.lua
+LootToast.lua
+TradeSkillFrame.lua
+Buffs.lua
+RangeRadar.lua
+Editors/Book.lua
+Disenchant.lua
+SplashFrame.lua
+Assistant.lua
+
+Ui/Ui.xml

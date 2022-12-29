@@ -1,0 +1,157 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+	
+	<Frame name="DiceMasterAdjustHealthEditor" parent="UIParent" inherits="SimplePanelTemplate" hidden="true" frameStrata="DIALOG" topLevel="true">
+    <Size x="256" y="120" />
+    <Anchors>
+      <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
+    </Anchors>
+	
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="header" file="Interface/AddOns/DiceMaster/Texture/dicemaster-header">
+				<TexCoords left="0" right="0.623" top="0" bottom="0.566" />
+				<Size x="160" y="72"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-16" />
+				</Anchors>
+			</Texture>
+			<FontString inherits="GameFontNormal" justifyH="center" text="Add/Remove Health">
+				<Anchors>
+				  <Anchor point="TOP" x="0" y="-12"/> 
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+    
+    <Scripts>
+	  <OnLoad>
+		if self.NineSlice then
+			self.NineSlice:SetFrameLevel(1)
+		end
+	  </OnLoad>
+	  <OnShow>
+		DiceMaster4.AdjustHealthEditor_Refresh()
+	  </OnShow>
+    </Scripts>
+    <Frames>
+	
+		<EditBox name="$parentHealth" parentKey="health" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+			<Size x="64" y="12"/> 
+			<Anchors>
+			  <Anchor point="TOPLEFT" relativeKey="$parent.Inset" relativePoint="TOPLEFT" x="16" y="-32"/> 
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+			  <FontString inherits="GameFontNormalLeft" justifyH="left" text="Health">
+					<Size x="150" y="12"/>
+					<Anchors>
+					  <Anchor point="TOPLEFT" x="0" y="20"/> 
+					</Anchors>
+				</FontString>
+			  </Layer>
+			</Layers>
+			<Scripts> 
+			  <OnLoad>
+				self:SetAutoFocus( false )
+				self:SetTextColor( 1, 1, 1 )
+				self:SetMaxLetters( 5 )
+			  </OnLoad>
+			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			  <OnEnterPressed function="EditBox_ClearFocus"/>
+			</Scripts>
+		</EditBox>
+		
+		<EditBox name="$parentArmour" parentKey="armour" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+			<Size x="64" y="12"/> 
+			<Anchors>
+			  <Anchor point="LEFT" relativeKey="$parent.health" relativePoint="RIGHT" x="24" y="0"/> 
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+			  <FontString inherits="GameFontNormalLeft" justifyH="left" text="Armour">
+					<Size x="150" y="12"/>
+					<Anchors>
+					  <Anchor point="TOPLEFT" x="0" y="20"/> 
+					</Anchors>
+				</FontString>
+			  </Layer>
+			</Layers>
+			<Scripts> 
+			  <OnLoad>
+				self:SetAutoFocus( false )
+				self:SetTextColor( 1, 1, 1 )
+				self:SetMaxLetters( 5 )
+			  </OnLoad>
+			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			  <OnEnterPressed function="EditBox_ClearFocus"/>
+			</Scripts>
+		</EditBox>
+		
+		<EditBox name="$parentDelay" parentKey="delay" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+			<Size x="40" y="12"/> 
+			<Anchors>
+			  <Anchor point="LEFT" relativeKey="$parent.armour" relativePoint="RIGHT" x="24" y="0"/> 
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString inherits="GameFontNormalLeft" justifyH="left" text="Delay:">
+						<Size x="150" y="12"/>
+						<Anchors>
+						  <Anchor point="TOPLEFT" x="0" y="20"/> 
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts> 
+			  <OnLoad>
+				self:SetAutoFocus( false )
+				self:SetTextColor( 1, 1, 1 )
+				self:SetMaxLetters( 3 )
+			  </OnLoad>
+			  <OnEditFocusGained>
+				self.lastValue = tonumber(self:GetText()) or 0;
+			  </OnEditFocusGained>
+			  <OnEditFocusLost>
+				self:HighlightText(0, 0)
+				if self:GetText()=="" then
+					self:SetText(self.lastValue)
+				end
+				if not tonumber(self:GetText()) then
+					self:SetText(self.lastValue)
+				elseif tonumber(self:GetText()) > 300 or tonumber(self:GetText()) &lt; 0 then
+					self:SetText(self.lastValue)
+				end
+			  </OnEditFocusLost>
+			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			  <OnEnterPressed function="EditBox_ClearFocus"/>
+			</Scripts>
+		  </EditBox>
+		
+		<Button name="$parentSaveButton" inherits="UIPanelButtonTemplate" text="Save">
+			<Size x="85" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMLEFT" x="6" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.AdjustHealthEditor_Save()
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button name="$parentCancelButton" inherits="UIPanelButtonTemplate" text="Cancel">
+			<Size x="85" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMRIGHT" x="-6" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.AdjustHealthEditor_Close()
+				</OnClick>
+			</Scripts>
+		</Button>
+
+    </Frames>
+  </Frame>
+  
+</Ui>

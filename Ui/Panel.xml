@@ -1,0 +1,382 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+	<Button name="DiceMasterPanelSlotButtonTemplate" virtual="true">
+		<Size x="30" y="30"/>
+		<NormalTexture parentKey="NormalTexture" atlas="bag-border"/>
+		<PushedTexture parentKey="PushedTexture" atlas="bag-border"/>
+		<HighlightTexture parentKey="HighlightTexture" atlas="bag-border-highlight"/>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture name="$parentIcon" parentKey="icon" setAllPoints="true"/>
+				<MaskTexture parentKey="CircleMask" file="Interface\CharacterFrame\TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="2" y="-2"/>
+						<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="icon"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+		</Layers>
+		<Animations>
+			<AnimationGroup parentKey="FlyIn">
+				<Scale fromScaleX="0.125" fromScaleY="0.125" toScaleX="1" toScaleY="1" duration="0.1" order="1"/>
+				<Alpha fromAlpha="0" toAlpha="1" duration="0.3" order="1"/>
+				<Scripts>
+					<OnPlay>
+						self:GetParent():Show();
+						self:GetParent():EnableMouse(true);
+					</OnPlay>
+				</Scripts>
+			</AnimationGroup>
+			<AnimationGroup parentKey="FlyOut">
+				<Alpha fromAlpha="1" toAlpha="0" duration="0.7" order="1"/>
+				<Scripts>
+					<OnFinished>
+						self:GetParent():Hide();
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+			<AnimationGroup parentKey="Selected">
+				<Alpha fromAlpha="1" toAlpha="0" duration="1" order="1"/>
+				<Translation duration="0.5" order="1" offsetX="0" offsetY="10"/>
+				<Scripts>
+					<OnPlay>
+						self:GetParent():EnableMouse(false);
+					</OnPlay>
+					<OnFinished>
+						self:GetParent():Hide();
+						self:GetParent():EnableMouse(true);
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnClick>
+				DiceMasterPanelRollButton.hasFocus = false;
+				self.Selected:Play();
+				DiceMaster4.RollMenu_OnClick( self )
+			</OnClick>
+			<OnEnter>
+				if self.tooltipTitle then
+					GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+					GameTooltip:AddLine( self.tooltipTitle )
+					GameTooltip:AddLine( self.tooltipText, 1, 1, 1, 1 )
+					GameTooltip:AddLine( self.tooltipDetail, 0.7, 0.7, 0.7 )
+					GameTooltip:AddLine( "|cFF707070&lt;Left Click to Roll>" )
+					DiceMasterTooltipIcon.icon:SetTexture( self.tooltipIcon )
+					DiceMasterTooltipIcon:Show()
+					GameTooltip:Show()
+				end
+				DiceMasterPanelRollButton.hasFocus = true;
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide()
+				DiceMasterTooltipIcon:Hide()
+				DiceMasterPanelRollButton.hasFocus = false;
+          </OnLeave>
+		</Scripts>
+	</Button>
+
+  <!-- The Dice Master panel for rolling and opening the trait editor. -->
+  
+  <Frame name="DiceMasterPanel" movable="true" enableMouse="true" frameStrata="MEDIUM" parent="UIParent">
+    
+    <Size x="200" y="90"/>
+    <Anchors>
+      <Anchor point="TOP" x="0" y="-64"/>
+    </Anchors>	
+    <Layers>
+      <Layer level="BACKGROUND">
+      
+        <!-- Panel texture -->
+        <Texture parentKey="background" file="Interface/AddOns/DiceMaster/Texture/roll-frame" hidden="true">
+          <Size x="192" y="48" />
+          <Anchors>
+            <Anchor point="CENTER" x="0" y="-17"/>
+          </Anchors>
+          <TexCoords left="0" right="1" top="0" bottom="0.5" />
+        </Texture>
+        
+      </Layer>
+      
+      <Layer level="OVERLAY">
+        
+        <!-- Roll button -->
+        <Texture file="Interface/AddOns/DiceMaster/Texture/roll-frame-2">
+          <Size x="48" y="48" />
+          <Anchors>
+            <Anchor point="CENTER" x="80" y="-17"/>
+          </Anchors>
+          <TexCoords left="0.00195312" right="0.378906" top="0.0078125" bottom=" 0.378906" />
+        </Texture>
+      </Layer>
+	  
+    </Layers>
+	
+	<Animations>
+		<AnimationGroup parentKey="FlyIn">
+			<Scale childKey="background" fromScaleX="0.125" fromScaleY="1" toScaleX="1" toScaleY="1" duration="0.5" order="1">
+				<Origin point="RIGHT"/>
+			</Scale>
+			<Alpha childKey="background" fromAlpha="0" toAlpha="1" duration="0.5" order="1"/>
+			<Alpha childKey="dice" fromAlpha="0" toAlpha="1" duration="0.7" order="1"/>
+			<Scripts>
+				<OnPlay>
+					self:GetParent().background:Show();
+					self:GetParent().dice:Show();
+				</OnPlay>
+				<OnFinished>
+				</OnFinished>
+			</Scripts>
+		</AnimationGroup>
+		<AnimationGroup parentKey="FlyOut">
+			<Scale childKey="background" fromScaleX="1" fromScaleY="1" toScaleX="0.125" toScaleY="1" duration="0.7" order="1">
+				<Origin point="RIGHT"/>
+			</Scale>
+			<Alpha childKey="background" fromAlpha="1" toAlpha="0" duration="0.7" order="1"/>
+			<Alpha childKey="dice" fromAlpha="1" toAlpha="0" duration="0.5" order="1"/>
+			<Scripts>
+				<OnPlay>
+				</OnPlay>
+				<OnFinished>
+					self:GetParent().background:Hide();
+					self:GetParent().dice:Hide();
+				</OnFinished>
+			</Scripts>
+		</AnimationGroup>
+	</Animations>
+    
+    <Scripts>
+      <OnLoad>		
+		self.Title = "Dice Panel"
+		self:SetClampedToScreen( true )
+		self:SetMovable(true)
+		self:EnableMouse(false)
+		self:RegisterForDrag( "LeftButton" )
+		self:SetScript( "OnDragStart", self.StartMoving )
+		self:SetScript( "OnDragStop", self.StopMovingOrSizing )
+		self:SetUserPlaced( true )
+		self.menuItems = {};
+		tinsert(DiceMaster4.EditModeFrames, self);
+      </OnLoad>
+    </Scripts>
+    
+    <Frames>
+    
+      <!-- Dice format editbox. -->
+      <EditBox name="$parentDice" parentKey="dice" font="DiceMasterFontExtraThicc" hidden="true">
+      
+        <Size x="80" y="14" />
+        <Anchors>
+          <Anchor point="CENTER" x="0" y="-17" />
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self:SetMaxLetters( 8 )
+            self:SetJustifyH( "CENTER" )
+            self:SetTextColor( 1, 0.82, 0 );
+            self:SetText( "1D20+0" )
+            self:SetAutoFocus(false);
+          </OnLoad>
+          
+          <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEditFocusLost>
+			DiceMaster4.Profile.dice = self:GetText()
+		  </OnEditFocusLost>
+        </Scripts>
+      </EditBox>
+      
+      <!-- Dice button. -->
+      <Button name="$parentRollButton" parentKey="roll">
+        <Size x="38" y="38"/>
+        <Anchors>
+          <Anchor point="CENTER" x="79" y="-17"/>
+        </Anchors>
+        
+        <HighlightTexture file="Interface/AddOns/DiceMaster/Texture/roll-frame-2" alphaMode="ADD" alpha="0.5">
+			<Size x="48" y="48"/>
+			<Anchors>
+				<Anchor point="CENTER" x="0" y="0" />
+			</Anchors>
+			<TexCoords left="0.378906" right="0.757812" top="0.0078125" bottom=" 0.378906" />
+		</HighlightTexture>
+        
+        <Scripts>
+		  <OnLoad>
+			self.menuItems = {};
+		  </OnLoad>
+          <OnEnter>
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:AddLine( "|TInterface/AddOns/DiceMaster/Texture/logo:16|t DiceMaster" )
+            GameTooltip:AddLine( "Roll " .. DiceMasterPanelDice:GetText() .. ".|r", 1, 1, 1, 1 )
+            GameTooltip:Show()
+			
+			DiceMaster4.DiceButton_OnEnter( self )
+          </OnEnter>
+		  <OnUpdate>
+			if self.menuIsShown then
+				C_Timer.After( 1, function()
+					if not self.FadeIn and not self.FadeOut and not self.hasFocus and self.menuIsShown then
+						self.FadeOut = true;
+						for i = 1, #self.menuItems do
+							self.menuItems[i].FlyOut:Play()
+							if i == #self.menuItems then self.FadeOut = false; self.menuIsShown = false; end
+						end
+					end
+				end)
+			end
+		  </OnUpdate>
+          <OnLeave>
+            GameTooltip:Hide()
+			self.hasFocus = false;
+          </OnLeave>
+		  <OnMouseDown>
+			if button == "LeftButton" then
+				if not( DiceMasterPanel.ModelScene:IsShown() ) then
+					DiceMasterPanel.ModelScene:Show();
+				end
+				DiceMaster4.RollButtonClicked()
+				PlaySound(36625);
+			end
+		  </OnMouseDown>
+        </Scripts>
+      </Button>
+	  
+	  <ModelScene parentKey="ModelScene" inherits="NonInteractableModelSceneMixinTemplate" hidden="false" enableMouse="false" frameLevel="4">
+		<Size x="256" y="256"/>
+		<Anchors>
+			<Anchor point="CENTER" relativeKey="$parent.roll" x="0" y="0"/>
+		</Anchors>
+		<Scripts>
+			<OnLoad>
+				self.cameras = {};
+				self.actorTemplate = "ModelSceneActorTemplate";
+				self.tagToActor = {};
+				self.tagToCamera = {};
+
+				if self.reversedLighting then
+					local lightPosX, lightPosY, lightPosZ = self:GetLightPosition();
+					self:SetLightPosition(-lightPosX, -lightPosY, lightPosZ);
+
+					local lightDirX, lightDirY, lightDirZ = self:GetLightDirection();
+					self:SetLightDirection(-lightDirX, -lightDirY, lightDirZ);
+				end
+
+				local camera = CameraRegistry:CreateCameraByType("OrbitCamera")
+				camera.panningXOffset = 0
+				camera.panningYOffset = 0
+				camera.modelSceneCameraInfo = {
+					flags = 0,
+					}
+				self:AddCamera(camera)
+				camera:SetTarget(0, 0, 0)
+				camera:SnapToTargetInterpolationTarget()
+				camera:SetPitch(math.rad(0))
+				camera:SetYaw(math.rad(180))
+				camera:SetMinZoomDistance(1)
+				camera:SetZoomDistance(0)
+				
+				local actor = self:CreateActor("DiceMasterRollAnimation", self.actorTemplate); 
+				actor:SetScale(1);
+				actor:SetModelByFileID(1828709);
+				actor:SetPosition(2,0,-0.05);
+				actor:SetAlpha(1);
+				
+				self.direction = 0.01;
+				self.arc = 0;
+			</OnLoad>
+			<OnShow>
+				self.direction = 0.01;
+				self.arc = (random(3) * 0.001) * (math.random() >= 0.5 and 1 or -1);
+				DiceMasterRollAnimation:SetPosition(2,0,-0.05);
+				DiceMasterRollAnimation:SetYaw(random(360));
+				UIFrameFadeIn( self, 0.2, 0, 1);
+				PlaySound(20725);
+				C_Timer.After(0.3, function() self.direction = -0.01; end);
+				C_Timer.After(0.6, function() UIFrameFadeOut( self, 0.3, 1, 0); end);
+				C_Timer.After(1, function() self:Hide(); end);
+			</OnShow>
+			<OnUpdate>
+				local pitch = DiceMasterRollAnimation:GetPitch();
+				local x, y, z = DiceMasterRollAnimation:GetPosition();
+				DiceMasterRollAnimation:SetPitch( pitch + 0.05 )
+				DiceMasterRollAnimation:SetPosition(x - 0.005, y - self.arc, z + self.direction)
+			</OnUpdate>
+		</Scripts>
+		<Frames>
+			<Frame parentKey="petModelShadow" inherits="ShadowOverlayTemplate" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterTraitEditorInset" x="2" y="-2"/>
+					<Anchor point="BOTTOMRIGHT" relativeTo="DiceMasterTraitEditorInset" x="0" y="0"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+	  </ModelScene>
+	  
+	  <Button parentKey="ExpandToggle" registerForClicks="LeftButtonUp">
+			<Size x="10" y="16"/>
+			<Anchors>
+				<Anchor point="RIGHT" relativeKey="$parent.roll" relativePoint="LEFT" x="-4" y="0"/>
+			</Anchors>
+			<NormalTexture parentKey="NormalTexture" atlas="bag-arrow"/>
+			<PushedTexture parentKey="PushedTexture" atlas="bag-arrow"/>
+			<HighlightTexture parentKey="HighlightTexture" atlas="bag-arrow" alpha=".4" alphaMode="ADD"/>
+			<Scripts>
+				<OnLoad>
+				</OnLoad>
+				<OnClick>
+					if not( DiceMasterPanel.FlyIn:IsPlaying() or DiceMasterPanel.FlyOut:IsPlaying() ) then
+						self.IsToggled = not( self.IsToggled );
+						local rotation = self.IsToggled and math.pi or 0;
+						self:GetNormalTexture():SetRotation(rotation);
+						self:GetPushedTexture():SetRotation(rotation);
+						self:GetHighlightTexture():SetRotation(rotation);
+						if self.IsToggled then
+							DiceMasterPanel.FlyIn:Play();
+						else
+							DiceMasterPanel.FlyOut:Play();
+						end
+					end
+				</OnClick>
+			</Scripts>
+	  </Button>
+	  
+	  <Button name="TraitEditorButton" inherits="MainMenuBarMicroButton">
+		<Size x="18" y="24"/>
+		<Anchors>
+			<Anchor point="LEFT" relativeKey="$parent.roll" relativePoint="RIGHT" x="4" y="0"/>
+		</Anchors>
+		<NormalTexture parentKey="NormalTexture" atlas="ui-hud-micromenu-spellbookabilities-up"/>
+		<PushedTexture parentKey="PushedTexture" atlas="ui-hud-micromenu-spellbookabilities-down"/>
+		<HighlightTexture parentKey="HighlightTexture" atlas="ui-hud-micromenu-spellbookabilities-mouseover" alphaMode="ADD"/>
+		<DisabledTexture parentKey="DisabledTexture" atlas="ui-hud-micromenu-spellbookabilities-disabled"/>
+		<Scripts>
+			<OnClick>
+				if not( DiceMasterTraitEditor:IsShown() ) then
+					DiceMaster4.TraitEditor_Open()
+				else
+					DiceMaster4.TraitEditor_OnCloseClicked() 
+				end
+			</OnClick>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+				GameTooltip:AddLine( "Traits", 1, 1, 1 )
+				GameTooltip:Show()
+            </OnEnter>
+            <OnLeave>
+				GameTooltip:Hide()
+            </OnLeave>
+			<OnUpdate>
+				if DiceMasterTraitEditor:IsShown() then
+					self.NormalTexture:SetAtlas("ui-hud-micromenu-spellbookabilities-down")
+				else
+					self.NormalTexture:SetAtlas("ui-hud-micromenu-spellbookabilities-up")
+				end
+			</OnUpdate>
+		</Scripts>
+	  </Button>
+    </Frames>
+  </Frame>
+</Ui>

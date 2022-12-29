@@ -1,0 +1,1121 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+	<Button name="DiceMasterTradeSkillSkillButtonTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="293" y="16"/>
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parentSubText" inherits="GameFontNormalSmall" justifyH="LEFT"/>
+			</Layer>
+		</Layers>
+		<NormalTexture file="Interface\Buttons\UI-MinusButton-UP">
+			<Size>
+				<AbsDimension x="16" y="16"/>
+			</Size>
+			<Anchors>
+				<Anchor point="LEFT">
+					<Offset>
+						<AbsDimension x="3" y="0"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</NormalTexture>
+		<HighlightTexture name="$parentHighlight" file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD">
+			<Size>
+				<AbsDimension x="16" y="16"/>
+			</Size>
+			<Anchors>
+				<Anchor point="LEFT">
+					<Offset>
+						<AbsDimension x="3" y="0"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</HighlightTexture>
+		<DisabledTexture file="Interface\Buttons\UI-PlusButton-Disabled">
+			<Size>
+				<AbsDimension x="16" y="16"/>
+			</Size>
+			<Anchors>
+				<Anchor point="LEFT">
+					<Offset>
+						<AbsDimension x="3" y="0"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</DisabledTexture>
+		<ButtonText name="$parentText" parentKey="text">
+			<Size>
+				<AbsDimension x="0" y="290"/>
+			</Size>
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentHighlight" relativePoint="RIGHT">
+					<Offset>
+						<AbsDimension x="2" y="1"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</ButtonText>
+		<NormalFont style="GameFontNormal"/>
+		<HighlightFont style="GameFontHighlight"/>
+		<DisabledFont style="GameFontDisable"/>
+		<Scripts>
+			<OnLoad>
+				self:SetFrameLevel(self:GetFrameLevel() + 1);
+			</OnLoad>
+			<OnClick>
+				if ( IsModifiedClick() ) then
+					HandleModifiedItemClick(GetTradeSkillRecipeLink(self:GetID()));
+				else
+					DiceMaster4.TradeSkillSkillButton_OnClick(self,button);
+				end
+			</OnClick>
+			<OnEnter>
+				_G[self:GetName().."SubText"]:SetTextColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
+			</OnEnter>
+			<OnLeave>
+				_G[self:GetName().."SubText"]:SetTextColor(self.subR, self.subG, self.subB);
+			</OnLeave>
+		</Scripts>
+	</Button>
+	
+	<Button name="DiceMasterTradeSkillItemTemplate" inherits="QuestItemTemplate" virtual="true">
+		<Scripts>
+			<OnLoad>
+				self.hasItem = 1;
+				self.UpdateTooltip = function (self)
+					DiceMaster4.OpenItemTooltip( self.Icon, DiceMaster4.Profile.recipes[DiceMasterTradeSkillFrame.selectedSkill].reagents[self:GetID()] );
+					CursorUpdate(self);
+				end;
+			</OnLoad>
+			<OnEnter>
+				DiceMaster4.OpenItemTooltip( self.Icon, DiceMaster4.Profile.recipes[DiceMasterTradeSkillFrame.selectedSkill].reagents[self:GetID()] );
+				CursorUpdate(self);
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide();
+				DiceMasterTooltipIcon:Hide()
+				ResetCursor();
+			</OnLeave>
+			<OnClick>
+				--HandleModifiedItemClick(GetTradeSkillReagentItemLink(TradeSkillFrame.selectedSkill, self:GetID()));
+			</OnClick>
+		</Scripts>
+	</Button>
+	
+	<Frame name="DiceMasterTradeSkillFrame" toplevel="true" movable="true" parent="UIParent" enableMouse="true" hidden="true">
+		<Size>
+			<AbsDimension x="384" y="512"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset>
+					<AbsDimension x="0" y="-104"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<HitRectInsets>
+			<AbsInset left="0" right="34" top="0" bottom="75"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="BACKGROUND">
+                <Texture name="DiceMasterTradeSkillFramePortrait">
+                    <Size>
+                        <AbsDimension x="60" y="60"/>
+                    </Size>
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <Offset>
+                                <AbsDimension x="7" y="-6"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+            </Layer>
+			<Layer level="BORDER">
+				<Texture file="Interface\ClassTrainerFrame\UI-ClassTrainer-TopLeft">
+					<Size>
+						<AbsDimension x="256" y="256"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+					</Anchors>
+				</Texture>		
+				<Texture file="Interface\ClassTrainerFrame\UI-ClassTrainer-TopRight">
+					<Size>
+						<AbsDimension x="128" y="256"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPRIGHT"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\TradeSkillFrame\UI-TradeSkill-BotLeft">
+					<Size>
+						<AbsDimension x="256" y="256"/>
+					</Size>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\ClassTrainerFrame\UI-ClassTrainer-BotRight">
+					<Size>
+						<AbsDimension x="128" y="256"/>
+					</Size>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT"/>
+					</Anchors>
+				</Texture>
+				<FontString name="DiceMasterTradeSkillFrameTitleText" inherits="GameFontNormal" text="Crafting">
+					<Anchors>
+						<Anchor point="TOP" relativeTo="DiceMasterTradeSkillFrame" relativePoint="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-17"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture name="DiceMasterTradeSkillSkillBorderLeft" file="Interface\TradeSkillFrame\UI-TradeSkill-SkillBorder">
+					<Size>
+						<AbsDimension x="256" y="8"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="63" y="-50"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="1.0" top="0" bottom="0.25"/>
+				</Texture>
+				<Texture file="Interface\TradeSkillFrame\UI-TradeSkill-SkillBorder">
+					<Size>
+						<AbsDimension x="28" y="8"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="DiceMasterTradeSkillSkillBorderLeft" relativePoint="RIGHT"/>
+					</Anchors>
+					<TexCoords left="0" right="0.109375" top="0.25" bottom="0.5"/>
+				</Texture>
+				<Texture name="DiceMasterTradeSkillHorizontalBarLeft" file="Interface\ClassTrainerFrame\UI-ClassTrainer-HorizontalBar">
+					<Size>
+						<AbsDimension x="256" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="15" y="-221"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="1.0" top="0" bottom="0.25"/>
+				</Texture>
+				<Texture file="Interface\ClassTrainerFrame\UI-ClassTrainer-HorizontalBar">
+					<Size>
+						<AbsDimension x="75" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="DiceMasterTradeSkillHorizontalBarLeft" relativePoint="RIGHT">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.29296875" top="0.25" bottom="0.5"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<StatusBar name="DiceMasterTradeSkillRankFrame" drawLayer="BACKGROUND" minValue="0" maxValue="1" defaultValue="0">
+				<Size>
+					<AbsDimension x="268" y="15"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="73" y="-37"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentSkillName" inherits="GameFontNormalSmall">
+							<Anchors>
+								<Anchor point="LEFT">
+									<Offset>
+										<AbsDimension x="6" y="1"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<FontString name="$parentSkillRank" inherits="GameFontHighlightSmall" justifyH="LEFT">
+							<Size>
+								<AbsDimension x="128" y="0"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentSkillName" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="13" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+					<Layer level="BACKGROUND">
+							<Texture name="$parentBackground">
+								<Color r="1.0" g="1.0" b="1.0" a="0.2"/>
+							</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Button name="$parentBorder">
+						<Size>
+							<AbsDimension x="281" y="32"/>
+						</Size>
+						<Anchors>
+							<Anchor point="LEFT">
+								<Offset>
+									<AbsDimension x="-5" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<NormalTexture name="$parentNormal" file="Interface\PaperDollInfoFrame\UI-Character-Skills-BarBorder" />
+					</Button>			
+				</Frames>
+				<Scripts>
+					<OnLoad>
+						--self:RegisterEvent("SKILL_LINES_CHANGED");
+					</OnLoad>
+					<OnEvent>
+						--if ( event == "SKILL_LINES_CHANGED" ) then
+							--DiceMaster4.TradeSkillFrame_Update();
+						--end
+					</OnEvent>
+				</Scripts>
+				<BarTexture name="$parentBar" file="Interface\PaperDollInfoFrame\UI-Character-Skills-Bar" />
+				<BarColor r="0.25" g="0.25" b="0.75" />
+			</StatusBar>
+			<Frame name="DiceMasterTradeSkillExpandButtonFrame">
+				<Size>
+					<AbsDimension x="54" y="32"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="15" y="-71"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="DiceMasterTradeSkillExpandTabLeft" file="Interface\ClassTrainerFrame\UI-ClassTrainer-ExpandTab-Left">
+							<Size>
+								<AbsDimension x="8" y="32"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT"/>
+							</Anchors>
+						</Texture>
+						<Texture name="DiceMasterTradeSkillExpandTabMiddle" file="Interface\QuestFrame\UI-QuestLogSortTab-Middle">
+							<Size>
+								<AbsDimension x="38" y="32"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="DiceMasterTradeSkillExpandTabLeft" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="0" y="6"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</Texture>
+						<Texture name="DiceMasterTradeSkillExpandTabRight" file="Interface\QuestFrame\UI-QuestLogSortTab-Right">
+							<Size>
+								<AbsDimension x="8" y="32"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="DiceMasterTradeSkillExpandTabMiddle" relativePoint="RIGHT"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Button name="DiceMasterTradeSkillCollapseAllButton">
+						<Size>
+							<AbsDimension x="40" y="22"/>
+						</Size>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<FontString name="$parentSubText" inherits="GameFontNormalSmall" justifyH="LEFT"/>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								self.text:SetWidth(270);
+								self:SetFrameLevel(self:GetFrameLevel() + 1);
+							</OnLoad>
+							<OnClick>
+								--ClassTrainerSkillButton_OnClick(self);
+							</OnClick>
+							<OnEnter>
+								_G[self:GetName().."SubText"]:SetTextColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
+							</OnEnter>
+							<OnLeave>
+								_G[self:GetName().."SubText"]:SetTextColor(self.subR, self.subG, self.subB);
+							</OnLeave>
+						</Scripts>
+						<NormalTexture file="Interface\Buttons\UI-MinusButton-UP">
+							<Size>
+								<AbsDimension x="16" y="16"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT">
+									<Offset>
+										<AbsDimension x="3" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</NormalTexture>
+						<HighlightTexture name="$parentHighlight" file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD">
+							<Size>
+								<AbsDimension x="16" y="16"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT">
+									<Offset>
+										<AbsDimension x="3" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</HighlightTexture>
+						<DisabledTexture file="Interface\Buttons\UI-PlusButton-Disabled">
+							<Size>
+								<AbsDimension x="16" y="16"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT">
+									<Offset>
+										<AbsDimension x="3" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</DisabledTexture>
+						<ButtonText name="$parentText" parentKey="text">
+							<Size>
+								<AbsDimension x="0" y="13"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentHighlight" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="2" y="1"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</ButtonText>
+						<NormalFont style="GameFontNormal"/>
+						<HighlightFont style="GameFontHighlight"/>
+						<DisabledFont style="GameFontDisable"/>
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="DiceMasterTradeSkillExpandTabLeft" relativePoint="RIGHT">
+								<Offset>
+									<AbsDimension x="0" y="3"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self:SetText("All");
+							</OnLoad>
+							<OnClick>
+								DiceMaster4.TradeSkillCollapseAllButton_OnClick(self);
+							</OnClick>
+						</Scripts>
+					</Button>
+				</Frames>
+			</Frame>
+			<EditBox name="DiceMasterTradeSkillSearchBar" parentKey="searchBar" inherits="SearchBoxTemplate">
+				<Size x="180" y="20" />
+				<Anchors>
+				  <Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillRankFrame" relativePoint="BOTTOMLEFT">
+						<Offset x="8" y="-9"/>
+					</Anchor>
+				</Anchors>
+				
+				<Scripts>
+				  <OnTextChanged>
+					SearchBoxTemplate_OnTextChanged(self);
+					DiceMaster4.TradeSkillBuildFilteredList()
+					DiceMaster4.TradeSkillFrame_Update()
+				  </OnTextChanged>
+				  <OnEscapePressed function="EditBox_ClearFocus"/>
+				</Scripts>
+			</EditBox>
+			<Frame name="DiceMasterTradeSkillFilterFrame" >
+				<Size>
+					<AbsDimension x="1" y="1"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="DiceMasterTradeSkillSearchBar" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="7" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Button name="DiceMasterTradeSkillFilterButton"  inherits="UIMenuButtonStretchTemplate" text="FILTER">
+						<Size>
+							<AbsDimension x="70" y="22"/>
+						</Size>
+						<Anchors>
+							<Anchor point="LEFT"/>
+						</Anchors>
+						<Scripts>
+							<OnClick> 
+								--ToggleDropDownMenu(1, nil, TradeSkillFilterDropDown, "TradeSkillFilterButton", 74, 15);
+							</OnClick>	
+							<OnLoad>
+								--TradeSkillFilterButtonRightArrow:Show();
+							</OnLoad>
+						</Scripts>						
+					</Button>
+					<Frame name="DiceMasterTradeSkillFilterDropDown" inherits="UIDropDownMenuTemplate">
+						<Scripts>
+							<OnLoad>
+								-- TradeSkillFilterDropDown_OnLoad
+							</OnLoad>
+						</Scripts>
+					</Frame>
+				</Frames>
+			</Frame>
+			<Frame name="DiceMasterTradeSkillHighlightFrame" hidden="true">
+				<Size>
+					<AbsDimension x="293" y="16"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="DiceMasterTradeSkillHighlight" file="Interface\Buttons\UI-Listbox-Highlight2"/>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Button name="DiceMasterTradeSkillSkill1" inherits="DiceMasterTradeSkillSkillButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillFrame">
+						<Offset>
+							<AbsDimension x="22" y="-96"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="DiceMasterTradeSkillSkill2" inherits="DiceMasterTradeSkillSkillButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillSkill1" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="DiceMasterTradeSkillSkill3" inherits="DiceMasterTradeSkillSkillButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillSkill2" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="DiceMasterTradeSkillSkill4" inherits="DiceMasterTradeSkillSkillButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillSkill3" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="DiceMasterTradeSkillSkill5" inherits="DiceMasterTradeSkillSkillButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillSkill4" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="DiceMasterTradeSkillSkill6" inherits="DiceMasterTradeSkillSkillButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillSkill5" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="DiceMasterTradeSkillSkill7" inherits="DiceMasterTradeSkillSkillButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillSkill6" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="DiceMasterTradeSkillSkill8" inherits="DiceMasterTradeSkillSkillButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillSkill7" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<ScrollFrame name="DiceMasterTradeSkillListScrollFrame" inherits="FauxScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="296" y="130"/>
+				</Size>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\ClassTrainerFrame\UI-ClassTrainer-ScrollBar">
+							<Size>
+								<AbsDimension x="30" y="120"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativePoint="TOPRIGHT">
+									<Offset>
+										<AbsDimension x="-3" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0" right="0.46875" top="0.0234375" bottom="0.9609375"/>
+						</Texture>
+						<Texture file="Interface\ClassTrainerFrame\UI-ClassTrainer-ScrollBar">
+							<Size>
+								<AbsDimension x="30" y="123"/>
+							</Size>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT">
+									<Offset>
+										<AbsDimension x="-3" y="-2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0.53125" right="1.0" top="0.03125" bottom="1.0"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="DiceMasterTradeSkillFrame" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="-67" y="-96"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnVerticalScroll>
+						FauxScrollFrame_OnVerticalScroll(self, offset, TRADE_SKILL_HEIGHT, DiceMaster4.TradeSkillFrame_Update);
+					</OnVerticalScroll>
+				</Scripts>
+			</ScrollFrame>
+			<ScrollFrame name="DiceMasterTradeSkillDetailScrollFrame" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="297" y="176"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="20" y="-234"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentTop" file="Interface\ClassTrainerFrame\UI-ClassTrainer-ScrollBar">
+							<Size>
+								<AbsDimension x="30" y="123"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativePoint="TOPRIGHT">
+									<Offset>
+										<AbsDimension x="-2" y="5"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0" right="0.46875" top="0" bottom="0.9609375"/>
+						</Texture>
+						<Texture name="$parentBottom" file="Interface\ClassTrainerFrame\UI-ClassTrainer-ScrollBar">
+							<Size>
+								<AbsDimension x="30" y="123"/>
+							</Size>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT">
+									<Offset>
+										<AbsDimension x="-2" y="-1"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0.53125" right="1.0" top="0.03125" bottom="1.0"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad>
+						ScrollFrame_OnLoad(self);
+						self.scrollBarHideable = 1;
+					</OnLoad>
+				</Scripts>
+				<ScrollChild>
+					<Frame name="DiceMasterTradeSkillDetailScrollChildFrame">
+						<Size>
+							<AbsDimension x="297" y="150"/>
+						</Size>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<FontString name="DiceMasterTradeSkillSkillName" inherits="GameFontNormal" text="Skill Name" justifyH="LEFT">
+									<Size>
+										<AbsDimension x="200" y="0"/>
+									</Size>
+									<Anchors>
+										<Anchor point="TOPLEFT">
+											<Offset>
+												<AbsDimension x="50" y="-5"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+								<FontString name="DiceMasterTradeSkillRequirementLabel" inherits="GameFontHighlightSmall" text="Requires:">
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillSkillName" relativePoint="BOTTOMLEFT">
+											<Offset>
+												<AbsDimension x="0" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+								<FontString name="DiceMasterTradeSkillRequirementText" inherits="GameFontHighlightSmall" justifyV="TOP" justifyH="LEFT">
+									<Size>
+										<AbsDimension x="180" y="0"/>
+									</Size>
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillRequirementLabel" relativePoint="TOPRIGHT" >
+											<Offset>
+												<AbsDimension x="4" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+								<FontString name="DiceMasterTradeSkillSkillCooldown" inherits="GameFontRedSmall">
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillRequirementLabel" relativePoint="BOTTOMLEFT">
+											<Offset>
+												<AbsDimension x="0" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+								<Texture name="DiceMasterTradeSkillDetailHeaderLeft" file="Interface\ClassTrainerFrame\UI-ClassTrainer-DetailHeaderLeft">
+									<Size>
+										<AbsDimension x="256" y="64"/>
+									</Size>
+									<Anchors>
+										<Anchor point="TOPLEFT">
+											<Offset>
+												<AbsDimension x="0" y="3"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</Texture>
+								<Texture file="Interface\ClassTrainerFrame\UI-ClassTrainer-DetailHeaderRight">
+									<Size>
+										<AbsDimension x="64" y="64"/>
+									</Size>
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillDetailHeaderLeft" relativePoint="TOPRIGHT">
+											<Offset>
+												<AbsDimension x="0" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</Texture>
+								<FontString name="DiceMasterTradeSkillDescription" inherits="GameFontHighlightSmall" justifyH="LEFT">
+									<Size>
+										<AbsDimension x="290" y="0"/>
+									</Size>
+									<Anchors>
+										<Anchor point="TOPLEFT">
+											<Offset>
+												<AbsDimension x="8" y="-47"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+								<FontString name="DiceMasterTradeSkillReagentLabel" inherits="GameFontNormalSmall" text="Reagents:">
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillDescription" relativePoint="BOTTOMLEFT">
+											<Offset>
+												<AbsDimension x="0" y="-10"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Button name="DiceMasterTradeSkillSkillIcon">
+								<Size>
+									<AbsDimension x="37" y="37"/>
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="8" y="-3"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Layers>
+									<Layer level="ARTWORK">
+										<FontString name="DiceMasterTradeSkillSkillIconCount" inherits="NumberFontNormal" justifyH="RIGHT" hidden="false">
+											<Anchors>
+												<Anchor point="BOTTOMRIGHT">
+													<Offset>
+														<AbsDimension x="-5" y="2"/>
+													</Offset>
+												</Anchor>
+											</Anchors>
+										</FontString>
+									</Layer>
+								</Layers>
+								<Scripts>
+									<OnLoad>
+										self.hasItem = 1;
+										self.UpdateTooltip = function (self)
+											if ( DiceMasterTradeSkillFrame.selectedSkill ~= 0 ) then
+												DiceMaster4.OpenItemTooltip( self, DiceMaster4.Profile.recipes[DiceMasterTradeSkillFrame.selectedSkill].item )
+												CursorUpdate(self);
+											end
+										end;
+									</OnLoad>
+									<OnClick>
+										--HandleModifiedItemClick(GetTradeSkillItemLink(TradeSkillFrame.selectedSkill));
+									</OnClick>
+									<OnEnter>
+										if ( DiceMasterTradeSkillFrame.selectedSkill ~= 0 ) then
+											DiceMaster4.OpenItemTooltip( self, DiceMaster4.Profile.recipes[DiceMasterTradeSkillFrame.selectedSkill].item )
+											CursorUpdate(self);
+										end
+									</OnEnter>
+									<OnLeave>
+										GameTooltip:Hide();
+										DiceMasterTooltipIcon:Hide()
+										ResetCursor();
+									</OnLeave>
+								</Scripts>
+							</Button>
+							<Button name="DiceMasterTradeSkillReagent1" inherits="DiceMasterTradeSkillItemTemplate" id="1">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillReagentLabel" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="-5" y="-3"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+							</Button>
+							<Button name="DiceMasterTradeSkillReagent2" inherits="DiceMasterTradeSkillItemTemplate" id="2">
+								<Anchors>
+									<Anchor point="LEFT" relativeTo="DiceMasterTradeSkillReagent1" relativePoint="RIGHT">
+										<Offset>
+											<AbsDimension x="0" y="0"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+							</Button>
+							<Button name="DiceMasterTradeSkillReagent3" inherits="DiceMasterTradeSkillItemTemplate" id="3">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillReagent1" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-2"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+							</Button>
+							<Button name="DiceMasterTradeSkillReagent4" inherits="DiceMasterTradeSkillItemTemplate" id="4">
+								<Anchors>
+									<Anchor point="LEFT" relativeTo="DiceMasterTradeSkillReagent3" relativePoint="RIGHT">
+										<Offset>
+											<AbsDimension x="0" y="0"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+							</Button>
+							<Button name="DiceMasterTradeSkillReagent5" inherits="DiceMasterTradeSkillItemTemplate" id="5">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillReagent3" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-2"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+							</Button>
+							<Button name="DiceMasterTradeSkillReagent6" inherits="DiceMasterTradeSkillItemTemplate" id="6">
+								<Anchors>
+									<Anchor point="LEFT" relativeTo="DiceMasterTradeSkillReagent5" relativePoint="RIGHT">
+										<Offset>
+											<AbsDimension x="0" y="0"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+							</Button>
+							<Button name="DiceMasterTradeSkillReagent7" inherits="DiceMasterTradeSkillItemTemplate" id="7">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="DiceMasterTradeSkillReagent5" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-2"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+							</Button>
+							<Button name="DiceMasterTradeSkillReagent8" inherits="DiceMasterTradeSkillItemTemplate" id="8">
+								<Anchors>
+									<Anchor point="LEFT" relativeTo="DiceMasterTradeSkillReagent7" relativePoint="RIGHT">
+										<Offset>
+											<AbsDimension x="0" y="0"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+							</Button>
+							<Button name="DiceMasterTradeSkillUnlearnButton">
+								<Size>
+									<AbsDimension x="32" y="32"/>
+								</Size>
+								<Anchors>
+									<Anchor point="TOPRIGHT" x="0" y="0"/>
+								</Anchors>
+								<HitRectInsets>
+									<AbsInset left="9" right="7" top="-7" bottom="10"/>
+								</HitRectInsets>
+								<Scripts>
+									<OnClick>
+										StaticPopup_Show( "DICEMASTER4_UNLEARNRECIPE", nil, nil, DiceMasterTradeSkillFrame.selectedSkill )
+									</OnClick>
+									<OnEnter>
+										GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+										GameTooltip:SetText("Unlearn Recipe");
+									</OnEnter>
+									<OnLeave>
+										GameTooltip:Hide();						
+									</OnLeave>
+								</Scripts>
+								<NormalTexture file="Interface\Buttons\CancelButton-Up"/>
+								<PushedTexture file="Interface\Buttons\CancelButton-Down"/>
+								<HighlightTexture file="Interface\Buttons\CancelButton-Highlight" alphaMode="ADD"/>
+							</Button>
+						</Frames>
+					</Frame>
+				</ScrollChild>
+			</ScrollFrame>
+			<Button name="DiceMasterTradeSkillCreateButton" inherits="UIPanelButtonTemplate" text="Create">
+				<Size>
+					<AbsDimension x="80" y="22"/>
+				</Size>
+				<Anchors>
+					<Anchor point="CENTER" relativeTo="DiceMasterTradeSkillFrame" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="224" y="-422"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.DoTradeSkill(DiceMasterTradeSkillFrame.selectedSkill, DiceMasterTradeSkillInputBox:GetNumber());
+						DiceMasterTradeSkillInputBox:ClearFocus();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="DiceMasterTradeSkillCancelButton" inherits="UIPanelButtonTemplate" text="Exit">
+				<Size>
+					<AbsDimension x="80" y="22"/>
+				</Size>
+				<Anchors>
+					<Anchor point="CENTER" relativeTo="DiceMasterTradeSkillFrame" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="305" y="-422"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						HideUIPanel(DiceMasterTradeSkillFrame);
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="DiceMasterTradeSkillCreateAllButton" inherits="UIPanelButtonTemplate" text="Create All">
+				<Size>
+					<AbsDimension x="80" y="22"/>
+				</Size>
+				<Anchors>
+					<Anchor point="RIGHT" relativeTo="DiceMasterTradeSkillCreateButton" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="-86" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMasterTradeSkillInputBox:SetNumber(DiceMasterTradeSkillFrame.numAvailable);
+						DiceMaster4.DoTradeSkill(DiceMasterTradeSkillFrame.selectedSkill, DiceMasterTradeSkillFrame.numAvailable);
+						DiceMasterTradeSkillInputBox:ClearFocus();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="DiceMasterTradeSkillDecrementButton">
+				<Size>
+					<AbsDimension x="23" y="22"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="DiceMasterTradeSkillCreateAllButton" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="3" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.TradeSkillFrameDecrement_OnClick(self);
+						DiceMasterTradeSkillInputBox:ClearFocus();
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Down"/>
+				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Disabled"/>
+				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
+			</Button>
+			<EditBox name="DiceMasterTradeSkillInputBox" letters="3" historyLines="0" numeric="true" autoFocus="false">
+				<Size>
+					<AbsDimension x="30" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="DiceMasterTradeSkillDecrementButton" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="4" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentLeft" file="Interface\Common\Common-Input-Border">
+							<Size>
+								<AbsDimension x="8" y="20"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="-5" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0" right="0.0625" top="0" bottom="0.625"/>
+						</Texture>
+						<Texture name="$parentRight" file="Interface\Common\Common-Input-Border">
+							<Size>
+								<AbsDimension x="8" y="20"/>
+							</Size>
+							<Anchors>
+								<Anchor point="RIGHT">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0.9375" right="1.0" top="0" bottom="0.625"/>
+						</Texture>
+						<Texture name="$parentMiddle" file="Interface\Common\Common-Input-Border">
+							<Size>
+								<AbsDimension x="10" y="20"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentLeft" relativePoint="RIGHT"/>
+								<Anchor point="RIGHT" relativeTo="$parentRight" relativePoint="LEFT"/>
+							</Anchors>
+							<TexCoords left="0.0625" right="0.9375" top="0" bottom="0.625"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnterPressed>
+						self:ClearFocus();
+					</OnEnterPressed>
+					<OnEscapePressed>
+						self:ClearFocus();
+					</OnEscapePressed>
+					<OnTextChanged>
+						if ( self:GetText() == "0" ) then
+							self:SetText("1");
+						end
+					</OnTextChanged> 
+					<OnEditFocusLost>
+						self:HighlightText(0, 0);
+					</OnEditFocusLost>
+					<OnEditFocusGained>
+						self:HighlightText();
+					</OnEditFocusGained>
+				</Scripts>
+				<FontString inherits="ChatFontNormal"/>
+			</EditBox>
+			<Button name="DiceMasterTradeSkillIncrementButton">
+				<Size>
+					<AbsDimension x="23" y="22"/>
+				</Size>
+				<Anchors>
+					<Anchor point="RIGHT" relativeTo="DiceMasterTradeSkillCreateButton" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="-3" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.TradeSkillFrameIncrement_OnClick(self);
+						DiceMasterTradeSkillInputBox:ClearFocus();
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
+				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled"/>
+				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
+			</Button>
+			<Button name="DiceMasterTradeSkillFrameCloseButton" inherits="UIPanelCloseButton">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="DiceMasterTradeSkillFrame" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="-29" y="-8"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				DiceMaster4.TradeSkillFrame_OnLoad(self);
+			</OnLoad>
+			<OnEvent>
+				--TradeSkillFrame_OnEvent(self, event, ...);
+			</OnEvent>
+			<OnShow>
+				DiceMaster4.TradeSkillFrame_OnShow(self);
+				DiceMasterTradeSkillInputBox:SetNumber(1);
+				PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN);
+			</OnShow>
+			<OnHide>
+				--CloseTradeSkill();
+				PlaySound(SOUNDKIT.IG_CHARACTER_INFO_CLOSE);
+			</OnHide>
+			<OnMouseWheel>
+				return;
+			</OnMouseWheel>
+		</Scripts>
+	</Frame>
+	
+</Ui>

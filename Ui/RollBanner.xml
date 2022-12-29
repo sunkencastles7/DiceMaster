@@ -1,0 +1,519 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+	
+	<!--The banner frame.-->
+	<Frame name="DiceMasterRollBannerOptionFrameTemplate" parentArray="OptionFrames" hidden="true" virtual="true">
+		<Size x="269" y="44"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background" alphaMode="BLEND" atlas="LootBanner-ItemBg" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER">
+				<Texture parentKey="Icon">
+					<Size x="37" y="37"/>
+					<Anchors>
+						<Anchor point="LEFT" x="124" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Title" inherits="GameFontNormalMed2" maxLines="1" justifyH="LEFT">
+					<Size x="204" y="0"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="56" y="-7"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="Description" inherits="GameFontNormal" maxLines="1" justifyH="LEFT">
+					<Size x="204" y="0"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Title" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+					</Anchors>
+					<Color r="1.0" g="1.0" b="1.0" />
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="IconHitBox">
+				<Size x="37" y="37"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent.Icon"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture parentKey="IconBorder" file="Interface\Common\WhiteIconFrame" hidden="true">
+							<Size x="37" y="37"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="ARTWORK">
+						<Texture parentKey="GlowWhite" alphaMode="ADD" atlas="LootBanner-IconGlow" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="1">
+						<Texture parentKey="IconOverlay" hidden="true">
+							<Size x="37" y="37"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter>
+						DiceMaster4.RollBanner_OnMouseEnter( self, button )
+						if self.details then
+							GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+							GameTooltip:AddLine( self:GetParent().Title:GetText() , 1, 1, 1)
+							GameTooltip:AddLine( self.details , 1, 0.81, 0, 1)
+							GameTooltip:Show()
+						end
+					</OnEnter>
+					<OnLeave>
+						DiceMaster4.RollBanner_OnMouseLeave( self, button )
+						GameTooltip:Hide()
+					</OnLeave>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Animations>
+			<AnimationGroup parentKey="Anim" setToFinalAlpha="true">
+				<Alpha childKey="Background" duration="0.45" order="1" fromAlpha="0" toAlpha="1"/>
+				<Alpha childKey="Icon" startDelay="0.1" duration="0.25" order="1" fromAlpha="0" toAlpha="1"/>
+				<Alpha childKey="IconHitBox.IconBorder" startDelay="0.1" duration="0.25" order="1" fromAlpha="0" toAlpha="1"/>
+				<Alpha childKey="IconHitBox.IconOverlay" startDelay="0.1" duration="0.25" order="1" fromAlpha="0" toAlpha="1"/>
+				<Translation childKey="Icon" startDelay="0.25" smoothing="OUT" duration="0.4" order="1" offsetX="-110" offsetY="0"/>
+				<Translation childKey="IconHitBox" startDelay="0.25" smoothing="OUT" duration="0.4" order="1" offsetX="-110" offsetY="0"/>
+				<Alpha childKey="IconHitBox.GlowWhite" smoothing="IN" duration="0.25" order="1" fromAlpha="0" toAlpha="1"/>
+				<Alpha childKey="IconHitBox.GlowWhite" startDelay="0.25" duration="0.25" order="1" fromAlpha="1" toAlpha="0"/>
+				<Scale childKey="IconHitBox.GlowWhite" smoothing="IN_OUT" duration="0.25" order="1" fromScaleX="1" fromScaleY="1" toScaleX="1.25" toScaleY="1.25"/>
+				<Alpha childKey="Title" startDelay="0.4" duration="0.25" order="1" fromAlpha="0" toAlpha="1"/>
+				<Alpha childKey="Description" startDelay="0.4" duration="0.25" order="1" fromAlpha="0" toAlpha="1"/>
+				<Scripts>
+					<OnPlay>
+						local lootFrame = self:GetParent();
+						lootFrame.Title:SetAlpha(0);
+						lootFrame.Description:SetAlpha(0);
+						lootFrame.Icon:SetAlpha(0);
+						lootFrame.IconHitBox.IconBorder:SetAlpha(0);
+						lootFrame.IconHitBox.IconOverlay:SetAlpha(0);
+						lootFrame.Icon:SetPoint("LEFT", 124, 0);
+					</OnPlay>
+					<OnFinished>
+						self:GetParent().Icon:SetPoint("LEFT", 14, 0);
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+		</Animations>
+	</Frame>
+
+	<!--The prompt dialog for sending a banner.-->
+	<Frame name="DiceMasterBannerPromptDialog" parent="UIParent" inherits="BackdropTemplate" hidden="true" framestrata="DIALOG" topLevel="true">
+		<KeyValues>
+			<KeyValue key="backdropInfo" value="BACKDROP_DIALOG_32_32" type="global"/>
+		</KeyValues>
+		<Size x="360" y="220"/>
+		<Anchors>
+			<Anchor point="TOP" x="0" y="-50"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Header" file="Interface/DialogFrame/UI-DialogBox-Header">
+					<Size x="256" y="64"/>
+					<Anchors>
+						<Anchor point="TOP" x="0" y="12"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Title" inherits="GameFontNormal" text="Send Banner">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.Header" relativePoint="TOP" x="0" y="-14"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="SelectTitle" inherits="GameFontNormal" justifyV="TOP" justifyH="CENTER" text="Select a Combat Phase:">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="18" y="-32"/>
+						<Anchor point="BOTTOMRIGHT" x="-18" y="48"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="Desc" inherits="GameFontNormal" justifyV="TOP" justifyH="CENTER" text="Combat Turn Tracker Options:">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="18" y="-130"/>
+						<Anchor point="BOTTOMRIGHT" x="-18" y="48"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="Desc2" inherits="GameFontNormal" justifyV="TOP" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="18" y="-190"/>
+						<Anchor point="BOTTOMRIGHT" x="-18" y="48"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="OptionsDropdown" enableMouse="true" inherits="UIDropDownMenuTemplate" hidden="false">
+				<Size x="145" y="22"/>
+				<Anchors>
+					<Anchor point="TOP" x="-24" y="-48"/>
+				</Anchors>
+				<Scripts>
+				  <OnLoad>
+					UIDropDownMenu_Initialize( self, DiceMaster4.RollBannerDropDown_OnLoad )
+					UIDropDownMenu_SetSelectedID( self, 6 )
+					UIDropDownMenu_SetText(self, "Custom") 
+					UIDropDownMenu_SetWidth(self, 145, 5)
+				  </OnLoad>
+				</Scripts>
+			</Button>
+			<EditBox parentKey="BannerTitle" font="GameFontHighlight" inherits="InputBoxTemplate">
+				<Size x="240" y="12"/> 
+				<Anchors>
+				  <Anchor point="TOP" x="0" y="-85"/> 
+				</Anchors>
+				<Scripts> 
+				  <OnLoad>
+					self:SetAutoFocus( false )
+					self:SetTextColor( 1, 1, 1 )
+					self:SetMaxLetters( 30 )
+					self:SetText( "Banner Title" )
+				  </OnLoad>
+				  <OnEscapePressed function="EditBox_ClearFocus"/>
+				  <OnEnterPressed function="EditBox_ClearFocus"/>
+				</Scripts>
+			</EditBox>
+			<EditBox parentKey="BannerSubtitle" font="GameFontHighlight" inherits="InputBoxTemplate">
+				<Size x="240" y="12"/> 
+				<Anchors>
+				  <Anchor point="TOP" relativeKey="$parent.BannerTitle" relativePoint="BOTTOM" x="0" y="-8"/> 
+				</Anchors>
+				<Scripts> 
+				  <OnLoad>
+					self:SetAutoFocus( false )
+					self:SetTextColor( 1, 1, 1 )
+					self:SetMaxLetters( 200 )
+					self:SetText( "Banner Subtitle" )
+				  </OnLoad>
+				  <OnEscapePressed function="EditBox_ClearFocus"/>
+				  <OnEnterPressed function="EditBox_ClearFocus"/>
+				</Scripts>
+			</EditBox>
+			<CheckButton name="$parentAdvanceTurn" parentKey="AdvanceTurn" inherits="UICheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="14" y="-140"/> 
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetChecked( true )
+						self:SetScript( "OnClick", function( self ) end)
+						_G["DiceMasterBannerPromptDialogAdvanceTurnText"]:SetText( "This phase advances to the next combat round." )
+						_G["DiceMasterBannerPromptDialogAdvanceTurnText"]:SetTextColor( 1, 1, 1 )
+					</OnLoad>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parentTurnTimer" parentKey="TurnTimer" inherits="UICheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="14" y="-160"/> 
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetChecked( true )
+						self:SetScript( "OnClick", function( self ) end)
+						_G["DiceMasterBannerPromptDialogTurnTimerText"]:SetText( "Set a timer for this phase:" )
+						_G["DiceMasterBannerPromptDialogTurnTimerText"]:SetTextColor( 1, 1, 1 )
+					</OnLoad>
+				</Scripts>
+			</CheckButton>
+			<Button parentKey="Timer" enableMouse="true" inherits="UIDropDownMenuTemplate">
+				<Size x="100" y="22"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="DiceMasterBannerPromptDialogTurnTimerText" relativePoint="RIGHT" x="-12" y="-2"/> 
+				</Anchors>
+				<Scripts>
+				  <OnLoad>
+					UIDropDownMenu_Initialize( self, DiceMaster4.RollBannerTimerDropDown_OnLoad )
+					UIDropDownMenu_SetWidth(self, 100, 5)
+					UIDropDownMenu_SetSelectedID( self, 2 )
+					UIDropDownMenu_SetText( self, "2 Minutes" )
+				  </OnLoad>
+				</Scripts>
+			</Button>
+			<CheckButton parentKey="Accept" inherits="UIPanelButtonTemplate" text="Send">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" x="14" y="14"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.RollBanner_SendBanner()
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton parentKey="Cancel" inherits="UIPanelButtonTemplate" text="Cancel">
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="-14" y="14"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMasterBannerPromptDialog:Hide()
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+		</Frames>
+		<Scripts>
+			<OnLoad inherit="prepend">
+				self:SetClampedToScreen( true )
+				self:SetMovable(true)
+				self:EnableMouse(true)
+				self:RegisterForDrag( "LeftButton" )
+				self:SetScript( "OnDragStart", self.StartMoving )
+				self:SetScript( "OnDragStop", self.StopMovingOrSizing )
+				self:SetUserPlaced( true )
+				
+				self.target = "RAID"
+				
+				-- create check buttons
+				self.checkboxes = {}
+				for i = 1, 6 do
+					self.checkboxes[i] = CreateFrame( "CheckButton", "DiceMasterBannerPromptDialogCheckbox"..i, self, "UICheckButtonTemplate" )
+					self.checkboxes[i]:SetPoint( "TOPLEFT", 14 , -190 - 20*i )
+					self.checkboxes[i]:SetScript( "OnClick", function( self, button ) end)
+					_G["DiceMasterBannerPromptDialogCheckbox"..i.."Text"]:SetTextColor(1, 1, 1)
+					self.checkboxes[i]:Hide()
+				end
+			</OnLoad>
+			<OnShow>
+				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
+			</OnShow>
+			<OnHide>
+				PlaySound(SOUNDKIT.GS_TITLE_OPTION_EXIT) 
+			</OnHide>
+		</Scripts>
+	</Frame>
+
+	<!--The banner frame.-->
+	<Frame name="DiceMasterRollBanner" parent="UIParent" hidden="true" framestrata="DIALOG" alpha="1">
+		<Size x="128" y="180"/>
+		<Anchors>
+			<Anchor point="TOP" x="0" y="-120"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture parentKey="BannerTop" hidden="false" alpha="0" alphaMode="BLEND" file="Interface/AddOns/DiceMaster/Texture/league-banner">
+					<Size x="440" y="112"/>
+					<TexCoords left="0.001953125" right="0.861328125" top="0.224609375" bottom="0.443359375"/>
+					<Anchors>
+						<Anchor point="TOP" x="0" y="-44"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BannerTopGlow" hidden="false" alpha="0" alphaMode="ADD" file="Interface/AddOns/DiceMaster/Texture/league-banner">
+					<Size x="440" y="112"/>
+					<TexCoords left="0.001953125" right="0.861328125" top="0.224609375" bottom="0.443359375"/>
+					<Anchors>
+						<Anchor point="TOP" x="0" y="-44"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BannerBottom" hidden="false" alpha="0" alphaMode="BLEND" file="Interface/AddOns/DiceMaster/Texture/league-banner">
+					<Size x="440" y="112"/>
+					<TexCoords left="0.001953125" right="0.861328125" top="0.001953125" bottom="0.220703125"/>
+					<Anchors>
+						<Anchor point="BOTTOM" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BannerBottomGlow" hidden="false" alpha="0" alphaMode="ADD" file="Interface/AddOns/DiceMaster/Texture/league-banner">
+					<Size x="440" y="112"/>
+					<TexCoords left="0.001953125" right="0.861328125" top="0.001953125" bottom="0.220703125"/>
+					<Anchors>
+						<Anchor point="BOTTOM" x="0" y="0"/>
+					</Anchors>
+				</Texture>	
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="BannerMiddle" alpha="0" atlas="BossBanner-BgBanner-Mid" alphaMode="BLEND" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.BannerTop" x="0" y="-34"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BannerBottom" x="0" y="25"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BannerMiddleGlow" alpha="0" atlas="BossBanner-BgBanner-Mid" alphaMode="ADD" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.BannerTop" x="0" y="-34"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BannerBottom" x="0" y="25"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="SkullCircle" hidden="false" alpha="0" alphaMode="BLEND" file="Interface/AddOns/DiceMaster/Texture/league-banner">
+					<Size x="257" y="88"/>
+					<TexCoords left="0.26" right="0.93" top="0.58" bottom="0.81"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.BannerTop" x="0" y="54"/>
+					</Anchors>
+				</Texture>		
+				<Texture parentKey="RedFlash" hidden="false" alpha="0" alphaMode="ADD" file="Interface/AddOns/DiceMaster/Texture/league-banner">
+					<Size x="92" y="92"/>
+					<TexCoords left="0.001953125" right="0.181640625" top="0.810546875" bottom="0.990234375"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.SkullCircle" x="0" y="3"/>
+					</Anchors>
+				</Texture>
+			</Layer>			
+			<Layer level="ARTWORK">
+				<FontString parentKey="Title" inherits="QuestFont_Enormous">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.BannerTop" x="0" y="-47"/>
+					</Anchors>
+					<Color r="1" g="0.82" b="0" a="0"/>
+				</FontString>
+				<FontString parentKey="SubTitle" inherits="GameFontNormalLarge">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.Title" relativePoint="BOTTOM" x="0" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1" a="0"/>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture parentKey="FlashBurst" hidden="false" alpha="0.01" alphaMode="ADD" atlas="BossBanner-RedLightning" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.SkullCircle" x="15" y="-4"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="FlashBurstLeft" hidden="false" alpha="0.01" alphaMode="ADD" atlas="BossBanner-RedLightning" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.SkullCircle" x="-15" y="-4"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="3">
+				<Texture parentKey="FlashBurstCenter" hidden="false" alpha="0.01" alphaMode="ADD" atlas="BossBanner-RedLightning" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.SkullCircle"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="4">
+				<Texture parentKey="RedFlash" hidden="false" alpha="0.01" alphaMode="ADD" file="Interface/AddOns/DiceMaster/Texture/league-banner">
+					<Size x="92" y="92"/>
+					<TexCoords left="0.001953125" right="0.181640625" top="0.810546875" bottom="0.990234375"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.SkullCircle" x="1" y="-3"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame name="$parentOptionFrame1" inherits="DiceMasterRollBannerOptionFrameTemplate" hidden="true">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.SubTitle" relativePoint="BOTTOM" x="0" y="-5"/>
+				</Anchors>
+				<Scripts>
+					<OnShow>
+						self.Anim:Play()
+					</OnShow>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Animations>
+			<AnimationGroup parentKey="AnimIn" setToFinalAlpha="true">
+				<Scale childKey="SkullCircle" duration="0.15" order="1" fromScaleX="5" fromScaleY="5" toScaleX="1" toScaleY="1"/>
+				<Alpha childKey="SkullCircle" duration="0.1" order="1" fromAlpha="0" toAlpha="1"/>
+				<Alpha childKey="BannerTop" startDelay="0.2" duration="0.25" order="2" fromAlpha="0" toAlpha="1"/>
+				<Scale childKey="BannerTop" startDelay="0.1" duration="0.3" order="2" fromScaleX="0.1" fromScaleY="1" toScaleX="1" toScaleY="1"/>
+				<Alpha childKey="BannerBottom" startDelay="0.2" duration="0.25" order="2" fromAlpha="0" toAlpha="1"/>
+				<Scale childKey="BannerBottom" startDelay="0.1" duration="0.3" order="2" fromScaleX="0.1" fromScaleY="1" toScaleX="1" toScaleY="1"/>
+				<Alpha childKey="BannerMiddle" startDelay="0.2" duration="0.25" order="2" fromAlpha="0" toAlpha="1"/>
+				<Scale childKey="BannerMiddle" startDelay="0.1" duration="0.3" order="2" fromScaleX="0.1" fromScaleY="1" toScaleX="1" toScaleY="1"/>
+				<Alpha childKey="BannerTopGlow" startDelay="0.9" duration="0.25" order="2" fromAlpha="0" toAlpha="1"/>
+				<Scale childKey="BannerTopGlow" startDelay="0.9" duration="0.5" order="2" fromScaleX="0.5" fromScaleY="1" toScaleX="1.6" toScaleY="1"/>
+				<Alpha childKey="BannerTopGlow" startDelay="1.1" duration="0.6" order="2" fromAlpha="1" toAlpha="0"/>
+				<Alpha childKey="BannerBottomGlow" startDelay="0.9" duration="0.25" order="2" fromAlpha="0" toAlpha="1"/>
+				<Scale childKey="BannerBottomGlow" startDelay="0.9" duration="0.5" order="2" fromScaleX="0.5" fromScaleY="1" toScaleX="1.6" toScaleY="1"/>
+				<Alpha childKey="BannerBottomGlow" startDelay="1.1" duration="0.6" order="2" fromAlpha="1" toAlpha="0"/>
+				<Alpha childKey="BannerMiddleGlow" startDelay="0.9" duration="0.25" order="2" fromAlpha="0" toAlpha="1"/>
+				<Scale childKey="BannerMiddleGlow" startDelay="0.9" duration="0.5" order="2" fromScaleX="0.5" fromScaleY="1" toScaleX="1.6" toScaleY="1"/>
+				<Alpha childKey="BannerMiddleGlow" startDelay="1.1" duration="0.6" order="2" fromAlpha="1" toAlpha="0"/>							
+				<Alpha childKey="Title" startDelay="0.2" duration="0.25" order="2" fromAlpha="0" toAlpha="1"/>
+				<Alpha childKey="SubTitle" startDelay="0.2" duration="0.25" order="2" fromAlpha="0" toAlpha="1"/>
+
+				<Alpha childKey="RedFlash" duration="0.1" order="2" fromAlpha="0" toAlpha="1"/>
+				<Scale childKey="RedFlash" smoothing="IN" duration="0.25" order="2" fromScaleX="2.5" fromScaleY="2.5" toScaleX="1" toScaleY="1"/>
+				<Alpha childKey="RedFlash" startDelay="0.25" duration="0.5" order="2" fromAlpha="1" toAlpha="0"/>
+				<Alpha childKey="FlashBurst" startDelay="0.25" duration="0.25" order="2" fromAlpha="0" toAlpha="1"/>
+				<Scale childKey="FlashBurst" startDelay="0.25" duration="0.4" order="2" fromScaleX="1" fromScaleY="0.75" toScaleX="1.25" toScaleY="0.75">
+					<Origin point="LEFT"/>
+				</Scale>
+				<Translation childKey="FlashBurst" startDelay="0.25" duration="0.5" order="2" offsetX="10" offsetY="0"/>
+				<Alpha childKey="FlashBurst" startDelay="0.25" duration="0.4" order="2" fromAlpha="1" toAlpha="0"/>
+				<Alpha childKey="FlashBurstLeft" startDelay="0.25" duration="0.25" order="2" fromAlpha="0" toAlpha="1"/>
+				<Scale childKey="FlashBurstLeft" startDelay="0.25" duration="0.5" order="2" fromScaleX="1" fromScaleY="0.75" toScaleX="1.25" toScaleY="0.75">
+					<Origin point="RIGHT"/>
+				</Scale>
+				<Translation childKey="FlashBurstLeft" startDelay="0.25" duration="0.5" order="2" offsetX="-10" offsetY="0"/>
+				<Alpha childKey="FlashBurstLeft" startDelay="0.25" duration="0.5" order="2" fromAlpha="1" toAlpha="0"/>
+				<Alpha childKey="FlashBurstCenter" startDelay="0.25" duration="0.25" order="2" fromAlpha="0" toAlpha="1"/>
+				<Scale childKey="FlashBurstCenter" startDelay="0.25" duration="0.5" order="2" fromScaleX="1" fromScaleY="1" toScaleX="1.25" toScaleY="1.25"/>
+				<Alpha childKey="FlashBurstCenter" startDelay="0.25" duration="0.5" order="2" fromAlpha="1" toAlpha="0"/>
+				
+				<Scripts>
+					<OnPlay>
+						local banner = self:GetParent();
+						banner:Show();
+						banner.BannerTop:SetAlpha(0);
+						banner.BannerBottom:SetAlpha(0);
+						banner.BannerMiddle:SetAlpha(0);
+						banner.Title:SetAlpha(0);
+						banner.SubTitle:SetAlpha(0);
+						banner.FlashBurst:SetAlpha(0);
+						banner.FlashBurstLeft:SetAlpha(0);
+						banner.FlashBurstCenter:SetAlpha(0);
+						banner.RedFlash:SetAlpha(0);
+						PlaySound(SOUNDKIT.UI_PERSONAL_LOOT_BANNER);
+					</OnPlay>
+					<OnFinished>
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+			<AnimationGroup parentKey="AnimSwitch" setToFinalAlpha="true">
+				<Alpha childKey="SkullCircle" duration="0.5" order="1" fromAlpha="1" toAlpha="0"/>
+				<Alpha childKey="Title" duration="0.25" order="1" fromAlpha="1" toAlpha="0"/>	
+				<Alpha childKey="SubTitle" duration="0.25" order="1" fromAlpha="1" toAlpha="0"/>	
+			</AnimationGroup>
+			<AnimationGroup parentKey="AnimOut">
+				<Alpha duration="1" order="1" fromAlpha="1" toAlpha="0"/>
+				<Scripts>
+					<OnFinished>
+						local banner = self:GetParent();
+						banner:Hide();
+						banner:SetHeight(banner.baseHeight);
+						banner.BannerTop:SetAlpha(0);
+						banner.BannerBottom:SetAlpha(0);
+						banner.BannerMiddle:SetAlpha(0);
+						banner.Title:SetAlpha(0);
+						banner.SubTitle:SetAlpha(0);
+						banner.FlashBurst:SetAlpha(0);
+						banner.FlashBurstLeft:SetAlpha(0);
+						banner.FlashBurstCenter:SetAlpha(0);
+						banner.RedFlash:SetAlpha(0);
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnLoad>
+				self.baseHeight = self:GetHeight();
+				DiceMaster4.RollBanner_OnLoad( self )
+			</OnLoad>
+			<OnEnter>
+				DiceMaster4.RollBanner_OnMouseEnter( self, button )
+			</OnEnter>
+			<OnLeave>
+				DiceMaster4.RollBanner_OnMouseLeave( self, button )
+			</OnLeave>
+			<OnUpdate function="BossBanner_OnUpdate"/>
+		</Scripts>
+	</Frame>
+</Ui>

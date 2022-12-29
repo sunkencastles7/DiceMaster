@@ -1,0 +1,84 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <Script file="ItemButton.lua"/>
+ 
+  <!-- Template for the main "item" buttons. -->
+  <Button name="DiceMasterItemButton" enableMouse="true" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
+    <Size x="37" y="37"/>
+    <Layers>
+		<Layer level="BORDER">
+			<Texture name="$parentIconTexture" parentKey="icon"/>
+		</Layer>
+		<Layer level="ARTWORK" textureSubLevel="2">
+			<FontString name="$parentCount" inherits="NumberFontNormal" justifyH="RIGHT" hidden="true" parentKey="Count">
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="-5" y="2"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</FontString>
+			<FontString name="$parentStock" parentKey="Stock" inherits="NumberFontNormalYellow" justifyH="LEFT" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-2"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</FontString>
+		</Layer>
+		<Layer level="OVERLAY">
+			<Texture parentKey="IconBorder" file="Interface\Common\WhiteIconFrame" hidden="true">
+				<Size x="37" y="37"/>
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="OVERLAY" textureSubLevel="1">
+			<Texture parentKey="IconOverlay" hidden="true">
+				<Size x="37" y="37"/>
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="OVERLAY" textureSubLevel="4">
+			<Texture name="$parentSearchOverlay" parentKey="searchOverlay" setAllPoints="true" hidden="true">
+				<Color r="0" g="0" b="0" a="0.8"/>
+			</Texture>
+		</Layer>
+		<Layer level="OVERLAY" textureSubLevel="5">
+			<Texture parentKey="InShopIcon" atlas="bags-junkcoin" useAtlasSize="true" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="1" y="0"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+	</Layers>
+	<Frames>
+		<Cooldown name="$parentCooldown" parentKey="Cooldown" inherits="CooldownFrameTemplate"/>
+	</Frames>
+	<NormalTexture name="$parentNormalTexture" parentKey="normalTexture" file="Interface\Buttons\UI-Quickslot2">
+		<Size x="64" y="64"/>
+		<Anchors>
+			<Anchor point="CENTER" x="0" y="-1"/>
+		</Anchors>
+	</NormalTexture>
+	<PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>
+	<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+	<Scripts>
+		<OnLoad>
+			DiceMaster4.ItemButton_Init( self )
+		</OnLoad>
+		<OnSizeChanged>
+        
+			local qw, qh = self:GetWidth() * 1.73, self:GetHeight() * 1.73
+			self.normalTexture:SetSize( qw, qh )
+		</OnSizeChanged>
+	</Scripts>
+  </Button>
+
+</Ui>

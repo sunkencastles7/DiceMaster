@@ -1,0 +1,470 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <!-- Frame for showing your charges and adjusting them. -->
+  
+  <Button name="DiceMasterChargesFrame" frameStrata="MEDIUM" parent="UIParent">
+    
+    <Size x="133" y="80"/>
+    <Anchors>
+      <Anchor point="BOTTOM" relativeTo="PlayerFrame" relativePoint="TOP" x="0" y="0"/>
+    </Anchors>
+        
+    <Scripts>
+      <OnLoad>
+        self.Title = "Player Frame"
+		self:SetClampedToScreen( true )
+		self:SetMovable(true)
+		self:EnableMouse(false)
+		self:RegisterForDrag( "LeftButton" )
+		self:SetScript( "OnDragStart", self.StartMoving )
+		self:SetScript( "OnDragStop", self.StopMovingOrSizing )
+		self:SetScale( 1.2 )
+		self:SetUserPlaced( true )
+		
+		-- create trait buttons
+        self.traits = {}
+        for i = 1,5 do
+          self.traits[i] = CreateFrame( "DiceMasterTraitButton", nil, self )
+          self.traits[i]:SetSize( 24, 24 )
+          self.traits[i]:SetPoint( "BOTTOM", -56 + 28*(i-1), 52 )
+          self.traits[i].traitIndex = i
+		  self.traits[i]:SetScript( "OnMouseDown", function( self, button )
+			if IsShiftKeyDown() then DiceMaster4.TraitEditor_OnTraitClicked( self, button ) else DiceMaster4.TraitButtonClicked( self, button ) end
+		end)
+        end
+		tinsert(DiceMaster4.EditModeFrames, self);
+      </OnLoad>
+    </Scripts>
+	
+	<Layers>
+		<Layer level="BACKGROUND">
+			<Texture parentKey="FrameTexture" atlas="UI-HUD-UnitFrame-Player-PortraitOff" useAtlasSize="true">
+				<Anchors>
+					<Anchor point="BOTTOM" x="2" y="-2"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="ARTWORK">
+			<Texture parentKey="ArmorGlow" inherits="OverAbsorbGlowTemplate" hidden="true"/>
+		</Layer>
+		<Layer level="OVERLAY" textureSubLevel="1">
+			<FontString parentKey="Name" inherits="GameFontNormalSmall" justifyH="CENTER" justifyV="MIDDLE">
+				<Size x="96" y="12"/>
+				<Anchors>
+					<Anchor point="TOP" x="0" y="10"/>
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+    
+    <Frames>
+      
+      <!-- The actual bar. Above is just a window and used for dragging. -->
+      <DiceMasterStatusBar parentKey="bar">
+        
+        <Size x="32" y="32"/>
+        <Anchors>
+          <Anchor point="CENTER" x="0" y="42"/>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self:SetScale( 0.5 )
+          </OnLoad>
+          <OnMouseDown>
+            if self.timer then
+				self.timer:Cancel()
+			end
+			local chargesMax = select(2, self:GetMinMaxValues());
+			local rate = 0.3;
+			if ( chargesMax > 50 ) then
+				rate = 10/ chargesMax
+			end
+			self.timer = C_Timer.NewTicker( rate, function()
+				if self:IsMouseOver() and ( IsMouseButtonDown("LeftButton") or IsMouseButtonDown("RightButton") ) then
+					DiceMaster4.OnChargesClicked( button )
+				end
+			end)
+			DiceMaster4.OnChargesClicked( button )
+          </OnMouseDown>
+		  <OnLeave>
+			if self.timer then
+				self.timer:Cancel()
+			end
+		  </OnLeave>
+        </Scripts>
+      </DiceMasterStatusBar>
+	  
+	  <Frame parentKey="bar2" inherits="DiceMasterUnitPowerBar">
+		<Size x="168" y="42"/>
+		<Anchors>
+		  <Anchor point="CENTER" x="0" y="52"/>
+		</Anchors>
+		<Scripts>
+			<OnMouseDown>
+				if self.timer then
+					self.timer:Cancel()
+				end
+				local chargesMax = DiceMaster4.Profile.charges.max;
+				local rate = 0.3;
+				if ( chargesMax > 50 ) then
+					rate = 10/ chargesMax
+				end
+				self.timer = C_Timer.NewTicker( rate, function()
+					if self:IsMouseOver() and ( IsMouseButtonDown("LeftButton") or IsMouseButtonDown("RightButton") ) then
+						DiceMaster4.OnChargesClicked( button )
+					end
+				end)
+				DiceMaster4.OnChargesClicked( button )
+			</OnMouseDown>
+			<OnLeave>
+				if self.timer then
+					self.timer:Cancel()
+				end
+			</OnLeave>
+		</Scripts>
+	  </Frame>
+	  
+	  <StatusBar parentkey="healthbar" inherits="TextStatusBar">
+        <Size x="124" y="20"/>
+        <Anchors>
+          <Anchor point="BOTTOM" x="0" y="16"/> 
+        </Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Armor" file="Interface/RAIDFRAME/Shield-Fill" hidden="true">
+					<Anchors>
+					  <Anchor point="TOPLEFT" x="1" y="-2"/> 
+					  <Anchor point="BOTTOMLEFT" x="1" y="0"/> 
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="1">
+				<Texture parentKey="ArmorOverlay" inherits="TotalAbsorbBarOverlayTemplate" hidden="true">
+					<Anchors>
+					  <Anchor point="TOPLEFT" x="1" y="-2"/> 
+					  <Anchor point="BOTTOMLEFT" x="1" y="0"/> 
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="ArmorGlow" inherits="OverAbsorbGlowTemplate" hidden="true">
+					<Anchors>
+					  <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="-7" y="0"/> 
+					  <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-7" y="0"/> 
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<MaskTexture parentKey="HealthBarMask" atlas="UI-HUD-UnitFrame-Player-PortraitOn-Bar-Health-Mask" useAtlasSize="true" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-2" y="6"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="Armor"/>
+						<MaskedTexture childKey="ArmorOverlay"/>
+						<MaskedTexture childKey="ArmorGlow"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<FontString parentKey="Text" inherits="TextStatusBarText">
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+        <Scripts>
+          <OnLoad>
+            TextStatusBar_Initialize(self);
+			self.textLockable = 1;
+			self.lockColor = true;
+			
+            DiceMaster4.SetupTooltip( self, nil, "Health", nil, nil, nil, nil,
+              "Represents your health.|n|cFF707070&lt;Left/Right Click to Add/Remove>|n&lt;Shift+Left Click to Set Max>|n&lt;Ctrl+Left Click to Set Value>|n&lt;Alt+Left/Right Click to Add/Remove Armour>" )
+          </OnLoad>
+          <OnMouseDown>
+			if self.timer then
+				self.timer:Cancel()
+			end
+			local healthMax = select(2, self:GetMinMaxValues());
+			local rate = 0.3;
+			if ( healthMax > 50 ) then
+				rate = 10/ healthMax
+			end
+			self.timer = C_Timer.NewTicker( rate, function()
+				if self:IsMouseOver() and ( IsMouseButtonDown("LeftButton") or IsMouseButtonDown("RightButton") ) then
+					DiceMaster4.OnHealthClicked( button )
+				end
+			end)
+            DiceMaster4.OnHealthClicked( button )
+          </OnMouseDown>
+		  <OnLeave>
+			if self.timer then
+				self.timer:Cancel()
+			end
+		  </OnLeave>
+        </Scripts>
+		<BarTexture atlas="UI-HUD-UnitFrame-Player-PortraitOff-Bar-Health"/>
+      </StatusBar>
+	  
+	  <StatusBar parentkey="manabar" inherits="TextStatusBar">
+        <Size x="124" y="10"/>
+		<Anchors>
+			<Anchor point="BOTTOM" x="0" y="5"/>
+		</Anchors>
+		<Layers>
+			<Layer level="HIGHLIGHT">
+				<FontString parentKey="Text" inherits="TextStatusBarText">
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+        <Scripts>
+          <OnLoad>
+            TextStatusBar_Initialize(self);
+			self.textLockable = 1;
+			self.lockColor = true;
+          </OnLoad>
+		  <OnEnter>
+			if DiceMaster4.Profile.manaType and DiceMaster4.Profile.manaType ~= "None" then
+				local manaType = DiceMaster4.Profile.manaType;
+				if manaType == "RunicPower" then manaType = "Runic Power" end
+				GameTooltip:SetOwner(DiceMasterChargesFrame.healthbar, "ANCHOR_RIGHT");
+				GameTooltip:SetText(manaType or "Mana", 1, 1, 1);
+				GameTooltip:AddLine("Represents your "..(manaType or "Mana")..".", nil, nil, nil, true);
+				GameTooltip:AddLine("|cFF707070&lt;Left/Right Click to Add/Remove>|n&lt;Shift+Left Click to Set Max>|n&lt;Ctrl+Left Click to Set Value>", nil, nil, nil, true);
+				GameTooltip:Show();
+			end
+		  </OnEnter>
+		  <OnLeave>
+			GameTooltip:Hide();
+			if self.timer then
+				self.timer:Cancel()
+			end
+		  </OnLeave>
+          <OnMouseDown>
+			if self.timer then
+				self.timer:Cancel()
+			end
+			local manaMax = select(2, self:GetMinMaxValues());
+			local rate = 0.3;
+			if ( manaMax > 50 ) then
+				rate = 10/ manaMax
+			end
+			self.timer = C_Timer.NewTicker( rate, function()
+				if self:IsMouseOver() and ( IsMouseButtonDown("LeftButton") or IsMouseButtonDown("RightButton") ) then
+					DiceMaster4.OnManaClicked( button )
+				end
+			end)
+            DiceMaster4.OnManaClicked( button )
+          </OnMouseDown>
+        </Scripts>
+		<BarTexture atlas="UI-HUD-UnitFrame-Player-PortraitOff-Bar-Mana"/>
+      </StatusBar>
+    </Frames>
+  </Button>
+  
+  <Button name="DiceMasterChargesFrameAlt" frameStrata="MEDIUM" parent="UIParent" hidden="true">
+    <Size x="32" y="32"/>
+    <Scripts>
+		<OnLoad>
+			self.Title = "Player Health";
+			self:ClearAllPoints()
+			self:SetPoint("CENTER", PlayerFrame.PlayerFrameContainer.PlayerPortrait, "BOTTOMRIGHT", -8, 8);
+			DiceMaster4.SetupTooltip( self, nil, "Health", nil, nil, nil, nil,
+              "Represents your health.|n|cFF707070&lt;Left/Right Click to Add/Remove>|n&lt;Shift+Left Click to Set Max>|n&lt;Ctrl+Left Click to Set Value>|n&lt;Alt+Left/Right Click to Add/Remove Armour>" )
+		</OnLoad>
+		<OnMouseDown>
+            DiceMaster4.OnHealthClicked( button )
+        </OnMouseDown>
+    </Scripts>
+	<Layers>
+		<Layer level="BACKGROUND">
+			<Texture parentKey="background" setAllPoints="true" file="Interface/AddOns/DiceMaster/Texture/health-icon-2">
+			</Texture>
+		</Layer>
+		<Layer level="BORDER">
+			<Texture parentKey="armour" file="Interface/AddOns/DiceMaster/Texture/armour-icon-2">
+				<Size x="32" y="32"/>
+				<Anchors>
+				  <Anchor point="CENTER" x="0" y="20"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="ARTWORK">
+			<FontString parentKey="text" font="Interface/AddOns/DiceMaster/Fonts/Belwe_Medium.ttf" justifyH="MIDDLE" outline="NORMAL" text="10">
+				<FontHeight val="20"/>
+				<Anchors>
+				  <Anchor point="CENTER" x="0" y="-3"/>
+				</Anchors>
+				<Color r="1.0" g="1.0" b="1.0" a="1.0"/>
+			</FontString>
+			<FontString parentKey="armourText" font="Interface/AddOns/DiceMaster/Fonts/Belwe_Medium.ttf" justifyH="MIDDLE" outline="NORMAL" text="3">
+				<FontHeight val="22"/>
+				<Anchors>
+				  <Anchor point="CENTER" x="0" y="21"/>
+				</Anchors>
+				<Color r="1.0" g="1.0" b="1.0" a="1.0"/>
+			</FontString>
+		</Layer>
+	</Layers>
+  </Button>
+  
+  <Button name="DiceMasterManaFrameAlt" frameStrata="MEDIUM" parent="UIParent" hidden="true">
+    <Size x="24" y="24"/>
+    <Scripts>
+		<OnLoad>
+			self.Title = "Player Mana";
+			self:ClearAllPoints()
+			self:SetPoint("CENTER", PlayerFrame.PlayerFrameContainer.PlayerPortrait, "TOPLEFT", 8, -8);
+			DiceMaster4.SetupTooltip( self, nil, "Mana", nil, nil, nil, nil,
+              "Represents your mana.|n|cFF707070&lt;Left/Right Click to Add/Remove>|n&lt;Shift+Left Click to Set Max>|n&lt;Ctrl+Left Click to Set Value>" )
+		</OnLoad>
+		<OnMouseDown>
+            DiceMaster4.OnManaClicked( button )
+        </OnMouseDown>
+    </Scripts>
+	<Layers>
+		<Layer level="BACKGROUND">
+			<Texture parentKey="background" setAllPoints="true" file="Interface/AddOns/DiceMaster/Texture/mana-icon-2">
+			</Texture>
+		</Layer>
+		<Layer level="ARTWORK">
+			<FontString parentKey="text" font="Interface/AddOns/DiceMaster/Fonts/Belwe_Medium.ttf" justifyH="MIDDLE" outline="NORMAL" spacing="-10" text="10">
+				<FontHeight val="20"/>
+				<Anchors>
+				  <Anchor point="CENTER" x="0" y="0"/>
+				</Anchors>
+				<Color r="1.0" g="1.0" b="1.0" a="1.0"/>
+			</FontString>
+		</Layer>
+	</Layers>
+  </Button>
+  
+  <Button name="DiceMasterPetChargesFrame" frameStrata="MEDIUM" parent="UIParent">
+    
+    <Size x="120" y="53"/>
+    <Anchors>
+      <Anchor point="CENTER" relativeTo="DiceMasterChargesFrame" x="0" y="-32"/>
+    </Anchors>
+        
+    <Scripts>
+      <OnLoad>
+        self.Title = "Pet Frame"
+		self:SetClampedToScreen( true )
+		self:SetMovable(true)
+		self:EnableMouse(false)
+		self:RegisterForDrag( "LeftButton" )
+		self:SetScript( "OnDragStart", self.StartMoving )
+		self:SetScript( "OnDragStop", self.StopMovingOrSizing )
+		self:SetScale( 1.2 )
+		self:SetUserPlaced( true )
+		tinsert(DiceMaster4.EditModeFrames, self);
+      </OnLoad>
+	  <OnClick>
+		DiceMaster4.TraitEditor_Open()
+		DiceMasterTraitEditorTab3:Click()
+	  </OnClick>
+    </Scripts>
+	
+	<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Portrait">
+					<Size x="37" y="37"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="7" y="-6"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="FrameTexture" atlas="UI-HUD-UnitFrame-Party-PortraitOn" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="1" y="-2"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Name" inherits="GameFontNormalSmall" justifyH="LEFT">
+					<Size x="57" y="12"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="46" y="-6"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+    
+		<Frames>
+			
+			<StatusBar parentKey="healthbar" inherits="TextStatusBar">
+				<Size x="70" y="10"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" x="45" y="-19"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Armor" file="Interface/RAIDFRAME/Shield-Fill" hidden="true">
+							<Anchors>
+							  <Anchor point="TOPLEFT" x="1" y="-2"/> 
+							  <Anchor point="BOTTOMLEFT" x="1" y="0"/> 
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="ARTWORK">
+						<Texture parentKey="ArmorOverlay" inherits="TotalAbsorbBarOverlayTemplate"/>
+						<Texture parentKey="ArmorGlow" inherits="OverAbsorbGlowTemplate"/>
+					</Layer>
+					<Layer level="HIGHLIGHT">
+						<FontString parentKey="Text" inherits="TextStatusBarText">
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="2">
+						<MaskTexture parentKey="HealthBarMask" atlas="UI-HUD-UnitFrame-Party-PortraitOn-Bar-Health-Mask" useAtlasSize="true" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="-29" y="3"/>
+							</Anchors>
+							<MaskedTextures>
+								<MaskedTexture childKey="Armor"/>
+								<MaskedTexture childKey="ArmorOverlay"/>
+								<MaskedTexture childKey="ArmorGlow"/>
+							</MaskedTextures>
+						</MaskTexture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad>
+						TextStatusBar_Initialize(self);
+						self.textLockable = 1;
+						self.lockColor = true;
+					</OnLoad>
+					<OnMouseDown>
+						if self.timer then
+							self.timer:Cancel()
+						end
+						local healthMax = select(2, self:GetMinMaxValues());
+						local rate = 0.3;
+						if ( healthMax > 50 ) then
+							rate = 10/ healthMax
+						end
+						self.timer = C_Timer.NewTicker( rate, function()
+							if self:IsMouseOver() and ( IsMouseButtonDown("LeftButton") or IsMouseButtonDown("RightButton") ) then
+								DiceMaster4.OnHealthClicked( button, true )
+							end
+						end)
+						DiceMaster4.OnHealthClicked( button, true )
+					</OnMouseDown>
+					<OnLeave>
+						if self.timer then
+							self.timer:Cancel()
+						end
+					</OnLeave>
+				</Scripts>
+				<BarTexture parentKey="HealthBarTexture" atlas="UI-HUD-UnitFrame-Party-PortraitOn-Bar-Health"/>
+			</StatusBar>
+		</Frames>
+  </Button>
+    
+</Ui>
