@@ -64,7 +64,7 @@
         
         <Size x="32" y="32"/>
         <Anchors>
-          <Anchor point="CENTER" x="0" y="42"/>
+          <Anchor point="CENTER" x="0" y="52"/>
         </Anchors>
         <Scripts>
           <OnLoad>
@@ -74,7 +74,7 @@
             if self.timer then
 				self.timer:Cancel()
 			end
-			local chargesMax = select(2, self:GetMinMaxValues());
+			local chargesMax = self.filled_max;
 			local rate = 0.3;
 			if ( chargesMax > 50 ) then
 				rate = 10/ chargesMax

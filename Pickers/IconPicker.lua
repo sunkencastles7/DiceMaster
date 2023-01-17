@@ -36,10 +36,10 @@ function Me.IconPickerButton_OnClick( self )
 		Me.BuffEditor_SelectIcon( GetIconPath(self) )
 	elseif DiceMasterIconPicker.parent == DiceMasterDMBuffEditor then
 		Me.DMBuffEditor_SelectIcon( GetIconPath(self) )
-	elseif DiceMasterIconPicker.parent == DiceMasterUnitFramesBuffEditor then
-		Me.UnitFramesBuffEditor_SelectIcon( GetIconPath(self) )	
 	elseif DiceMasterIconPicker.parent == Me.editor then
 		Me.TraitEditor_SelectIcon( GetIconPath(self) )
+	elseif DiceMasterIconPicker.parent == DiceMasterSkillDetailSkillIconButton then
+		Me.SkillFrame_SelectIcon( GetIconPath(self) )
 	elseif DiceMasterIconPicker.parent == DiceMasterPetFrame then
 		Me.PetEditor_SelectIcon( GetIconPath(self) ) 
 	elseif DiceMasterIconPicker.parent == DiceMasterItemEditor then

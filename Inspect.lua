@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 local Me = DiceMaster4
@@ -357,7 +357,7 @@ function Me.Inspect_BuffButton_OnUpdate(self)
 	local data = Me.inspectData[self.owner].buffsActive[self:GetID()] or nil
 	local index = self:GetID();
 	if ( self.timeLeft < BUFF_WARNING_TIME ) then
-		self:SetAlpha(BuffFrame.BuffAlphaValue);
+		self:SetAlpha(1.0);
 	else
 		self:SetAlpha(1.0);
 	end
@@ -452,11 +452,11 @@ function Me.Inspect_Refresh( status, trait )
 				-- Check charges position setting:
 				if Profile.charges.pos then
 					DiceMasterInspectFrame:SetHeight( 120 );
-					DiceMasterInspectFrame.charges:SetPoint("BOTTOM", 0, 0)
-					DiceMasterInspectFrame.charges2:SetPoint("BOTTOM", 0, 0)
+					DiceMasterInspectFrame.charges:SetPoint("BOTTOM", 0, -50)
+					DiceMasterInspectFrame.charges2:SetPoint("BOTTOM", 0, -50)
 				else
 					DiceMasterInspectFrame:SetHeight( 120 );
-					DiceMasterInspectFrame.charges:SetPoint("BOTTOM", 0, 80)
+					DiceMasterInspectFrame.charges:SetPoint("BOTTOM", 0, 170)
 					DiceMasterInspectFrame.charges2:SetPoint("BOTTOM", 0, 80)
 				end
 			else
@@ -1047,6 +1047,19 @@ function Me.Inspect_SendStatus( dist, channel )
 
 end
 
+local function GetSkillValue( skill )
+	
+	local value = 0
+	
+	for i = 1,#Profile.buffsActive do
+		if Profile.buffsActive[i].skill and Profile.buffsActive[i].skill == skill then
+			value = value + ( Profile.buffsActive[i].skillRank * Profile.buffsActive[i].count );
+		end
+	end
+	
+	return value;
+end
+
 -------------------------------------------------------------------------------
 -- Send data for your skills.
 --
@@ -1060,14 +1073,14 @@ function Me.Inspect_SendSkills( dist, channel )
 	if Profile.skills and #Profile.skills > 0 then		
 		
 		for i = 1, #Profile.skills do
-			local buffValue = Me.TraitEditor_AddStatisticsToValue( Profile.skills[i].name )
+			local buffValue = GetSkillValue( Profile.skills[i].name )
 			
 			local value = nil
 			
-			if Profile.skills[i].value then
+			if Profile.skills[i].rank then
 				-- calculate the total value before sending
 				-- for safety reasons :) 
-				value = Profile.skills[i].value + buffValue
+				value = Profile.skills[i].rank + buffValue
 			end
 			
 			local data = {
@@ -1438,7 +1451,7 @@ function Me.Inspect_OnStatusMessage( data, dist, sender )
 end
 
 ---------------------------------------------------------------------------
--- Received STATS data.
+-- Received SKILLS data.
 --
 function Me.Inspect_OnSkillsMessage( data, dist, sender )
 	

@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 local Me = DiceMaster4
@@ -22,7 +22,7 @@ function Me.CheckTooltipForTerms( text )
 			local matchFound = string.match( text, "<" .. v[i].subName .. ">" )
 			if matchFound then
 				local desc = gsub( v[i].desc, "Roll", "An attempt" )
-				local termsString = Me.FormatIconForText( v[i].iconID ) .. " |cFFFFFFFF" .. v[i].name .. "|r|n|cFFffd100" .. desc .. "|r|n|cFF707070(Modified by " .. v[i].stat .. " + " .. v[i].name .. ")|r"
+				local termsString = Me.FormatIconForText( v[i].iconID ) .. " |cFFFFFFFF" .. v[i].name .. "|r|n|cFFffd100" .. desc .. "|r|n|cFF707070(Modified by " .. v[i].skill .. " + " .. v[i].name .. ")|r"
 				
 				if not tContains( termsTable, termsString ) then
 					tinsert( termsTable, termsString )

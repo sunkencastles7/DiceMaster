@@ -18,8 +18,6 @@ function Me.TexturePickerButton_OnClick( self )
 	-- Apply the icon to the edited trait and close the picker. 
 	if DiceMasterIconPicker.parent == DiceMasterBuffEditor then
 		Me.BuffEditor_SelectIcon( self:GetNormalTexture():GetTexture() )
-	elseif DiceMasterIconPicker.parent == DiceMasterUnitFramesBuffEditor then
-		Me.UnitFramesBuffEditor_SelectIcon( self:GetNormalTexture():GetTexture() )	
 	elseif DiceMasterIconPicker.parent == Me.editor then
 		Me.TraitEditor_SelectIcon( self:GetNormalTexture():GetTexture() )
 	elseif DiceMasterIconPicker.parent == DiceMasterPetFrame then

@@ -69,12 +69,10 @@
 					DiceMasterTooltipIcon:Show()
 					GameTooltip:Show()
 				end
-				DiceMasterPanelRollButton.hasFocus = true;
 			</OnEnter>
 			<OnLeave>
 				GameTooltip:Hide()
 				DiceMasterTooltipIcon:Hide()
-				DiceMasterPanelRollButton.hasFocus = false;
           </OnLeave>
 		</Scripts>
 	</Button>
@@ -83,7 +81,7 @@
   
   <Frame name="DiceMasterPanel" movable="true" enableMouse="true" frameStrata="MEDIUM" parent="UIParent">
     
-    <Size x="200" y="90"/>
+    <Size x="100" y="50"/>
     <Anchors>
       <Anchor point="TOP" x="0" y="-64"/>
     </Anchors>	
@@ -94,7 +92,7 @@
         <Texture parentKey="background" file="Interface/AddOns/DiceMaster/Texture/roll-frame" hidden="true">
           <Size x="192" y="48" />
           <Anchors>
-            <Anchor point="CENTER" x="0" y="-17"/>
+            <Anchor point="CENTER" x="-80" y="0"/>
           </Anchors>
           <TexCoords left="0" right="1" top="0" bottom="0.5" />
         </Texture>
@@ -107,7 +105,7 @@
         <Texture file="Interface/AddOns/DiceMaster/Texture/roll-frame-2">
           <Size x="48" y="48" />
           <Anchors>
-            <Anchor point="CENTER" x="80" y="-17"/>
+            <Anchor point="CENTER" x="0" y="0"/>
           </Anchors>
           <TexCoords left="0.00195312" right="0.378906" top="0.0078125" bottom=" 0.378906" />
         </Texture>
@@ -170,7 +168,7 @@
       
         <Size x="80" y="14" />
         <Anchors>
-          <Anchor point="CENTER" x="0" y="-17" />
+          <Anchor point="CENTER" x="-80" y="0" />
         </Anchors>
         <Scripts>
           <OnLoad>
@@ -192,7 +190,7 @@
       <Button name="$parentRollButton" parentKey="roll">
         <Size x="38" y="38"/>
         <Anchors>
-          <Anchor point="CENTER" x="79" y="-17"/>
+          <Anchor point="CENTER" x="0" y="0"/>
         </Anchors>
         
         <HighlightTexture file="Interface/AddOns/DiceMaster/Texture/roll-frame-2" alphaMode="ADD" alpha="0.5">
@@ -211,26 +209,15 @@
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
             GameTooltip:AddLine( "|TInterface/AddOns/DiceMaster/Texture/logo:16|t DiceMaster" )
             GameTooltip:AddLine( "Roll " .. DiceMasterPanelDice:GetText() .. ".|r", 1, 1, 1, 1 )
-            GameTooltip:Show()
-			
-			DiceMaster4.DiceButton_OnEnter( self )
-          </OnEnter>
-		  <OnUpdate>
 			if self.menuIsShown then
-				C_Timer.After( 1, function()
-					if not self.FadeIn and not self.FadeOut and not self.hasFocus and self.menuIsShown then
-						self.FadeOut = true;
-						for i = 1, #self.menuItems do
-							self.menuItems[i].FlyOut:Play()
-							if i == #self.menuItems then self.FadeOut = false; self.menuIsShown = false; end
-						end
-					end
-				end)
+				GameTooltip:AddLine( "|cFF707070&lt;Right Click to Collapse Menu>" )
+			else
+				GameTooltip:AddLine( "|cFF707070&lt;Right Click to Expand Menu>" )
 			end
-		  </OnUpdate>
+            GameTooltip:Show()
+          </OnEnter>
           <OnLeave>
             GameTooltip:Hide()
-			self.hasFocus = false;
           </OnLeave>
 		  <OnMouseDown>
 			if button == "LeftButton" then
@@ -239,6 +226,15 @@
 				end
 				DiceMaster4.RollButtonClicked()
 				PlaySound(36625);
+			elseif button == "RightButton" then
+				if self.menuIsShown then
+					for i = 1, #self.menuItems do
+						self.menuItems[i].FlyOut:Play()
+						if i == #self.menuItems then self.menuIsShown = false; end
+					end
+				else
+					DiceMaster4.DiceButton_ExpandMenu( self );
+				end
 			end
 		  </OnMouseDown>
         </Scripts>
@@ -315,7 +311,7 @@
 		</Frames>
 	  </ModelScene>
 	  
-	  <Button parentKey="ExpandToggle" registerForClicks="LeftButtonUp">
+	  <Button parentKey="ExpandToggle" topLevel="true" registerForClicks="LeftButtonUp">
 			<Size x="10" y="16"/>
 			<Anchors>
 				<Anchor point="RIGHT" relativeKey="$parent.roll" relativePoint="LEFT" x="-4" y="0"/>
@@ -343,7 +339,7 @@
 			</Scripts>
 	  </Button>
 	  
-	  <Button name="TraitEditorButton" inherits="MainMenuBarMicroButton">
+	  <Button name="TraitEditorButton" topLevel="true" inherits="MainMenuBarMicroButton">
 		<Size x="18" y="24"/>
 		<Anchors>
 			<Anchor point="LEFT" relativeKey="$parent.roll" relativePoint="RIGHT" x="4" y="0"/>

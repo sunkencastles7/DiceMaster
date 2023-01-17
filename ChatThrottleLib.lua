@@ -239,7 +239,8 @@ function ChatThrottleLib.Hook_SendChatMessage(text, chattype, language, destinat
 	local self = ChatThrottleLib
 	local size = strlen(tostring(text or "")) + strlen(tostring(destination or "")) + self.MSG_OVERHEAD
 	self.avail = self.avail - size
-	self.nBypass = self.nBypass + size	-- just a statistic
+	self.nBypass = self.nBypass + size	-- just a 
+	istic
 end
 function ChatThrottleLib.Hook_SendAddonMessage(prefix, text, chattype, destination, ...)
 	if bMyTraffic then

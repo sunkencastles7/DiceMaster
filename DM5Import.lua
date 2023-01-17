@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
@@ -10,7 +10,7 @@ local Me = DiceMaster4
 local Profile = Me.Profile
 
 function Me.ImportDM5Saved()
-	if Me.Profile.dm5Imported then 
+	if Me.Profile.dm5Imported or Me.Profile.skills ~= {} then 
 		return
 	end
 	
@@ -53,7 +53,8 @@ function Me.ImportDM5Saved()
 
 	-- If a statistic had an attribute attached, find its GUID and insert 
 	-- it into the skillModifiers table.
-	for i = 1, #Me.Profile.stats do
+	for i = 1, #Me.Profile.
+	s do
 		if Me.Profile.stats[i] and Me.Profile.stats[i].attribute then
 			for skillIndex = 1, #Me.Profile.skills do
 				if Me.Profile.skills[skillIndex].name == Me.Profile.stats[i].attribute then

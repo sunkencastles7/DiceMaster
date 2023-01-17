@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 -- comm message handling
@@ -60,12 +60,7 @@ local MessageHandlers = {
 	MORALE  = "MoraleBar_OnStatusMessage";
 	MORREQ  = "MoraleBar_OnStatusRequest";
 	
-	UFANIM  = "UnitFrame_OnAnimationMessage";
 	DMSAY   = "UnitFrame_OnDMSAY";
-	UFSTAT  = "UnitFrame_OnStatusMessage";
-	UFREQ   = "UnitFrame_OnStatusRequest";
-	UFBUFF	= "UnitFrame_OnBuffMessage";
-	UFREMOVE = "UnitFrame_OnRemoveBuffMessage";
 }
 
 -------------------------------------------------------------------------------
@@ -148,7 +143,6 @@ function Me.ResetFullscreenEffect()
 	model:SetPosition( 0, 0, -0.5 )
 	model:SetPortraitZoom( 0 );
 	model:SetCamDistanceScale( 5 );
-	model:SetLight( true, true, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 );
 end
 
 function Me.OnFullscreenEffectMessage( data, dist, sender )

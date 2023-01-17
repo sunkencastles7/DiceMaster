@@ -142,10 +142,10 @@
 			end
 			self.timer = C_Timer.NewTicker( rate, function()
 				if self:IsMouseOver() and ( IsMouseButtonDown("LeftButton") or IsMouseButtonDown("RightButton") ) then
-					DiceMaster4.OnHealthClicked( button )
+					DiceMaster4.Inspect_OnHealthClicked( button )
 				end
 			end)
-            DiceMaster4.OnHealthClicked( button )
+            DiceMaster4.Inspect_OnHealthClicked( button )
           </OnMouseDown>
 		  <OnLeave>
 			if self.timer then

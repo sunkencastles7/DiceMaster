@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
@@ -74,8 +74,8 @@ function Me.BuffEditor_Refresh( effectIndex )
 			icon = "Interface/Icons/inv_misc_questionmark",
 			name = "",
 			desc = "",
-			stat = "",
-			statAmount = 0,
+			skill = "",
+			skillRank = 0,
 			cancelable = true,
 			duration = 1,
 			target = true,
@@ -91,8 +91,8 @@ function Me.BuffEditor_Refresh( effectIndex )
 	Me.buffeditor.buffIcon:SetTexture( buff.icon )
 	Me.buffeditor.buffName:SetText( buff.name )
 	Me.buffeditor.buffDesc.EditBox:SetText( buff.desc )
-	Me.buffeditor.buffStatName:SetText( buff.stat or "" )
-	Me.buffeditor.buffStatAmount:SetText( buff.statAmount or 0 )
+	Me.buffeditor.buffSkillName:SetText( buff.skill or "" )
+	Me.buffeditor.buffSkillRank:SetText( buff.skillRank or 0 )
 	Me.buffeditor.buffCancelable:SetChecked( buff.cancelable )
 	if buff.cancelable then
 		DiceMasterBuffEditorBuffDuration:Disable()
@@ -135,8 +135,8 @@ function Me.BuffEditor_Save()
 	buff.name = Me.buffeditor.buffName:GetText()
 	buff.icon = Me.buffeditor.buffIcon.icon:GetTexture()
 	buff.desc = Me.buffeditor.buffDesc.EditBox:GetText()
-	buff.stat = Me.buffeditor.buffStatName:GetText()
-	buff.statAmount = Me.buffeditor.buffStatAmount:GetText()
+	buff.skill = Me.buffeditor.buffSkillName:GetText()
+	buff.skillRank = Me.buffeditor.buffSkillRank:GetText()
 	buff.cancelable = Me.buffeditor.buffCancelable:GetChecked()	
 	if not buff.cancelable then
 		buff.duration = Me.buffeditor.buffDuration:GetValue()
@@ -179,8 +179,8 @@ function Me.BuffEditor_SaveEdits()
 	buff.name = Me.buffeditor.buffName:GetText()
 	buff.icon = Me.buffeditor.buffIcon.icon:GetTexture()
 	buff.desc = Me.buffeditor.buffDesc.EditBox:GetText()
-	buff.stat = Me.buffeditor.buffStatName:GetText()
-	buff.statAmount = Me.buffeditor.buffStatAmount:GetText()
+	buff.skill = Me.buffeditor.buffSkillName:GetText()
+	buff.skillRank = Me.buffeditor.buffSkillRank:GetText()
 	buff.cancelable = Me.buffeditor.buffCancelable:GetChecked()	
 	if not buff.cancelable then
 		buff.duration = Me.buffeditor.buffDuration:GetValue()
@@ -279,8 +279,8 @@ function Me.DMBuffEditor_Refresh( effectIndex )
 	Me.dmbuffeditor.buffIcon:SetTexture( "Interface/Icons/inv_misc_questionmark" )
 	Me.dmbuffeditor.buffName:SetText( "" )
 	Me.dmbuffeditor.buffDesc.EditBox:SetText( "" )
-	Me.dmbuffeditor.buffStatName:SetText( "" )
-	Me.dmbuffeditor.buffStatAmount:SetText( 0 )
+	Me.dmbuffeditor.buffSkillName:SetText( "" )
+	Me.dmbuffeditor.buffSkillRank:SetText( 0 )
 	Me.dmbuffeditor.buffCancelable:SetChecked( true )
 	DiceMasterDMBuffEditorBuffDuration:Disable()
 	DiceMasterDMBuffEditorBuffDurationText:SetTextColor( 0.4, 0.4, 0.4 )
@@ -307,8 +307,8 @@ function Me.DMBuffEditor_Save()
 		icon = Me.dmbuffeditor.buffIcon.icon:GetTexture();
 		name = Me.dmbuffeditor.buffName:GetText();
 		desc = Me.dmbuffeditor.buffDesc.EditBox:GetText();
-		stat = Me.dmbuffeditor.buffStatName:GetText();
-		statAmount = Me.dmbuffeditor.buffStatAmount:GetText();
+		skill = Me.dmbuffeditor.buffSkillName:GetText();
+		skillRank = Me.dmbuffeditor.buffSkillRank:GetText();
 		cancelable = true;
 		duration = 1;
 		aoe = Me.dmbuffeditor.buffAOE:GetChecked();
@@ -345,8 +345,8 @@ function Me.DMBuffEditor_Cast()
 		icon = Me.dmbuffeditor.buffIcon.icon:GetTexture();
 		name = Me.dmbuffeditor.buffName:GetText();
 		desc = Me.dmbuffeditor.buffDesc.EditBox:GetText();
-		stat = Me.dmbuffeditor.buffStatName:GetText();
-		statAmount = Me.dmbuffeditor.buffStatAmount:GetText();
+		skill = Me.dmbuffeditor.buffSkillName:GetText();
+		skillRank = Me.dmbuffeditor.buffSkillRank:GetText();
 		cancelable = Me.dmbuffeditor.buffCancelable:GetChecked();
 		duration = 0;
 		aoe = Me.dmbuffeditor.buffAOE:GetChecked();
@@ -371,12 +371,12 @@ function Me.DMBuffEditorDropDown_OnClick(self, arg1, arg2, checked)
 	editor.buffIcon:SetTexture( arg1.icon )
 	editor.buffName:SetText( arg1.name )
 	editor.buffDesc.EditBox:SetText( arg1.desc )
-	if arg1.stat then
-		editor.buffStatName:SetText( arg1.stat )
-		editor.buffStatAmount:SetText( arg1.statAmount )
+	if arg1.skill then
+		editor.buffSkillName:SetText( arg1.skill )
+		editor.buffSkillRank:SetText( arg1.skillRank )
 	else
-		editor.buffStatName:SetText( "" )
-		editor.buffStatAmount:SetText( "" )
+		editor.buffSkillName:SetText( "" )
+		editor.buffSkillRank:SetText( "" )
 	end
 	if not arg1.cancelable then
 		editor.buffCancelable:SetChecked( false )

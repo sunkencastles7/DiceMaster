@@ -111,14 +111,14 @@
 		</Scripts>
 		</ScrollFrame>
 		
-		<EditBox name="$parentBuffStatName" parentKey="buffStatName" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<EditBox name="$parentBuffSkillName" parentKey="buffSkillName" font="GameFontNormalMed2" inherits="InputBoxTemplate">
 		<Size x="165" y="12"/> 
 		<Anchors>
 		  <Anchor point="TOPLEFT" relativeKey="$parent.buffDesc" relativePoint="BOTTOMLEFT" x="0" y="-30"/> 
 		</Anchors>
 		<Layers>
 			<Layer level="ARTWORK">
-		  <FontString name="$parentBuffStatNameTitle" inherits="GameFontNormalLeft" justifyH="left" text="Modify Statistic">
+		  <FontString name="$parentBuffSkillNameTitle" inherits="GameFontNormalLeft" justifyH="left" text="Modify Skill">
 				<Anchors>
 				  <Anchor point="TOPLEFT" x="0" y="20"/> 
 				</Anchors>
@@ -136,14 +136,14 @@
 		</Scripts>
 	  </EditBox>
 	  
-	  <EditBox name="$parentBuffStatAmount" parentKey="buffStatAmount" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+	  <EditBox name="$parentBuffSkillRank" parentKey="buffSkillRank" font="GameFontNormalMed2" inherits="InputBoxTemplate">
 			<Size x="48" y="12"/> 
 			<Anchors>
-			  <Anchor point="LEFT" relativeTo="DiceMasterBuffEditorBuffStatName" relativePoint="RIGHT" x="8" y="0"/> 
+			  <Anchor point="LEFT" relativeTo="DiceMasterBuffEditorBuffSkillName" relativePoint="RIGHT" x="8" y="0"/> 
 			</Anchors>
 			<Layers>
 				<Layer level="ARTWORK">
-			  <FontString name="$parentBuffStatAmountTitle" inherits="GameFontNormalLeft" justifyH="center" text="Amount">
+			  <FontString name="$parentBuffSkillRankTitle" inherits="GameFontNormalLeft" justifyH="center" text="Amount">
 					<Anchors>
 					   <Anchor point="TOP" x="0" y="20"/> 
 					</Anchors>
@@ -176,7 +176,7 @@
 		<Slider name="$parentBuffDuration" parentKey="buffDuration" inherits="OptionsSliderTemplate" orientation="HORIZONTAL" enableMouse="true">
 			<Size x="210" y="20"/>
 			<Anchors>
-			  <Anchor point="TOPLEFT" relativeKey="$parent.buffStatName" relativePoint="BOTTOMLEFT" x="-6" y="-25" />
+			  <Anchor point="TOPLEFT" relativeKey="$parent.buffSkillName" relativePoint="BOTTOMLEFT" x="-6" y="-25" />
 			</Anchors>
 			
 			<Scripts>
@@ -411,14 +411,14 @@
 		</Scripts>
 		</ScrollFrame>
 		
-		<EditBox name="$parentBuffStatName" parentKey="buffStatName" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<EditBox name="$parentBuffSkillName" parentKey="buffSkillName" font="GameFontNormalMed2" inherits="InputBoxTemplate">
 		<Size x="165" y="12"/> 
 		<Anchors>
 		  <Anchor point="TOPLEFT" relativeKey="$parent.buffDesc" relativePoint="BOTTOMLEFT" x="0" y="-30"/> 
 		</Anchors>
 		<Layers>
 			<Layer level="ARTWORK">
-		  <FontString name="$parentBuffStatNameTitle" inherits="GameFontNormalLeft" justifyH="left" text="Modify Statistic">
+		  <FontString name="$parentBuffSkillNameTitle" inherits="GameFontNormalLeft" justifyH="left" text="Modify Skill">
 				<Anchors>
 				  <Anchor point="TOPLEFT" x="0" y="20"/> 
 				</Anchors>
@@ -436,14 +436,14 @@
 		</Scripts>
 	  </EditBox>
 	  
-	  <EditBox name="$parentBuffStatAmount" parentKey="buffStatAmount" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+	  <EditBox name="$parentBuffSkillRank" parentKey="buffSkillRank" font="GameFontNormalMed2" inherits="InputBoxTemplate">
 			<Size x="48" y="12"/> 
 			<Anchors>
-			  <Anchor point="LEFT" relativeTo="DiceMasterDMBuffEditorBuffStatName" relativePoint="RIGHT" x="8" y="0"/> 
+			  <Anchor point="LEFT" relativeTo="DiceMasterDMBuffEditorBuffSkillName" relativePoint="RIGHT" x="8" y="0"/> 
 			</Anchors>
 			<Layers>
 				<Layer level="ARTWORK">
-			  <FontString name="$parentBuffStatAmountTitle" inherits="GameFontNormalLeft" justifyH="center" text="Amount">
+			  <FontString name="$parentBuffSkillRankTitle" inherits="GameFontNormalLeft" justifyH="center" text="Amount">
 					<Anchors>
 					   <Anchor point="TOP" x="0" y="20"/> 
 					</Anchors>
@@ -476,7 +476,7 @@
 		<Slider name="$parentBuffDuration" parentKey="buffDuration" inherits="OptionsSliderTemplate" orientation="HORIZONTAL" enableMouse="true">
 			<Size x="210" y="20"/>
 			<Anchors>
-			  <Anchor point="TOPLEFT" relativeKey="$parent.buffStatName" relativePoint="BOTTOMLEFT" x="-6" y="-25" />
+			  <Anchor point="TOPLEFT" relativeKey="$parent.buffSkillName" relativePoint="BOTTOMLEFT" x="-6" y="-25" />
 			</Anchors>
 			
 			<Scripts>

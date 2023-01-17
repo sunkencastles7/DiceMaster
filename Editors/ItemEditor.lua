@@ -233,6 +233,7 @@ local EffectHandlers = {
 	["screeneffect"] = { "ScreenEffectEditor_Open", "ScreenEffectEditor_Load" };
 	["sound"] = { "SoundPicker_Open", "SoundPicker_Refresh" };
 	["health"] = { "AdjustHealthEditor_Open", "AdjustHealthEditor_Load" };
+	["skill"] = { "LearnSkillEditor_Open", "LearnSkillEditor_Refresh" };
 	["recipe"] = { "LearnRecipeEditor_Open", "LearnRecipeEditor_Load" };
 	["pet"] = { "LearnPetEditor_Open", "LearnPetEditor_Load" };
 }
@@ -952,9 +953,6 @@ end
 function Me.ItemEditor_Open( frame )
 	Me.ModelPicker_Close()
 	Me.SoundPicker_Close()
-	if IsAddOnLoaded("DiceMaster_UnitFrames") then
-		Me.AnimationPicker_Close()
-	end
 	Me.ShopEditor_Close()
 	Me.CurrencyEditor_Close()
 	Me.buffeditor:Hide()

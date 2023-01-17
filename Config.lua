@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 local Me = DiceMaster4
@@ -55,10 +55,6 @@ local DB_DEFAULTS = {
 		showRaidRolls = false;
 		statusSerial  = 1;
 		traitSerials  = {};
-		unitframes = {
-			enable  = true;
-			scale   = 0.5;
-		};
 	};
 	
 	profile = {
@@ -85,8 +81,8 @@ local DB_DEFAULTS = {
 		};
 		health       = 10;
 		healthMax    = 10;
-		mana		 = 10;
-		manaMax 	 = 10;
+		mana		 = 20;
+		manaMax 	 = 20;
 		manaType	 = "Mana";
 		armor        = 0;
 		traits       = {};
@@ -439,6 +435,7 @@ Me.configOptionsCharges = {
 				Me.Inspect_Open( UnitName( "target" ))
 			end;
 			get = function( info ) return Me.db.global.healthIcons end;
+			hidden = true;
 		};
 		
 		healthGroup = {
@@ -532,7 +529,7 @@ Me.configOptionsCharges = {
 						Me.BumpSerial( Me.db.char, "statusSerial" )
 						Me.Inspect_ShareStatusWithParty() 
 					end;
-					get   = function( info ) return Me.db.profile.healthMax end;
+					get   = function( info ) return Me.db.profile.manaMax end;
 				};
 				
 				manaType = {
@@ -1043,150 +1040,6 @@ Me.configOptionsManager = {
 	};
 }
 
-Me.configOptionsUF = {
-	type  = "group";
-	order = 1;
-	args = { 
-		-----------------------------------------------------------------------
-		header = {
-			order = 0;
-			name  = "Configure the Unit Frames settings.";
-			type  = "description";
-		};
-		
-		enable = {
-			order = 1;
-			name  = "Enable Unit Frames";
-			desc  = "Toggle display of the unit frames.";
-			type  = "toggle";
-			set   = function( info, val ) 
-				if IsAddOnLoaded("DiceMaster_UnitFrames") then
-					if val then
-						Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Unit Frames enabled.", "SYSTEM")
-					else
-						Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Unit Frames disabled.", "SYSTEM")
-					end
-					Me.ShowUnitPanel( val )
-				else
-					Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t DiceMaster Unit Frames module not found. Enable the module from your AddOns list.", "SYSTEM")
-				end
-			end;
-			get   = function( info ) return not Me.db.char.unitframes.enable end;
-		};
- 
-		uiScale = {
-			order     = 5;
-			name      = "UI Scale";
-			desc      = "The size of the Unit Frames panel.";
-			type      = "range";
-			min       = 0.25;
-			max       = 10;
-			softMax   = 4;
-			isPercent = true;
-			set = function( info, val ) 
-				Me.db.char.unitframes.scale = val;
-				if IsAddOnLoaded("DiceMaster_UnitFrames") then
-					Me.ApplyUiScaleUF()
-				end
-			end;
-			get = function( info ) return Me.db.char.unitframes.scale end;
-		};
-		
-		miniFrames = {
-			order = 10;
-			name  = "Use Smaller Frames by Default";
-			desc  = "Unit Frames appear smaller by default unless manually expanded.";
-			type  = "toggle";
-			width = "full";
-			set = function( info, val )
-				Me.db.global.miniFrames = val
-				if IsAddOnLoaded("DiceMaster_UnitFrames") then
-					Me.ApplyUiScaleUF()
-				end
-			end;
-			get = function( info ) return Me.db.global.miniFrames end;
-		};
-		
-		talkingHeads = {
-			order = 15;
-			name  = "Enable Talking Heads";
-			desc  = "Allow the party leader to send dynamic Talking Head messages to you.";
-			type  = "toggle";
-			width = "full";
-			set = function( info, val )
-				Me.db.global.talkingHeads = val
-			end;
-			get = function( info ) return Me.db.global.talkingHeads end;
-		};
-		
-		dungeonMasterGroup = {
-			name     = "Dungeon Master Settings";
-			inline   = true;
-			order    = 30;
-			type     = "group";
-			args = {
-				header = {
-					order = 0;
-					name  = "These settings only take effect when you are the leader of your party or raid.";
-					type  = "description";
-				};
-				
-				allowAssistantTalkingHeads = {
-					order = 10;
-					name  = "Allow Raid Assistants to Send Talking Heads";
-					desc  = "Toggle whether raid assistants are allowed to send Talking Heads.";
-					width = "full";
-					type  = "toggle";
-					set = function( info, val ) 
-						Me.db.global.allowAssistantTalkingHeads = val
-						if Me.IsLeader( false ) then
-							for i = 1, #DiceMasterUnitsPanel.unitframes do
-								DiceMasterUnitsPanel.unitframes[i].allowRaidAssistant = val
-							end
-							Me.UpdateUnitFrames()
-						end
-					end;
-					get = function( info ) return Me.db.global.allowAssistantTalkingHeads end;
-				};
-				
-				allowBuffs = {
-					order = 20;
-					name  = "Allow Players to Buff Unit Frames";
-					desc  = "Toggle whether players can apply buffs to Unit Frames.";
-					width = "full";
-					type  = "toggle";
-					set = function( info, val ) 
-						Me.db.global.allowBuffs = val
-						if Me.IsLeader( false ) then
-							for i = 1, #DiceMasterUnitsPanel.unitframes do
-								DiceMasterUnitsPanel.unitframes[i].allowBuffs = val
-							end
-						end
-					end;
-					get = function( info ) return Me.db.global.allowBuffs end;
-				};
-				
-				bloodEffects = {
-					order = 30;
-					name  = "Enable Blood Effects on Unit Frames";
-					desc  = "Toggle whether Unit Frames display blood spray effects when they lose health.";
-					width = "full";
-					type  = "toggle";
-					set = function( info, val ) 
-						Me.db.global.bloodEffects = val
-						if Me.IsLeader( false ) then
-							for i = 1, #DiceMasterUnitsPanel.unitframes do
-								DiceMasterUnitsPanel.unitframes[i].bloodEnabled = val
-							end
-						end
-					end;
-					get = function( info ) return Me.db.global.bloodEffects end;
-				};
-			};
-		};
-	};
-}
-
 -------------------------------------------------------------------------------
 function Me.SetupDB()
 	
@@ -1202,7 +1055,6 @@ function Me.SetupDB()
 	local charges = Me.configOptionsCharges
 	local progressbar = Me.configOptionsProgressBar
 	local dmmanager = Me.configOptionsManager
-	local unitframes = Me.configOptionsUF
 	local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable( Me.db )
 	profiles.order = 500
 	 
@@ -1210,14 +1062,12 @@ function Me.SetupDB()
 	AceConfig:RegisterOptionsTable( "Health/Resource Bars", charges )	
 	AceConfig:RegisterOptionsTable( "Progress Bar", progressbar )	
 	AceConfig:RegisterOptionsTable( "Dungeon Manager", dmmanager )	
-	AceConfig:RegisterOptionsTable( "Unit Frames", unitframes )	
 	AceConfig:RegisterOptionsTable( "DiceMaster Profiles", profiles )
 	
 	Me.config = AceConfigDialog:AddToBlizOptions( "DiceMaster", "DiceMaster" )
 	Me.configCharges = AceConfigDialog:AddToBlizOptions( "Health/Resource Bars", "Health/Resource Bars", "DiceMaster" )
 	Me.configProgressBar = AceConfigDialog:AddToBlizOptions( "Progress Bar", "Progress Bar", "DiceMaster" )
 	Me.configManager = AceConfigDialog:AddToBlizOptions( "Dungeon Manager", "Dungeon Manager", "DiceMaster" )
-	Me.configUnitFrames = AceConfigDialog:AddToBlizOptions( "Unit Frames", "Unit Frames", "DiceMaster" )
 	Me.configProfiles = AceConfigDialog:AddToBlizOptions( "DiceMaster Profiles", "Profiles", "DiceMaster" )
 	
 	local function CreateLogo( frame )
@@ -1233,7 +1083,6 @@ function Me.SetupDB()
 	CreateLogo( Me.configCharges )
 	CreateLogo( Me.configProgressBar )
 	CreateLogo( Me.configManager )
-	CreateLogo( Me.configUnitFrames )
 	CreateLogo( Me.configProfiles )
 end
 

@@ -31,7 +31,7 @@ function Me.SetDiceEditor_Refresh( effectIndex )
 	if not setdice then
 		setdice = {
 			value = "D20";
-			stat = "";
+			skill = "";
 			blank = true,
 		}
 		if not Me.setdiceeditor.parent then
@@ -39,7 +39,7 @@ function Me.SetDiceEditor_Refresh( effectIndex )
 		end
 	end
 	Me.setdiceeditor.diceValue:SetText( setdice.value )
-	Me.setdiceeditor.statName:SetText( setdice.stat )
+	Me.setdiceeditor.skillName:SetText( setdice.skill )
 end
 
 function Me.SetDiceEditor_Save()
@@ -52,13 +52,13 @@ function Me.SetDiceEditor_Save()
 		setdice = {
 			type = "setdice";
 			value = Me.setdiceeditor.diceValue:GetText();
-			stat = Me.setdiceeditor.statName:GetText();
+			skill = Me.setdiceeditor.skillName:GetText();
 			blank = false,
 		}
 	else
 		setdice = {
 			value = Me.setdiceeditor.diceValue:GetText();
-			stat = Me.setdiceeditor.statName:GetText();
+			skill = Me.setdiceeditor.skillName:GetText();
 			blank = false,
 		}
 	end
@@ -86,7 +86,7 @@ function Me.SetDiceEditor_SaveEdits()
 	local setdice = {
 		type = "setdice";
 		value = Me.setdiceeditor.diceValue:GetText();
-		stat = Me.setdiceeditor.statName:GetText();
+		skill = Me.setdiceeditor.skillName:GetText();
 		blank = false,
 	}
 	

@@ -130,13 +130,6 @@
       <OnLoad>
 		DiceMaster4.PostTracker_OnLoad( self )
 		self.Title = "Typing Tracker"
-		self:SetClampedToScreen( true )
-		self:SetMovable(true)
-		self:EnableMouse(false)
-		self:RegisterForDrag( "LeftButton" )
-		self:SetScript( "OnDragStart", self.StartMoving )
-		self:SetScript( "OnDragStop", self.StopMovingOrSizing )
-		self:SetUserPlaced( true )
 		tinsert(DiceMaster4.EditModeFrames, self);
 	  </OnLoad>
 	  <OnUpdate>

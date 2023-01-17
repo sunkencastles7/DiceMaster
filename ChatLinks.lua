@@ -59,7 +59,7 @@ local function CheckTooltipForTerms( text )
 			local matchFound = string.match( text, v[i].subName )
 			if matchFound then
 				local desc = gsub( v[i].desc, "Roll", "An attempt" )
-				local termsString = Me.FormatIconForText( v[i].iconID ) .. " |cFFFFFFFF" .. v[i].name .. "|r|n|cFFffd100" .. desc .. "|r|n|cFF707070(Modified by " .. v[i].stat .. " + " .. v[i].name .. ")|r"
+				local termsString = Me.FormatIconForText( v[i].iconID ) .. " |cFFFFFFFF" .. v[i].name .. "|r|n|cFFffd100" .. desc .. "|r|n|cFF707070(Modified by " .. v[i].skill .. " + " .. v[i].name .. ")|r"
 				
 				if not tContains( termsTable, termsString ) then
 					tinsert( termsTable, termsString )
@@ -146,10 +146,10 @@ local function ChatFilter( self, event, msg, sender, ... )
 		Me.Inspect_UpdatePlayer( sender_short )
 	end
 
-	clean = string.gsub(clean, "%[DiceMaster4Roll:(.-)%]", function( statistic )
+	clean = string.gsub(clean, "%[DiceMaster4Roll:(.-)%]", function( skill )
 
 		-- convert into chat link
-		return "|cffffd100|HDiceMaster4Roll:"..statistic.."|h[|TInterface/AddOns/DiceMaster/Texture/logo:12|t Roll " .. statistic .. "]|h|r";
+		return "|cffffd100|HDiceMaster4Roll:"..skill.."|h[|TInterface/AddOns/DiceMaster/Texture/logo:12|t Roll " .. skill .. "]|h|r";
 	end);
 	
 	clean = string.gsub(clean, "%[DiceMaster4Icon:(.-)%]", function( path )
@@ -477,34 +477,18 @@ function ItemRefTooltip:SetHyperlink(link)
 		if not msg then return end
 		
 		local dice = DiceMasterPanelDice:GetText()
-		local rollType = nil
-		local stat = nil
-		local modifier = 0;
-		
-		for k, v in pairs( Me.RollList ) do
-			for i = 1, #v do
-				if v[i].name:lower() == msg:lower() then
-					rollType = v[i].name
-					stat = v[i].stat
+		for i = 1,#Profile.skills do
+			if Profile.skills[i].name == msg and not( Profile.skills[i].type == "header" ) then
+				local modifiers = Me.GetModifiersFromSkillGUID( Profile.skills[i].guid, true )
+				dice = Me.FormatDiceString( dice, modifiers ) or "D20"
+				Me.Roll( dice, Profile.skills[i].name )
+				if not( DiceMasterPanel.ModelScene:IsShown() ) then
+					DiceMasterPanel.ModelScene:Show();
 				end
+				PlaySound(36625);
+				break
 			end
 		end
-		
-		if rollType and stat then
-			for i = 1,#Profile.stats do
-				if Profile.stats[i] and ( Profile.stats[i].name == stat or Profile.stats[i].name == rollType ) then
-					modifier = modifier + Profile.stats[i].value
-				end
-			end
-			for i = 1, #Profile.buffsActive do
-				if Profile.buffsActive[i].statistic == rollType then
-					modifier = modifier + Profile.buffsActive[i].statAmount
-				end
-			end
-			msg = Me.FormatDiceString( dice, modifier ) or "D20"
-		end
-		
-		Me.Roll( msg, rollType )
 	elseif strsub(link, 1, 15) == "DiceMaster4Pin:" then
 		local linkType, msg = strsplit( ":", link )
 		pinIndex = tonumber( msg ) or nil

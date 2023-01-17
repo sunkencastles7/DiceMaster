@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
@@ -172,7 +172,7 @@ end
 function Me.BuffButton_OnUpdate(self)
 	local index = self:GetID();
 	if ( self.timeLeft < BUFF_WARNING_TIME ) then
-		self:SetAlpha(BuffFrame.BuffAlphaValue);
+		self:SetAlpha(1.0);
 	else
 		self:SetAlpha(1.0);
 	end
@@ -186,7 +186,7 @@ function Me.BuffButton_OnUpdate(self)
 	
 	if timeLeft < 0 then
 		tremove( Profile.buffsActive, self:GetID() )
-		Me.TraitEditor_StatsFrame_UpdateStats()
+		Me.SkillFrame_UpdateSkills()
 		Me.BuffFrame_Update()
 		Me.BumpSerial( Me.db.char, "statusSerial" )
 		Me.Inspect_ShareStatusWithParty()
@@ -210,7 +210,6 @@ function Me.BuffButton_OnUpdate(self)
 		self:GetScript("OnEnter")( self )
 	end
 end
-
 
 function Me.BuffButton_UpdateDuration( button, timeLeft )
 	local duration = button.duration;
@@ -238,7 +237,7 @@ function Me.BuffButton_OnClick(self)
 	else
 		Profile.buffsActive[self:GetID()].count = Profile.buffsActive[self:GetID()].count - 1
 	end
-	Me.TraitEditor_StatsFrame_UpdateStats()
+	Me.SkillFrame_UpdateSkills()
 	Me.BuffFrame_Update()
 	Me.BumpSerial( Me.db.char, "statusSerial" )
 	Me.Inspect_ShareStatusWithParty()
@@ -317,8 +316,8 @@ function Me.BuffFrame_CastBuff( data )
 		local name = tostring( buff.name )
 		local icon = tostring( buff.icon )
 		local desc = tostring( buff.desc )
-		local stat = tostring( buff.stat )
-		local statAmount = tonumber( buff.statAmount )
+		local skill = tostring( buff.skill )
+		local skillRank = tonumber( buff.skillRank )
 		local duration = 0;
 		local turns = 0;
 		if buff.duration and buff.duration > 0 then
@@ -341,37 +340,12 @@ function Me.BuffFrame_CastBuff( data )
 		
 		if name == "" or icon == "" or desc == "" then return end
 		
-		if Me.UnitFrameTargeted and not Me.db.char.unitframes.enable and not buff.target then
-			-- We're targeting a Unit Frame.
-			target = tonumber( Me.UnitFrameTargeted )
-			
-			local msg = Me:Serialize( "UFBUFF", {
-				un = target;
-				na = name;
-				ic = icon;
-				de = desc;
-				st = stackable;
-				co = 1;
-				du = duration;
-				tu = turns;
-			})
-
-			for i=1, MAX_RAID_MEMBERS do
-				local name, rank = GetRaidRosterInfo(i)
-				if name and UnitIsGroupLeader( name ) then
-					Me:SendCommMessage( "DCM4", msg, "WHISPER", name, "NORMAL" )
-					break
-				end
-			end
-			return
-		end
-		
 		local msg = Me:Serialize( "BUFF", {
 			na = name;
 			ic = icon;
 			de = desc;
-			at = stat;
-			am = statAmount;
+			at = skill;
+			am = skillRank;
 			st = stackable;
 			co = 1;
 			du = duration;
@@ -401,26 +375,6 @@ function Me.BuffFrame_RemoveBuff( data )
 		local target = UnitName("target") or UnitName("player")
 		
 		if name == "" then return end
-		
-		if Me.UnitFrameTargeted and not Me.db.char.unitframes.enable then
-			-- We're targeting a Unit Frame.
-			target = tonumber( Me.UnitFrameTargeted )
-			
-			local msg = Me:Serialize( "UFREMOVE", {
-				un = target;
-				na = name;
-				co = count;
-			})
-
-			for i=1, MAX_RAID_MEMBERS do
-				local name, rank = GetRaidRosterInfo(i)
-				if name and UnitIsGroupLeader( name ) then
-					Me:SendCommMessage( "DCM4", msg, "WHISPER", name, "NORMAL" )
-					break
-				end
-			end
-			return
-		end
 		
 		local msg = Me:Serialize( "REMOVE", {
 			na = name;
@@ -459,17 +413,17 @@ function Me.BuffFrame_RollDice( data )
 	
 	local modifier = 0
 	
-	if setdice.stat then
-		for i = 1,#Profile.stats do
-			if Profile.stats[i].name == setdice.stat then
-				modifier = Profile.stats[i].value
+	if setdice.skill then
+		for i = 1,#Profile.skills do
+			if Profile.skills[i].name == setdice.skill then
+				modifier = Profile.skills[i].rank
 				break
 			end
 		end
 		
 		for i = 1,#Profile.buffsActive do
-			if Profile.buffsActive[i].statistic and Profile.buffsActive[i].statistic == setdice.stat then
-				modifier = modifier + ( Profile.buffsActive[i].statAmount * Profile.buffsActive[i].count );
+			if Profile.buffsActive[i].skill and Profile.buffsActive[i].skill == setdice.skill then
+				modifier = modifier + ( Profile.buffsActive[i].skillRank * Profile.buffsActive[i].count );
 			end
 		end
 	end
@@ -485,8 +439,8 @@ end
 --  na = name							string
 --	ic = icon							string
 -- 	de = description					string
---  at = statistic						string
---  am = statistic amount				number
+--  at = skill							string
+--  am = skill rank						number
 --  st = stackable						boolean
 --  co = count							number
 --  du = duration						number
@@ -538,12 +492,12 @@ function Me.BuffFrame_OnBuffMessage( data, dist, sender )
 			buff.turns = tonumber(data.tu)
 		end
 		if data.at and data.am then
-			buff.statistic = tostring(data.at)
-			buff.statAmount = tonumber(data.am)
+			buff.skill = tostring(data.at)
+			buff.skillRank = tonumber(data.am)
 		end
 		tinsert( Profile.buffsActive, buff )
 	end
-	Me.TraitEditor_StatsFrame_UpdateStats()
+	Me.SkillFrame_UpdateSkills()
 	Me.BumpSerial( Me.db.char, "statusSerial" )
 	Me.BuffFrame_Update()
 	Me.Inspect_ShareStatusWithParty()
@@ -577,7 +531,7 @@ function Me.BuffFrame_OnRemoveBuffMessage( data, dist, sender )
 			end
 		end		
 	end
-	Me.TraitEditor_StatsFrame_UpdateStats()
+	Me.SkillFrame_UpdateSkills()
 	Me.BumpSerial( Me.db.char, "statusSerial" )
 	Me.BuffFrame_Update()
 	Me.Inspect_ShareStatusWithParty()

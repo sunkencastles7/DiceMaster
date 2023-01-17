@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
@@ -103,6 +103,7 @@ end
 function Me.PostTracker_OnLoad( self )
 	for i = 1, NUM_CHAT_WINDOWS do
 		local frame = _G["ChatFrame" .. i .. "EditBox"]
+		frame:HookScript("OnChar", Me.PostTracker_Typing)
 		frame:HookScript("OnTextChanged", Me.PostTracker_Typing)
 		frame:HookScript("OnEditFocusLost", Me.PostTracker_Typing)
 	end
@@ -142,7 +143,7 @@ end
 
 function Me.PostTracker_OnTyping( data, dist, sender )	
 	-- Ignore our own data.
-	if sender == UnitName( "player" )  then return end
+	--if sender == UnitName( "player" )  then return end
  
 	-- sanitize message
 	if not data.na or not Me.db.global.hideTypeTracker then

@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
@@ -35,7 +35,8 @@ function SlashCmdList.DICE( msg, editBox )
 	end
 	
 	local skill = nil
-	local modifier = Me.GetModifierFromStatistic( msg:lower() )
+	local modifier = Me.GetModifierFrom
+	istic( msg:lower() )
 	dice = Me.FormatDiceString( dice, modifier )
 	
 	local rollType
@@ -90,20 +91,6 @@ function SlashCmdList.DICEMASTER(msg, editbox)
 			Me.db.global.hideTracker = true
 			DiceMasterRollFrame:Show()
 		end
-	elseif command == "unitframes" then
-		
-		if not IsAddOnLoaded("DiceMaster_UnitFrames") then
-			Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t DiceMaster Unit Frames module not found. Enable the module from your AddOns list.", "SYSTEM")
-			return
-		end
-		
-		if rest:lower() == "show" then
-			Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Unit Frames enabled.", "SYSTEM")
-			Me.ShowUnitPanel( true )
-		elseif rest:lower() == "hide" then
-			Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t Unit Frames disabled.", "SYSTEM")
-			Me.ShowUnitPanel( false )
-		end
 	elseif command == "range" then
 	
 		rest = tonumber(rest) or 20;
@@ -117,7 +104,7 @@ function SlashCmdList.DICEMASTER(msg, editbox)
 	elseif command == "whatsnew" then
 		DiceMasterSplashFrame:Show();
 	elseif command == "changelog" then
-		DiceMasterSplashFrame:Show();
+		DiceMasterChangeLog:Show()
 	else
 		Me.PrintMessage("- /dicemaster config", "SYSTEM");
 		Me.PrintMessage("- /dicemaster whatsnew", "SYSTEM");
@@ -126,9 +113,6 @@ function SlashCmdList.DICEMASTER(msg, editbox)
 		Me.PrintMessage("- /dicemaster showraidrolls (true || false)", "SYSTEM");
 		Me.PrintMessage("- /dicemaster manager (show || hide)", "SYSTEM");
 		Me.PrintMessage("- /dicemaster range (number)", "SYSTEM");
-		if IsAddOnLoaded("DiceMaster_UnitFrames") then
-			Me.PrintMessage("- /dicemaster unitframes (show || hide)", "SYSTEM");
-		end
 	end
 end
 

@@ -1492,9 +1492,9 @@ function Me.SkillFrame_IncreaseButton_OnClick( self, button )
 	local skillName, skillIcon, skillDescription, skillType, skillRank, skillMaxRank, skillAuthor, skillGUID, skillModifiers, skillShowOnMenu, skillCanEdit = GetSkillLineInfo(skillIndex)
 	if skillAuthor == UnitName("player") or skillCanEdit then
 		if skillMaxRank > 0 then
-			Me.Profile.skills[skillPosition].rank = Me.Clamp( Me.Profile.skills[skillPosition].rank + 1, 0, Me.Profile.skills[skillPosition].maxRank )
+			Me.Profile.skills[skillPosition].rank = Me.Clamp( Me.Profile.skills[skillPosition].rank + 1, -1 * Me.Profile.skills[skillPosition].maxRank, Me.Profile.skills[skillPosition].maxRank )
 		else
-			Me.Profile.skills[skillPosition].rank = Me.Clamp( Me.Profile.skills[skillPosition].rank + 1, 0, 9999 )
+			Me.Profile.skills[skillPosition].rank = Me.Clamp( Me.Profile.skills[skillPosition].rank + 1, -9999, 9999 )
 		end
 	else
 		UIErrorsFrame:AddMessage( "You can't do that.", 1.0, 0.0, 0.0 );
@@ -1512,9 +1512,9 @@ function Me.SkillFrame_DecreaseButton_OnClick( self, button )
 	local skillName, skillIcon, skillDescription, skillType, skillRank, skillMaxRank, skillAuthor, skillGUID, skillModifiers, skillShowOnMenu, skillCanEdit = GetSkillLineInfo(skillIndex)
 	if skillAuthor == UnitName("player") or skillCanEdit then
 		if skillMaxRank > 0 then
-			Me.Profile.skills[skillPosition].rank = Me.Clamp( Me.Profile.skills[skillPosition].rank - 1, 0, Me.Profile.skills[skillPosition].maxRank )
+			Me.Profile.skills[skillPosition].rank = Me.Clamp( Me.Profile.skills[skillPosition].rank - 1, -1 * Me.Profile.skills[skillPosition].maxRank, Me.Profile.skills[skillPosition].maxRank )
 		else
-			Me.Profile.skills[skillPosition].rank = Me.Clamp( Me.Profile.skills[skillPosition].rank - 1, 0, 9999 )
+			Me.Profile.skills[skillPosition].rank = Me.Clamp( Me.Profile.skills[skillPosition].rank - 1, -9999, 9999 )
 		end
 	else
 		UIErrorsFrame:AddMessage( "You can't do that.", 1.0, 0.0, 0.0 );
@@ -1542,8 +1542,8 @@ function Me.SkillFrame_RollButton_OnClick( self, button )
 
 	local skill = Profile.skills[skillPosition];
 	local dice = DiceMasterPanelDice:GetText();
-	local modifier = Me.GetModifiersFromSkillGUID( skill.guid );
-	dice = Me.FormatDiceString( dice, modifier ) or "D20";
+	local modifiers = Me.GetModifiersFromSkillGUID( skill.guid, true );
+	dice = Me.FormatDiceString( dice, modifiers ) or "D20";
 	
 	Me.Roll( dice, skill.name );
 	if not( DiceMasterPanel.ModelScene:IsShown() ) then
@@ -1564,6 +1564,7 @@ function Me.SkillFrame_BuildFilteredList()
 end
 
 function Me.SkillFrame_CreateDefaults()
+	Profile.skills = {};
 	local skill = {
 		name = "Attributes";
 		type = "header";
@@ -1624,17 +1625,31 @@ local function Placer_OnUpdate(self)
 	self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", cursorX / uiScale, cursorY / uiScale);
 end
 
+function Me.SkillFrame_SelectIcon( texture )
+	if not( DiceMasterSkillFrame.statusBarClickedPosition ) then
+		return
+	end
+
+	local skill = Profile.skills[DiceMasterSkillFrame.statusBarClickedPosition];
+	skill.icon = texture or "Interface/Icons/inv_misc_questionmark"
+	DiceMasterSkillDetailSkillIconButton:SetTexture( texture )
+	Me.SkillFrame_UpdateSkills();
+end
+
 function Me.SkillFrame_DragStart( button, buttonType )
 	local cursorX, cursorY = GetCursorPosition();
 	local uiScale = UIParent:GetScale();
 	-- button:ClearAllPoints();
 	DiceMasterSkillLabelPlacer:SetPoint("TOP", UIParent, "BOTTOMLEFT", cursorX / uiScale, cursorY / uiScale);
+	DiceMasterSkillLabelPlacer.skillStatusBar.icon:SetTexture( button:GetParent().icon:GetTexture() )
 	DiceMasterSkillLabelPlacer.skillStatusBar.skillName:SetText( button:GetParent().skillName:GetText() )
 	DiceMasterSkillLabelPlacer.skillStatusBar.skillName:ClearAllPoints();
 	DiceMasterSkillLabelPlacer.skillStatusBar.skillName:SetPoint("LEFT", DiceMasterSkillLabelPlacer.skillStatusBar, "LEFT", 6, 1);
 	DiceMasterSkillLabelPlacer.skillStatusBar.skillRank:SetText( button:GetParent().skillRank:GetText() )
+	DiceMasterSkillLabelPlacer.skillStatusBar.fillBar:Hide();
 	DiceMasterSkillLabelPlacer.skillStatusBar:SetStatusBarColor(0.5, 0.5, 0.5);
 	DiceMasterSkillLabelPlacerBackground:SetVertexColor(0.5, 0.5, 0.5, 0.5);
+	DiceMasterSkillLabelPlacerBackground:Show();
 	DiceMasterSkillLabelPlacer.skillStatusBar:SetMinMaxValues( button:GetParent():GetMinMaxValues() )
 	DiceMasterSkillLabelPlacer.skillStatusBar:SetValue( button:GetParent():GetValue() )
 	DiceMasterSkillLabelPlacer.skillPosition = button:GetParent().skillPosition;
@@ -1742,6 +1757,7 @@ end
 function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 	-- Get info
 	local skillName, skillIcon, skillDescription, skillType, skillRank, skillMaxRank, skillAuthor, skillGUID, skillModifiers, skillShowOnMenu, skillCanEdit = GetSkillLineInfo(skillIndex);
+	local skillRankStart = skillRank;
 
 	-- Skill bar objects
 	local statusBar = _G["DiceMasterSkillRankFrame"..statusBarID];
@@ -1828,7 +1844,7 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 	end
 	
 	statusBarName:SetText(skillName);
-	statusBar:SetStatusBarColor(0.0, 0.0, 1.0, 0.5);
+	statusBar:SetStatusBarColor(0.0, 0.0, 0.5);
 	statusBarBackground:SetVertexColor(0.0, 0.0, 0.75, 0.5);
 
 	if ( skillMaxRank == 0 ) then
@@ -1836,9 +1852,12 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 		statusBar:SetMinMaxValues(0, 1);
 		statusBar:SetValue(1);
 		statusBar:SetStatusBarColor(0.5, 0.5, 0.5);
+		if tonumber( skillRank ) < 0 then
+			skillRank = RED_FONT_COLOR_CODE .. skillRank .. FONT_COLOR_CODE_CLOSE;
+		end
 		if ( Me.GetModifiersFromSkillGUID( skillGUID ) ~= 0 ) then
 			local modifiers = Me.GetModifiersFromSkillGUID( skillGUID );
-			local color = RED_FONT_COLOR_CODE.."-";
+			local color = RED_FONT_COLOR_CODE;
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
 			end
@@ -1850,18 +1869,21 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 		statusBarBackground:SetVertexColor(1.0, 1.0, 1.0, 0.5);
 	elseif ( skillMaxRank > 0 ) then
 		statusBar:SetMinMaxValues(0, skillMaxRank);
-		statusBar:SetValue(skillRank);
+		statusBar:SetValue(skillRankStart);
+		if tonumber( skillRank ) < 0 then
+			skillRank = RED_FONT_COLOR_CODE .. skillRank .. FONT_COLOR_CODE_CLOSE;
+		end
 		if ( Me.GetModifiersFromSkillGUID( skillGUID ) == 0 ) then
 			statusBarSkillRank:SetText(skillRank.."/"..skillMaxRank);
 			statusBarFillBar:Hide();
 		else
 			local modifiers = Me.GetModifiersFromSkillGUID( skillGUID );
-			local color = RED_FONT_COLOR_CODE.."-";
+			local color = RED_FONT_COLOR_CODE;
 			statusBarFillBar:Hide();
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
-				local fillBarWidth = (modifiers / skillMaxRank) * statusBar:GetWidth();
-				statusBarFillBar:SetPoint("TOPRIGHT", "DiceMasterSkillDetailStatusBar", "TOPLEFT", fillBarWidth, 0);
+				statusBarFillBar:SetMinMaxValues(0, skillMaxRank);
+				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
 			statusBarSkillRank:SetText(skillRank.." ("..color..modifiers..FONT_COLOR_CODE_CLOSE..")/"..skillMaxRank);
@@ -1878,13 +1900,14 @@ function Me.SkillDetailFrame_SetStatusBar( skillIndex )
 	
 	-- Get info
 	local skillName, skillIcon, skillDescription, skillType, skillRank, skillMaxRank, skillAuthor, skillGUID, skillModifiers, skillShowOnMenu, skillCanEdit = GetSkillLineInfoByPosition(skillPosition);
+	local skillRankStart = skillRank;
 
 	-- Skill bar objects
 	local statusBar = _G["DiceMasterSkillDetailStatusBar"];
 	local statusBarBackground = _G["DiceMasterSkillDetailStatusBarBackground"];
 	local statusBarSkillRank = _G["DiceMasterSkillDetailStatusBarSkillRank"];
 	local statusBarName = _G["DiceMasterSkillDetailStatusBarSkillName"];
-	local statusBarIcon = _G["DiceMasterSkillDetailStatusBarSkillIcon"];
+	local statusBarIcon = _G["DiceMasterSkillDetailSkillIconButton"];
 	local statusBarIncreaseButton = _G["DiceMasterSkillDetailStatusBarIncreaseButton"];
 	local statusBarDecreaseButton = _G["DiceMasterSkillDetailStatusBarDecreaseButton"];
 	local statusBarUnlearnButton = _G["DiceMasterSkillDetailStatusBarUnlearnButton"];
@@ -1937,11 +1960,11 @@ function Me.SkillDetailFrame_SetStatusBar( skillIndex )
 	if skillModifiers and #skillModifiers > 0 then
 		for i = 1, #skillModifiers do 
 			local modifier = Me.GetSkillByGUID( skillModifiers[i] );
-			local color = RED_FONT_COLOR_CODE.."-";
-			if modifier.rank > 0 then
+			local color = RED_FONT_COLOR_CODE;
+			if tonumber( modifier.rank ) > 0 then
 				color = GREEN_FONT_COLOR_CODE.."+"
 			end
-			if modifier.rank ~= 0 then
+			if tonumber( modifier.rank ) ~= 0 then
 				-- Add an extra line if it's the first skill
 				if i == 1 then
 					if not( skillDescription ) then
@@ -1970,7 +1993,7 @@ function Me.SkillDetailFrame_SetStatusBar( skillIndex )
 
 	-- Normal skill
 	statusBarName:SetText(skillName);
-	statusBar:SetStatusBarColor(0.0, 0.0, 1.0, 0.5);
+	statusBar:SetStatusBarColor(0.0, 0.0, 0.5);
 	statusBarBackground:SetVertexColor(0.0, 0.0, 0.75, 0.5);
 
 	DiceMasterSkillDetailCostText:Hide();
@@ -1986,9 +2009,12 @@ function Me.SkillDetailFrame_SetStatusBar( skillIndex )
 		statusBar:SetMinMaxValues(0, 1);
 		statusBar:SetValue(1);
 		statusBar:SetStatusBarColor(0.5, 0.5, 0.5);
+		if tonumber( skillRank ) < 0 then
+			skillRank = RED_FONT_COLOR_CODE .. skillRank .. FONT_COLOR_CODE_CLOSE;
+		end
 		if ( Me.GetModifiersFromSkillGUID( skillGUID ) ~= 0 ) then
 			local modifiers = Me.GetModifiersFromSkillGUID( skillGUID );
-			local color = RED_FONT_COLOR_CODE.."-";
+			local color = RED_FONT_COLOR_CODE;
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
 			end
@@ -2001,16 +2027,19 @@ function Me.SkillDetailFrame_SetStatusBar( skillIndex )
 	elseif ( skillMaxRank > 0 ) then
 		statusBar:SetMinMaxValues(0, skillMaxRank);
 		statusBar:SetValue(skillRank);
+		if tonumber( skillRank ) < 0 then
+			skillRank = RED_FONT_COLOR_CODE .. skillRank .. FONT_COLOR_CODE_CLOSE;
+		end
 		if ( Me.GetModifiersFromSkillGUID( skillGUID ) == 0 ) then
 			statusBarSkillRank:SetText(skillRank.."/"..skillMaxRank);
 			statusBarFillBar:Hide();
 		else
 			local modifiers = Me.GetModifiersFromSkillGUID( skillGUID );
-			local color = RED_FONT_COLOR_CODE.."-";
+			local color = RED_FONT_COLOR_CODE;
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
-				local fillBarWidth = (modifiers / skillMaxRank) * statusBar:GetWidth();
-				statusBarFillBar:SetPoint("TOPRIGHT", "DiceMasterSkillDetailStatusBar", "TOPLEFT", fillBarWidth, 0);
+				statusBarFillBar:SetMinMaxValues(0, skillMaxRank);
+				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
 			statusBarSkillRank:SetText(skillRank.." ("..color..modifiers..FONT_COLOR_CODE_CLOSE..")/"..skillMaxRank);

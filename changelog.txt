@@ -1,5 +1,34 @@
-### 5.1.7
+### 5.1.8
+- Dragonflight support.
+- Updated to 10.0.
+- Added Dragonflight icons. 
+- Added Dragonflight models to the Model Picker.
+- Added a new Splash Frame that displays once upon updating to a new version of the addon to showcase latest features. 
+- Added a /dicemaster changelog command to view a full list of changes in the most recent update.
+- Added '/dm' as a valid alias for console commands. 
+- UI frames will now lock/unlock seamlessly with Edit Mode.
+- Fixed an issue where re-enabling the addon resets frame positions on the UI. 
+- Upgraded the Dice Panel with a new look for 10.0. The Panel is now condensed into a single button with an expanded radial menu of rolling options pulled from your list of custom skills.
+- Updated the config menu with new options and restructured to improve readability.
+- Renamed 'DM Manager' to 'Dungeon Manager.' 
+- Revamped Statistics tab. Statistics are now called Skills and have been expanded to support a custom icon and description. Skills can also now inherit the values of several other skills (up for one).
+- Revamped Pet tab. Pets can now be further customised with new options including diet, a hunger system that relies on DiceMaster items for food, hygiene, and other interactive features.
+- Renamed 'Charges' to 'Resource'. 
+- Changed the Trait Editor title text to 'Traits' instead of the player's MSP roleplay name.
+- Deleted extraneous libraries.
+- Updated the Inventory tab with sleeker new buttons.
+- Fixed an issue where edited items had their quality reset to Common upon commit.
+- Added a new custom item action: Learn Skill. Custom items with this action can be used to learn a new custom-made skill, or further increase your rank in an existing skill.
+- Added a new custom item action: Casting Bar. Custom items with this action can be used to display a custom casting bar with additional features.
+- Added a new custom item action: Extra Button. Custom items with this action can be used to enable a custom extra button on your UI with additional features.
+- Emojis are now available with auto-complete integrated into the native chat frame. You can disable the auto-complete feature in the config menu.
+- Added a new button on the chat frame for the Typing Tracker, allowing players to manually toggle on/off their typing status.
+- Added an optional mana bar to the Player Frame, allowing players to track their personal mana pool. Other players can view your mana bar from the Inspect Frame, and group leaders can manually manipulate their party members' mana bars. You can also choose from several skin options in the config menu, including Focus, Rage, Energy, and Runic Power.
+- Resolved an issue where Icon Picker was returning fileID (numeric) instead of file path (string), resulting in untextured green squares for trait icons.
+- Fixed an issue with Book fonts due to new API changes.
+- Fixed an issue where editing an officer-approved trait would sometimes reset the description field (League of Lordaeron only).
 
+### 5.1.7
 - Added a new Skills tab to the Trait Editor, allowing players to create custom skills that represent their proficiency in certain actions.
 - Added a new Bank tab to the Trait Editor, allowing players to store custom items from their inventory. Custom items in the Bank tab are accessible across all character profiles as well!
 - Added a new Inspect button to the Inventory tab, allowing players to mouse over a custom item and view its actions in the tooltip.

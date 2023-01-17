@@ -1,6 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
  
-  <StatusBar name="DiceMasterStatInspectorSkillStatusBarTemplate" hidden="true" virtual="true" drawLayer="BACKGROUND" minValue="0" maxValue="1" defaultValue="0">
+  <StatusBar name="DiceMasterStatInspectorSkillStatusBarTemplate" hidden="true" virtual="true" drawLayer="BORDER" minValue="0" maxValue="1" defaultValue="0">
 		<Size>
 			<AbsDimension x="251" y="15"/>
 		</Size>
@@ -27,14 +27,6 @@
 					</Size>
 				</FontString>
 			</Layer>
-			<Layer level="BORDER">
-				<Texture name="$parentFillBar" parentKey="fillBar">
-					<Size>
-						<AbsDimension x="20" y="15"/>
-					</Size>
-					<Color r="1.0" g="1.0" b="1.0" a="0.5"/>
-				</Texture>
-			</Layer>
 			<Layer level="BACKGROUND">
 				<Texture name="$parentBackground">
 					<Color r="1.0" g="1.0" b="1.0" a="0.2"/>
@@ -42,6 +34,14 @@
 			</Layer>
 		</Layers>
 		<Frames>
+			<StatusBar name="$parentFillBar" parentKey="fillBar" setAllPoints="true" drawLayer="BACKGROUND" useParentLevel="true">
+				<BarTexture name="$parentBar" file="Interface\PaperDollInfoFrame\UI-Character-Skills-Bar">
+					<Anchors>
+						<Anchor point="LEFT" x="20" y="0"/>
+					</Anchors>
+				</BarTexture>
+				<BarColor r="0" g="0.5" b="0"/>
+			</StatusBar>
 			<Button name="$parentBorder" parentKey="skillBorder">
 				<Size>
 					<AbsDimension x="261" y="32"/>
@@ -206,26 +206,13 @@
 	</Scripts>
   </Button>
  
-  <!-- Trait editor frame. -->
+  <!-- Skill Inspect frame. -->
   
   <Frame name="DiceMasterStatInspector" enableMouse="true" movable="true" resizable="false" frameStrata="DIALOG" hidden="true" parent="UIParent" inherits="ButtonFrameTemplate" toplevel="true">
     <Size x="336" y="444"/>
     <Anchors>
       <Anchor point="LEFT" relativeTo="TargetFrame" relativePoint="RIGHT" x="-24" y="0" />
     </Anchors>
-    
-    <Layers>
-      
-	  <Layer level="BACKGROUND" textureSubLevel="-4">
-			<Texture name="$parentBg2" file="Interface/TradeSkillFrame/Tradeskills" parentKey="Bg2">
-				<TexCoords left="0" right="0.294921875" top="0" bottom="0.751953125" />
-				<Anchors>
-					<Anchor point="TOPLEFT" x="4" y="-60" />
-					<Anchor point="BOTTOMRIGHT" x="-6" y="26" />
-				</Anchors>
-			</Texture>
-	  </Layer>
-    </Layers>
     
     <Scripts>
       <OnLoad>
@@ -508,7 +495,7 @@
 							</Layer>
 						</Layers>
 						<Frames>
-							<StatusBar name="DiceMasterStatInspectorSkillDetailStatusBar" drawLayer="BACKGROUND" minValue="0" maxValue="1" defaultValue="0">
+							<StatusBar name="DiceMasterStatInspectorSkillDetailStatusBar" drawLayer="BORDER" minValue="0" maxValue="1" defaultValue="0">
 								<Size>
 									<AbsDimension x="201" y="15"/>
 								</Size>
@@ -554,20 +541,22 @@
 											</Size>
 										</FontString>
 									</Layer>
-									<Layer level="BORDER">
-										<Texture name="$parentFillBar">
-											<Size>
-												<AbsDimension x="0" y="15"/>
-											</Size>
-											<Color r="1.0" g="1.0" b="1.0" a="0.5"/>
-										</Texture>
-									</Layer>
 									<Layer level="BACKGROUND">
 										<Texture name="$parentBackground">
 											<Color r="1.0" g="1.0" b="1.0" a="0.2"/>
 										</Texture>
 									</Layer>
 								</Layers>
+								<Frames>
+									<StatusBar name="$parentFillBar" parentKey="fillBar" setAllPoints="true" drawLayer="BACKGROUND" useParentLevel="true">
+										<BarTexture name="$parentBar" file="Interface\PaperDollInfoFrame\UI-Character-Skills-Bar">
+											<Anchors>
+												<Anchor point="LEFT" x="20" y="0"/>
+											</Anchors>
+										</BarTexture>
+										<BarColor r="0" g="0.5" b="0"/>
+									</StatusBar>
+								</Frames>
 								<BarTexture name="$parentBar" file="Interface\PaperDollInfoFrame\UI-Character-Skills-Bar"/>
 								<BarColor r="0.25" g="0.25" b="0.75"/>
 							</StatusBar>
@@ -912,7 +901,6 @@
 				<OnClick>
 					PanelTemplates_SetTab(DiceMasterStatInspector, 1);
 					DiceMasterStatInspectorInset:Show();
-					DiceMasterStatInspectorBg2:Show();
                     DiceMasterStatInspectorSkillFrame:Show();
 					DiceMasterStatInspectorPetFrame:Hide();
 					PlaySound(841)
@@ -931,7 +919,6 @@
 			<OnClick>
 				PanelTemplates_SetTab(DiceMasterStatInspector, 2);
 				DiceMasterStatInspectorInset:Show();
-				DiceMasterStatInspectorBg2:Show();
 				DiceMasterStatInspectorSkillFrame:Hide();
 				DiceMasterStatInspectorPetFrame:Show();							 
 				PlaySound(841)
@@ -970,7 +957,6 @@
 				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 				PanelTemplates_SetTab(DiceMasterStatInspector, 0);
 				DiceMasterStatInspectorInset:Hide();
-				DiceMasterStatInspectorBg2:Hide();
 				DiceMasterStatInspectorSkillFrame:Hide();
 				DiceMasterStatInspectorPetFrame:Hide();
 				DiceMasterStatInspectorShopFrame:Show();

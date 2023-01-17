@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
@@ -1232,8 +1232,6 @@ function Me.DiceMasterRollDetailFrame_Update()
 	
 	local numGroupMembers = GetNumGroupMembers(1)
 	local found = false;
-	local isUnitFrame = false;
-	local unitFrameData
 	
 	local playerName, rank, subgroup, level, class, fileName, zone, online;
 	if numGroupMembers > 1 then
@@ -1256,26 +1254,6 @@ function Me.DiceMasterRollDetailFrame_Update()
 		frame.PortraitFrame:SetAttribute( "type1", "target" )
 		SetPortraitTexture( frame.PortraitFrame.Portrait, "player" )
 		found = true;
-	elseif not found and not Me.db.char.unitframes.enable then
-		-- Maybe it's a Unit Frame...?
-		-- Here's where things get fun...
-		
-		SetPortraitTexture( frame.PortraitFrame.Portrait, "none" )
-		
-		local unitframes = DiceMasterUnitsPanel.unitframes
-		for i=1,#unitframes do
-			-- Strip the name of markers.
-			local unitName = name:gsub( ".*|t ", "" )
-			if unitName == unitframes[i].name:GetText() then
-				frame.PortraitFrame:SetAttribute( "unit", "none" )
-				frame.PortraitFrame:SetAttribute( "type1", "target" )
-				SetPortraitTextureFromCreatureDisplayID( frame.PortraitFrame.Portrait, unitframes[i]:GetDisplayInfo() )
-				found = true;
-				isUnitFrame = true;
-				unitFrameData = unitframes[i]:GetData()
-				break;
-			end
-		end
 	end
 	
 	if name and UnitIsPlayer( name ) then
@@ -1321,22 +1299,9 @@ function Me.DiceMasterRollDetailFrame_Update()
 			frame.xpBar.rankText:SetText( "XP: 0/100" )
 			frame.xpBar:SetValue( 0 )
 		end
-	elseif isUnitFrame and unitFrameData then
-		frame.PortraitFrame.Level:SetText( nil )
-		frame.xpBar.rankText:SetText( "XP: 0/100" )
-		frame.xpBar:SetValue( 0 )
-		frame.PortraitFrame.Level:Hide()
-		frame.PortraitFrame.LevelBG:Hide()
-		
-		local healthValue, healthMax, armorValue = unitFrameData.healthCurrent, unitFrameData.healthMax, unitFrameData.armor
-		frame.healthFrame.healthValue:SetText( healthValue .. "/" .. healthMax );
-		
-		if armorValue and armorValue > 0 then
-			frame.healthFrame.healthValue:SetText( healthValue.." (+"..armorValue..")/"..healthMax )
-		end
 	end
 	
-	if not online and numGroupMembers > 1 and not isUnitFrame then
+	if not online and numGroupMembers > 1 then
 		SetDesaturation( frame.PortraitFrame.Portrait, true )
 		frame.PortraitFrame.Disconnect:Show()
 		frame.Name:SetTextColor(0.5, 0.5, 0.5)

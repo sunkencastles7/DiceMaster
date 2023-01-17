@@ -59,14 +59,6 @@
 					</Size>
 				</FontString>
 			</Layer>
-			<Layer level="BORDER">
-				<Texture name="$parentFillBar" parentKey="fillBar">
-					<Size>
-						<AbsDimension x="20" y="15"/>
-					</Size>
-					<Color r="1.0" g="1.0" b="1.0" a="0.5"/>
-				</Texture>
-			</Layer>
 			<Layer level="BACKGROUND">
 				<Texture name="$parentBackground">
 					<Color r="1.0" g="1.0" b="1.0" a="0.2"/>
@@ -74,6 +66,14 @@
 			</Layer>
 		</Layers>
 		<Frames>
+			<StatusBar name="$parentFillBar" parentKey="fillBar" setAllPoints="true" drawLayer="BACKGROUND" useParentLevel="true">
+				<BarTexture name="$parentBar" file="Interface\PaperDollInfoFrame\UI-Character-Skills-Bar">
+					<Anchors>
+						<Anchor point="LEFT" x="20" y="0"/>
+					</Anchors>
+				</BarTexture>
+				<BarColor r="0" g="0.5" b="0"/>
+			</StatusBar>
 			<Button name="$parentBorder" parentKey="skillBorder">
 				<Size>
 					<AbsDimension x="261" y="32"/>
@@ -150,6 +150,20 @@
 					<OnClick>
 						DiceMaster4.SkillFrame_RollButton_OnClick( self, button )
 					</OnClick>
+					<OnEnter>
+						local dice = DiceMasterPanelDice:GetText()
+						local skill = DiceMaster4.Profile.skills[self:GetParent().skillPosition];
+						local modifiers = DiceMaster4.GetModifiersFromSkillGUID( skill.guid, true )
+						dice = DiceMaster4.FormatDiceString( dice, modifiers ) or "D20";
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+						GameTooltip:AddLine( "Roll", 1, 1, 1 )
+						GameTooltip:AddLine( "Make a " .. dice .. " " .. skill.name .. " roll.", 1, 0.81, 0 )
+						GameTooltip:AddLine( "&lt;Left Click to Roll>", 0.5, 0.5, 0.5, true )
+						GameTooltip:Show()
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide()
+					</OnLeave>
 				</Scripts>
 			</Button>
 		</Frames>
@@ -385,7 +399,6 @@
 			self.skillStatusBar.skillVisible:EnableMouse( false );
 			self.skillStatusBar.skillRollButton:EnableMouse( false );
 			self.skillStatusBar.skillRollButton:EnableMouse( false );
-			self.skillStatusBar.fillBar:Hide();
 		</OnLoad>
 	</Scripts>
   </Button>
@@ -1502,7 +1515,22 @@
 							</Layer>
 						</Layers>
 						<Frames>
-							<StatusBar name="DiceMasterSkillDetailStatusBar" drawLayer="BACKGROUND" minValue="0" maxValue="1" defaultValue="0">
+							<DiceMasterTraitButton name="DiceMasterSkillDetailSkillIconButton">
+								<Size x="32" y="32"/>
+								<Anchors>
+									<Anchor point="TOPLEFT" x="6" y="-6"/> 
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self:SetCustomTooltip( "|cFFFFD100Click to select an icon for this skill." )
+									</OnLoad>
+									<OnClick>
+										PlaySound(54132)
+										DiceMaster4.IconPicker_Open( self )
+									</OnClick>
+								</Scripts>
+							</DiceMasterTraitButton>
+							<StatusBar name="DiceMasterSkillDetailStatusBar" drawLayer="BORDER" minValue="0" maxValue="1" defaultValue="0">
 								<Size>
 									<AbsDimension x="181" y="15"/>
 								</Size>
@@ -1527,12 +1555,6 @@
 												</Anchor>
 											</Anchors>
 										</Texture>
-										<Texture name="$parentSkillIcon">
-											<Size x="32" y="32"/>
-											<Anchors>
-												<Anchor point="RIGHT" relativeTo="$parentBorder" relativePoint="LEFT" x="-20" y="0"/>
-											</Anchors>
-										</Texture>
 										<FontString name="$parentSkillName" inherits="GameFontNormalSmall">
 											<Anchors>
 												<Anchor point="LEFT">
@@ -1548,14 +1570,6 @@
 											</Size>
 										</FontString>
 									</Layer>
-									<Layer level="BORDER">
-										<Texture name="$parentFillBar">
-											<Size>
-												<AbsDimension x="0" y="15"/>
-											</Size>
-											<Color r="1.0" g="1.0" b="1.0" a="0.5"/>
-										</Texture>
-									</Layer>
 									<Layer level="BACKGROUND">
 										<Texture name="$parentBackground">
 											<Color r="1.0" g="1.0" b="1.0" a="0.2"/>
@@ -1563,6 +1577,14 @@
 									</Layer>
 								</Layers>
 								<Frames>
+									<StatusBar name="$parentFillBar" parentKey="fillBar" setAllPoints="true" drawLayer="BACKGROUND" useParentLevel="true">
+										<BarTexture name="$parentBar" file="Interface\PaperDollInfoFrame\UI-Character-Skills-Bar">
+											<Anchors>
+												<Anchor point="LEFT" x="20" y="0"/>
+											</Anchors>
+										</BarTexture>
+										<BarColor r="0" g="0.5" b="0"/>
+									</StatusBar>
 									<Button name="$parentIncreaseButton" registerForDrag="LeftButton">
 										<Size>
 											<AbsDimension x="18" y="18"/>

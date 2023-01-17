@@ -1,9 +1,9 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
--- Stat Inspector Frame
+-- Skill Inspector Frame
 --
 
 local Me      = DiceMaster4
@@ -97,7 +97,7 @@ local function GetModifiersFromSkillGUID( guid )
 	-- Find any buffs that are also boosting this skill...
 	for i = 1,#Profile.buffsActive do
 		if Me.inspectData[Me.statInspectName].buffsActive[i].skill and Me.inspectData[Me.statInspectName].buffsActive[i].skill == guid then
-			modifiers = modifiers + ( Me.inspectData[Me.statInspectName].buffsActive[i].skillAmount * Me.inspectData[Me.statInspectName].buffsActive[i].count );
+			modifiers = modifiers + ( Me.inspectData[Me.statInspectName].buffsActive[i].skillRank * Me.inspectData[Me.statInspectName].buffsActive[i].count );
 		end
 	end
 	
@@ -249,7 +249,7 @@ function Me.StatInspector_SetStatusBar( statusBarID, skillIndex, numSkills )
 	statusBarName:SetText(skillName);
 	
 	statusBarName:SetText(skillName);
-	statusBar:SetStatusBarColor(0.0, 0.0, 1.0, 0.5);
+	statusBar:SetStatusBarColor(0.0, 0.0, 0.5);
 	statusBarBackground:SetVertexColor(0.0, 0.0, 0.75, 0.5);
 
 	if ( skillMaxRank == 0 ) then
@@ -257,9 +257,12 @@ function Me.StatInspector_SetStatusBar( statusBarID, skillIndex, numSkills )
 		statusBar:SetMinMaxValues(0, 1);
 		statusBar:SetValue(1);
 		statusBar:SetStatusBarColor(0.5, 0.5, 0.5);
+		if tonumber( skillRank ) < 0 then
+			skillRank = RED_FONT_COLOR_CODE .. skillRank .. FONT_COLOR_CODE_CLOSE;
+		end
 		if ( GetModifiersFromSkillGUID( skillGUID ) ~= 0 ) then
-			local modifiers = Me.GetModifiersFromSkillGUID( skillGUID );
-			local color = RED_FONT_COLOR_CODE.."-";
+			local modifiers = GetModifiersFromSkillGUID( skillGUID );
+			local color = RED_FONT_COLOR_CODE;
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
 			end
@@ -271,18 +274,21 @@ function Me.StatInspector_SetStatusBar( statusBarID, skillIndex, numSkills )
 		statusBarBackground:SetVertexColor(1.0, 1.0, 1.0, 0.5);
 	elseif ( skillMaxRank > 0 ) then
 		statusBar:SetMinMaxValues(0, skillMaxRank);
-		statusBar:SetValue(skillRank);
+		statusBar:SetValue(skillRankStart);
+		if tonumber( skillRank ) < 0 then
+			skillRank = RED_FONT_COLOR_CODE .. skillRank .. FONT_COLOR_CODE_CLOSE;
+		end
 		if ( GetModifiersFromSkillGUID( skillGUID ) == 0 ) then
 			statusBarSkillRank:SetText(skillRank.."/"..skillMaxRank);
 			statusBarFillBar:Hide();
 		else
 			local modifiers = GetModifiersFromSkillGUID( skillGUID );
-			local color = RED_FONT_COLOR_CODE.."-";
+			local color = RED_FONT_COLOR_CODE;
 			statusBarFillBar:Hide();
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
-				local fillBarWidth = ( modifiers / skillMaxRank ) * statusBar:GetWidth();
-				statusBarFillBar:SetPoint("TOPRIGHT", "DiceMasterStatInspectorSkillDetailStatusBar", "TOPLEFT", fillBarWidth, 0);
+				statusBarFillBar:SetMinMaxValues(0, skillMaxRank);
+				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
 			statusBarSkillRank:SetText(skillRank.." ("..color..modifiers..FONT_COLOR_CODE_CLOSE..")/"..skillMaxRank);
@@ -334,11 +340,31 @@ function Me.StatInspectorDetailFrame_SetStatusBar( skillPosition )
 	statusBarName:SetPoint("LEFT", statusBar, "LEFT", 6, 1);
 
 	-- Set skill description text
+	if skillModifiers and #skillModifiers > 0 then
+		for i = 1, #skillModifiers do 
+			local modifier = GetSkillByGUID( skillModifiers[i] );
+			local color = RED_FONT_COLOR_CODE;
+			if modifier.rank > 0 then
+				color = GREEN_FONT_COLOR_CODE.."+"
+			end
+			if modifier.rank ~= 0 then
+				-- Add an extra line if it's the first skill
+				if i == 1 then
+					if not( skillDescription ) then
+						skillDescription = ""
+					else
+						skillDescription = skillDescription .. "|n"
+					end
+				end
+				skillDescription = skillDescription .. "|n(" .. color .. modifier.rank .. "|r from " .. modifier.name .. ")";
+			end
+		end
+	end
 	if ( skillDescription and skillAuthor ) then
-		DiceMasterStatInspectorSkillDetailDescriptionText:SetText(skillDescription .. "|n|n|cFFFFD100Creator:|r "..skillAuthor);
+		DiceMasterStatInspectorSkillDetailDescriptionText:SetText(skillDescription .. "|n|n|cFFFFD100Creator:|r "..skillAuthor.."|n");
 		DiceMasterStatInspectorSkillDetailDescriptionText:Show();
 	elseif skillAuthor then
-		DiceMasterStatInspectorSkillDetailDescriptionText:SetText("|cFFFFD100Creator:|r "..skillAuthor);
+		DiceMasterStatInspectorSkillDetailDescriptionText:SetText("|cFFFFD100Creator:|r "..skillAuthor.."|n");
 		DiceMasterStatInspectorSkillDetailDescriptionText:Show();
 	else
 		DiceMasterStatInspectorSkillDetailDescriptionText:SetText("");
@@ -350,7 +376,7 @@ function Me.StatInspectorDetailFrame_SetStatusBar( skillPosition )
 
 	-- Normal skill
 	statusBarName:SetText(skillName);
-	statusBar:SetStatusBarColor(0.0, 0.0, 1.0, 0.5);
+	statusBar:SetStatusBarColor(0.0, 0.0, 0.5);
 	statusBarBackground:SetVertexColor(0.0, 0.0, 0.75, 0.5);
 
 	DiceMasterStatInspectorSkillDetailCostText:Hide();
@@ -366,9 +392,12 @@ function Me.StatInspectorDetailFrame_SetStatusBar( skillPosition )
 		statusBar:SetMinMaxValues(0, 1);
 		statusBar:SetValue(1);
 		statusBar:SetStatusBarColor(0.5, 0.5, 0.5);
+		if tonumber( skillRank ) < 0 then
+			skillRank = RED_FONT_COLOR_CODE .. skillRank .. FONT_COLOR_CODE_CLOSE;
+		end
 		if ( GetModifiersFromSkillGUID( skillGUID ) ~= 0 ) then
 			local modifiers = GetModifiersFromSkillGUID( skillGUID );
-			local color = RED_FONT_COLOR_CODE.."-";
+			local color = RED_FONT_COLOR_CODE;
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
 			end
@@ -381,15 +410,18 @@ function Me.StatInspectorDetailFrame_SetStatusBar( skillPosition )
 	elseif ( skillMaxRank > 0 ) then
 		statusBar:SetMinMaxValues(0, skillMaxRank);
 		statusBar:SetValue(skillRankStart);
+		if tonumber( skillRank ) < 0 then
+			skillRank = RED_FONT_COLOR_CODE .. skillRank .. FONT_COLOR_CODE_CLOSE;
+		end
 		if ( GetModifiersFromSkillGUID( skillGUID ) == 0 ) then
 			statusBarSkillRank:SetText(skillRank.."/"..skillMaxRank);
 		else
 			local modifiers = GetModifiersFromSkillGUID( skillGUID );
-			local color = RED_FONT_COLOR_CODE.."-";
+			local color = RED_FONT_COLOR_CODE;
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
-				local fillBarWidth = (modifiers / skillMaxRank) * statusBar:GetWidth();
-				statusBarFillBar:SetPoint("TOPRIGHT", "DiceMasterStatInspectorSkillDetailStatusBar", "TOPLEFT", fillBarWidth, 0);
+				statusBarFillBar:SetMinMaxValues(0, skillMaxRank);
+				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
 			statusBarSkillRank:SetText(skillRank.." ("..color..modifiers..FONT_COLOR_CODE_CLOSE..")/"..skillMaxRank);
@@ -425,24 +457,23 @@ function Me.StatInspector_Update()
 	-- Update the expand/collapse all button
 	DiceMasterStatInspectorSkillFrameCollapseAllButton.isExpanded = 1;
 	DiceMasterStatInspectorSkillFrameCollapseAllButton:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up");
-	for i=1, #Me.inspectData[Me.statInspectName].skills do
-		local skill = Me.inspectData[Me.statInspectName].skills[i];
-		if not( skill.type == "header" ) then
-			-- If one skill is not expanded then set isExpanded to false and break
-			if not( skill.expanded ) then
-				DiceMasterStatInspectorSkillFrameCollapseAllButton.isExpanded = nil;
-				DiceMasterStatInspectorSkillFrameCollapseAllButton:SetNormalTexture("Interface\\Buttons\\UI-PlusButton-Up");
-				break;
+	if numSkills > 0 then
+		for i=1, #Me.inspectData[Me.statInspectName].skills do
+			local skill = Me.inspectData[Me.statInspectName].skills[i];
+			if not( skill.type == "header" ) then
+				-- If one skill is not expanded then set isExpanded to false and break
+				if not( skill.expanded ) then
+					DiceMasterStatInspectorSkillFrameCollapseAllButton.isExpanded = nil;
+					DiceMasterStatInspectorSkillFrameCollapseAllButton:SetNormalTexture("Interface\\Buttons\\UI-PlusButton-Up");
+					break;
+				end
 			end
 		end
 	end
 	
 	local store = Me.inspectData[Me.statInspectName];
-	
-	--Me.statinspector.experienceBar.level:SetText(store.level or 1)
-	--Me.statinspector.experienceBar:SetValue(store.experience or 0)
 
-	if store.alignment then
+	if store and store.alignment then
 		UIDropDownMenu_SetText( DiceMasterStatInspectorSkillFrameAlignmentDropdown, "|cFFFFD100Alignment:|r " .. store.alignment )
 	end
 
@@ -464,7 +495,7 @@ function Me.StatInspector_Update()
 		DiceMasterStatInspectorSkillDetailScrollFrame:Hide();
 	end
 	
-	if store.hideShop then
+	if store and store.hideShop then
 		DiceMasterStatInspectorShopTab.Icon:SetDesaturated( true )
 		DiceMasterStatInspectorShopTab:SetChecked( false )
 		DiceMasterStatInspectorShopTab:Disable()
@@ -494,7 +525,7 @@ function Me.StatInspector_UpdatePet()
 	else
 		if PanelTemplates_GetSelectedTab(DiceMasterStatInspector) == 2 then
 			PanelTemplates_SetTab(DiceMasterStatInspector, 1);
-			DiceMasterStatInspectorStatsFrame:Show();
+			DiceMasterStatInspectorSkillFrame:Show();
 			DiceMasterStatInspectorPetFrame:Hide();
 			PlaySound(841)
 		end

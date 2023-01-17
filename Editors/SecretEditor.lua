@@ -22,8 +22,6 @@ local TRIGGER_CONDITIONS = {
 	"...I use the trait...",
 	"...I reach 0 health.",
 	"...I heal myself or am healed.",
-	"...a unit frame reaches 0 health.",
-	"...a unit frame heals or is healed.",
 }
 
 local TRIGGER_EVENTS = {
@@ -39,8 +37,6 @@ local TRIGGER_EVENTS = {
 	"PLAYER_USE_TRAIT",
 	"PLAYER_KNOCKOUT",
 	"PLAYER_HEALED",
-	"UNIT_FRAME_KNOCKOUT",
-	"UNIT_FRAME_HEALED",
 }
 
 local function GetConditionsList()
@@ -159,7 +155,7 @@ function Me.SecretEditor_OnEvent( event, arg1, arg2 )
 								if arg1 == trait then
 									TriggerSecret( secret, var, i )
 								end
-							elseif event == "PLAYER_KNOCKOUT" or event == "PLAYER_HEALED" or event == "UNIT_FRAME_KNOCKOUT" or event == "UNIT_FRAME_HEALED" then
+							elseif event == "PLAYER_KNOCKOUT" or event == "PLAYER_HEALED" then
 								TriggerSecret( secret, var, i )
 							end
 						end
@@ -204,19 +200,19 @@ function Me.SecretEditorCondition_OnLoad(frame, level, menuList)
 		conditionsList = Me.SecretEditor.conditionsList3
 	end
 	
-	local statsList = {}
+	local skillsList = {}
 	local lastCategory
 	
 	for i = 1, #Me.Profile.skills do
 		if not Me.Profile.skills[i].rank then
-			statsList[ Me.Profile.skills[i].name ] = {}
+			skillsList[ Me.Profile.skills[i].name ] = {}
 			lastCategory = Me.Profile.skills[i].name;
 		else
 			if not ( lastCategory ) then
-				statsList[ "Uncategorised" ] = {}
+				skillsList[ "Uncategorised" ] = {}
 				lastCategory = "Uncategorised";
 			end
-			tinsert( statsList[ lastCategory ], Me.Profile.skills[i] )
+			tinsert( skillsList[ lastCategory ], Me.Profile.skills[i] )
 		end
 	end
 
@@ -250,7 +246,7 @@ function Me.SecretEditorCondition_OnLoad(frame, level, menuList)
 			UIDropDownMenu_AddButton(info, level)
 		end
 	elseif menuList == "Skills" then
-		for k,v in pairs( statsList ) do
+		for k,v in pairs( skillsList ) do
 			info.text = k
 			info.menuList = k
 			info.value = UIDROPDOWNMENU_MENU_VALUE
@@ -279,17 +275,17 @@ function Me.SecretEditorCondition_OnLoad(frame, level, menuList)
 			UIDropDownMenu_AddButton(info, level)
 		end
 	elseif menuList then
-		for i = 1,#statsList[menuList] do
-			info.text = statsList[menuList][i].name
+		for i = 1,#skillsList[menuList] do
+			info.text = skillsList[menuList][i].name
 			info.arg1 = UIDROPDOWNMENU_MENU_VALUE
-			info.arg2 = statsList[menuList][i].name
+			info.arg2 = skillsList[menuList][i].name
 			info.isNotRadio = true;
 			info.keepShownOnClick = true;
-			info.tooltipTitle = statsList[menuList][i].name;
-			if statsList[menuList][i].desc and statsList[menuList][i].skillModifier then
-				info.tooltipText = statsList[menuList][i].desc .. "|n|cFF707070(Modified by "..statsList[menuList][i].skillModifier.." + "..info.text..")|r";
-			elseif statsList[menuList][i].desc then
-				info.tooltipText = statsList[menuList][i].desc;
+			info.tooltipTitle = skillsList[menuList][i].name;
+			if skillsList[menuList][i].desc and skillsList[menuList][i].skillModifier then
+				info.tooltipText = skillsList[menuList][i].desc .. "|n|cFF707070(Modified by "..skillsList[menuList][i].skillModifier.." + "..info.text..")|r";
+			elseif skillsList[menuList][i].desc then
+				info.tooltipText = skillsList[menuList][i].desc;
 			end
 			
 			for i = 1, #Profile.skills do
@@ -303,7 +299,7 @@ function Me.SecretEditorCondition_OnLoad(frame, level, menuList)
 			info.notCheckable = false;
 			info.checked = function()
 				local arg1 = info.arg1:gsub("%.","")
-				local arg2 = statsList[menuList][i].name
+				local arg2 = skillsList[menuList][i].name
 				if conditionsList[arg1.." "..arg2] then
 					return true
 				end

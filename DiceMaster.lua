@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
@@ -761,26 +761,26 @@ end
 -- Update the UI for the /ALT/ healthbar frame.
 --
 function Me.RefreshHealthbarFrameAlt( healthValue, healthMax, armorValue )
-	if Me.db.global.healthIcons then
-		DiceMasterChargesFrameAlt.text:SetText( healthValue )
+	-- if Me.db.global.healthIcons then
+		-- DiceMasterChargesFrameAlt.text:SetText( healthValue )
 		
-		if healthValue < healthMax then
-			DiceMasterChargesFrameAlt.text:SetTextColor( 1, 0, 0 )
-		else
-			DiceMasterChargesFrameAlt.text:SetTextColor( 1, 1, 1 )
-		end
+		-- if healthValue < healthMax then
+			-- DiceMasterChargesFrameAlt.text:SetTextColor( 1, 0, 0 )
+		-- else
+			-- DiceMasterChargesFrameAlt.text:SetTextColor( 1, 1, 1 )
+		-- end
 		
-		if armorValue and armorValue > 0 then
-			DiceMasterChargesFrameAlt.armour:Show()
-			DiceMasterChargesFrameAlt.armourText:SetText( armorValue )
-		else
-			DiceMasterChargesFrameAlt.armour:Hide()
-			DiceMasterChargesFrameAlt.armourText:SetText( "" )
-		end
-		DiceMasterChargesFrameAlt:Show();
-	else
+		-- if armorValue and armorValue > 0 then
+			-- DiceMasterChargesFrameAlt.armour:Show()
+			-- DiceMasterChargesFrameAlt.armourText:SetText( armorValue )
+		-- else
+			-- DiceMasterChargesFrameAlt.armour:Hide()
+			-- DiceMasterChargesFrameAlt.armourText:SetText( "" )
+		-- end
+		-- DiceMasterChargesFrameAlt:Show();
+	-- else
 		DiceMasterChargesFrameAlt:Hide();
-	end
+	-- end
 end
 
 -------------------------------------------------------------------------------
@@ -838,12 +838,12 @@ end
 -- Update the UI for the /ALT/ manabar frame.
 --
 function Me.RefreshManabarFrameAlt( manaValue, manaMax )
-	if Me.db.global.healthIcons then
-		DiceMasterManaFrameAlt.text:SetText( manaValue )
-		DiceMasterManaFrameAlt:Show();
-	else
+	-- if Me.db.global.healthIcons then
+		-- DiceMasterManaFrameAlt.text:SetText( manaValue )
+		-- DiceMasterManaFrameAlt:Show();
+	-- else
 		DiceMasterManaFrameAlt:Hide();
-	end
+	-- end
 end
 
 -------------------------------------------------------------------------------
@@ -882,11 +882,11 @@ function Me.RefreshChargesFrame( tooltip, color )
 			-- Check charges position setting:
 			if Profile.charges.pos then
 				DiceMasterChargesFrame:SetHeight( 120 );
-				DiceMasterChargesFrame.bar:SetPoint("BOTTOM", 0, 0)
-				DiceMasterChargesFrame.bar2:SetPoint("BOTTOM", 0, 0)
+				DiceMasterChargesFrame.bar:SetPoint("BOTTOM", 0, -50)
+				DiceMasterChargesFrame.bar2:SetPoint("BOTTOM", 0, -50)
 			else
 				DiceMasterChargesFrame:SetHeight( 120 );
-				DiceMasterChargesFrame.bar:SetPoint("BOTTOM", 0, 80)
+				DiceMasterChargesFrame.bar:SetPoint("BOTTOM", 0, 170)
 				DiceMasterChargesFrame.bar2:SetPoint("BOTTOM", 0, 80)
 			end
 		else
@@ -1011,12 +1011,12 @@ local function updateMana( traitButton )
 end
 
 local EffectHandlers = {
-	-- ["book"] 	= "BookFrame_Show";
+	["book"] 	= "BookFrame_Show";
 	["script"]	= "ScriptEditor_RunScript";
 	["message"]	= "MessageEditor_SendMessage";
 	["produce"]	= "ProduceItemEditor_ProduceItem";
 	["consume"]	= "ConsumeItemEditor_ConsumeItem";
-	-- ["currency"] = "ProduceCurrencyEditor_ProduceCurrency";
+	["currency"] = "ProduceCurrencyEditor_ProduceCurrency";
 	["buff"]	= "BuffFrame_CastBuff";
 	["removebuff"]	= "BuffFrame_RemoveBuff";
 	["setdice"]	= "BuffFrame_RollDice";
@@ -1156,18 +1156,23 @@ end
 -------------------------------------------------------------------------------
 -- Return total modifiers value for a skill by GUID.
 --
-function Me.GetModifiersFromSkillGUID( guid )
+function Me.GetModifiersFromSkillGUID( guid, includeSelf )
 	if not guid then
 		return 0;
 	end
 
 	local skill = Me.GetSkillByGUID( guid );
 
-	if not( skill and skill.skillModifiers ) then
-		return 0;
+	-- Start with the value of the skill itself.
+	local modifiers = 0;
+
+	if skill and includeSelf then
+		modifiers = skill.rank;
 	end
 
-	local modifiers = 0;
+	if not( skill and skill.skillModifiers ) then
+		return modifiers;
+	end
 	
 	-- Grab values from skills in the modifiers table
 	-- by GUID
@@ -1182,7 +1187,7 @@ function Me.GetModifiersFromSkillGUID( guid )
 	-- Find any buffs that are also boosting this skill...
 	for i = 1,#Profile.buffsActive do
 		if Profile.buffsActive[i].skill and Profile.buffsActive[i].skill == guid then
-			modifiers = modifiers + ( Profile.buffsActive[i].skillAmount * Profile.buffsActive[i].count );
+			modifiers = modifiers + ( Profile.buffsActive[i].skillRank * Profile.buffsActive[i].count );
 		end
 	end
 	
@@ -1190,11 +1195,11 @@ function Me.GetModifiersFromSkillGUID( guid )
 end
 
 -------------------------------------------------------------------------------
--- When the cursor hovers over the dice button.
+-- When the dice button is right-clicked.
 -- 
 -- (Expands a radial menu of skills.)
 --
-function Me.DiceButton_OnEnter( self )
+function Me.DiceButton_ExpandMenu( self )
 	if not(Me.Profile.skills) or #Me.Profile.skills == 0 then
 		return
 	end
@@ -1208,9 +1213,7 @@ function Me.DiceButton_OnEnter( self )
 	local numSkills = #skillsList;
 	local radius = 42 + ( 2 * numSkills );
 	local index = 0;
-	
-	self.FadeOut = false;
-	self.hasFocus = true;
+
 	if not( self.FadeIn ) then
 		self.FadeIn = C_Timer.NewTicker( 0.05, function()
 			index = index + 1;
@@ -1255,8 +1258,8 @@ end
 -------------------------------------------------------------------------------
 function Me.RollMenu_OnClick( self )	
 	local dice = DiceMasterPanelDice:GetText()
-	local modifier = Me.GetModifiersFromSkillGUID( self.guid )
-	dice = Me.FormatDiceString( dice, modifier ) or "D20"
+	local modifiers = Me.GetModifiersFromSkillGUID( self.guid, true )
+	dice = Me.FormatDiceString( dice, modifiers ) or "D20"
 	
 	Me.Roll( dice, self.tooltipTitle )
 	if not( DiceMasterPanel.ModelScene:IsShown() ) then

@@ -73,14 +73,14 @@
 			</Scripts>
 		  </EditBox>
 		  
-		  <EditBox name="$parentStatName" parentKey="statName" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		  <EditBox name="$parentSkillName" parentKey="skillName" font="GameFontNormalMed2" inherits="InputBoxTemplate">
 			<Size x="220" y="12"/> 
 			<Anchors>
 			  <Anchor point="TOPLEFT" relativeKey="$parent.diceValue" relativePoint="BOTTOMLEFT" x="0" y="-30"/> 
 			</Anchors>
 			<Layers>
 				<Layer level="ARTWORK">
-					<FontString name="$parentStatNameTitle" inherits="GameFontNormalLeft" justifyH="left" text="Check Statistic">
+					<FontString name="$parentSkillNameTitle" inherits="GameFontNormalLeft" justifyH="left" text="Check Skill">
 						<Anchors>
 						  <Anchor point="TOPLEFT" x="0" y="20"/> 
 						</Anchors>

@@ -9,21 +9,6 @@
         <Texture parentKey="barback" setAllPoints="true" >
           
         </Texture>
-		<Texture parentKey="bar-bgleft" atlas="ui-frame-bar-bgleft">
-			<Anchors>
-				<Anchor point="LEFT"/>
-          </Anchors>
-		</Texture>
-		<Texture parentKey="bar-bgcenter" atlas="ui-frame-bar-bgcenter">
-			<Anchors>
-				<Anchor point="CENTER"/>
-          </Anchors>
-		</Texture>
-		<Texture parentKey="bar-bgright" atlas="ui-frame-bar-bgright">
-			<Anchors>
-				<Anchor point="RIGHT"/>
-          </Anchors>
-		</Texture>
       </Layer>
       <Layer level="ARTWORK">
         <Texture parentKey="bar" >

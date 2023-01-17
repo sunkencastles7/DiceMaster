@@ -81,7 +81,7 @@ function Me.RecipeEditorGrantSkill_OnLoad(frame, level, menuList)
 			info.func = Me.RecipeEditorGrantSkill_OnClick;
 			info.notCheckable = false;
 			info.tooltipTitle = skillsList[menuList][i].name;
-			if skillsList[menuList][i].stat then
+			if skillsList[menuList][i].skill then
 				info.tooltipText = skillsList[menuList][i].desc;
 			end
 			info.tooltipOnButton = true;
@@ -128,7 +128,7 @@ function Me.RecipeEditorRequiredSkill_OnLoad(frame, level, menuList)
 			info.func = Me.RecipeEditorRequiredSkill_OnClick;
 			info.notCheckable = false;
 			info.tooltipTitle = skillsList[menuList][i].name;
-			if skillsList[menuList][i].stat then
+			if skillsList[menuList][i].skill then
 				info.tooltipText = skillsList[menuList][i].desc;
 			end
 			info.tooltipOnButton = true;

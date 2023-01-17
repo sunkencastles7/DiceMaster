@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
@@ -265,27 +265,6 @@ function Me.RollBanner_SendBanner()
 		timer = TIMER_INTERVALS[ UIDropDownMenu_GetSelectedID( DiceMasterBannerPromptDialog.Timer ) ].time
 	end
 	
-	-- The turn has changed, so we need to update any turn-based buffs on our Unit Frames.
-	if turnHasChanged and not Me.db.char.unitframes.enable then
-		local unitframes = DiceMasterUnitsPanel.unitframes
-		for unitindex = 1, #unitframes do
-			local unitframe = unitframes[ unitindex ]
-			for i = 1, #unitframe.buffsActive do
-				local buff = unitframe.buffsActive[i]
-				if buff.turns and buff.turns > 0 then
-					buff.turns = buff.turns - 1
-					if buff.turns <= 0 then
-						tremove( unitframe.buffsActive, i )
-					end
-				end		
-			end
-			for buff = 1, #unitframe.buffs do
-				Me.UnitFrames_UpdateBuffButton( unitframe, buff )
-			end
-		end
-		Me.UpdateUnitFrames()
-	end
-	
 	local channel = "RAID";
 	local name = nil;
 	
@@ -372,7 +351,7 @@ function Me.RollBanner_OnBanner( data, dist, sender )
 				end
 			end		
 		end
-		Me.TraitEditor_StatsFrame_UpdateStats()
+		Me.SkillFrame_UpdateSkills()
 		Me.BumpSerial( Me.db.char, "statusSerial" )
 		Me.BuffFrame_Update()
 		Me.Inspect_ShareStatusWithParty()
@@ -380,7 +359,7 @@ function Me.RollBanner_OnBanner( data, dist, sender )
 	end
 	
 	if data.tc then
-		local traits = DiceMasterPanel.traits
+		local traits = DiceMasterChargesFrame.traits
 		for i=1,#traits do
 			local cooldown = traits[i].cooldown.text:GetText()
 			if cooldown and cooldown:match("%dT") then

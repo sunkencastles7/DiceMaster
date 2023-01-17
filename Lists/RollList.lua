@@ -9,7 +9,7 @@
 -- subName		Pattern for subbing text in description tooltips
 -- wheelName	Name to display on the Roll Wheel
 -- desc			Description of the roll option
--- stat			Statistic used as a modifier
+-- skill		Skill used as a modifier
 --
 
 DiceMaster4.RollList = {
@@ -20,7 +20,7 @@ DiceMaster4.RollList = {
 			wheelName = "Melee|nAttack",
 			iconID = 40,
 			desc = "An attempt to strike an enemy with a melee weapon.", 
-			stat = "Strength",
+			skill = "Strength",
 		},
 		{
 			name = "Ranged Attack",
@@ -28,7 +28,7 @@ DiceMaster4.RollList = {
 			wheelName = "Ranged|nAttack",
 			iconID = 41,
 			desc = "An attempt to strike an enemy with a ranged weapon.", 
-			stat = "Dexterity",
+			skill = "Dexterity",
 		},
 		{
 			name = "Spell Attack",
@@ -36,21 +36,21 @@ DiceMaster4.RollList = {
 			wheelName = "Spell|nAttack",
 			iconID = 42,
 			desc = "An attempt to cast a harmful spell against an enemy.", 
-			stat = "Intelligence",
+			skill = "Intelligence",
 		},
 		{
 			name = "Defence",
 			subName = "Defen[cs]e[s]?",
 			iconID = 43,
 			desc = "An attempt to defend yourself from enemy damage.",
-			stat = "Constitution",
+			skill = "Constitution",
 		},
 		{
 			name = "Spell Defence",
 			subName = "Spell Defen[cs]e[s]?",
 			iconID = 44,
 			desc = "An attempt to defend yourself from enemy spell damage.",
-			stat = "Intelligence",
+			skill = "Intelligence",
 		},
 	},
 	["Skills"] = {
@@ -60,14 +60,14 @@ DiceMaster4.RollList = {
 			wheelName = "Acrob.",
 			iconID = 52,
 			desc = "An attempt to dive, flip, jump, and An attempt to avoid attacks and overcome obstacles.", 
-			stat = "Dexterity",
+			skill = "Dexterity",
 		},
 		{
 			name = "Arcana",
 			subName = "Arcana",
 			iconID = 63,
 			desc = "An attempt to recall lore about spells and magic items.", 
-			stat = "Intelligence",
+			skill = "Intelligence",
 		},
 		{
 			name = "Athletics",
@@ -75,14 +75,14 @@ DiceMaster4.RollList = {
 			wheelName = "Athle.",
 			iconID = 51,
 			desc = "An attempt to swim, climb, flee, fly, or outrun someone.", 
-			stat = "Strength",
+			skill = "Strength",
 		},
 		{
 			name = "Bluff",
 			subName = "Bluff",
 			iconID = 4,
 			desc = "An attempt to deceive, trick, or lie to someone.", 
-			stat = "Charisma",
+			skill = "Charisma",
 		},
 		{
 			name = "Diplomacy",
@@ -90,7 +90,7 @@ DiceMaster4.RollList = {
 			wheelName = "Diplom.",
 			iconID = 0,
 			desc = "An attempt to persuade or win favour with someone.", 
-			stat = "Charisma",
+			skill = "Charisma",
 		},
 		{
 			name = "Disable Device",
@@ -98,14 +98,14 @@ DiceMaster4.RollList = {
 			wheelName = "Disable|nDevice",
 			iconID = 2,
 			desc = "An attempt to disarm a trap or disable a lock.", 
-			stat = "Dexterity",
+			skill = "Dexterity",
 		},
 		{
 			name = "Disguise",
 			subName = "Disguise",
 			iconID = 27,
 			desc = "An attempt to change your appearance.", 
-			stat = "Charisma",
+			skill = "Charisma",
 		},
 		{
 			name = "Escape",
@@ -113,14 +113,14 @@ DiceMaster4.RollList = {
 			wheelName = "Escape",
 			iconID = 25,
 			desc = "An attempt to slip bonds and escape from grapples.", 
-			stat = "Dexterity",
+			skill = "Dexterity",
 		},
 		{
 			name = "Grapple",
 			subName = "Grapple[s]?",
 			iconID = 10,
 			desc = "An attempt to disarm or disable an enemy, or reverse grapples.", 
-			stat = "Strength",
+			skill = "Strength",
 		},
 		{
 			name = "Healing",
@@ -128,7 +128,7 @@ DiceMaster4.RollList = {
 			wheelName = "Heal",
 			iconID = 53,
 			desc = "An attempt to mend wounds or restore health to someone.", 
-			stat = "Wisdom",
+			skill = "Wisdom",
 		},
 		{
 			name = "Insight",
@@ -136,7 +136,7 @@ DiceMaster4.RollList = {
 			wheelName = "Sense|nMotive",
 			iconID = 20,
 			desc = "An attempt to discern intent or decipher body language.", 
-			stat = "Wisdom",
+			skill = "Wisdom",
 		},
 		{
 			name = "Intimidation",
@@ -144,14 +144,14 @@ DiceMaster4.RollList = {
 			wheelName = "Intimidate",
 			iconID = 54,
 			desc = "An attempt to taunt, coerce, or frighten someone.", 
-			stat = "Charisma",
+			skill = "Charisma",
 		},
 		{
 			name = "Knowledge",
 			subName = "Knowledge",
 			iconID = 8,
 			desc = "An attempt to determine your education or understanding of a particular topic.", 
-			stat = "Intelligence",
+			skill = "Intelligence",
 		},
 		{
 			name = "Perception",
@@ -159,7 +159,7 @@ DiceMaster4.RollList = {
 			wheelName = "Percep.",
 			iconID = 7,
 			desc = "An attempt to notice fine details and alert yourself to danger.", 
-			stat = "Wisdom",
+			skill = "Wisdom",
 		},
 		{
 			name = "Performance",
@@ -167,14 +167,14 @@ DiceMaster4.RollList = {
 			wheelName = "Perform",
 			iconID = 13,
 			desc = "An attempt to impress an audience with your talent and skill.", 
-			stat = "Charisma",
+			skill = "Charisma",
 		},
 		{
 			name = "Spellcraft",
 			subName = "Spellcraft",
 			iconID = 21,
 			desc = "An attempt to cast or use spells and magic items.", 
-			stat = "Intelligence",
+			skill = "Intelligence",
 		},
 		{
 			name = "Stealth",
@@ -182,7 +182,7 @@ DiceMaster4.RollList = {
 			wheelName = "Sneak",
 			iconID = 55,
 			desc = "An attempt to avoid detection and remain unseen.", 
-			stat = "Dexterity",
+			skill = "Dexterity",
 		},
 		{
 			name = "Survival",
@@ -190,7 +190,7 @@ DiceMaster4.RollList = {
 			wheelName = "Survive",
 			iconID = 23,
 			desc = "An attempt to survive or navigate in the wilderness.", 
-			stat = "Wisdom",
+			skill = "Wisdom",
 		},
 	},
 	["Saving Throws"] = {
@@ -200,7 +200,7 @@ DiceMaster4.RollList = {
 			wheelName = "Fort.|nSave",
 			iconID = 56,
 			desc = "An attempt to resist physical punishment or pain.", 
-			stat = "Constitution",
+			skill = "Constitution",
 		},
 		{
 			name = "Reflex Save",
@@ -208,7 +208,7 @@ DiceMaster4.RollList = {
 			wheelName = "Reflex|nSave",
 			iconID = 58,
 			desc = "An attempt to avoid or prevent an unexpected action.", 
-			stat = "Dexterity",
+			skill = "Dexterity",
 		},
 		{
 			name = "Will Save",
@@ -216,7 +216,7 @@ DiceMaster4.RollList = {
 			wheelName = "Will|nSave",
 			iconID = 57,
 			desc = "An attempt to resist mental influence.", 
-			stat = "Wisdom",
+			skill = "Wisdom",
 		},
 	},
 }

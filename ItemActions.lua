@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 -- Item Actions
@@ -484,7 +484,7 @@ local GetSimpleActionFromArgs = function( actionType, ... )
 		info.guid = currency.guid;
 		info.count = amount;
 	elseif actionType == "buff" then
-		local name, icon, desc, cancelable, duration, target, aoe, range, stackable, stat, statAmount = unpack( args );
+		local name, icon, desc, cancelable, duration, target, aoe, range, stackable, skill, skillRank = unpack( args );
 		if not name or name == "" or type(name)~="string" then
 			return
 		end
@@ -505,8 +505,8 @@ local GetSimpleActionFromArgs = function( actionType, ... )
 			info.range = 0;
 		end
 		info.stackable = stackable or false;
-		info.stat = stat or "";
-		info.statAmount = statAmount or 0;
+		info.skill = skill or "";
+		info.skillRank = skillRank or 0;
 	elseif actionType == "removebuff" then
 		local name, count = unpack( args );
 		if not name or name == "" or type(name)~="string" then
@@ -516,13 +516,13 @@ local GetSimpleActionFromArgs = function( actionType, ... )
 		info.name = name;
 		info.count = count or 1;
 	elseif actionType == "setdice" then
-		local value, stat = unpack( args )
+		local value, skill = unpack( args )
 		if not value then
 			value = "D20"
 		end
 		info.type = "setdice";
 		info.value = value;
-		info.stat = stat;
+		info.skill = skill;
 		info.blank = false;
 	elseif actionType == "effect" then
 		local effectID, target, delay = unpack( args )
@@ -977,10 +977,10 @@ end
 -- @param stackable			boolean		Buff name
 -- @param alwaysCastOnSelf	boolean		True if only applies to the player, nil or false otherwise
 -- @param range				number		Buff range (0 if not an area buff)
--- @param stat				string		Statistic name
--- @param statAmount		number		Statistic delta
+-- @param skill				string		Skill name
+-- @param skillRank			number		Skill rank
 
-function Me.ApplyBuff( name, icon, desc, duration, stackable, alwaysCastOnSelf, range, stat, statAmount )
+function Me.ApplyBuff( name, icon, desc, duration, stackable, alwaysCastOnSelf, range, skill, skillRank )
 	if not name or type(name)~="string" or name == "" then
 		return
 	end
@@ -995,8 +995,8 @@ function Me.ApplyBuff( name, icon, desc, duration, stackable, alwaysCastOnSelf, 
 		range = 0;
 	end
 	range = math.floor( range );
-	if not statAmount or type(statAmount)~="number" or statAmount < -99 or statAmount > 999 then
-		statAmount = 0;
+	if not skillRank or type(skillRank)~="number" or skillRank < -9999 or skillRank > 9999 then
+		skillRank = 0;
 	end
 	
 	local buff = {
@@ -1010,8 +1010,8 @@ function Me.ApplyBuff( name, icon, desc, duration, stackable, alwaysCastOnSelf, 
 		target = alwaysCastOnSelf or true;
 		aoe = false;
 		range = range or 0;
-		stat = stat or "";
-		statAmount = statAmount or 0;
+		skill = skill or "";
+		skillRank = skillRank or 0;
 	}
 	
 	if duration > 1 then
@@ -1092,13 +1092,13 @@ end
 -- Roll the dice.
 --
 -- @param dice		string		The dice string, in D20 notation (XDY+Z)
--- @param statistic	string		The name of a statistic to check
+-- @param skill	string		The name of a skill to check
 
-function Me.RollDice( dice, statistic )
+function Me.RollDice( dice, skill )
 	local setdice = {
 		type = "setdice";
 		value = dice or "D20";
-		stat = statistic or "";
+		skill = skill or "";
 	}
 
 	Me.BuffFrame_RollDice( setdice )
@@ -1348,34 +1348,34 @@ end
 -- @returns turns			number		The turn-based duration of the buff
 -- @returns expirationTime	number		The time when the buff expires
 -- @returns sender			string		The name of the character who applied the buff
--- @returns statistic		string		The name of the statistic modified by the buff
--- @returns statAmount		number		The value of the statistic modified by the buff
+-- @returns skill			string		The name of the skill modified by the buff
+-- @returns skillRank		number		The value of the skill modified by the buff
 
 function Me.GetBuffInfo( index )
 	if not index or type(index)~="number" or index < 0 then
 		return
 	end
 	if Profile.buffsActive[index] then
-		return Profile.buffsActive[index].name, Profile.buffsActive[index].icon, Profile.buffsActive[index].description, Profile.buffsActive[index].count, Profile.buffsActive[index].duration, Profile.buffsActive[index].turns, Profile.buffsActive[index].expirationTime, Profile.buffsActive[index].sender, Profile.buffsActive[index].statistic, Profile.buffsActive[index].statAmount
+		return Profile.buffsActive[index].name, Profile.buffsActive[index].icon, Profile.buffsActive[index].description, Profile.buffsActive[index].count, Profile.buffsActive[index].duration, Profile.buffsActive[index].turns, Profile.buffsActive[index].expirationTime, Profile.buffsActive[index].sender, Profile.buffsActive[index].skill, Profile.buffsActive[index].skillRank
 	end
 end
 
 ---------------------------------------------------------------------------
--- Get the value of a player's statistic.
+-- Get the value of a player's skill.
 --
--- @param statistic		string		The name of the statistic
--- @returns value		number		The value of the statistic
+-- @param skill		string		The name of the skill
+-- @returns value	number		The value of the skill
 
-function Me.GetStatistic( statistic )
+function Me.GetSkill( skill )
 	local value = 0;
-	for i = 1, #Profile.stats do
-		if Profile.stats[i].name == statistic then
-			value = Profile.stats[i].value;
+	for i = 1, #Profile.skills do
+		if Profile.skills[i].name == skill then
+			value = Profile.skills[i].rank;
 		end
 	end
 	for i = 1, #Profile.buffsActive do
-		if Profile.buffsActive[i].statistic == statistic then
-			value = value + Profile.buffsActive[i].statAmount
+		if Profile.buffsActive[i].skill == skill then
+			value = value + Profile.buffsActive[i].skillRank * Profile.buffsActive[i].count;
 		end
 	end
 	return value;

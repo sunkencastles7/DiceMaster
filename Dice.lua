@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2022 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
@@ -79,7 +79,7 @@ end
 -- Format a dice string. e.g. 1, 20, 3
 --
 -- @param dice 		The dice string to format.
--- @param modifier  Optional modifier to add (for statistics).
+-- @param modifier  Optional modifier to add (for skills).
 --
 function Me.FormatDiceString( dice, modifier )
 	

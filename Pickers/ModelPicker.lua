@@ -297,9 +297,6 @@ function Me.ModelPickerButton_OnClick( self, button )
 				self.check:Show()
 				
 				Me.ModelEditing.scrollposition = DiceMasterModelPicker.selectorFrame.scroller:GetValue()
-				if IsAddOnLoaded("DiceMaster_UnitFrames") then
-					Me.UpdateUnitFrames()
-				end
 				Me.ModelPicker_RefreshGrid()
 			end
 		end

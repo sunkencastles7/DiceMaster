@@ -18,6 +18,19 @@ local function GetHeaderPositionByName( headerName )
 	return nil;
 end
 
+local function GetSkillHeaderName( skillGUID )
+	local headerName = "Miscellaneous";
+	local possibleHeader;
+	for i = 1, #Me.Profile.skills do
+		if Me.Profile.skills[i].type == "header" then
+			possibleHeader = Me.Profile.skills[i].name;
+		elseif Me.Profile.skills[i].guid == skillGUID and possibleHeader then
+			return possibleHeader;
+		end
+	end
+	return headerName;
+end
+
 local function GetSkillNameFromGUID( skillGUID )
 
 	for i = 1, #Me.Profile.skills do 
@@ -46,7 +59,7 @@ end
 -- Get the list of all of a skill's modifiers as a string.
 --
 
-local function GetModifiersFromSkillGUID( skillGUID )
+local function GetModifiersListFromSkillGUID( skillGUID )
 	local skillIndex = GetSkillIndexFromGUID( skillGUID );
 	
 	local modifiersList = "";	
@@ -238,7 +251,7 @@ function Me.SkillEditorModifiers_OnLoad(frame, level, menuList)
 			info.tooltipTitle = skillList[menuList][i].name;
 			info.tooltipText = skillList[menuList][i].desc or "";
 			if skillList[menuList][i].skillModifiers then
-				info.tooltipText = info.tooltipText .. "|n|cFF707070(Modified by "..GetModifiersFromSkillGUID( info.arg1 )..")|r";
+				info.tooltipText = info.tooltipText .. "|n|cFF707070(Modified by "..GetModifiersListFromSkillGUID( info.arg1 )..")|r";
 			end
 			info.tooltipOnButton = true;
 			info.checked = false;
@@ -408,7 +421,8 @@ local function BuildSkillsList()
 end
 
 function Me.LearnSkillEditorSkill_OnClick(self, arg1, arg2, checked)
-	UIDropDownMenu_SetSelectedValue(DiceMasterLearnSkillEditor.SkillName, arg1, true)
+	UIDropDownMenu_SetSelectedValue(DiceMasterLearnSkillEditor.SkillName, arg1, true);
+	UIDropDownMenu_SetText( DiceMasterLearnSkillEditor.SkillName, GetSkillNameFromGUID( arg1 ) )
 end
 
 function Me.LearnSkillEditorSkill_OnLoad(frame, level, menuList)
@@ -455,19 +469,20 @@ function Me.LearnSkillEditor_Refresh( effectIndex )
 	elseif Me.newItem then
 		effect = Me.newItem.effects[ effectIndex ]
 	end
+
+	Me.EffectEditingIndex = effectIndex
 	
 	if effect then
 		DiceMasterLearnSkillEditorSaveButton:SetScript( "OnClick", function()
 			Me.LearnSkillEditor_SaveEdits()
-		end)	
-	end
-	
-	Me.EffectEditingIndex = effectIndex
-	if not effect then 
-		DiceMasterLearnSkillEditor.Rank:SetText( "1" )
+		end)
+		UIDropDownMenu_SetSelectedValue(DiceMasterLearnSkillEditor.SkillName, effect.guid, true);
+		UIDropDownMenu_SetText( DiceMasterLearnSkillEditor.SkillName, GetSkillNameFromGUID( effect.guid ) )
+		DiceMasterLearnSkillEditor.Rank:SetText( effect.rank )
 		return
 	end
-	DiceMasterLearnSkillEditor.Rank:SetText( effect.delay )
+	UIDropDownMenu_SetText( DiceMasterLearnSkillEditor.SkillName, "(None)" )
+	DiceMasterLearnSkillEditor.Rank:SetText( 0 )
 end
 
 function Me.LearnSkillEditor_LearnSkill( data )
@@ -485,6 +500,8 @@ function Me.LearnSkillEditor_LearnSkill( data )
 			return
 		end
 	end
+
+	if data.rank > data.maxRank then data.rank = data.maxRank end
 	
 	local headerPosition = GetHeaderPositionByName( data.skillType )
 
@@ -492,7 +509,6 @@ function Me.LearnSkillEditor_LearnSkill( data )
 		name = data.name;
 		icon = data.icon;
 		desc = data.description or nil;
-		type = data.skillType;
 		rank = data.rank or 1;
 		maxRank = data.maxRank or 100;
 		skillModifiers = data.skillModifiers or {};
@@ -529,11 +545,11 @@ function Me.LearnSkillEditor_SaveEdits()
 	local skill = GetSkillFromGUID( UIDropDownMenu_GetSelectedValue( DiceMasterLearnSkillEditor.SkillName ))
 	local rank = tonumber( DiceMasterLearnSkillEditor.Rank:GetText() ) or 1
 	
-	if not rank or type( rank ) ~= "number" or rank < 1 or rank > 999 then
+	if not rank or type( rank ) ~= "number" or rank < -9999 or rank > 9999 then
 		rank = 1;
 	end
 	
-	if not skill or not skill.type or not skill.name or not skill.guid or not skill.rank or not skill.author then
+	if not skill or not skill.name or not skill.guid or not skill.rank or not skill.author then
 		UIErrorsFrame:AddMessage( "You must select a valid skill.", 1.0, 0.0, 0.0 );
 		return
 	end
@@ -542,7 +558,7 @@ function Me.LearnSkillEditor_SaveEdits()
 		type = "skill";
 		name = skill.name;
 		icon = skill.icon;
-		skillType = skill.type;
+		skillType = GetSkillHeaderName( skill.guid );
 		desc = skill.desc or nil;
 		guid = skill.guid;
 		rank = rank;
@@ -568,11 +584,11 @@ function Me.LearnSkillEditor_Save()
 	local skill = GetSkillFromGUID( UIDropDownMenu_GetSelectedValue( DiceMasterLearnSkillEditor.SkillName ))
 	local rank = tonumber( DiceMasterLearnSkillEditor.Rank:GetText() ) or 1
 	
-	if not rank or type( rank ) ~= "number" or rank < 1 or rank > 999 then
+	if not rank or type( rank ) ~= "number" or rank < -9999 or rank > 9999 then
 		rank = 1;
 	end
 	
-	if not skill or not skill.type or not skill.name or not skill.guid or not skill.rank or not skill.author then
+	if not skill or not skill.name or not skill.guid or not skill.rank or not skill.author then
 		UIErrorsFrame:AddMessage( "You must select a valid skill.", 1.0, 0.0, 0.0 );
 		return
 	end
@@ -581,7 +597,7 @@ function Me.LearnSkillEditor_Save()
 		type = "skill";
 		name = skill.name;
 		icon = skill.icon;
-		skillType = skill.type;
+		skillType = GetSkillHeaderName( skill.guid );
 		desc = skill.desc or nil;
 		guid = skill.guid;
 		rank = rank;
