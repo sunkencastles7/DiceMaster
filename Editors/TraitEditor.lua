@@ -1603,7 +1603,7 @@ function Me.SkillFrame_CreateDefaults()
 				desc = v[i].desc;
 				rank = 0;
 				maxRank = 10;
-				skillModifiers = { v[i].stat };
+				skillModifiers = { v[i].skill };
 				author = UnitName("player");
 				expanded = true;
 				showOnMenu = true;
