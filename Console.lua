@@ -34,18 +34,16 @@ function SlashCmdList.DICE( msg, editBox )
 		dice = msg:lower()
 	end
 	
-	local skill = nil
-	local modifier = Me.GetModifierFrom
-	istic( msg:lower() )
-	dice = Me.FormatDiceString( dice, modifier )
-	
-	local rollType
-	for i = 1, #Me.Profile.skills do
-		if Me.Profile.skills[i].name:lower() == msg:lower() then
-			rollType = Me.Profile.skills[i].name;
+	local rollType, modifier;
+	for i = 1, #Profile.skills do
+		if Profile.skills[i].name:lower() == msg:lower() then
+			modifier = Me.GetModifiersFromSkillGUID( Profile.skills[i].guid, true );
+			rollType = Profile.skills[i].name;
 			break
 		end
 	end
+
+	dice = Me.FormatDiceString( dice, modifier )
 	
 	Me.Roll( dice, rollType ) 
 end 

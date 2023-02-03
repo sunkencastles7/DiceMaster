@@ -304,19 +304,15 @@ local function RefreshItemRef()
 		end
 		
 		if item.useText then
-			ItemRefTooltip:AddLine( item.useText, 0, 1, 0, true )
+			ItemRefTooltip:AddLine( Me.FormatItemTooltip( item.useText ), 0, 1, 0, true )
 		end
 		
 		if item.requirement then
 			ItemRefTooltip:AddLine( item.requirement, 0, 1, 0, true )
 		end
 		
-		if item.cooldown then
-			--GameTooltip:AddLine( FormatDuration( owner ) , 1, 1, 1, true )
-		end
-		
 		if item.flavorText and item.flavorText~="" then
-			ItemRefTooltip:AddLine( "\""..item.flavorText.."\"", 1, 0.81, 0, true )
+			ItemRefTooltip:AddLine( "\"".. Me.FormatItemTooltip(item.flavorText) .."\"", 1, 0.81, 0, true )
 		end
 		
 		if item.requiredClass then

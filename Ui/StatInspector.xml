@@ -597,8 +597,8 @@
 			<Layer level="BACKGROUND">
 				<Texture name="$parentModelBG" file="Interface/AddOns/DiceMaster/Texture/PetFrameBackgroundAlliance">
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="DiceMasterTraitEditorInset" x="4" y="-4"/>
-							<Anchor point="BOTTOMRIGHT" relativeTo="DiceMasterTraitEditorInset" x="-4" y="2"/>
+							<Anchor point="TOPLEFT" relativeTo="DiceMasterStatInspectorInset" x="4" y="-4"/>
+							<Anchor point="BOTTOMRIGHT" relativeTo="DiceMasterStatInspectorInset" x="-4" y="2"/>
 						</Anchors>
 						<TexCoords left="0.0" right="0.63671875" top="0.0" bottom="0.69921875"/>
 				</Texture>
@@ -653,6 +653,24 @@
 					<OnLeave function="GameTooltip_Hide"/>
 				</Scripts>
 		    </Frame>
+			<ItemButton name="$parentPetItemSlot" hidden="true">
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="-10" y="10"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="-1">
+						<Texture name="$parentFrame" atlas="ui-hud-actionbar-iconframe-slot" setAllPoints="true"/>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip:AddLine("Pet Item");
+						GameTooltip:Show();
+					</OnEnter>
+					<OnLeave function="GameTooltip_Hide"/>
+				</Scripts>
+			</ItemButton>
 			<ModelScene parentKey="petModelScene" enableMouse="true" inherits="NonInteractableModelSceneMixinTemplate" frameLevel="2">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="4" y="-4"/>

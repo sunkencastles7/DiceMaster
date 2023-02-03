@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2019 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 local Me = DiceMaster4
@@ -181,11 +181,6 @@ local function OnClick( self, button )
 end
 
 local methods = {
-	---------------------------------------------------------------------------
-	-- Set a static texture for this button.
-	--
-	-- Overrides SetItem.
-	--
 	GetDistanceToMapIcon = function( self )
 		local y1, x1, instance1 = self.coordY, self.coordX, self.Instance
 		local y2, x2, _, instance2 = UnitPosition( "player" )
@@ -201,7 +196,6 @@ local methods = {
 	end;
 	
 	ResizeMapIcon = function( self, scale )
-		--self:SetScale( 32 * scale, 32 * scale )
 		self.Icon:SetSize( self.iconWidth * scale, self.iconHeight * scale )
 		self.Highlight:SetSize( self.iconWidth * scale, self.iconHeight * scale )
 	end;	
@@ -260,27 +254,23 @@ function Me.UpdateAllMapNodes()
 			icon.coordX, icon.coordY, icon.Instance = HBD:GetWorldCoordinatesFromZone( iconData.coordX, iconData.coordY, iconData.mapID )
 		end
 		
-		if type( iconData.icon ) == "table" then
-			if iconData.icon[1] then
-				icon.Icon:SetTexCoord( iconData.icon[1], iconData.icon[2], iconData.icon[3], iconData.icon[4] )
-				icon.Highlight:SetTexCoord( iconData.icon[1], iconData.icon[2], iconData.icon[3], iconData.icon[4] )
-				icon.iconWidth = iconData.icon[8]
-				icon.iconHeight = iconData.icon[9]
-			else
-				icon.Icon:SetTexCoord( 0, 1, 0, 1 )
-				icon.Highlight:SetTexCoord( 0, 1, 0, 1 )
-				icon.iconWidth = 32
-				icon.iconHeight = 32
-			end
-			icon.Icon:SetTexture( iconData.icon[5] )
-			icon.Highlight:SetTexture( iconData.icon[5] )
+		if not( type(iconData.icon) == "string") then
+			iconData.icon = "Object"
+		end
+
+		local atlasInfo = C_Texture.GetAtlasInfo( iconData.icon )
+		if atlasInfo then
+			icon.iconWidth = atlasInfo.width;
+			icon.iconHeight = atlasInfo.height;
+			icon.Highlight:SetAtlas( iconData.icon )
+			icon.Icon:SetAtlas( iconData.icon )
 		else
+			icon.iconWidth = 32;
+			icon.iconHeight = 32;
 			icon.Icon:SetTexCoord( 0, 1, 0, 1 )
+			icon.Icon:SetTexture( "Interface/Icons/inv_misc_questionmark" )
 			icon.Highlight:SetTexCoord( 0, 1, 0, 1 )
-			icon.iconWidth = 32
-			icon.iconHeight = 32
-			icon.Icon:SetTexture( iconData.icon )
-			icon.Highlight:SetTexture( iconData.icon )
+			icon.Highlight:SetTexture( "Interface/Icons/inv_misc_questionmark" )
 		end
 		
 		icon:ResizeMapIcon( 0.7 )
@@ -306,33 +296,28 @@ function Me.UpdateAllMapNodes()
 		
 		local icon = getNewMapPin( i )
 		icon:SetParent(WorldMapFrame.ScrollContainer.Child)
-		--icon.unitData = unitData
 		icon.coordY, icon.coordX, _, icon.Instance = UnitPosition( "player" )
 		if ( iconData.coordX and iconData.coordY and iconData.mapID ) then
 			icon.coordX, icon.coordY, icon.Instance = HBD:GetWorldCoordinatesFromZone( iconData.coordX, iconData.coordY, iconData.mapID )
 		end
+
+		if not( type(iconData.icon) == "string") then
+			iconData.icon = "Object"
+		end
 		
-		if type( iconData.icon ) == "table" then
-			if iconData.icon[1] then
-				icon.Icon:SetTexCoord( iconData.icon[1], iconData.icon[2], iconData.icon[3], iconData.icon[4] )
-				icon.Highlight:SetTexCoord( iconData.icon[1], iconData.icon[2], iconData.icon[3], iconData.icon[4] )
-				icon.iconWidth = iconData.icon[8]
-				icon.iconHeight = iconData.icon[9]
-			else
-				icon.Icon:SetTexCoord( 0, 1, 0, 1 )
-				icon.Highlight:SetTexCoord( 0, 1, 0, 1 )
-				icon.iconWidth = 32
-				icon.iconHeight = 32
-			end
-			icon.Icon:SetTexture( iconData.icon[5] )
-			icon.Highlight:SetTexture( iconData.icon[5] )
+		local atlasInfo = C_Texture.GetAtlasInfo( iconData.icon )
+		if atlasInfo then
+			icon.iconWidth = atlasInfo.width;
+			icon.iconHeight = atlasInfo.height;
+			icon.Highlight:SetAtlas( iconData.icon )
+			icon.Icon:SetAtlas( iconData.icon )
 		else
+			icon.iconWidth = 32;
+			icon.iconHeight = 32;
 			icon.Icon:SetTexCoord( 0, 1, 0, 1 )
+			icon.Icon:SetTexture( "Interface/Icons/inv_misc_questionmark" )
 			icon.Highlight:SetTexCoord( 0, 1, 0, 1 )
-			icon.iconWidth = 32
-			icon.iconHeight = 32
-			icon.Icon:SetTexture( iconData.icon )
-			icon.Highlight:SetTexture( iconData.icon )
+			icon.Highlight:SetTexture( "Interface/Icons/inv_misc_questionmark" )
 		end
 		
 		icon:ResizeMapIcon( 0.7 )

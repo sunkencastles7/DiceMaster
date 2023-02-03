@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2019 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
@@ -505,6 +505,15 @@ local altPowerBars = {
 		spark = false;
 		flash = true;
 		inset = 0.2;
+	},
+	["balance-bar"] = {
+		path = "Interface/AddOns/DiceMaster/Texture/balance-bar_";
+		frame = false;
+		background = true;
+		fill = true;
+		spark = true;
+		flash = false;
+		inset = 0;
 	},
 }
 

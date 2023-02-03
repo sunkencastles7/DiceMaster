@@ -296,7 +296,6 @@
 						GameTooltip:Hide()
 						DiceMasterTooltipIcon:Hide()
 						DiceMasterTooltipIcon.approved:Hide()
-						DiceMasterTooltipIcon.elite:Hide()
 						ResetCursor();
 					</OnLeave>
 					<OnClick>

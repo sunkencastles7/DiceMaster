@@ -40,8 +40,6 @@ local DB_DEFAULTS = {
 		bank = {};
 		savedBuffs = {};
 		lastSplashShown = nil;
-		assistantEnabled = false;
-		assistantFirstTime = false;
 	};
 	
 	char = { 
@@ -220,8 +218,8 @@ Me.configOptions = {
 			hidden   = true;
 			width = "normal";
 			func  = function()
-				for i = 1, #DiceMasterPanel.traits do
-					local traitButton = DiceMasterPanel.traits[i]
+				for i = 1, #DiceMasterChargesFrame.traits do
+					local traitButton = DiceMasterChargesFrame.traits[i]
 					local traitIndex = traitButton.traitIndex
 					local trait = Me.Profile.traits[ traitIndex ]
 					local usage = trait.usage or "PASSIVE";
@@ -721,6 +719,7 @@ Me.configOptionsCharges = {
 						["phoenix-bar"] = "Phoenix",
 						["mana-gems-bar"] = "Mana Gems",
 						["holy-power-bar"] = "Holy Power",
+						["balance-bar"] = "Balance",
 					};
 					set   = function( info, val ) 
 						Me.db.profile.charges.symbol = val
@@ -893,6 +892,7 @@ Me.configOptionsProgressBar = {
 						["phoenix-bar"] = "Phoenix",
 						["mana-gems-bar"] = "Mana Gems",
 						["holy-power-bar"] = "Holy Power",
+						["balance-bar"] = "Balance",
 					};
 					set   = function( info, val ) 
 						Me.db.profile.morale.symbol = val

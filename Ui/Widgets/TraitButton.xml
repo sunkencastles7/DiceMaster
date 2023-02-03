@@ -89,20 +89,33 @@
 			<Anchor point="LEFT"/>
 	</Anchors>
 	<Layers>
-			<Layer level="ARTWORK">
-				<FontString name="$parentTextLeft1" parentKey="TextLeft1" inherits="GameTooltipText">
-					<Anchors>
-						<Anchor point="TOPLEFT">
-							<Offset>
-								<AbsDimension x="10" y="-10"/>
-							</Offset>
-						</Anchor>
-					</Anchors>
-				</FontString>
-			</Layer>
+		<Layer level="OVERLAY">
+			<Texture parentKey="TopOverlay" file="Interface/AddOns/DiceMaster/Texture/Tooltip">
+				<Size x="95" y="27"/>
+				<Anchors>
+					<Anchor point="CENTER" relativePoint="TOP" x="0" y="-2"/>
+				</Anchors>
+				<TexCoords left="0.0078125" right="0.75" top="0.226562" bottom="0.4375"/>
+			</Texture>
+		</Layer>
+		<Layer level="ARTWORK">
+			<FontString name="$parentTextLeft1" parentKey="TextLeft1" inherits="GameTooltipText">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="10" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</FontString>
+		</Layer>
 	</Layers>
 	<Scripts>
 		<OnShow>
+			local layout = NineSliceUtil.GetLayout("TooltipAzeriteLayout");
+			NineSliceUtil.ApplyLayout(self.NineSlice, layout);
+			self.NineSlice:Show();
+			self.TopOverlay:SetScale(0.75);
 			self:ClearAllPoints()
 			self:SetPoint("TOPLEFT", ItemRefTooltip, "TOPRIGHT")
 			if self.TextLeft1:GetWidth() > 230 then self.TextLeft1:SetWidth( 230 ); end
@@ -116,8 +129,7 @@
 	<Size x="42" y="42"/>
 	<Layers>
 		<Layer level="ARTWORK">
-			<Texture parentKey="icon" setAllPoints="true" file="Interface/Icons/inv_misc_questionmark">
-			</Texture>
+			<Texture parentKey="icon" setAllPoints="true" file="Interface/Icons/inv_misc_questionmark"/>
 		</Layer>
 		<Layer level="OVERLAY">
 			<Texture parentKey="approved" file="Interface/AddOns/DiceMaster/Texture/trait-approved">
@@ -251,7 +263,7 @@
 						<OnEnter>
 							local trait = DiceMaster4.inspectData[self:GetParent():GetParent().traitPlayer].traits[self:GetParent():GetParent().traitIndex]
 							
-							if self:GetParent():GetParent().traitPlayer == UnitName("player") and ( self:GetParent():GetParent():GetParent()==DiceMasterPanel or self:GetParent():GetParent():GetParent()==DiceMasterTraitEditor ) then
+							if self:GetParent():GetParent().traitPlayer == UnitName("player") and ( self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame or self:GetParent():GetParent():GetParent()==DiceMasterTraitEditor ) then
 								if trait["effects"]["secret"] then
 									GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 									GameTooltip:AddLine( "|TInterface/AddOns/DiceMaster/Texture/secret-icon:12|t Secret!" , 1, 1, 1)
@@ -270,7 +282,7 @@
 										end
 									end
 									GameTooltip:AddLine( "|cFFFFD100This secret is activated when...|r|n"..conditionsList , 1, 1, 1)
-									if self:GetParent():GetParent():GetParent()==DiceMasterPanel then
+									if self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame then
 										GameTooltip:AddLine( "&lt;Right Click to Disable>" , 0.44, 0.44, 0.44)
 									end
 									GameTooltip:Show()
@@ -283,7 +295,7 @@
 							end
 						</OnEnter>
 						<OnClick>
-							if button=="RightButton" and self:GetParent():GetParent().traitPlayer == UnitName("player") and self:GetParent():GetParent():GetParent()==DiceMasterPanel then
+							if button=="RightButton" and self:GetParent():GetParent().traitPlayer == UnitName("player") and self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame then
 								DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].secret1Active = false;
 								DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].secret1Enabled = false;
 								self:Hide()
@@ -315,7 +327,7 @@
 						<OnEnter>
 							local trait = DiceMaster4.inspectData[self:GetParent():GetParent().traitPlayer].traits[self:GetParent():GetParent().traitIndex]
 							
-							if self:GetParent():GetParent().traitPlayer == UnitName("player") and ( self:GetParent():GetParent():GetParent()==DiceMasterPanel or self:GetParent():GetParent():GetParent()==DiceMasterTraitEditor ) then
+							if self:GetParent():GetParent().traitPlayer == UnitName("player") and ( self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame or self:GetParent():GetParent():GetParent()==DiceMasterTraitEditor ) then
 								if trait["effects"]["secret"] then
 									GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 									GameTooltip:AddLine( "|TInterface/AddOns/DiceMaster/Texture/secret-icon:12|t Secret!" , 1, 1, 1)
@@ -334,7 +346,7 @@
 										end
 									end
 									GameTooltip:AddLine( "|cFFFFD100This secret is activated when...|r|n"..conditionsList , 1, 1, 1)
-									if self:GetParent():GetParent():GetParent()==DiceMasterPanel then
+									if self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame then
 										GameTooltip:AddLine( "&lt;Right Click to Disable>" , 0.44, 0.44, 0.44)
 									end
 									GameTooltip:Show()
@@ -347,7 +359,7 @@
 							end
 						</OnEnter>
 						<OnClick>
-							if button=="RightButton" and self:GetParent():GetParent().traitPlayer == UnitName("player") and self:GetParent():GetParent():GetParent()==DiceMasterPanel then
+							if button=="RightButton" and self:GetParent():GetParent().traitPlayer == UnitName("player") and self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame then
 								DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].secret2Active = false;
 								DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].secret2Enabled = false;
 								self:Hide()
@@ -379,7 +391,7 @@
 						<OnEnter>
 							local trait = DiceMaster4.inspectData[self:GetParent():GetParent().traitPlayer].traits[self:GetParent():GetParent().traitIndex]
 							
-							if self:GetParent():GetParent().traitPlayer == UnitName("player") and ( self:GetParent():GetParent():GetParent()==DiceMasterPanel or self:GetParent():GetParent():GetParent()==DiceMasterTraitEditor ) then
+							if self:GetParent():GetParent().traitPlayer == UnitName("player") and ( self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame or self:GetParent():GetParent():GetParent()==DiceMasterTraitEditor ) then
 								if trait["effects"]["secret"] then
 									GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 									GameTooltip:AddLine( "|TInterface/AddOns/DiceMaster/Texture/secret-icon:12|t Secret!" , 1, 1, 1)
@@ -398,7 +410,7 @@
 										end
 									end
 									GameTooltip:AddLine( "|cFFFFD100This secret is activated when...|r|n"..conditionsList , 1, 1, 1)
-									if self:GetParent():GetParent():GetParent()==DiceMasterPanel then
+									if self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame then
 										GameTooltip:AddLine( "&lt;Right Click to Disable>" , 0.44, 0.44, 0.44)
 									end
 									GameTooltip:Show()
@@ -411,7 +423,7 @@
 							end
 						</OnEnter>
 						<OnClick>
-							if button=="RightButton" and self:GetParent():GetParent().traitPlayer == UnitName("player") and self:GetParent():GetParent():GetParent()==DiceMasterPanel then
+							if button=="RightButton" and self:GetParent():GetParent().traitPlayer == UnitName("player") and self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame then
 								DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].secret3Active = false;
 								DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].secret3Enabled = false;
 								self:Hide()

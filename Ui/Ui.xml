@@ -118,6 +118,7 @@
   <Include file="Ui\RollTracker.xml"/>
   <Include file="Ui\RollBanner.xml"/>
   <Include file="Ui\SecretBanner.xml"/>
+  <Include file="Ui\CastingBar.xml"/>
   <Include file="Ui\PostTracker.xml"/>
   <Include file="Ui\TurnTracker.xml"/>
   <Include file="Ui\MoraleBar.xml"/>
@@ -125,6 +126,5 @@
   <Include file="Ui\LootToast.xml"/>
   <Include file="Ui\TradeSkillFrame.xml"/>
   <Include file="Ui\SplashFrame.xml"/>
-  <Include file="Ui\Assistant.xml"/>
 </Ui>
  

@@ -7,9 +7,7 @@
 	</Anchors>
 	<Scripts>
 		<OnMouseDown>
-			if not DiceMasterMoraleBarDragFrame:IsShown() then
-				DiceMaster4.MoraleBar_OnClick( self, button );
-			end
+			DiceMaster4.MoraleBar_OnClick( self, button );
 		</OnMouseDown>
 		<OnLoad>
 			DiceMaster4.UnitPowerBar_Init( self )

@@ -1398,7 +1398,6 @@ function Me:OnEnable()
 	Me.ImportDM5Saved()
 	Me.Emoji_Init()
 	Me.PostTracker_Init()
-	--Me.Assistant_Init()
 	
 	Me.ApplyKeybindings()
 	Me.ApplyUiScale()
@@ -1429,8 +1428,6 @@ function Me:OnEnable()
 		-- If we haven't seen the splash frame for the latest version, show it.
 		DiceMasterSplashFrame:Show();
 		Me.db.global.lastSplashShown = "5.1.8";
-		-- DISABLED FOR TESTING:
-		--DiceMasterAssistant:Show();
 	end
 	
 	Me.UpdatePanelTraits()

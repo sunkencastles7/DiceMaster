@@ -196,11 +196,11 @@ function Me.OpenTraitTooltip( owner, trait, index )
 		end
 	end
 	
-	if trait.effects and next(trait.effects) and owner and owner:GetParent():GetName() == "DiceMasterPanel" then
+	if trait.effects and next(trait.effects) and owner and owner:GetParent():GetName() == "DiceMasterChargesFrame" then
 		usable = usable .. "<Right Click to Use>|n"
 	end
 	
-	if owner and owner:GetParent():GetName() == "DiceMasterPanel" then
+	if owner and owner:GetParent():GetName() == "DiceMasterChargesFrame" then
 		GameTooltip:AddLine( "<Left Click to Edit>", 0.44, 0.44, 0.44, true )
 	end
 	
@@ -320,9 +320,9 @@ local methods = {
 		self.secret:Hide()
 		if self.trait then
 			self.icon:SetTexture( self.trait.icon )
-		elseif self.traitPlayer then		
+		elseif self.traitPlayer then
 			self.icon:SetTexture( Me.inspectData[self.traitPlayer].traits[self.traitIndex].icon )
-			if self:GetParent() == DiceMasterPanel then
+			if self:GetParent() == DiceMasterChargesFrame then
 				if Me.db.global.showUses then
 					local usage = Me.inspectData[self.traitPlayer].traits[self.traitIndex].usage or "PASSIVE"
 					if usage:find("USE") then

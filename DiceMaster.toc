@@ -1,4 +1,4 @@
-## Interface: 90205
+## Interface: 100005
 ## Title: DiceMaster
 ## Author: Skylar, Rennae
 ## Notes: A dice-rolling tabletop addon for roleplay.
@@ -48,6 +48,7 @@ Editors/AdjustHealthEditor.lua
 Editors/SecretEditor.lua
 Editors/RecipeEditor.lua
 Editors/MerchantEditor.lua
+Editors/Book.lua
 ChatLinks.lua
 Names.lua
 Emojis.lua
@@ -56,13 +57,12 @@ RollTracker.lua
 RollBanner.lua
 PostTracker.lua
 MoraleBar.lua
+CastingBar.lua
 LootToast.lua
 TradeSkillFrame.lua
 Buffs.lua
 RangeRadar.lua
-Editors/Book.lua
 Disenchant.lua
 SplashFrame.lua
-Assistant.lua
 
 Ui/Ui.xml

@@ -12,15 +12,6 @@
     <Scripts>
       <OnLoad>
         self.Title = "Player Frame"
-		self:SetClampedToScreen( true )
-		self:SetMovable(true)
-		self:EnableMouse(false)
-		self:RegisterForDrag( "LeftButton" )
-		self:SetScript( "OnDragStart", self.StartMoving )
-		self:SetScript( "OnDragStop", self.StopMovingOrSizing )
-		self:SetScale( 1.2 )
-		self:SetUserPlaced( true )
-		
 		-- create trait buttons
         self.traits = {}
         for i = 1,5 do
@@ -28,6 +19,7 @@
           self.traits[i]:SetSize( 24, 24 )
           self.traits[i]:SetPoint( "BOTTOM", -56 + 28*(i-1), 52 )
           self.traits[i].traitIndex = i
+		  self.traits[i].editable_trait = true;
 		  self.traits[i]:SetScript( "OnMouseDown", function( self, button )
 			if IsShiftKeyDown() then DiceMaster4.TraitEditor_OnTraitClicked( self, button ) else DiceMaster4.TraitButtonClicked( self, button ) end
 		end)
@@ -354,14 +346,6 @@
     <Scripts>
       <OnLoad>
         self.Title = "Pet Frame"
-		self:SetClampedToScreen( true )
-		self:SetMovable(true)
-		self:EnableMouse(false)
-		self:RegisterForDrag( "LeftButton" )
-		self:SetScript( "OnDragStart", self.StartMoving )
-		self:SetScript( "OnDragStop", self.StopMovingOrSizing )
-		self:SetScale( 1.2 )
-		self:SetUserPlaced( true )
 		tinsert(DiceMaster4.EditModeFrames, self);
       </OnLoad>
 	  <OnClick>

@@ -402,7 +402,7 @@ function Me.ItemEditorEffectsList_Update()
 		DiceMasterItemEditorEffectTotals:Hide()
 	else
 		DiceMasterItemEditorEffectTotals:Show()
-		DiceMasterItemEditorEffectTotals:SetText("No Effects")
+		DiceMasterItemEditorEffectTotals:SetText("No Actions")
 		DiceMasterItemEditor.selected = nil
 	end
 	
@@ -499,9 +499,9 @@ function Me.ItemEditorCooldown_OnValueChanged( self, value, userInput )
 	
 	local text = DiceMasterItemEditor.useText:GetText()
 	if string.len(text)> 0 then
-		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( text.." ("..SecondsToTime(ITEM_COOLDOWNS[ DiceMasterItemEditor.cooldown:GetValue() ].time or 1).." Cooldown)" )
+		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( Me.FormatItemTooltip(text).." ("..SecondsToTime(ITEM_COOLDOWNS[ DiceMasterItemEditor.cooldown:GetValue() ].time or 1).." Cooldown)" )
 	else
-		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( text )
+		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( Me.FormatItemTooltip(text) )
 	end
 end
 
@@ -630,9 +630,9 @@ end
 function Me.ItemEditor_SaveUseText()
 	local text = DiceMasterItemEditor.useText:GetText()
 	if string.len(text)> 0 then
-		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( text.." ("..SecondsToTime(ITEM_COOLDOWNS[ DiceMasterItemEditor.cooldown:GetValue() ].time or 1).." Cooldown)" )
+		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( Me.FormatItemTooltip(text).." ("..SecondsToTime(ITEM_COOLDOWNS[ DiceMasterItemEditor.cooldown:GetValue() ].time or 1).." Cooldown)" )
 	else
-		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( text )
+		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( Me.FormatItemTooltip(text) )
 	end
 	DiceMasterItemEditorPreviewTooltipTextLeft4:SetTextColor( 0, 1, 0 )
 	Me.newItem.useText = text;
@@ -644,7 +644,7 @@ end
 function Me.ItemEditor_SaveFlavorText()
 	local text = DiceMasterItemEditor.flavorText:GetText()
 	if text and text~= "" then
-		DiceMasterItemEditorPreviewTooltipTextLeft5:SetText( "\"" .. text .. "\"" )
+		DiceMasterItemEditorPreviewTooltipTextLeft5:SetText( "\"" .. Me.FormatItemTooltip(text) .. "\"" )
 	else
 		DiceMasterItemEditorPreviewTooltipTextLeft5:SetText( "" )
 	end
@@ -835,14 +835,16 @@ function Me.ItemEditor_LoadEditItem( itemIndex )
 	-- set properties
 	local propertiesList = nil
 	local count = 0
-	for k, v in pairs( data.properties ) do
-		if k then
-			count = count + 1
-		end
-		if count == 1 then
-			propertiesList = k
-		else
-			propertiesList = propertiesList .. ", " .. k
+	if data.properties then
+		for k, v in pairs( data.properties ) do
+			if k then
+				count = count + 1
+			end
+			if count == 1 then
+				propertiesList = k
+			else
+				propertiesList = propertiesList .. ", " .. k
+			end
 		end
 	end
 	UIDropDownMenu_SetText( DiceMasterItemEditor.itemProperties, "Properties: ".. (propertiesList or "(None)") )
@@ -870,16 +872,16 @@ function Me.ItemEditor_LoadEditItem( itemIndex )
 	DiceMasterItemEditorPreviewTooltipTextRight3:SetText( data.whiteText2 or "" )
 	if data.useText and string.len(data.useText)>0 then
 		if data.cooldown then
-			DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( data.useText.." ("..SecondsToTime(data.cooldown).." Cooldown)" )
+			DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( Me.FormatItemTooltip(data.useText).." ("..SecondsToTime(data.cooldown).." Cooldown)" )
 		else
-			DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( data.useText )
+			DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( Me.FormatItemTooltip(data.useText) )
 		end
 	else
 		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( "" )
 	end
 	DiceMasterItemEditorPreviewTooltipTextLeft4:SetTextColor( 0, 1, 0 )
 	if data.flavorText and string.len(data.flavorText)>0 then
-		DiceMasterItemEditorPreviewTooltipTextLeft5:SetText( "\"" .. data.flavorText .. "\"" )
+		DiceMasterItemEditorPreviewTooltipTextLeft5:SetText( "\"" .. Me.FormatItemTooltip(data.flavorText) .. "\"" )
 	else
 		DiceMasterItemEditorPreviewTooltipTextLeft5:SetText( "" )
 	end

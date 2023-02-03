@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2020 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 local Me = DiceMaster4
@@ -48,6 +48,26 @@ local EffectTypes = {
 	["skill"] = "Learn Skill",
 	["recipe"] = "Learn Recipe",
 	["pet"] = "Learn Pet",
+}
+
+-- tuples for subbing text in description tooltips
+local TOOLTIP_DESC_SUBS = {
+	-- Icons
+	{ "(%d+)%sHealth",      "|cFFFFFFFF%1|r|TInterface/AddOns/DiceMaster/Texture/health-heart:12|t" };  			-- e.g. "1 health"
+	{ "(%d+)%sHP",			"|cFFFFFFFF%1|r|TInterface/AddOns/DiceMaster/Texture/health-heart:12|t" };      		-- e.g. "1 hp"
+	{ "(%d+)%sArmo[u]*r",   "|cFFFFFFFF%1|r|TInterface/AddOns/DiceMaster/Texture/armour-icon:12|t" };				-- e.g. "1 armour"
+	{ "(%d+)%sMana",		"|cFFFFFFFF%1|r|TInterface/AddOns/DiceMaster/Texture/mana-gem:12|t" };  				-- e.g. "1 mana"
+	{ "%<food%>",			"|TInterface/AddOns/DiceMaster/Texture/resources:16:16:0:0:128:32:0:24:0:24|t" };		-- food icon
+	{ "%<wood%>",			"|TInterface/AddOns/DiceMaster/Texture/resources:16:16:0:0:128:32:24:48:0:24|t" };		-- wood icon
+	{ "%<iron%>",			"|TInterface/AddOns/DiceMaster/Texture/resources:16:16:0:0:128:32:48:72:0:24|t" };		-- iron icon
+	{ "%<leather%>",		"|TInterface/AddOns/DiceMaster/Texture/resources:16:16:0:0:128:32:72:96:0:24|t" };		-- leather icon
+	-- Tags
+	{ "(%d*)%s*<HP>",		"|cFFFFFFFF%1|r|TInterface/AddOns/DiceMaster/Texture/health-heart:12|t" };			-- <HP>
+	{ "(%d*)%s*<AR>",		"|cFFFFFFFF%1|r|TInterface/AddOns/DiceMaster/Texture/armour-icon:12|t" };				-- <AR>
+	{ "(%d*)%s*<MP>",		"|cFFFFFFFF%1|r|TInterface/AddOns/DiceMaster/Texture/mana-gem:12|t" };				-- <MP>
+	{ "<BR>",				"|n" };																					-- Line breaks
+	-- Dice
+	{ "%s%d*[dD]%d+[+-]?%d*", "|cFFFFFFFF%1|r" };                                                     				-- dice rolls e.g. "1d6" 
 }
 
 local function ExecuteEffects( effects, item )
@@ -322,18 +342,17 @@ end
 -------------------------------------------------------------------------------
 
 function Me.FormatItemTooltip( text )
-	name = name or UnitName("player")
-	
-	local plural_charges, singular_charges = Me.inspectData[name].charges.name:match( "^%s*(.*)/(.*)%s*$" )
-	if not singular_charges then
-		plural_charges   = Me.inspectData[name].charges.name
-		singular_charges = plural_charges
-		singular_charges = singular_charges:gsub( "[Ss]$", "" ) -- clip off an S :)
+	for k, v in ipairs( TOOLTIP_DESC_SUBS ) do
+		text = gsub( text, v[1], v[2] )
 	end
-	-- sub charges
-	text = text:gsub( "&cs", singular_charges )
-	text = text:gsub( "&cp", plural_charges )
-	text = Me.FormatDescTooltip( text )
+
+	-- <img> </img>
+	text = gsub( text, "<img>","|T" )
+	text = gsub( text, "</img>",":16|t" )
+
+	-- Remove extra spaces/lines at the beginning/end.
+	text = gsub( text, "^%s*(.-)%s*$", "%1" )
+
 	return text
 end
 
@@ -414,9 +433,9 @@ function Me.OpenItemTooltip( owner, item, index, isShopItem, isBankItem )
 	
 	if item.useText and string.len(item.useText)>0 then
 		if item.cooldown then
-			GameTooltip:AddLine( item.useText.." ("..SecondsToTime(item.cooldown).." Cooldown)", 0, 1, 0, true )
+			GameTooltip:AddLine( Me.FormatItemTooltip( item.useText ).." ("..SecondsToTime(item.cooldown).." Cooldown)", 0, 1, 0, true )
 		else
-			GameTooltip:AddLine( item.useText, 0, 1, 0, true )
+			GameTooltip:AddLine( Me.FormatItemTooltip( item.useText ), 0, 1, 0, true )
 		end
 	end
 	
@@ -425,7 +444,7 @@ function Me.OpenItemTooltip( owner, item, index, isShopItem, isBankItem )
 	end
 	
 	if item.flavorText and item.flavorText~="" then
-		GameTooltip:AddLine( "\""..item.flavorText.."\"", 1, 0.81, 0, true )
+		GameTooltip:AddLine( "\"".. Me.FormatItemTooltip(item.flavorText) .."\"", 1, 0.81, 0, true )
 	end
 	
 	if item.requiredClass then

@@ -11,16 +11,15 @@
 			<OnLoad>
 				DiceMaster4.CastingBar_OnLoad(self);
 			</OnLoad>
-			<OnEvent>
-				--
-			</OnEvent>
 			<OnUpdate>
 				DiceMaster4.CastingBar_OnUpdate(self, elapsed);
 			</OnUpdate>
 			<OnShow>
-				if ( CastingBarFrame ) then
+				if ( PlayerCastingBarFrame ) then
+					self:SetSize( PlayerCastingBarFrame:GetSize() )
+					self:SetScale( PlayerCastingBarFrame:GetScale() )
 					self:ClearAllPoints()
-					self:SetPoint("CENTER", CastingBarFrame, "CENTER")
+					self:SetPoint(PlayerCastingBarFrame:GetPoint())
 				end
 			</OnShow>
 		</Scripts>

@@ -2,13 +2,13 @@
 -- Internal variables
 --
 
-local CURRENT_BUILD = "10.0.2"
-local MAJOR, MINOR = "EditModeExpanded-1.0", 36
+local CURRENT_BUILD = "10.0.5"
+local MAJOR, MINOR = "EditModeExpanded-1.0", 44
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
--- the internal frames provided by Blizzard go up to index 12. They reference Enum.EditModeSystem, which starts from index 0
-local STARTING_INDEX = 13
+-- the internal frames provided by Blizzard go up to index 16. They reference Enum.EditModeSystem, which starts from index 0
+local STARTING_INDEX = 17
 local index = STARTING_INDEX
 local frames = {}
 local baseFramesDB = {} -- the base db that includes all profiles inside
@@ -21,6 +21,7 @@ local firstCheckButtonPlaced = false
 local ENUM_EDITMODEACTIONBARSETTING_HIDEABLE = 10 -- Enum.EditModeActionBarSetting.Hideable = 10
 local ENUM_EDITMODEACTIONBARSETTING_MINIMAPPINNED = 11
 local ENUM_EDITMODEACTIONBARSETTING_CUSTOM = 12
+local ENUM_EDITMODEACTIONBARSETTING_CLAMPED = 13
 
 -- run OnLoad the first time RegisterFrame is called by an addon
 local f = {}
@@ -80,66 +81,6 @@ local MICRO_BUTTONS = {
 	"StoreMicroButton",
 	}
 
--- MicroButtonAndBagsBar:GetTop gets checked by EditModeManager, setting the scale of the Right Action bars
--- to allow it to be moved, we need to duplicate the frame, hide the original, and make the duplicate the one being moved instead
-local function duplicateMicroButtonAndBagsBar(db)
-    MicroButtonAndBagsBar:Hide()
-    local duplicate = CreateFrame("Frame", "MicroButtonAndBagsBarMovable", UIParent)
-    duplicate:SetSize(232, 40)
-    duplicate:SetPoint("BOTTOMRIGHT")
-    duplicate.QuickKeybindsMicroBagBarGlow = duplicate:CreateTexture(nil, "BACKGROUND")
-    duplicate.QuickKeybindsMicroBagBarGlow:SetAtlas("QuickKeybind_BagMicro_Glow", true)
-    duplicate.QuickKeybindsMicroBagBarGlow:Hide()
-    duplicate.QuickKeybindsMicroBagBarGlow:SetPoint("CENTER", duplicate, "CENTER", -30, 30)
-    
-    hooksecurefunc("MoveMicroButtons", function(anchor, anchorTo, relAnchor, x, y, isStacked)
-        if anchorTo == MicroButtonAndBagsBar then
-            anchorTo = duplicate
-            CharacterMicroButton:ClearAllPoints();
-            CharacterMicroButton:SetPoint(anchor, anchorTo, relAnchor, x, y);
-        end
-    end)
-    
-    hooksecurefunc(MicroButtonAndBagsBar.QuickKeybindsMicroBagBarGlow, "SetShown", function(self, showEffects)
-        duplicate.QuickKeybindsMicroBagBarGlow:SetShown(showEffects)
-    end)
-    
-    duplicate:Show()
-    
-    CharacterMicroButton:ClearAllPoints();
-    CharacterMicroButton:SetPoint("BOTTOMLEFT", duplicate, "BOTTOMLEFT", 7, 6)
-    
-    UpdateMicroButtonsParent(duplicate)
-    hooksecurefunc("UpdateMicroButtonsParent", function(parent)
-        for i=1, #MICRO_BUTTONS do
-            _G[MICRO_BUTTONS[i]]:SetParent(duplicate)
-        end
-    end)
-    
-    MainMenuBarBackpackButton:SetPoint("TOPRIGHT", duplicate, -4, 2)
-    MainMenuBarBackpackButton:SetParent(duplicate)
-    
-    QueueStatusButton:SetParent(duplicate)
-    
-    -- Now split the Backpack section into its own bar
-    local backpackBar = CreateFrame("Frame", "EditModeExpandedBackpackBar", UIParent)
-    backpackBar:SetSize(232, 40)
-    backpackBar:SetPoint("BOTTOMRIGHT", duplicate, "TOPRIGHT")
-    MainMenuBarBackpackButton:ClearAllPoints()
-    MainMenuBarBackpackButton:SetPoint("BOTTOMRIGHT", backpackBar, "BOTTOMRIGHT")
-    MainMenuBarBackpackButton:SetParent(backpackBar)
-    BagBarExpandToggle:SetParent(backpackBar)
-    CharacterBag0Slot:SetParent(backpackBar)
-    CharacterBag1Slot:SetParent(backpackBar)
-    CharacterBag2Slot:SetParent(backpackBar)
-    CharacterBag3Slot:SetParent(backpackBar)
-    CharacterReagentBag0Slot:SetParent(backpackBar)
-    
-    if not db.BackpackBar then db.BackpackBar = {} end
-    lib:RegisterFrame(EditModeExpandedBackpackBar, "Backpack", db.BackpackBar)
-    return duplicate
-end
-
 --
 -- Public API
 --
@@ -170,7 +111,7 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint)
     
     -- If the frame was already registered (perhaps by another addon that uses this library), don't register it again
     for _, f in ipairs(frames) do
-        if (frame == f) or ((frame == MicroButtonAndBagsBar) and (f == MicroButtonAndBagsBarMovable)) then
+        if frame == f then
             if (not framesDB[f.system].x) and (not framesDB[f.system].y) then
                 -- import new db settings if there are none saved in the existing db
                 framesDB[f.system].x = db.x
@@ -234,14 +175,6 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint)
         
         db = db.profiles[profileName]
     end
-
-    if frame == MicroButtonAndBagsBar then
-        frame = duplicateMicroButtonAndBagsBar(db)
-        frame.EMEanchorTo = anchorTo
-        frame.EMEanchorPoint = anchorPoint
-        if not db.MenuBar then db.MenuBar = {} end
-        db = db.MenuBar
-    end
      
     table.insert(frames, frame)
     
@@ -276,7 +209,22 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint)
     registerFrameMovableWithArrowKeys(frame, anchorPoint, anchorTo)
     
     -- prevent the frame from going outside the screen boundaries
-    frame:SetClampedToScreen(true);
+    if db.clamped == nil then db.clamped = 1 end
+    if profilesInitialised and (db.clamped == 1) then
+        frame:SetClampedToScreen(true)
+    elseif profilesInitialised then
+        frame:SetClampedToScreen(false)
+    end
+    if not framesDialogs[frame.system] then framesDialogs[frame.system] = {} end
+    if not framesDialogsKeys[frame.system] then framesDialogsKeys[frame.system] = {} end
+    framesDialogsKeys[frame.system][ENUM_EDITMODEACTIONBARSETTING_CLAMPED] = true
+    table.insert(framesDialogs[frame.system],
+        {
+            setting = ENUM_EDITMODEACTIONBARSETTING_CLAMPED,
+            name = "Clamp to Screen",
+            type = Enum.EditModeSettingDisplayType.Checkbox,
+        }
+    )
     
     function frame.UpdateMagnetismRegistration() end
 
@@ -476,12 +424,12 @@ function lib:RepositionFrame(frame)
     
     local systemID = getSystemID(frame)
     local db = framesDB[systemID]
-
-    frame:ClearAllPoints()
     
-    if (not (db.x or db.defaultX)) or (not (db.y or db.defaultY)) then
+    if (not (db.x or db.defaultX)) or (not (db.y or db.defaultY)) or (not frame.EMEanchorTo) or (not frame.EMEanchorTo:GetRect()) then
         return
     end
+    
+    frame:ClearAllPoints()
     
     if db.settings and (db.settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] == 1) then
         frame:Hide()
@@ -625,7 +573,7 @@ hooksecurefunc(f, "OnLoad", function()
     EditModeManagerExpandedFrame:SetWidth(300)
     EditModeManagerExpandedFrame.Title = EditModeManagerExpandedFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlightLarge")
     EditModeManagerExpandedFrame.Title:SetPoint("TOP", 0, -15)
-    EditModeManagerExpandedFrame.Title:SetText("|TInterface/AddOns/DiceMaster/Texture/logo:12|t DiceMaster Frames")
+    EditModeManagerExpandedFrame.Title:SetText("Expanded")
     EditModeManagerExpandedFrame.Border = CreateFrame("Frame", nil, EditModeManagerExpandedFrame, "DialogBorderTranslucentTemplate")
     EditModeManagerExpandedFrame.AccountSettings = CreateFrame("Frame", nil, EditModeManagerExpandedFrame)
     EditModeManagerExpandedFrame.AccountSettings:SetPoint("TOPLEFT", 0, -35)
@@ -716,17 +664,14 @@ hooksecurefunc(EditModeManagerFrame, "ExitEditMode", function()
 end)
 
 hooksecurefunc(EditModeManagerFrame, "SelectSystem", function(self, systemFrame)
+    if EditModeExpandedSystemSettingsDialog.attachedToSystem ~= systemFrame then
+        EditModeExpandedSystemSettingsDialog:Hide()
+    end
+    
     for _, frame in ipairs(frames) do
         if systemFrame ~= frame then
             frame:HighlightSystem()
         end
-    end
-    
-    local systemID = getSystemID(systemFrame)
-    
-    if (not systemID) or (not framesDB[systemID]) then
-        EditModeExpandedSystemSettingsDialog:Hide()
-        return
     end
 end)
 
@@ -923,6 +868,21 @@ hooksecurefunc(f, "OnLoad", function()
                             end)
                         end
                         
+                        if displayInfo.setting == ENUM_EDITMODEACTIONBARSETTING_CLAMPED then
+                            savedValue = framesDB[systemID].clamped
+                            if savedValue == nil then savedValue = 1 end
+                            settingFrame.Button:SetChecked(savedValue)
+                            settingFrame.Button:SetScript("OnClick", function()
+                                if settingFrame.Button:GetChecked() then
+                                    framesDB[systemID].clamped = 1
+                                    systemFrame:SetClampedToScreen(true)
+                                else
+                                    framesDB[systemID].clamped = 0
+                                    systemFrame:SetClampedToScreen(false)
+                                end
+                            end)
+                        end
+                        
       					settingsToSetup[settingFrame] = { displayInfo = updatedDisplayInfo, currentValue = savedValue, settingName = settingName }
       					settingFrame:Show();
       				end
@@ -998,10 +958,6 @@ do
         for _, frame in pairs(frames) do
             EditModeExpandedSystemSettingsDialog:Hide()
             local db = baseFramesDB[frame.system]
-            if frame == MicroButtonAndBagsBarMovable then
-                if not db.MenuBar then db.MenuBar = {} end
-                db = db.MenuBar
-            end
             
             -- if currently selected Edit Mode profile does not exist in the db, try importing a legacy db instead
             local layoutInfo = EditModeManagerFrame:GetActiveLayoutInfo()
@@ -1025,6 +981,7 @@ do
                 db.y = nil
                 db.enabled = nil
                 db.settings = nil
+                db.clamped = nil
             end
             
             if db.minimap then
@@ -1078,6 +1035,12 @@ do
             -- only way I can find to un-select frames
             if EditModeManagerFrame.editModeActive and frame:IsShown() then
                 frame:HighlightSystem()
+            end
+            
+            if db.clamped == 1 then
+                frame:SetClampedToScreen(true)
+            else
+                frame:SetClampedToScreen(false)
             end
         end
         
@@ -1139,7 +1102,7 @@ function lib:RegisterMinimapPinnable(frame)
         icon:Hide(name)
     end)
     
-    hooksecurefunc(frame, "SetShown", function()
+    local function showHide()
         local db = framesDB[frame.system]
         if not db.minimap then db.minimap = {} end
         if not db.settings then db.settings = {} end
@@ -1152,7 +1115,12 @@ function lib:RegisterMinimapPinnable(frame)
             db.minimap.hide = true
             icon:Hide(name)
         end
+    end
+    
+    hooksecurefunc(frame, "SetShown", function()
+        showHide()
     end)
+    showHide()
     
     if not framesDialogs[frame.system] then framesDialogs[frame.system] = {} end
     if framesDialogsKeys[frame.system] and framesDialogsKeys[frame.system][ENUM_EDITMODEACTIONBARSETTING_MINIMAPPINNED] then return end

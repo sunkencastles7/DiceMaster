@@ -53,8 +53,11 @@
 			</AnimationGroup>
 		</Animations>
 		<Scripts>
+			<OnShow>
+				DiceMasterPanelRollButton.menuIsShown = true;
+			</OnShow>
 			<OnClick>
-				DiceMasterPanelRollButton.hasFocus = false;
+				DiceMasterPanelRollButton.menuIsShown = false;
 				self.Selected:Play();
 				DiceMaster4.RollMenu_OnClick( self )
 			</OnClick>
@@ -339,7 +342,7 @@
 			</Scripts>
 	  </Button>
 	  
-	  <Button name="TraitEditorButton" topLevel="true" inherits="MainMenuBarMicroButton">
+	  <Button name="TraitEditorButton" inherits="MainMenuBarMicroButton">
 		<Size x="18" y="24"/>
 		<Anchors>
 			<Anchor point="LEFT" relativeKey="$parent.roll" relativePoint="RIGHT" x="4" y="0"/>
