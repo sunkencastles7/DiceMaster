@@ -26,7 +26,7 @@ end
 
 function Me.PostTracker_Typing( self )
 	if IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) then return end
-	
+
 	local chatType = _G[self:GetName() .. "Header"]:GetText()
 	local msg = self:GetText()
 	if string.len(msg) > 0 and not msg:match("^%/%.*") then 
@@ -103,7 +103,7 @@ end
 function Me.PostTracker_OnLoad( self )
 	for i = 1, NUM_CHAT_WINDOWS do
 		local frame = _G["ChatFrame" .. i .. "EditBox"]
-		frame:HookScript("OnTextChanged", Me.PostTracker_Typing)
+		frame:HookScript("OnChar", Me.PostTracker_Typing)
 		frame:HookScript("OnEditFocusLost", Me.PostTracker_Typing)
 	end
 	
@@ -151,7 +151,16 @@ function Me.PostTracker_OnTyping( data, dist, sender )
 	end
 	
 	if data.tp then
-		tinsert(Me.WhoIsTyping, data.na)
+		local found = false;
+		for i = 1, #Me.WhoIsTyping do
+			if Me.WhoIsTyping[i] == data.na then
+				found = true;
+				break
+			end
+		end
+		if not( found ) then
+			tinsert(Me.WhoIsTyping, data.na)
+		end
 	else
 		for i=1,#Me.WhoIsTyping do
 			if Me.WhoIsTyping[i] == data.na then

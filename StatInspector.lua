@@ -231,6 +231,50 @@ function Me.StatInspector_SetStatusBar( statusBarID, skillIndex, numSkills )
 	statusBarSkillRank:ClearAllPoints();
 	statusBarSkillRank:SetPoint("LEFT", "DiceMasterStatInspectorSkillRankFrame"..statusBarID.."SkillName", "RIGHT", 13, 0);
 	statusBarSkillRank:SetJustifyH("LEFT");
+	statusBarBorder.skillName = skillName;
+	statusBarBorder.skillIcon = skillIcon;
+	-- Set skill description text
+	if ( skillDescription ) then
+		local modifiedSkillRank;
+		if ( GetModifiersFromSkillGUID( skillGUID ) ~= 0 ) then
+			local modifiers = GetModifiersFromSkillGUID( skillGUID );
+			local color = RED_FONT_COLOR_CODE;
+			if ( modifiers > 0 ) then
+				color = GREEN_FONT_COLOR_CODE.."+"
+			end
+			modifiedSkillRank = skillRank .." "..color..modifiers..FONT_COLOR_CODE_CLOSE;
+		else
+			modifiedSkillRank = skillRank;
+		end
+		if ( skillMaxRank == 0) then
+			skillDescription = "|cFFFFFFFFRank " .. modifiedSkillRank .. "|r|n" .. skillDescription;
+		else
+			skillDescription = skillDescription .. "|n|cFFFFFFFF( " .. modifiedSkillRank .. " / " .. skillMaxRank .. " )|r";
+		end
+	end
+	statusBarBorder.skillDescription = skillDescription;
+	local expandedDescription = skillDescription;
+	if skillModifiers and #skillModifiers > 0 then
+		for i = 1, #skillModifiers do 
+			local modifier = GetSkillByGUID( skillModifiers[i] );
+			local color = RED_FONT_COLOR_CODE;
+			if tonumber( modifier.rank ) > 0 then
+				color = GREEN_FONT_COLOR_CODE.."+"
+			end
+			if tonumber( modifier.rank ) ~= 0 then
+				-- Add an extra line if it's the first skill
+				if i == 1 then
+					expandedDescription = expandedDescription .. "|n|n|cFFFFFFFFModifiers:|r|n"
+				end
+				if i == #skillModifiers then
+					expandedDescription = expandedDescription .. color .. modifier.rank .. "|r " .. "|T" .. modifier.icon .. ":12|t " .. modifier.name;
+				else
+					expandedDescription = expandedDescription .. color .. modifier.rank .. "|r " .. "|T" .. modifier.icon .. ":12|t " .. modifier.name .. "|n";
+				end
+			end
+		end
+	end
+	statusBarBorder.expandedDescription = expandedDescription;
 	
 	-- Anchor the text to the left by default
 	statusBarName:ClearAllPoints();
@@ -266,7 +310,7 @@ function Me.StatInspector_SetStatusBar( statusBarID, skillIndex, numSkills )
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
 			end
-			statusBarSkillRank:SetText(skillRank.." ("..color..modifiers..FONT_COLOR_CODE_CLOSE.. ")");
+			statusBarSkillRank:SetText(skillRank.." "..color..modifiers..FONT_COLOR_CODE_CLOSE);
 		else
 			statusBarSkillRank:SetText(skillRank);
 		end
@@ -291,7 +335,7 @@ function Me.StatInspector_SetStatusBar( statusBarID, skillIndex, numSkills )
 				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
-			statusBarSkillRank:SetText(skillRank.." ("..color..modifiers..FONT_COLOR_CODE_CLOSE..")/"..skillMaxRank);
+			statusBarSkillRank:SetText(skillRank.." "..color..modifiers..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
 		end
 	end
 end
@@ -351,12 +395,16 @@ function Me.StatInspectorDetailFrame_SetStatusBar( skillPosition )
 				-- Add an extra line if it's the first skill
 				if i == 1 then
 					if not( skillDescription ) then
-						skillDescription = ""
+						skillDescription = "|cFFFFD100Modifiers:|r "
 					else
-						skillDescription = skillDescription .. "|n"
+						skillDescription = skillDescription .. "|n|n|cFFFFD100Modifiers:|r "
 					end
 				end
-				skillDescription = skillDescription .. "|n(" .. color .. modifier.rank .. "|r from " .. modifier.name .. ")";
+				if i == #skillModifiers then
+					skillDescription = skillDescription .. color .. modifier.rank .. " " .. modifier.name .. "|r";
+				else
+					skillDescription = skillDescription .. color .. modifier.rank .. " " .. modifier.name .. "|r, ";
+				end
 			end
 		end
 	end
@@ -401,7 +449,7 @@ function Me.StatInspectorDetailFrame_SetStatusBar( skillPosition )
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
 			end
-			statusBarSkillRank:SetText(skillRank.." ("..color..modifiers..FONT_COLOR_CODE_CLOSE.. ")");
+			statusBarSkillRank:SetText(skillRank.." "..color..modifiers..FONT_COLOR_CODE_CLOSE);
 		else
 			statusBarSkillRank:SetText(skillRank);
 		end
@@ -424,7 +472,7 @@ function Me.StatInspectorDetailFrame_SetStatusBar( skillPosition )
 				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
-			statusBarSkillRank:SetText(skillRank.." ("..color..modifiers..FONT_COLOR_CODE_CLOSE..")/"..skillMaxRank);
+			statusBarSkillRank:SetText(skillRank.." "..color..modifiers..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
 		end
 	end
 end
@@ -515,6 +563,11 @@ end
 function Me.StatInspector_UpdatePet()
 	
 	if Me.inspectName and Me.inspectData[Me.inspectName] and Me.inspectData[Me.inspectName].pet and Me.inspectData[Me.inspectName].pet.enable then
+		if UnitFactionGroup(Me.inspectName) == "Alliance" then
+			DiceMasterStatInspectorPetFrameModelBG:SetTexture("Interface/AddOns/DiceMaster/Texture/PetFrameBackgroundAlliance")
+		else
+			DiceMasterStatInspectorPetFrameModelBG:SetTexture("Interface/AddOns/DiceMaster/Texture/PetFrameBackgroundHorde")
+		end
 		local pet = Me.inspectData[Me.inspectName].pet
 		Me.statinspector.petFrame.petIcon:SetTexture( pet.icon )
 		Me.statinspector.petFrame.petName:SetText( pet.name )
@@ -522,16 +575,13 @@ function Me.StatInspector_UpdatePet()
 		DiceMasterStatInspectorPetModel:SetModelByCreatureDisplayID( pet.model )
 		DiceMasterStatInspectorPetModel:SetScale( pet.scale or 0.2 )
 		PanelTemplates_EnableTab(DiceMasterStatInspector, 2)
-	else
-		if PanelTemplates_GetSelectedTab(DiceMasterStatInspector) == 2 then
-			PanelTemplates_SetTab(DiceMasterStatInspector, 1);
-			DiceMasterStatInspectorSkillFrame:Show();
-			DiceMasterStatInspectorPetFrame:Hide();
-			PlaySound(841)
-		end
+	elseif PanelTemplates_GetSelectedTab(DiceMasterStatInspector) == 2 then
+		PanelTemplates_SetTab(DiceMasterStatInspector, 1);
+		DiceMasterStatInspectorSkillFrame:Show();
+		DiceMasterStatInspectorPetFrame:Hide();
+		PlaySound(841)
 		PanelTemplates_DisableTab(DiceMasterStatInspector, 2)
 	end
-	
 end
 
 function Me.StatInspector_RequestItem()

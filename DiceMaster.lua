@@ -1129,14 +1129,19 @@ function Me.GetModifierNamesFromSkillGUID( guid )
 		return
 	end
 
-	local modifiers = "(Modified by " .. Me.GetSkillByGUID( skill.skillModifiers[1] )["name"];
+	local modifiers = "|cFFFFD100Modifiers:|r " .. Me.GetSkillByGUID( skill.skillModifiers[1] )["name"];
 	
 	-- Grab values from skills in the modifiers table
 	-- by GUID
 	for skillIndex = 2,#skill.skillModifiers do
 		for i = 1, #Me.Profile.skills do
 			if Me.Profile.skills[i].guid == skill.skillModifiers[skillIndex] then
-				modifiers = modifiers .. ", " .. Me.Profile.skills[i].name;
+				local modifierTotals = Me.GetModifiersFromSkillGUID( skillGUID );
+				local color = RED_FONT_COLOR_CODE;
+				if ( modifierTotals > 0 ) then
+					color = GREEN_FONT_COLOR_CODE.."+"
+				end
+				modifiers = modifiers .. ", " .. color .. modifierTotals .. " " .. Me.Profile.skills[i].name;
 			end
 		end
 	end

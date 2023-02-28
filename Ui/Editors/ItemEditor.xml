@@ -700,7 +700,7 @@
 				  <Anchor point="TOP" x="0" y="-12"/> 
 				</Anchors>
 			</FontString>
-			<FontString parentKey="disclaimer" inherits="GameFontNormalLeft" justifyH="left" text="Tooltip Preview">
+			<FontString parentKey="disclaimer" inherits="GameFontNormalLeft" justifyH="left">
 				<Size x="230" y="100"/>
 				<Anchors>
 				  <Anchor point="TOPLEFT" x="12" y="-140"/> 

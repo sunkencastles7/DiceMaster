@@ -196,7 +196,7 @@ function Me.ItemEditorNewAction_OnLoad(frame, level, menuList)
 	info.arg1 = Me.MessageEditor_Open;
 	UIDropDownMenu_AddButton(info, level)
 	info.icon = "Interface/Icons/inv_misc_note_02"
-	info.text = "Learn Skill"
+	info.text = "Learn Skills"
 	info.arg1 = Me.LearnSkillEditor_Open;
 	UIDropDownMenu_AddButton(info, level)
 	info.icon = "Interface/Icons/inv_misc_note_01"
@@ -234,6 +234,7 @@ local EffectHandlers = {
 	["sound"] = { "SoundPicker_Open", "SoundPicker_Refresh" };
 	["health"] = { "AdjustHealthEditor_Open", "AdjustHealthEditor_Load" };
 	["skill"] = { "LearnSkillEditor_Open", "LearnSkillEditor_Refresh" };
+	["skillsheet"] = { "LearnSkillSheetEditor_Open", "LearnSkillSheetEditor_Refresh" };
 	["recipe"] = { "LearnRecipeEditor_Open", "LearnRecipeEditor_Load" };
 	["pet"] = { "LearnPetEditor_Open", "LearnPetEditor_Load" };
 }
@@ -372,7 +373,7 @@ local DICEMASTER_ITEM_EFFECTS = {
 		detail = "health";
 	},
 	["skill"] = {
-		name = "Learn Skill";
+		name = "Learn Skills";
 		icon = "Interface/Icons/inv_misc_note_02";
 		detail = "name";
 	},

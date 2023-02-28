@@ -1491,7 +1491,9 @@ function Me.SkillFrame_IncreaseButton_OnClick( self, button )
 	
 	local skillName, skillIcon, skillDescription, skillType, skillRank, skillMaxRank, skillAuthor, skillGUID, skillModifiers, skillShowOnMenu, skillCanEdit = GetSkillLineInfo(skillIndex)
 	if skillAuthor == UnitName("player") or skillCanEdit then
-		if skillMaxRank > 0 then
+		if IsShiftKeyDown() then
+			Me.Profile.skills[skillPosition].maxRank = Me.Clamp( Me.Profile.skills[skillPosition].maxRank + 1, 0, 9999 )
+		elseif skillMaxRank > 0 then
 			Me.Profile.skills[skillPosition].rank = Me.Clamp( Me.Profile.skills[skillPosition].rank + 1, -1 * Me.Profile.skills[skillPosition].maxRank, Me.Profile.skills[skillPosition].maxRank )
 		else
 			Me.Profile.skills[skillPosition].rank = Me.Clamp( Me.Profile.skills[skillPosition].rank + 1, -9999, 9999 )
@@ -1511,7 +1513,12 @@ function Me.SkillFrame_DecreaseButton_OnClick( self, button )
 	
 	local skillName, skillIcon, skillDescription, skillType, skillRank, skillMaxRank, skillAuthor, skillGUID, skillModifiers, skillShowOnMenu, skillCanEdit = GetSkillLineInfo(skillIndex)
 	if skillAuthor == UnitName("player") or skillCanEdit then
-		if skillMaxRank > 0 then
+		if IsShiftKeyDown() then
+			Me.Profile.skills[skillPosition].maxRank = Me.Clamp( Me.Profile.skills[skillPosition].maxRank - 1, 0, 9999 )
+			if Me.Profile.skills[skillPosition].rank > Me.Profile.skills[skillPosition].maxRank then
+				Me.Profile.skills[skillPosition].rank = Me.Profile.skills[skillPosition].maxRank
+			end
+		elseif skillMaxRank > 0 then
 			Me.Profile.skills[skillPosition].rank = Me.Clamp( Me.Profile.skills[skillPosition].rank - 1, -1 * Me.Profile.skills[skillPosition].maxRank, Me.Profile.skills[skillPosition].maxRank )
 		else
 			Me.Profile.skills[skillPosition].rank = Me.Clamp( Me.Profile.skills[skillPosition].rank - 1, -9999, 9999 )
@@ -1818,6 +1825,50 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 	statusBarSkillRank:ClearAllPoints();
 	statusBarSkillRank:SetPoint("LEFT", "DiceMasterSkillRankFrame"..statusBarID.."SkillName", "RIGHT", 13, 0);
 	statusBarSkillRank:SetJustifyH("LEFT");
+	statusBarBorder.skillName = skillName;
+	statusBarBorder.skillIcon = skillIcon;
+	-- Set skill description text
+	if ( skillDescription ) then
+		local modifiedSkillRank;
+		if ( Me.GetModifiersFromSkillGUID( skillGUID ) ~= 0 ) then
+			local modifiers = Me.GetModifiersFromSkillGUID( skillGUID );
+			local color = RED_FONT_COLOR_CODE;
+			if ( modifiers > 0 ) then
+				color = GREEN_FONT_COLOR_CODE.."+"
+			end
+			modifiedSkillRank = skillRank .." "..color..modifiers..FONT_COLOR_CODE_CLOSE;
+		else
+			modifiedSkillRank = skillRank;
+		end
+		if ( skillMaxRank == 0) then
+			skillDescription = "|cFFFFFFFFRank " .. modifiedSkillRank .. "|r|n" .. skillDescription;
+		else
+			skillDescription = skillDescription .. "|n|cFFFFFFFF( " .. modifiedSkillRank .. " / " .. skillMaxRank .. " )|r";
+		end
+	end
+	statusBarBorder.skillDescription = skillDescription;
+	local expandedDescription = skillDescription;
+	if skillModifiers and #skillModifiers > 0 then
+		for i = 1, #skillModifiers do 
+			local modifier = Me.GetSkillByGUID( skillModifiers[i] );
+			local color = RED_FONT_COLOR_CODE;
+			if tonumber( modifier.rank ) > 0 then
+				color = GREEN_FONT_COLOR_CODE.."+"
+			end
+			if tonumber( modifier.rank ) ~= 0 then
+				-- Add an extra line if it's the first skill
+				if i == 1 then
+					expandedDescription = expandedDescription .. "|n|n|cFFFFFFFFModifiers:|r|n"
+				end
+				if i == #skillModifiers then
+					expandedDescription = expandedDescription .. color .. modifier.rank .. "|r " .. "|T" .. modifier.icon .. ":12|t " .. modifier.name;
+				else
+					expandedDescription = expandedDescription .. color .. modifier.rank .. "|r " .. "|T" .. modifier.icon .. ":12|t " .. modifier.name .. "|n";
+				end
+			end
+		end
+	end
+	statusBarBorder.expandedDescription = expandedDescription;
 	
 	-- Anchor the text to the left by default
 	statusBarName:ClearAllPoints();
@@ -1861,7 +1912,7 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
 			end
-			statusBarSkillRank:SetText(skillRank.." ("..color..modifiers..FONT_COLOR_CODE_CLOSE.. ")");
+			statusBarSkillRank:SetText(skillRank.." "..color..modifiers..FONT_COLOR_CODE_CLOSE);
 		else
 			statusBarSkillRank:SetText(skillRank);
 		end
@@ -1886,7 +1937,7 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
-			statusBarSkillRank:SetText(skillRank.." ("..color..modifiers..FONT_COLOR_CODE_CLOSE..")/"..skillMaxRank);
+			statusBarSkillRank:SetText(skillRank.." "..color..modifiers..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
 		end
 	end
 end
@@ -1931,6 +1982,13 @@ function Me.SkillDetailFrame_SetStatusBar( skillIndex )
 		statusBarIncreaseButton.skillName = skillName;
 		statusBarDecreaseButton:Enable();
 		statusBarDecreaseButton.skillName = skillName;
+		if not( skillMaxRank == 0 ) then
+			statusBarIncreaseButton.canIncreaseMax = true;
+			statusBarDecreaseButton.canDecreaseMax = true;
+		else
+			statusBarIncreaseButton.canIncreaseMax = false;
+			statusBarDecreaseButton.canDecreaseMax = false;
+		end
 	else
 		statusBarIncreaseButton:Disable();
 		statusBarDecreaseButton:Disable();
@@ -1968,12 +2026,16 @@ function Me.SkillDetailFrame_SetStatusBar( skillIndex )
 				-- Add an extra line if it's the first skill
 				if i == 1 then
 					if not( skillDescription ) then
-						skillDescription = ""
+						skillDescription = "|cFFFFD100Modifiers:|r "
 					else
-						skillDescription = skillDescription .. "|n"
+						skillDescription = skillDescription .. "|n|n|cFFFFD100Modifiers:|r "
 					end
 				end
-				skillDescription = skillDescription .. "|n(" .. color .. modifier.rank .. "|r from " .. modifier.name .. ")";
+				if i == #skillModifiers then
+					skillDescription = skillDescription .. color .. modifier.rank .. " " .. modifier.name .. "|r";
+				else
+					skillDescription = skillDescription .. color .. modifier.rank .. " " .. modifier.name .. "|r, ";
+				end
 			end
 		end
 	end
@@ -2018,7 +2080,7 @@ function Me.SkillDetailFrame_SetStatusBar( skillIndex )
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
 			end
-			statusBarSkillRank:SetText(skillRank.." ("..color..modifiers..FONT_COLOR_CODE_CLOSE.. ")");
+			statusBarSkillRank:SetText(skillRank.." "..color..modifiers..FONT_COLOR_CODE_CLOSE);
 		else
 			statusBarSkillRank:SetText(skillRank);
 		end
@@ -2042,7 +2104,7 @@ function Me.SkillDetailFrame_SetStatusBar( skillIndex )
 				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
-			statusBarSkillRank:SetText(skillRank.." ("..color..modifiers..FONT_COLOR_CODE_CLOSE..")/"..skillMaxRank);
+			statusBarSkillRank:SetText(skillRank.." "..color..modifiers..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
 		end
 	end
 end
@@ -2096,7 +2158,7 @@ function Me.SkillFrame_UpdateSkills()
 	DiceMasterSkillDetailScrollFrame:UpdateScrollChildRect();
 
 	if DiceMasterSkillFrame.statusBarClickedPosition then
-		Me.SkillDetailFrame_SetStatusBar( DiceMasterSkillFrame.statusBarClickedID );
+		Me.SkillDetailFrame_SetStatusBar( DiceMasterSkillFrame.statusBarClickedPosition );
 		DiceMasterSkillDetailScrollFrame:Show();
 	else
 		DiceMasterSkillDetailScrollFrame:Hide();

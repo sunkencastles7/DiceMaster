@@ -330,6 +330,7 @@ function Me.SkillEditor_CreateSkill()
 	
 	Me.SkillFrame_UpdateSkills()
 	Me.SkillEditor_Close()
+	DiceMasterTraitEditor.NoSkillsWarning:Hide();
 end
 
 function Me.SkillEditor_SelectIcon( texture )

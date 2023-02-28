@@ -60,7 +60,31 @@
 					<OnLoad>
 						self:RegisterForClicks("LeftButtonDown")
 						self:RegisterForDrag("LeftButton")
+						self:RegisterEvent("MODIFIER_STATE_CHANGED")
 					</OnLoad>
+					<OnEvent>
+						if event == "MODIFIER_STATE_CHANGED" and GetMouseFocus() == self then
+							self:GetScript("OnEnter")( self )
+						end
+					</OnEvent>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+						GameTooltip:AddLine( self.skillName, 1, 1, 1 )
+						if ( IsShiftKeyDown() ) then
+							GameTooltip:AddLine( self.expandedDescription, 1, 0.81, 0, true )
+						else
+							GameTooltip:AddLine( self.skillDescription, 1, 0.81, 0, true )
+							GameTooltip:AddLine( "&lt;Hold Shift for Details>", 0.5, 0.5, 0.5, true )
+						end
+						GameTooltip:AddLine( "&lt;Left Click to Select>", 0.5, 0.5, 0.5, true )
+						DiceMasterTooltipIcon.icon:SetTexture( self.skillIcon )
+						DiceMasterTooltipIcon:Show()
+						GameTooltip:Show()
+					</OnEnter>
+					<OnLeave>
+						DiceMasterTooltipIcon:Hide()
+						GameTooltip:Hide()
+					</OnLeave>
 					<OnMouseUp>
 						DiceMasterStatInspectorSkillFrame.statusBarClickedPosition = self:GetParent().skillPosition;
 						DiceMasterStatInspectorSkillFrame.showSkillDetails = 1;

@@ -92,7 +92,32 @@
 					<OnLoad>
 						self:RegisterForClicks("LeftButtonDown")
 						self:RegisterForDrag("LeftButton")
+						self:RegisterEvent("MODIFIER_STATE_CHANGED")
 					</OnLoad>
+					<OnEvent>
+						if event == "MODIFIER_STATE_CHANGED" and GetMouseFocus() == self then
+							self:GetScript("OnEnter")( self )
+						end
+					</OnEvent>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+						GameTooltip:AddLine( self.skillName, 1, 1, 1 )
+						if ( IsShiftKeyDown() ) then
+							GameTooltip:AddLine( self.expandedDescription, 1, 0.81, 0, true )
+						else
+							GameTooltip:AddLine( self.skillDescription, 1, 0.81, 0, true )
+							GameTooltip:AddLine( "&lt;Hold Shift for Details>", 0.5, 0.5, 0.5, true )
+						end
+						GameTooltip:AddLine( "&lt;Left Click to Select>", 0.5, 0.5, 0.5, true )
+						GameTooltip:AddLine( "&lt;Drag to Reorder>", 0.5, 0.5, 0.5, true )
+						DiceMasterTooltipIcon.icon:SetTexture( self.skillIcon )
+						DiceMasterTooltipIcon:Show()
+						GameTooltip:Show()
+					</OnEnter>
+					<OnLeave>
+						DiceMasterTooltipIcon:Hide()
+						GameTooltip:Hide()
+					</OnLeave>
 					<OnMouseUp>
 						DiceMasterSkillFrame.statusBarClickedID = self:GetParent():GetID() + FauxScrollFrame_GetOffset(DiceMasterSkillListScrollFrame);
 						DiceMasterSkillFrame.statusBarClickedPosition = self:GetParent().skillPosition;
@@ -1618,6 +1643,10 @@
 											<OnEnter>
 												GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
 												GameTooltip:SetText( "Increase " .. self.skillName );
+												if self.canIncreaseMax then
+													GameTooltip:AddLine( "&lt;Hold Shift to Increase Max>", 0.5, 0.5, 0.5, true );
+												end
+												GameTooltip:Show();
 											</OnEnter>
 											<OnLeave>
 												GameTooltip:Hide();	
@@ -1663,6 +1692,10 @@
 											<OnEnter>
 												GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
 												GameTooltip:SetText( "Decrease " .. self.skillName );
+												if self.canDecreaseMax then
+													GameTooltip:AddLine( "&lt;Hold Shift to Decrease Max>", 0.5, 0.5, 0.5, true );
+												end
+												GameTooltip:Show();
 											</OnEnter>
 											<OnLeave>
 												GameTooltip:Hide();	
