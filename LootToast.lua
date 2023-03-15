@@ -444,7 +444,7 @@ end
 function Me.GroupLootFrame_GroupLoot( item, button )
 	
 	if not Me.IsLeader( true ) then
-		UIErrorsFrame:AddMessage( "You must be the group leader or a raid assistant to dispense items.", 1.0, 0.0, 0.0 );
+		UIErrorsFrame:AddMessage( "You must be the group leader or a raid assistant to distribute items.", 1.0, 0.0, 0.0 );
 		return
 	end
 	
@@ -454,7 +454,7 @@ function Me.GroupLootFrame_GroupLoot( item, button )
 	end
 	
 	if GetNumActiveGroupLootFrames() >= 4 then
-		UIErrorsFrame:AddMessage( "You can only dispense four items at a time.", 1.0, 0.0, 0.0 );
+		UIErrorsFrame:AddMessage( "You can only distribute four items at a time.", 1.0, 0.0, 0.0 );
 		return
 	end
 	

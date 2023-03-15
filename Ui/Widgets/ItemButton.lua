@@ -99,6 +99,19 @@ local function ItemIsInShop( guid )
 	return found
 end
 
+local function ItemIsBeingTraded( slotID )
+	-- check if it's being traded
+	for slot = 1, 6 do 
+		local amount, containerSlotID, stack = Me.GetDMItemFromSlot(slot);
+		if stack then
+			if containerSlotID == slotID then
+				return true
+			end
+		end
+	end
+	return false
+end
+
 local function CanUseItem( item )
 	if item and item.requiredSkill and item.requiredSkill.guid then
 		local hasRequiredSkill = false;
@@ -132,7 +145,7 @@ local function RecipeIsKnown( item )
 	if itemData then
 		for i = 1, #Me.Profile.recipes do
 			local recipe = Me.Profile.recipes[i]
-			if recipe.item and recipe.item.guid == itemData.guid then
+			if recipe and recipe.item and recipe.item.guid == itemData.guid then
 				return true;
 			end
 		end
@@ -167,8 +180,12 @@ StaticPopupDialogs["DICEMASTER4_DESTROYCUSTOMITEM"] = {
 	
 	local cursorIcon = DiceMasterCursorItemIcon
 	-- previous button
-	cursorIcon.prevButton:Update()
-	SetItemButtonDesaturated( cursorIcon.prevButton, false );
+	if cursorIcon.prevButton then
+		if cursorIcon.prevButton.Update then
+			cursorIcon.prevButton:Update()
+		end
+		SetItemButtonDesaturated( cursorIcon.prevButton, false );
+	end
 	-- clear cursor data
 	DiceMasterCursorOverlay:Hide()
 	cursorIcon.item:SetTexture( nil )
@@ -181,8 +198,12 @@ StaticPopupDialogs["DICEMASTER4_DESTROYCUSTOMITEM"] = {
   OnCancel = function( self )
 	local cursorIcon = DiceMasterCursorItemIcon
 	-- previous button
-	cursorIcon.prevButton:Update()
-	SetItemButtonDesaturated( cursorIcon.prevButton, false );
+	if cursorIcon.prevButton then
+		if cursorIcon.prevButton.Update then
+			cursorIcon.prevButton:Update()
+		end
+		SetItemButtonDesaturated( cursorIcon.prevButton, false );
+	end
 	-- clear cursor data
 	DiceMasterCursorOverlay:Hide()
 	cursorIcon.item:SetTexture( nil )
@@ -377,7 +398,6 @@ end
 -- @param flavour	  Gold flavour text or generic tooltip description.
 --
 function Me.OpenItemTooltip( owner, item, index, isShopItem, isBankItem )
-	
 	if isShopItem and type(item) == "string" then
 		Me.playerItemTooltipOpen  = true
 		Me.playerItemTooltipName  = item
@@ -789,9 +809,14 @@ local function OnClick( self, button )
 	local total, elapsed = self:GetCooldown()
 	StaticPopup_Hide("DICEMASTER4_DESTROYCUSTOMITEM")
 	
-	if self.hasItem and Me.ItemIsBeingLooted( item.guid ) then
-		UIErrorsFrame:AddMessage( "You cannot interact with an item while it is being rolled for.", 1.0, 0.0, 0.0 );
-		return
+	if self.hasItem then 
+		if Me.ItemIsBeingLooted( item.guid ) then
+			UIErrorsFrame:AddMessage( "You cannot interact with an item while it is being rolled for.", 1.0, 0.0, 0.0 );
+			return
+		elseif ItemIsBeingTraded( self.itemIndex ) then
+			UIErrorsFrame:AddMessage( "You cannot interact with an item while it is being traded.", 1.0, 0.0, 0.0 );
+			return
+		end
 	end
 	
 	if cursorIcon.inspectCursor then
@@ -1028,7 +1053,9 @@ local function OnClick( self, button )
 			
 			-- previous slot
 			if cursorIcon.prevButton and cursorIcon.prevButton.itemIndex then
-				cursorIcon.prevButton:Update()
+				if cursorIcon.prevButton.Update then
+					cursorIcon.prevButton:Update()
+				end
 				SetItemButtonDesaturated( cursorIcon.prevButton, false );
 			end
 			
@@ -1110,13 +1137,25 @@ local function OnClick( self, button )
 			end
 		end
 	elseif ( button == "RightButton" ) then
+		if TradeFrame:IsShown() then
+			for slot = 1, 6 do 
+				if not( GetTradePlayerItemInfo(slot) and true ) then
+					local itemButton = _G["TradePlayerItem" .. slot .. "ItemButton"];
+					Me.SetDMItemInSlot(slot, item.stackCount, self.itemIndex, _G["DiceMasterTraitEditorInventoryFrameItem"..self.itemIndex]:GetItem());
+					break;
+				end
+			end
+			return
+		end
 		if cursorIcon.copyCursor or cursorIcon.editCursor or cursorIcon.sellCursor or cursorIcon.chooseCursor or cursorIcon.lootCursor or cursorIcon.bankCursor or cursorIcon.exportCursor or cursorIcon.requestCursor then
 			Me.ClearCursorActions( true, true, true )
 		elseif cursorIcon.itemID then
 			self:Update()
 			
 			-- previous slot
-			cursorIcon.prevButton:Update()
+			if cursorIcon.prevButton.Update then
+				cursorIcon.prevButton:Update()
+			end
 			SetItemButtonDesaturated( cursorIcon.prevButton, false );
 			
 			-- clear cursor data
@@ -1439,7 +1478,9 @@ local function OnBankClick( self, button )
 			
 			-- previous slot
 			if cursorIcon.prevButton and cursorIcon.prevButton.itemIndex then
-				cursorIcon.prevButton:Update()
+				if cursorIcon.prevButton.Update then
+					cursorIcon.prevButton:Update()
+				end
 				SetItemButtonDesaturated( cursorIcon.prevButton, false );
 			end
 			
@@ -1479,7 +1520,9 @@ local function OnBankClick( self, button )
 			self:Update()
 			
 			-- previous slot
-			cursorIcon.prevButton:Update()
+			if cursorIcon.prevButton.Update then
+				cursorIcon.prevButton:Update()
+			end
 			SetItemButtonDesaturated( cursorIcon.prevButton, false );
 			
 			-- clear cursor data

@@ -1258,6 +1258,7 @@ function Me.RollButtonClicked()
 	if DiceMasterPanelDice:HasFocus() then
 		DiceMasterPanelDice:ClearFocus()
 	end
+	Me.UIInteractFX( DiceMasterPanelRollButton, "holy", 0, 0, 2)
 end
 
 -------------------------------------------------------------------------------
@@ -1384,6 +1385,47 @@ function Me.SetupWorldClickDetection()
 end
 
 -------------------------------------------------------------------------------
+-- Display a flash effect over a given UI element.
+--
+-- @param parent	The parent frame.
+-- @param type		The type of effect (arcane, shadow, holy, or frost)
+-- @param offsetX	The x offset relative to the parent frame.
+-- @param offsetY	The y offset relative to the parent frame.
+-- @param noSound	Supress the sound effect. Optional.
+--
+
+function Me.UIInteractFX( parent, type, offsetX, offsetY, offsetZ, noSound)
+	if not( parent ) then
+		return
+	end
+	if not( offsetZ ) then
+		offsetZ = 1;
+	end
+	DiceMasterUIInteractFX:ClearAllPoints();
+	DiceMasterUIInteractFX:SetPoint( "CENTER", parent, offsetX, offsetY );
+	DiceMasterUIInteractFX:Show();
+	
+	local sound = 56356;
+	if type == "holy" then
+		sound = 54129;
+		DiceMasterUIInteractFXActor:SetModelByFileID(4381160);
+	elseif type == "shadow" then
+		sound = 177182;
+		DiceMasterUIInteractFXActor:SetModelByFileID(4381159);
+	elseif type == "frost" then
+		sound = 54080;
+		DiceMasterUIInteractFXActor:SetModelByFileID(4381161);
+	else
+		DiceMasterUIInteractFXActor:SetModelByFileID(4381158);
+	end
+	DiceMasterUIInteractFXActor:SetAnimation(159);
+	DiceMasterUIInteractFXActor:SetPosition(4*offsetZ, 0, 0.5);
+	if not( noSound ) then
+		PlaySound(sound);
+	end
+end
+
+-------------------------------------------------------------------------------
 Me.frame = Me.frame or CreateFrame( "Frame" )
 Me.frame:UnregisterAllEvents()
 
@@ -1398,7 +1440,7 @@ function Me:OnEnable()
 	Me.ChatLinks_Init()
 	Me.Dice_Init()
 	Me.Comm_Init()
-	--Me.ItemTrade_Init()
+	Me.ItemTrade_Init()
 	Me.MinimapButton:OnLoad()
 	Me.ImportDM5Saved()
 	Me.Emoji_Init()
