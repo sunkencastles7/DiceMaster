@@ -32,9 +32,17 @@ local ClickTradeButton = function( slot )
 	local slotGotNormalItem = GetTradePlayerItemInfo(slot) and true;
 	local slotGotNoItem = not (slotGotDMItem or slotGotNormalItem);
 
-	--if cursorGotDMItem and not ( Me.inspectData[tradePlayer].hasDM4 ) then
-		--return Me.NoTradeResponseError();
-	--end
+	if cursorGotDMItem and not ( Me.inspectData[TradeFrameRecipientNameText:GetText()].hasDM4 ) then
+		return Me.NoTradeResponseError();
+	end
+
+	if cursorGotDMItem then
+		local item = Me.Profile.inventory[cursorIcon.itemID];
+		if item.soulbound then
+			UIErrorsFrame:AddMessage( ERR_TRADE_BOUND_ITEM , 1, 0, 0 );
+			return
+		end
+	end
 
 	if cursorGotDMItem and slotGotNormalItem then
 		Me.PickupWowItemPlaceDMItem(slot);
@@ -72,9 +80,9 @@ end
 
 function Me.PickupWowItemPlaceDMItem(slot)
 	local item = { Me.GetDMItemFromCursor() };
+	Me.ClearCursorActions( true, true, true )
 	orig.ClickTradeButton(slot)
 	Me.SetDMItemInSlot(slot, unpack(item));
-	Me.ClearCursorActions( true, true, true )
 end
 
 function Me.PickupDMItemPlaceWowItem(slot)
@@ -126,7 +134,7 @@ function Me.UpdateTradeButton(slot)
 	else
 		return;
 	end
-	Me.SetTradeItem(slot, amount, item.name, item.icon)
+	Me.SetTradeItem(slot, amount, item.name, item.icon, item.quality)
 	Me.SendTradeInfo(tradePlayer, slot, item, amount or stack)
 end
 
@@ -138,21 +146,28 @@ function Me.GetDMItemFromSlot(slot)
 	return t.amount, t.containerSlotID, t.stack;
 end
 
-function Me.SetTradeItem(slot, amount, name, texture )
+function Me.SetTradeItem(slot, amount, name, texture, quality )
 	local itemButton = _G["TradePlayerItem" .. slot .. "ItemButton"];
 	SetItemButtonTexture(itemButton, texture);
 	SetItemButtonCount(itemButton, amount);
-	_G["TradePlayerItem" .. slot .. "Name"]:SetText(name);
+
+	local colorHex = ""
+	if quality then
+		colorHex = ITEM_QUALITY_COLORS[ quality ].hex
+	end
+
+	_G["TradePlayerItem" .. slot .. "Name"]:SetText(colorHex .. name);
 end
 
 function Me.SendTradeInfo(player, slot, item, amount, stackToSend)
-	local msg = Me:Serialize( "TRDITEM", {
+	local data = {
 		item = item;
 		slot = slot;
 		guid = item.guid;
 		amount = amount;
-		stack = stackToSend
-	})
+		stack = stackToSend;
+	};
+	local msg = Me:Serialize( "TRDITEM", data )
 	Me:SendCommMessage( "DCM4", msg, "WHISPER", player, "ALERT" )
 end
 
@@ -165,7 +180,7 @@ end
 function Me.UpdateRecipientTradeItem( slot, name, texture, amount, item )
 	if (GetTradeTargetItemInfo(slot)) then
 		-- Wait with updating until the item is gone
-		C_Timer.After( 1, function() Me.UpdateRecipientTradeItem(slot, name, texture, amount, item ) end );
+		C_Timer.After( 1, function() Me.UpdateRecipientTradeItem(slot, name, texture, amount, item ) end);
 	end
 
 	local itemButton = _G["TradeRecipientItem" .. slot .. "ItemButton"];
@@ -185,7 +200,7 @@ function Me.UpdateTradeInfo( slot, guid, amount )
 	local item = DiceMasterTraitEditorInventoryFrame["Item"..guid];
 
 	if not ( item ) and TradeFrame:IsShown() then
-		C_Timer.After( 1, function() Me.UpdateTradeInfo(slot, guid, amount ) end);
+		C_Timer.After(1, function() Me.UpdateTradeInfo(slot, guid, amount ) end);
 	else
 		local data = item:GetItem()
 		local name, icon = data.name, data.icon;
@@ -199,9 +214,10 @@ function Me.ClearTradeButton( slot )
 	SetItemButtonTexture(itemButton, "");
 	SetItemButtonCount(itemButton, 1);
 	_G["TradePlayerItem" .. slot .. "Name"]:SetText("");
-	local msg = Me:Serialize( "TRDREM", {
+	local data = {
 		slot = slot;
-	})
+	};
+	local msg = Me:Serialize( "TRDREM", data )
 	Me:SendCommMessage( "DCM4", msg, "WHISPER", tradePlayer, "ALERT" )
 end
 
@@ -239,7 +255,6 @@ function Me.AcceptTrade( name, ... )
 			if guid and item then
 				tinsert( Me.Profile.inventory, item )
 				local data = Me:Serialize( "ITEM", item );
-				item.labelText = ""
 				Me:SendCommMessage( "DCM4", data, "WHISPER", UnitName("player"), "ALERT" )
 				Me.TraitEditor_UpdateInventory()
 			end
@@ -266,10 +281,9 @@ function Me.GetRecipientTradeItem( slot )
 	end
 end
 
-function Me.TradeItemButtonOnEnter( self, slot ) -- updated
+function Me.TradeItemButtonOnEnter( self, slot )
 	local ID = Me.GetDMItemFromSlot(slot);
 	if ID then
-
 		local amount, containerSlotID, stack = Me.GetDMItemFromSlot(slot);
 		-- TODO
 		-- Show item tooltip
@@ -277,7 +291,7 @@ function Me.TradeItemButtonOnEnter( self, slot ) -- updated
 	end
 end
 
-function Me.TradeItemButtonOnUpdate(self)
+function Me.TradeItemButtonOnUpdate(self, elapsed)
 	if (self.updateTooltip) then
 		self.updateTooltip = self.updateTooltip - elapsed;
 		if (self.updateTooltip > 0) then
@@ -285,7 +299,7 @@ function Me.TradeItemButtonOnUpdate(self)
 		end
 	end
 
-	if (GameTooltip:IsOwned(self)) then
+	if (GetMouseFocus() == self) then
 		Me.TradeItemButtonOnEnter(self, self:GetParent():GetID());
 	end
 end
@@ -300,7 +314,7 @@ function Me.RecipientTradeItemButtonOnEnter(self, slot)
 	end
 end
 	
-function Me.RecipientTradeItemButtonOnUpdate(self)
+function Me.RecipientTradeItemButtonOnUpdate(self, elapsed)
 	if (self.updateTooltip) then
 		self.updateTooltip = self.updateTooltip - elapsed;
 		if (self.updateTooltip > 0) then
@@ -308,7 +322,7 @@ function Me.RecipientTradeItemButtonOnUpdate(self)
 		end
 	end
 
-	if (GameTooltip:IsOwned(self)) then
+	if (GetMouseFocus() == self) then
 		Me.RecipientTradeItemButtonOnEnter(self, self:GetParent():GetID());
 	end
 end
@@ -316,9 +330,10 @@ end
 local function OnEvent( self, event, arg1, arg2, ... )
 	if (event == "TRADE_CLOSED") then
 		if (playerAcceptState == 1 and recipientAcceptState == 1) then
-			local msg = Me:Serialize( "TRDACC", {
+			local data = {
 				accepted = true;
-			})
+			};
+			local msg = Me:Serialize( "TRDACC", data )
 			Me:SendCommMessage( "DCM4", msg, "WHISPER", tradePlayer, "ALERT" )
 			Me.AcceptTrade(tradePlayer);
 		end
@@ -341,19 +356,18 @@ function Me.ItemTrade_Init()
 	frame:RegisterEvent("TRADE_ACCEPT_UPDATE");
 	frame:RegisterEvent("TRADE_SHOW");
 	frame:RegisterEvent("TRADE_REQUEST_CANCEL");
-	
+
 	for i = 1, 6 do
 		_G["TradePlayerItem" .. i .. "ItemButton"]:HookScript( "OnEnter", function( self )
 			Me.TradeItemButtonOnEnter(self, self:GetParent():GetID())
 		end)
-		_G["TradePlayerItem" .. i .. "ItemButton"]:HookScript( "OnUpdate", function( self )
+		_G["TradePlayerItem" .. i .. "ItemButton"]:HookScript( "OnUpdate", function( self, arg1 )
 			Me.TradeItemButtonOnUpdate(self, arg1);
 		end)
 		_G["TradeRecipientItem" .. i .. "ItemButton"]:HookScript( "OnEnter", function( self )
 			Me.RecipientTradeItemButtonOnEnter(self, self:GetParent():GetID()); 
 		end);
-		_G["TradeRecipientItem" .. i .. "ItemButton"]:HookScript( "OnUpdate", 
-			function(self)
+		_G["TradeRecipientItem" .. i .. "ItemButton"]:HookScript( "OnUpdate", function( self, arg1 )
 			Me.RecipientTradeItemButtonOnUpdate(self, arg1); 
 		end);
 	end

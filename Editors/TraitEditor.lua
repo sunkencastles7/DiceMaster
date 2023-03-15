@@ -23,17 +23,65 @@ local function TraitUpdated()
 	Me.UpdatePanelTraits()
 end
 
+local function ValidateSkillSheet( sheet )
+	-- Iterate through an imported skill sheet to check for errors in the data structure.
+	-- We have to be EXTREMELY selective to avoid corrupting the Profile.skills table.
+	if not type( sheet ) == "table" then print(1) return false end
+	for i = 1, #sheet do
+		local skill = sheet[i];
+		if not type( skill ) == "table" then print(2) return false end
+		if not type( skill.name ) == "string" or skill.name == "" then print(3) return false end
+		if skill.desc then
+			if not type( skill.desc ) == "string" then print(4) return false end
+		end
+		if skill.type then
+			if not type( skill.type ) == "string" then print(5) return false end
+		end
+		if skill.rank then
+			if not type( skill.rank ) == "number" then print(6) return false end
+		end
+		if skill.maxRank then
+			if not type( skill.maxRank ) == "number" then print(7) return false end
+		end
+		if skill.author then
+			if not type( skill.author ) == "string" then print(8) return false end
+		end
+		if skill.skillModifiers then
+			if not type( skill.skillModifiers ) == "table" then print(9) return false end
+			for index = 1, #skill.skillModifiers do
+				local modifier = skill.skillModifiers[index];
+				if modifier.name then
+					if not type(modifier.name) == "string" or modifier.name == ""  then return false end
+				end
+				if modifier.icon then
+					if not type(modifier.icon) == "string" or modifier.icon == "" then return false end
+				end
+				if modifier.rank then
+					if not type(modifier.rank) == "number" then print(12) return false end
+				end
+			end
+		end
+		if skill.showOnMenu then
+			if not type( skill.showOnMenu ) == "boolean" then print(13) return false end
+		end
+		if skill.canEdit then
+			if not type( skill.canEdit ) == "boolean" then print(14) return false end
+		end
+	end
+	return true
+end
+
 StaticPopupDialogs["DICEMASTER4_REMOVESHOPITEM"] = {
   text = "Are you sure you want to remove this item from your shop?",
   button1 = "Yes",
   button2 = "No",
   OnAccept = function (self, data)
-	local item = Me.Profile.shop[ data ]
+	local item = Profile.shop[ data ]
 	if not item then
 		return
 	end
 	PlaySound(895)
-	tremove( Me.Profile.shop, data )
+	tremove( Profile.shop, data )
 	DiceMasterTraitEditorShopFrame.page = 1
 	Me.ShopFrame_Update()
   end,
@@ -48,7 +96,7 @@ StaticPopupDialogs["DICEMASTER4_RESTOCKSHOPITEM"] = {
   button1 = "Accept",
   button2 = "Cancel",
   OnShow = function (self, data)
-	local item = Me.Profile.shop[ data ]
+	local item = Profile.shop[ data ]
 	if not item or not item.numAvailable or item.numAvailable > 0 then
 		return
 	end
@@ -60,7 +108,7 @@ StaticPopupDialogs["DICEMASTER4_RESTOCKSHOPITEM"] = {
 	self.editBox:SetFocus()
   end,
   OnAccept = function (self, data)
-	local item = Me.Profile.shop[ data ]
+	local item = Profile.shop[ data ]
 	if not item or not item.numAvailable or item.numAvailable > 0 then
 		return
 	end
@@ -139,7 +187,7 @@ StaticPopupDialogs["DICEMASTER4_IMPORTTRAIT"] = {
 }
 
 StaticPopupDialogs["DICEMASTER4_IMPORTSKILLS"] = {
-  text = "Paste an import code into the field below and select 'Import' to import the list of skills.|n|nThis will overwrite your current skills!",
+  text = "Paste an import code into the field below.|n|nThis will overwrite your current skills!",
   button1 = "Import",
   button2 = "Cancel",
   OnShow = function (self, data)
@@ -158,33 +206,31 @@ StaticPopupDialogs["DICEMASTER4_IMPORTSKILLS"] = {
 	T = nil
 	RunScript( "T=" .. data )
 	
-	local backup = Me.Profile.skills or nil
+	local backup = Profile.skills or nil
 	
-	if not T or type( T ) ~= "table" then 
+	if not( T and ValidateSkillSheet(T)) then 
 		if backup then
-			Me.Profile.skills = backup;
+			Profile.skills = backup;
 		end
 		UIErrorsFrame:AddMessage( "Invalid import code.", 1.0, 0.0, 0.0 );
 		return 
 	end
 	
-	local errorsFound = false;
-	for i = 1, #T do
-		if not T[ i ].name then
-			errorsFound = true;
-			UIErrorsFrame:AddMessage( "Corrupt skills data found. Unable to import.", 1.0, 0.0, 0.0 );
-			break
+	Profile.skills = T;
+	if #Profile.skills > 10 then
+		Me.PrintMessage( "|cFF8080ffYou have gained ".. #Profile.skills .." new skills.|r", "SYSTEM" )
+	else
+		for i = 1, #Profile.skills do
+			local skill = Profile.skills[i];
+			if skill.name and not( skill.type == "header" ) then
+				Me.PrintMessage( "|cFF8080ffYou have gained the ".. skill.name .." skill.|r", "SYSTEM" )
+			end
 		end
 	end
+	Me.SkillFrame_UpdateSkills()
 	
-	if not errorsFound then
-		Me.Profile.skills = T;
-		Me.PrintMessage( #Me.Profile.skills .. " new skills have been imported.", "SYSTEM" )
-		Me.SkillFrame_UpdateSkills()
-	
-		if not IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) then
-			Me.Inspect_SendSkills( "RAID" )
-		end
+	if not IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) then
+		Me.Inspect_SendSkills( "RAID" )
 	end
   end,
   hasEditBox = true,
@@ -298,6 +344,7 @@ local SKILLS_TUTORIAL = {
 	"Your custom skills and current progress in those skills are listed here, representing your character's proficiency in a particular action.|n|nYou can learn new skills from custom items, or raise a skill's level by crafting or harvesting custom items of the appropriate level.",
 	"Selecting a skill from the list above will display more details about the skill here.|n|nClick the 'Unlearn' button if you wish to unlearn the selected skill.",
 	"Click the 'New' button to create a new custom skill.",
+	"You can export your skills with a unique import code which you can share with other players.",
 }
 
 local INVENTORY_TUTORIAL = {
@@ -321,7 +368,7 @@ local SHOP_TUTORIAL = {
 local BANK_TUTORIAL = {
 	"Use the search box to search for specific items based on keyword.|n|nClick the Clean Up Bank button to clean up your bank. It auto-sorts and moves items out of the way to make room for new items.",
 	"Custom items stored in your bank can be accessed by all of your characters.|n|nYou can deposit items into your bank from your inventory, or withdraw them by right clicking them.",
-	"You can export an item with a unique import code which other players can use to import the item.",
+	"You can export an item with a unique import code which you can share with other players.",
 	"Right click the currency frame to change which of your custom currencies is displayed, or create a new one.",
 }
 
@@ -1160,6 +1207,7 @@ function Me.PetEditor_Refresh()
 		local timestamp = time(date("*t"));
 		
 		if Profile.pet.isEgg then
+			-- Egg type pets don't need washing...
 			if ( Profile.pet.lastWarmed and Profile.pet.lastWarmed + 86400 <= timestamp ) or not( Profile.pet.lastWarmed ) then
 				Profile.pet.isCold = true;
 			end
@@ -1239,12 +1287,16 @@ function Me.PetEditor_Refresh()
 		DiceMasterPetFrame.petHappiness:Show()
 		DiceMasterPetFrame.feedButton:Show()
 		DiceMasterPetFrame.selectModel:Hide()
+		DiceMasterPetFrame.increaseScale:Hide()
+		DiceMasterPetFrame.decreaseScale:Hide()
 		DiceMasterPetFrame.petType:SetEnabled( false );
 	else
 		DiceMasterPetFrame.petHappiness:Hide()
 		DiceMasterPetFrame.washButton:Hide()
 		DiceMasterPetFrame.feedButton:Hide()
 		DiceMasterPetFrame.selectModel:Show()
+		DiceMasterPetFrame.increaseScale:Show()
+		DiceMasterPetFrame.decreaseScale:Show()
 		DiceMasterPetFrame.petType:SetEnabled( true );
 	end
 end
@@ -1274,6 +1326,24 @@ end
 function Me.PetEditor_SaveType()
 	Profile.pet.type = DiceMasterPetFrame.petType:GetText()
 	Me.RefreshPetFrame()
+end
+
+-------------------------------------------------------------------------------
+-- Decrease the scale of the pet.
+--
+function Me.PetEditor_DecreaseScale()
+	local scale = Profile.pet.scale;
+	Profile.pet.scale = Me.Clamp( Profile.pet.scale - 0.01, 0, 1 );
+	Me.PetEditor_Refresh()
+end
+
+-------------------------------------------------------------------------------
+-- Increase the scale of the pet.
+--
+function Me.PetEditor_IncreaseScale()
+	local scale = Profile.pet.scale;
+	Profile.pet.scale = Me.Clamp( Profile.pet.scale + 0.01, 0, 1 );
+	Me.PetEditor_Refresh()
 end
 
 -------------------------------------------------------------------------------
@@ -1483,13 +1553,12 @@ function Me.SkillFrame_CollapseSkillHeader( skillPosition )
 end
 
 function Me.SkillFrame_IncreaseButton_OnClick( self, button )
-	local skillIndex = DiceMasterSkillDetailStatusBarUnlearnButton.skillIndex
 	local skillPosition = DiceMasterSkillDetailStatusBarUnlearnButton.skillPosition
 	if not( Me.Profile.skills[skillPosition] ) then 
 		return
 	end
 	
-	local skillName, skillIcon, skillDescription, skillType, skillRank, skillMaxRank, skillAuthor, skillGUID, skillModifiers, skillShowOnMenu, skillCanEdit = GetSkillLineInfo(skillIndex)
+	local skillName, skillIcon, skillDescription, skillType, skillRank, skillMaxRank, skillAuthor, skillGUID, skillModifiers, skillShowOnMenu, skillCanEdit = GetSkillLineInfoByPosition(skillPosition)
 	if skillAuthor == UnitName("player") or skillCanEdit then
 		if IsShiftKeyDown() then
 			Me.Profile.skills[skillPosition].maxRank = Me.Clamp( Me.Profile.skills[skillPosition].maxRank + 1, 0, 9999 )
@@ -1505,13 +1574,12 @@ function Me.SkillFrame_IncreaseButton_OnClick( self, button )
 end
 
 function Me.SkillFrame_DecreaseButton_OnClick( self, button )
-	local skillIndex = DiceMasterSkillDetailStatusBarUnlearnButton.skillIndex
 	local skillPosition = DiceMasterSkillDetailStatusBarUnlearnButton.skillPosition
 	if not( Me.Profile.skills[skillPosition] ) then 
 		return
 	end
 	
-	local skillName, skillIcon, skillDescription, skillType, skillRank, skillMaxRank, skillAuthor, skillGUID, skillModifiers, skillShowOnMenu, skillCanEdit = GetSkillLineInfo(skillIndex)
+	local skillName, skillIcon, skillDescription, skillType, skillRank, skillMaxRank, skillAuthor, skillGUID, skillModifiers, skillShowOnMenu, skillCanEdit = GetSkillLineInfoByPosition(skillPosition)
 	if skillAuthor == UnitName("player") or skillCanEdit then
 		if IsShiftKeyDown() then
 			Me.Profile.skills[skillPosition].maxRank = Me.Clamp( Me.Profile.skills[skillPosition].maxRank - 1, 0, 9999 )
@@ -1559,7 +1627,19 @@ function Me.SkillFrame_RollButton_OnClick( self, button )
 	PlaySound(36625);
 end
 
+local function CheckForEmptyHeaders()
+	for i = 1, #Profile.skills do
+		if Profile.skills[i].type == "header" then
+			local header = Profile.skills[i];
+			if Profile.skills[i + 1] and Profile.skills[i + 1].type == "header" then
+				tremove( Profile.skills, i );
+			end
+		end
+	end
+end
+
 function Me.SkillFrame_BuildFilteredList()
+	CheckForEmptyHeaders()
 	filteredList = {}
 	for i = 1, #Me.Profile.skills do
 		if Me.Profile.skills[i].expanded or Me.Profile.skills[i].type == "header" then
@@ -1682,6 +1762,43 @@ function Me.SkillFrame_DragStop( self, button )
 			Me.SkillFrame_UpdateSkills()
 		end
 	end
+end
+
+local function deepCopy( table )
+	local t = {}
+	for k,v in pairs(table) do
+		if type(v) == "table" then
+			v = deepCopy(v);
+		end
+		t[k] = v;
+	end
+	return t;
+end
+
+function Me.SkillFrame_ExportSheet()
+	local sheet = {};
+	for i = 1, #Profile.skills do 
+		sheet[i] = deepCopy(Profile.skills[i]);
+		if DiceMasterExportDialog.ExclusionControl:GetChecked() then
+			if sheet[i].rank then
+				sheet[i].rank = 0;
+			end
+		end
+	end
+	
+	if not( ValidateSkillSheet(sheet) ) then
+		return
+	end
+	
+	sheet = TableToString( sheet );
+	sheet = Me.Encrypt( sheet );
+	
+	DiceMasterExportDialog:Show();
+	DiceMasterExportDialog.ImportControl.InputContainer.EditBox:SetText( sheet );
+	DiceMasterExportDialog.ImportControl.InputContainer:UpdateScrollChildRect();
+	DiceMasterExportDialog.ImportControl.InputContainer:SetVerticalScroll(DiceMasterExportDialog.ImportControl.InputContainer:GetVerticalScrollRange());
+	DiceMasterExportDialog.ImportControl.InputContainer.EditBox:HighlightText();
+	DiceMasterExportDialog.ImportControl.InputContainer.EditBox:SetFocus();
 end
 
 function Me.SkillFrameTemplate_OnLoad(frame, level, menuList)
@@ -1942,12 +2059,10 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 	end
 end
 
-function Me.SkillDetailFrame_SetStatusBar( skillIndex )
-	if not skillIndex then
+function Me.SkillDetailFrame_SetStatusBar( skillPosition )
+	if not skillPosition then
 		return
 	end
-
-	local skillPosition = filteredList[skillIndex].skillPosition;
 	
 	-- Get info
 	local skillName, skillIcon, skillDescription, skillType, skillRank, skillMaxRank, skillAuthor, skillGUID, skillModifiers, skillShowOnMenu, skillCanEdit = GetSkillLineInfoByPosition(skillPosition);
@@ -1997,12 +2112,10 @@ function Me.SkillDetailFrame_SetStatusBar( skillIndex )
 	-- Hide or show abandon button
 	statusBarUnlearnButton:Show();
 	statusBarUnlearnButton.skillName = skillName;
-	statusBarUnlearnButton.skillIndex = skillIndex;
-	statusBarUnlearnButton.skillPosition = filteredList[skillIndex].skillPosition;
+	statusBarUnlearnButton.skillPosition = skillPosition;
 		
 	-- Set skillbar info
-	statusBar.skillIndex = skillIndex;
-	statusBar.skillPosition = filteredList[skillIndex].skillPosition;
+	statusBar.skillPosition = skillPosition;
 	statusBarName:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
 	statusBarIcon:SetTexture( skillIcon );
 	statusBarSkillRank:SetTextColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
@@ -2116,6 +2229,10 @@ function Me.SkillFrame_UpdateSkills()
 
 	if numSkills == 0 then
 		DiceMasterTraitEditor.NoSkillsWarning:Show();
+		DiceMasterSkillFrameExportButton:Disable();
+	else
+		DiceMasterTraitEditor.NoSkillsWarning:Hide();
+		DiceMasterSkillFrameExportButton:Enable();
 	end
 	
 	local index = 1;
@@ -2157,7 +2274,7 @@ function Me.SkillFrame_UpdateSkills()
 	
 	DiceMasterSkillDetailScrollFrame:UpdateScrollChildRect();
 
-	if DiceMasterSkillFrame.statusBarClickedPosition then
+	if numSkills > 0 and DiceMasterSkillFrame.statusBarClickedPosition then
 		Me.SkillDetailFrame_SetStatusBar( DiceMasterSkillFrame.statusBarClickedPosition );
 		DiceMasterSkillDetailScrollFrame:Show();
 	else

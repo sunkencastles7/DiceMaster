@@ -22,6 +22,10 @@ local function GetSkillLineInfo( skillIndex )
 end
 
 local function GetSkillLineInfoByPosition( skillPosition )
+	if not Me.inspectData[Me.statInspectName].skills then
+		return
+	end 
+
 	local skill = Me.inspectData[Me.statInspectName].skills[skillPosition];
 		
 	return skill.name, skill.icon or "Interface/Icons/inv_misc_questionmark", skill.desc, skill.type, skill.rank or 0, skill.maxRank or 0, skill.author, skill.guid, skill.skillModifiers or {}, skill.showOnMenu or nil, skill.canEdit or nil;

@@ -186,7 +186,7 @@
 			<Scripts>
 				<OnLoad>
 					_G[self:GetName().."Text"]:SetText("|cFFFFD100Editable by Others")
-					self.tooltip = "Toggles whether this skill can be edited by other players."
+					self.tooltip = "Toggles whether this skill can be edited by other players if imported or learned from an item."
 				</OnLoad>
 			</Scripts>
 		</CheckButton>

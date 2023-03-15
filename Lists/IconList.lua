@@ -670,6 +670,8 @@ local DICEMASTER_CUSTOM_ICONS = {
 	"AddOns/DiceMaster/Icons/DampenMagic",
 	"AddOns/DiceMaster/Icons/DarkfallenNeophyte",
 	"AddOns/DiceMaster/Icons/DeathsShadow",
+	"AddOns/DiceMaster/Icons/DeckofLunacy",
+	"AddOns/DiceMaster/Icons/DeckofChaos",
 	"AddOns/DiceMaster/Icons/Desecrate",
 	"AddOns/DiceMaster/Icons/DessertCart",
 	"AddOns/DiceMaster/Icons/DirePantherForm",

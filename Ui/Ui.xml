@@ -12,11 +12,11 @@
 		</OnLoad>
 		<OnClick>
 			if button == "RightButton" then
-				DiceMaster4.ClearCursorActions( true, true, true )
 				if DiceMasterCursorItemIcon.prevButton then
 					SetItemButtonDesaturated(DiceMasterCursorItemIcon.prevButton, false);
 					PlaySound(1203)
 				end
+				DiceMaster4.ClearCursorActions( true, true, true )
 			elseif button == "LeftButton" and DiceMasterCursorItemIcon.itemID then
 				StaticPopup_Show( "DICEMASTER4_DESTROYCUSTOMITEM", nil, nil, DiceMasterCursorItemIcon.itemID )
 			end
@@ -39,6 +39,47 @@
 		</OnUpdate>
 	</Scripts>
   </Frame>
+
+  <ModelScene name="DiceMasterUIInteractFX" inherits="NonInteractableModelSceneMixinTemplate" hidden="true" enableMouse="false" parent="UIParent" frameStrata="FULLSCREEN_DIALOG">
+	<Size x="2000" y="2000"/>
+	<Scripts>
+		<OnLoad>
+			self.cameras = {};
+			self.actorTemplate = "ModelSceneActorTemplate";
+			self.tagToActor = {};
+			self.tagToCamera = {};
+
+			if self.reversedLighting then
+				local lightPosX, lightPosY, lightPosZ = self:GetLightPosition();
+				self:SetLightPosition(-lightPosX, -lightPosY, lightPosZ);
+
+				local lightDirX, lightDirY, lightDirZ = self:GetLightDirection();
+				self:SetLightDirection(-lightDirX, -lightDirY, lightDirZ);
+			end
+
+			local camera = CameraRegistry:CreateCameraByType("OrbitCamera")
+			camera.panningXOffset = 0
+			camera.panningYOffset = 0
+			camera.modelSceneCameraInfo = {
+				flags = 0,
+				}
+			self:AddCamera(camera)
+			camera:SetTarget(0, 0, 0)
+			camera:SnapToTargetInterpolationTarget()
+			camera:SetPitch(math.rad(0))
+			camera:SetYaw(math.rad(0))
+			camera:SetMinZoomDistance(1)
+			camera:SetZoomDistance(1)
+				
+			local actor = self:CreateActor("DiceMasterUIInteractFXActor", self.actorTemplate); 
+			actor:SetScale(1);
+			actor:SetModelByFileID(4381159);
+			actor:SetPosition(4,0,0.5);
+			actor:SetAnimation(0);
+			actor:SetAlpha(1);
+		</OnLoad>
+	</Scripts>
+  </ModelScene>
   
   <Frame name="DiceMasterFullscreenEffectFrame" parent="UIParent" frameStrata="BACKGROUND">
 	<Size x="500" y="500" />
@@ -126,5 +167,7 @@
   <Include file="Ui\LootToast.xml"/>
   <Include file="Ui\TradeSkillFrame.xml"/>
   <Include file="Ui\SplashFrame.xml"/>
+  <Include file="Ui\ExamineFrame.xml"/>
+  <Include file="Ui\DarkmoonCard.xml"/>
 </Ui>
  

@@ -79,7 +79,7 @@ local function PrimeInspectData( name )
 		health        = 10;
 		healthMax     = 10;
 		mana 		  = 0;
-		manaMax		  = 10;
+		manaMax		  = 20;
 		manaType	  = "None";
 		armor         = 0;
 		level         = 1;
@@ -1074,8 +1074,7 @@ function Me.Inspect_SendSkills( dist, channel )
 		
 		for i = 1, #Profile.skills do
 			local buffValue = GetSkillValue( Profile.skills[i].name )
-			
-			local value = nil
+			local value
 			
 			if Profile.skills[i].rank then
 				-- calculate the total value before sending
@@ -1085,9 +1084,14 @@ function Me.Inspect_SendSkills( dist, channel )
 			
 			local data = {
 				name = Profile.skills[i].name;
+				icon = Profile.skills[i].icon or "Interface/Icons/inv_misc_questionmark";
 				desc = Profile.skills[i].desc or nil;
-				value = value or nil;
+				type = Profile.skills[i].type;
+				rank = value or Profile.skills[i].rank;
+				maxRank = Profile.skills[i].maxRank;
+				guid = Profile.skills[i].guid;
 				attribute = Profile.skills[i].attribute or nil;
+				skillModifiers = Profile.skills[i].skillModifiers or {};
 			}
 			
 			tinsert( skills, data )

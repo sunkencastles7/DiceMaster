@@ -1,0 +1,173 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+ 
+  <!-- Examine object frame. -->
+  
+    <Frame name="DiceMasterExamineFrame" toplevel="true" movable="true" enableMouse="true" hidden="false" parent="UIParent" inherits="ButtonFrameTemplate">
+		<Size x="338" y="300"/>
+		<Anchors>
+		  <Anchor point="CENTER" x="0" y="100" />
+		</Anchors>
+		<Frames>
+			<Button parentKey="InteractButton" registerForClicks="RightButtonUp,LeftButtonUp">
+				<Size x="16" y="16"/>
+				<Scripts>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip:AddLine( "Examine" );
+						GameTooltip:Show();
+						SetCursor("INSPECT_CURSOR");
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+						ResetCursor();
+					</OnLeave>
+					<OnClick>
+						self:Hide();
+						DiceMasterExamineArrowModel:Hide();
+						DiceMasterExamineModel:SetAnimation(148)
+						DiceMasterExamineModel.animation = 149;
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button parentKey="DustButton" registerForClicks="RightButtonUp,LeftButtonUp">
+				<Size x="48" y="64"/>
+				<Scripts>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip:AddLine( "Dust" );
+						GameTooltip:Show();
+						SetCursor("INTERACT_CURSOR");
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+						ResetCursor();
+					</OnLeave>
+					<OnClick>
+						-- TODO
+					</OnClick>
+				</Scripts>
+			</Button>
+			<ModelScene parentKey="ModelScene" enableMouse="true" inherits="PanningModelSceneMixinTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="DiceMasterExamineFrameInset"/>
+					<Anchor point="BOTTOMRIGHT" relativeTo="DiceMasterExamineFrameInset"/>
+                </Anchors>
+				<KeyValues>
+					<KeyValue key="reversedLighting" value="true" type="boolean"/>
+				</KeyValues>
+				<Frames>
+					<Frame parentKey="ControlFrame" inherits="ModelSceneControlFrameTemplate">
+						<Anchors>
+							<Anchor point="TOP" x="0" y="-10"/>
+						</Anchors>
+					</Frame>
+				</Frames>
+                <Scripts>
+					<OnLoad>
+						self.cameras = {};
+						self.actorTemplate = "DiceMasterPetFrameActorTemplate";
+						self.tagToActor = {};
+						self.tagToCamera = {};
+
+						if self.reversedLighting then
+							local lightPosX, lightPosY, lightPosZ = self:GetLightPosition();
+							self:SetLightPosition(-lightPosX, -lightPosY, lightPosZ);
+
+							local lightDirX, lightDirY, lightDirZ = self:GetLightDirection();
+							self:SetLightDirection(-lightDirX, -lightDirY, lightDirZ);
+						end
+	
+						local camera = CameraRegistry:CreateCameraByType("OrbitCamera")
+						camera.panningXOffset = 0
+						camera.panningYOffset = 0
+						camera.modelSceneCameraInfo = {
+							flags = 0,
+							}
+						self:AddCamera(camera)
+						camera:SetTarget(0, 0, -0.3)
+						camera:SnapToTargetInterpolationTarget()
+						camera:SetPitch(0.7)
+						camera:SetMinZoomDistance(1)
+						camera:SetMaxZoomDistance(3)
+						camera:SetZoomDistance(2)
+						
+						local actor = self:CreateActor("DiceMasterExamineModel", "DiceMasterPetFrameActorTemplate"); 
+						actor:SetScale(0.2);
+						actor:SetPosition(0,0,0);
+						actor:SetAnimationBlendOperation(LE_MODEL_BLEND_OPERATION_ANIM);
+						actor:SetAlpha(1);
+						actor:SetModelByFileID(4216697);
+
+						local arrow = self:CreateActor("DiceMasterExamineArrowModel", "DiceMasterPetFrameActorTemplate"); 
+						arrow:SetScale(0.5);
+						arrow:SetPosition(0.35,0,0.3);
+						arrow.animation = 158;
+						arrow:SetAlpha(1);
+						arrow:SetModelByFileID(166027);
+
+						local desk = self:CreateActor("DiceMasterExamineDeskModel", "DiceMasterPetFrameActorTemplate"); 
+						desk:SetScale(0.5);
+						desk:SetPosition(0,0,-0.8);
+						desk:SetModelByFileID(1305544);
+
+						local dust = self:CreateActor("DiceMasterExamineDustModel", "DiceMasterPetFrameActorTemplate"); 
+						dust:SetScale(0.5);
+						dust:SetPosition(0.3,-1,0);
+						dust:SetModelByFileID(1305534);
+
+						self:HookScript("OnUpdate", function(self)
+							local positionVector = CreateVector3D(arrow:GetPosition());
+							positionVector:ScaleBy(arrow:GetScale());
+							local x, y, depthScale = self:Transform3DPointTo2D(positionVector:GetXYZ());
+
+							if (not x or not y or not depthScale) then
+								return;
+							end
+
+							local interactButton = DiceMasterExamineFrame.InteractButton;
+							interactButton:ClearAllPoints();
+							interactButton:SetParent(self);
+							depthScale = Lerp(.05, 1, ClampedPercentageBetween(depthScale, 0.8, 1))
+							interactButton:SetScale(depthScale);
+							local inverseScale = self:GetEffectiveScale() * depthScale;
+							interactButton:SetPoint("CENTER", self, "BOTTOMLEFT", (x / inverseScale) + 2, (y / inverseScale) - 4);
+						end)
+
+						self:HookScript("OnUpdate", function(self)
+							local positionVector = CreateVector3D(dust:GetPosition());
+							positionVector:ScaleBy(dust:GetScale());
+							local x, y, depthScale = self:Transform3DPointTo2D(positionVector:GetXYZ());
+
+							if (not x or not y or not depthScale) then
+								return;
+							end
+
+							local dustButton = DiceMasterExamineFrame.DustButton;
+							dustButton:ClearAllPoints();
+							dustButton:SetParent(self);
+							depthScale = Lerp(.05, 1, ClampedPercentageBetween(depthScale, 0.8, 1))
+							dustButton:SetScale(depthScale);
+							local inverseScale = self:GetEffectiveScale() * depthScale;
+							dustButton:SetPoint("BOTTOM", self, "BOTTOMLEFT", (x / inverseScale) + 2, (y / inverseScale) - 4);
+						end)
+					</OnLoad>
+                </Scripts>
+			</ModelScene>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				-- DiceMaster4.ExamineFrame_OnLoad( self )
+				self.PortraitContainer.portrait:SetTexture( "Interface/Icons/trade_archaeology" );
+				DiceMasterExamineFrameTitleText:SetText("Examine Object");
+			</OnLoad>
+			<OnShow>
+				PlaySound(21966);
+			</OnShow>
+			<OnHide>
+				-- DiceMaster4.ExamineFrame_Hide( self )
+				PlaySound(21967);
+			</OnHide>
+		</Scripts>
+	</Frame>
+  
+</Ui>
