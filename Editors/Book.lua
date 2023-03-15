@@ -182,7 +182,7 @@ local IMAGE_PATTERN = [[{img%:([^:]+)%:([^:]+)%:([^:}]+)%:?([^:}]*)%}]];
 ---@language HTML
 local IMAGE_TAG = [[</P><img src="%s" width="%s" height="%s" align="%s"/><P>]];
 
--- Convert the given text by its HTML representation
+-- Convert the given text by his HTML representation
 local toHTML = function(text, noColor, noBrackets)
 
 	-- 1) Replacement : & character
@@ -332,10 +332,6 @@ local BOOK_MATERIALS = {
 		path = "Bronze",
 		type = "itemtext"
 	},
-	["Darkmoon"] = {
-		path = "QuestBackgroundDarkmoon",
-		type = "custom",
-	},
 	["Hand of Fate"] = {
 		atlas = "QuestBG-TheHandofFate",
 		type = "quest",
@@ -435,16 +431,12 @@ local BOOK_FONTS = {
 	["Irish Uncialfabeta Bold"] = "Interface\\AddOns\\DiceMaster\\Fonts\\IrishUncialfabeta-Bold.TTF",
 	["Elementary Gothic Bookhand"] = "Interface\\AddOns\\DiceMaster\\Fonts\\Elementary_Gothic_Bookhand.TTF",
 	["Belwe Medium"] = "Interface\\AddOns\\DiceMaster\\Fonts\\Belwe_Medium.TTF",
-	["Darnassian"] = "Interface\\AddOns\\DiceMaster\\Fonts\\DarnassianRunes-Regular.TTF",
-	["Thalassian"] = "Interface\\AddOns\\DiceMaster\\Fonts\\Thalassian_Font.TTF",
 }
 
 local function SetBookMaterial( materialType )
-	DiceMasterBookFramePageBg:SetTexture( nil );
-	DiceMasterBookFramePageBg:SetSize(299, 357);
-	DiceMasterBookFramePageBg:SetTexCoord( 0, 1, 0, 1 );
-	DiceMasterBookMaterialLeft:SetTexture( nil );
-	DiceMasterBookMaterialRight:SetTexture( nil );
+	DiceMasterBookFramePageBg:SetTexture( nil )
+	DiceMasterBookMaterialLeft:SetTexture( nil )
+	DiceMasterBookMaterialRight:SetTexture( nil )
 	DiceMasterBookMaterialTopLeft:SetTexture( nil );
 	DiceMasterBookMaterialTopRight:SetTexture( nil );
 	DiceMasterBookMaterialBotLeft:SetTexture( nil );
@@ -460,9 +452,6 @@ local function SetBookMaterial( materialType )
 			DiceMasterBookMaterialTopRight:SetTexture( "Interface/ItemTextFrame/ItemText-" .. material.path .. "-TopRight" );
 			DiceMasterBookMaterialBotLeft:SetTexture( "Interface/ItemTextFrame/ItemText-" .. material.path .. "-BotLeft" );
 			DiceMasterBookMaterialBotRight:SetTexture( "Interface/ItemTextFrame/ItemText-" .. material.path .. "-BotRight" );
-		elseif material.type == "custom" then
-			DiceMasterBookFramePageBg:SetTexture( "Interface/AddOns/DiceMaster/Texture/" .. material.path );
-			DiceMasterBookFramePageBg:SetTexCoord( 0.00195312, 0.585938, 0.00195312, 0.796875 );
 		elseif material.type == "quest" or material.type == "book" then
 			DiceMasterBookFramePageBg:SetAtlas( material.atlas, false )
 		end
@@ -484,6 +473,7 @@ end
 
 function Me.BookEditorMaterial_OnClick(self, arg1, arg2, checked)
 	UIDropDownMenu_SetText( DiceMasterBookEditor.MaterialButton, self:GetText() )
+	--SetBookMaterial( self:GetText() )
 	
 	if not DiceMasterBookFrame.bookData then
 		return

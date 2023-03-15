@@ -41,35 +41,6 @@ function Me.BuffFrame_OnLoad(self)
 	self:RegisterUnitEvent("UNIT_AURA", "player", "vehicle");
 	self:RegisterEvent("GROUP_ROSTER_UPDATE");
 	self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
-
-
-	hooksecurefunc( BuffFrame, "UpdateAuras", function()
-		for i = 1, #Profile.buffsActive do
-			local buffTable = BuffFrame.auraInfo
-			local data = {
-				auraType = "DiceMaster Buff";
-				index = #buffTable + 1;
-				name = Profile.buffsActive[i].name;
-				texture = Profile.buffsActive[i].icon;
-				description = Profile.buffsActive[i].description;
-				count = Profile.buffsActive[i].count;
-				duration = Profile.buffsActive[i].duration;
-				turns = Profile.buffsActive[i].turns or 0;
-				expirationTime = Profile.buffsActive[i].expirationTime;
-				sender = Profile.buffsActive[i].sender;
-			}
-			tinsert( buffTable, data )
-		end
-			
-	end)
-
-	for i = 1, #BuffFrame.auraFrames do
-		BuffFrame.auraFrames[i]:HookScript("OnEnter", function( self )
-			if self.auraType == "DiceMaster Buff" then
-				GameTooltip:Show();
-			end
-		end)
-	end
 end
 
 function Me.BuffFrame_OnEvent(self, event, ...)
@@ -78,7 +49,7 @@ function Me.BuffFrame_OnEvent(self, event, ...)
 		if ( unit == PlayerFrame.unit ) then
 			Me.BuffFrame_Update();
 		end
-	elseif ( event == "GROUP_ROSTER_UPDATE" or event == "PLAYER_SPECIALIZATION_CHANGED" or event == "PLAYER_ENTERING_WORLD" ) then
+	elseif ( event == "GROUP_ROSTER_UPDATE" or event == "PLAYER_SPECIALIZATION_CHANGED" ) then
 		Me.BuffFrame_Update();
 	end
 end
@@ -91,8 +62,8 @@ function Me.BuffFrame_Update()
 			DiceMasterBuffFrame.Display = DiceMasterBuffFrame.Display + 1;
 		end
 	end
-
-	--Me.BuffFrame_UpdateAllBuffAnchors();
+	
+	Me.BuffFrame_UpdateAllBuffAnchors();
 	Me.BumpSerial( Me.db.char, "statusSerial" )
 	Me.Inspect_ShareStatusWithParty()
 end
@@ -295,7 +266,7 @@ function Me.BuffFrame_UpdateAllBuffAnchors()
 		end
 		buff:ClearAllPoints();
 		if FramesOverlap(DiceMasterBuffFrame, BuffFrame) then
-			if ( (numBuffs > 1) and (mod(0 + numBuffs, BUFFS_PER_ROW) == 1) ) then
+			if ( (numBuffs > 1) and (mod(BUFF_ACTUAL_DISPLAY + numBuffs, BUFFS_PER_ROW) == 1) ) then
 				-- New row
 				numAuraRows = numAuraRows + 1;
 				buff:SetPoint("TOPRIGHT", aboveBuff, "BOTTOMRIGHT", 0, -BUFF_ROW_SPACING);
@@ -303,8 +274,8 @@ function Me.BuffFrame_UpdateAllBuffAnchors()
 			elseif ( numBuffs == 1 ) then
 				numAuraRows = 1;
 				if _G["BuffButton1"] then
-					buff:SetPoint("TOPRIGHT", _G["BuffButton" .. 0], "TOPLEFT", BUFF_HORIZ_SPACING, 0);
-					if numBuffs < 0 then
+					buff:SetPoint("TOPRIGHT", _G["BuffButton" .. BUFF_ACTUAL_DISPLAY], "TOPLEFT", BUFF_HORIZ_SPACING, 0);
+					if numBuffs < BUFF_ACTUAL_DISPLAY then
 						aboveBuff = _G["BuffButton" .. numBuffs];
 					else
 						aboveBuff = buff

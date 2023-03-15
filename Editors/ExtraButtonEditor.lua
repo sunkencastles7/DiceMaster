@@ -1,9 +1,9 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2021 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
--- Extra Button editor interface.
+-- Apply Buff editor interface.
 --
 
 local Me = DiceMaster4

@@ -64,6 +64,5 @@ Buffs.lua
 RangeRadar.lua
 Disenchant.lua
 SplashFrame.lua
-ItemTrade.lua
 
 Ui/Ui.xml

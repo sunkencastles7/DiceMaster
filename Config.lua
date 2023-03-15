@@ -113,7 +113,13 @@ local DB_DEFAULTS = {
 			};
 		};
 		currencyActive = 1;
-		recipes			 = {};
+		recipes			 = {
+			{
+				type = "header";
+				name = "Miscellaneous";
+				expanded = true;
+			};
+		};
 		skills			 = {};
 		alignment		 = "(None)";
 		buffsActive  	 = {};
@@ -147,9 +153,7 @@ do
 		
 		DB_DEFAULTS.char.traitSerials[i] = 1 -- used to optimize out duplicate requests
 	end
-	if Me.PermittedUse() then
-		DB_DEFAULTS.profile.traits[5].name = "Equipment Slot";
-	end
+	DB_DEFAULTS.profile.traits[5].name = "Chapter Trait"
 end
 
 -------------------------------------------------------------------------------
