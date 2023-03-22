@@ -1092,6 +1092,8 @@ function Me.Inspect_SendSkills( dist, channel )
 				guid = Profile.skills[i].guid;
 				attribute = Profile.skills[i].attribute or nil;
 				skillModifiers = Profile.skills[i].skillModifiers or {};
+				author = Profile.skills[i].author;
+				expanded = true;
 			}
 			
 			tinsert( skills, data )

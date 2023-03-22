@@ -9,14 +9,12 @@
 local Me      = DiceMaster4
 local Profile = Me.Profile
 
-local StatsListEntries = { };
-local filteredList = {};
+Me.filteredInspectList = {};
 
 local SHOP_ITEMS_PER_PAGE = 12;
 
 local function GetSkillLineInfo( skillIndex )
-	Me.StatInspector_BuildFilteredList()
-	local skill = filteredList[skillIndex];
+	local skill = Me.filteredInspectList[skillIndex];
 		
 	return skill.name, skill.icon or "Interface/Icons/inv_misc_questionmark", skill.desc, skill.type, skill.rank or 0, skill.maxRank or 0, skill.author, skill.guid, skill.skillModifiers or {}, skill.showOnMenu or nil, skill.canEdit or nil;
 end
@@ -159,7 +157,6 @@ function Me.StatInspector_CollapseAllSkills()
 end
 
 function Me.StatInspector_BuildFilteredList()
-	filteredList = {};
 	if not( Me.statInspectName and Me.inspectData[Me.statInspectName].skills ) then
 		return
 	end
@@ -167,7 +164,7 @@ function Me.StatInspector_BuildFilteredList()
 		if Me.inspectData[Me.statInspectName].skills[i].expanded or Me.inspectData[Me.statInspectName].skills[i].type == "header" then
 			local skill = Me.inspectData[Me.statInspectName].skills[i];
 			skill.skillPosition = i;
-			tinsert( filteredList, skill )
+			tinsert( Me.filteredInspectList, skill );
 		end
 	end
 end
@@ -208,11 +205,11 @@ function Me.StatInspector_SetStatusBar( statusBarID, skillIndex, numSkills )
 		skillTypeLabelText:Show();
 		skillTypeLabelText:SetText(skillName);
 		skillTypeLabelText.skillIndex = skillIndex;
-		skillTypeLabelText.skillPosition = filteredList[skillIndex].skillPosition;
+		skillTypeLabelText.skillPosition = Me.filteredInspectList[skillIndex].skillPosition;
 		skillRankFrameBorderTexture:Hide();
 		statusBar:Hide();
 		local normalTexture = _G["DiceMasterStatInspectorSkillTypeLabel"..statusBarID.."NormalTexture"];
-		local isExpanded = ( filteredList[skillIndex+1] and filteredList[skillIndex+1].expanded );
+		local isExpanded = ( Me.filteredInspectList[skillIndex+1] and Me.filteredInspectList[skillIndex+1].expanded );
 		if ( isExpanded ) then
 			skillTypeLabelText:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up");
 		else
@@ -228,7 +225,7 @@ function Me.StatInspector_SetStatusBar( statusBarID, skillIndex, numSkills )
 	
 	-- Set skillbar info
 	statusBar.skillIndex = skillIndex;
-	statusBar.skillPosition = filteredList[skillIndex].skillPosition;
+	statusBar.skillPosition = Me.filteredInspectList[skillIndex].skillPosition;
 	statusBarName:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
 	statusBarIcon:SetTexture( skillIcon );
 	statusBarSkillRank:SetTextColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
@@ -492,8 +489,9 @@ function Me.StatInspector_Update()
 		Me.StatInspector_OnTabChanged()
 	end
 	
+	Me.filteredInspectList = {};
 	Me.StatInspector_BuildFilteredList()
-	local numSkills = #filteredList
+	local numSkills = #Me.filteredInspectList;
 	local offset = FauxScrollFrame_GetOffset(DiceMasterStatInspectorSkillListScrollFrame) + 1;
 
 	local index = 1;
