@@ -196,7 +196,7 @@ function Me.ItemEditorNewAction_OnLoad(frame, level, menuList)
 	info.arg1 = Me.MessageEditor_Open;
 	UIDropDownMenu_AddButton(info, level)
 	info.icon = "Interface/Icons/inv_misc_note_02"
-	info.text = "Learn Skills"
+	info.text = "Learn Skill"
 	info.arg1 = Me.LearnSkillEditor_Open;
 	UIDropDownMenu_AddButton(info, level)
 	info.icon = "Interface/Icons/inv_misc_note_01"
@@ -373,7 +373,7 @@ local DICEMASTER_ITEM_EFFECTS = {
 		detail = "health";
 	},
 	["skill"] = {
-		name = "Learn Skills";
+		name = "Learn Skill";
 		icon = "Interface/Icons/inv_misc_note_02";
 		detail = "name";
 	},
@@ -450,7 +450,7 @@ function Me.ItemEditorEffectsList_Update()
 end
 
 function Me.ItemEditorQuality_OnClick(self, arg1, arg2, checked)
-	UIDropDownMenu_SetText(DiceMasterItemEditor.itemQuality, "Quality: " .. ITEM_QUALITY_COLORS[ arg1 ].hex .. self:GetText())
+	UIDropDownMenu_SetText(DiceMasterItemEditor.itemQuality, "|cFFFFD100Quality:|r " .. ITEM_QUALITY_COLORS[ arg1 ].hex .. self:GetText())
 	DiceMasterItemEditorPreviewTooltipTextLeft1:SetTextColor( ITEM_QUALITY_COLORS[ arg1 ].r, ITEM_QUALITY_COLORS[ arg1 ].g, ITEM_QUALITY_COLORS[ arg1 ].b )
 	Me.newItem.quality = arg1;
 end
@@ -542,7 +542,7 @@ function Me.ItemEditorProperties_OnClick(self, arg1, arg2, checked)
 			propertiesList = propertiesList .. ", " .. k
 		end
 	end
-	UIDropDownMenu_SetText( DiceMasterItemEditor.itemProperties, "Properties: ".. (propertiesList or "(None)") )
+	UIDropDownMenu_SetText( DiceMasterItemEditor.itemProperties, "|cFFFFD100Item Properties:|r ".. (propertiesList or "(None)") )
 end
 
 function Me.ItemEditorProperties_OnLoad(frame, level, menuList)
@@ -830,7 +830,7 @@ function Me.ItemEditor_LoadEditItem( itemIndex )
 	editor.canDisenchant:SetChecked( data.canDisenchant or false )
 	
 	-- set quality
-	UIDropDownMenu_SetText(editor.itemQuality, "Quality: " .. ITEM_QUALITY_COLORS[ data.quality ].hex .. ITEM_QUALITIES[ data.quality + 1 ])
+	UIDropDownMenu_SetText(editor.itemQuality, "|cFFFFD100Quality:|r " .. ITEM_QUALITY_COLORS[ data.quality ].hex .. ITEM_QUALITIES[ data.quality + 1 ])
 	DiceMasterItemEditorPreviewTooltipTextLeft1:SetTextColor( ITEM_QUALITY_COLORS[ data.quality ].r, ITEM_QUALITY_COLORS[ data.quality ].g, ITEM_QUALITY_COLORS[ data.quality ].b )
 	
 	-- set properties
@@ -848,7 +848,7 @@ function Me.ItemEditor_LoadEditItem( itemIndex )
 			end
 		end
 	end
-	UIDropDownMenu_SetText( DiceMasterItemEditor.itemProperties, "Properties: ".. (propertiesList or "(None)") )
+	UIDropDownMenu_SetText( DiceMasterItemEditor.itemProperties, "|cFFFFD100Item Properties:|r ".. (propertiesList or "(None)") )
 	
 	-- set stack size
 	for i = 1, #ITEM_STACK_SIZES do
@@ -916,8 +916,8 @@ function Me.ItemEditor_ClearAllFields()
 	editor.copyable:SetChecked( false )
 	editor.canDisenchant:SetChecked( false )
 	
-	UIDropDownMenu_SetText(editor.itemQuality, "Quality: " .. ITEM_QUALITY_COLORS[ 1 ].hex .. ITEM_QUALITIES[ 2 ])
-	UIDropDownMenu_SetText( DiceMasterItemEditor.itemProperties, "Properties: (None)" )
+	UIDropDownMenu_SetText(editor.itemQuality, "|cFFFFD100Quality:|r " .. ITEM_QUALITY_COLORS[ 1 ].hex .. ITEM_QUALITIES[ 2 ])
+	UIDropDownMenu_SetText( DiceMasterItemEditor.itemProperties, "|cFFFFD100Item Properties:|r (None)" )
 	
 	editor.stackSize:SetValue( 1 )
 	editor.cooldown:SetValue( 1 )

@@ -18,6 +18,7 @@
 - Deleted extraneous libraries.
 - Updated the Inventory tab with sleeker new buttons.
 - Fixed an issue where edited items had their quality reset to Common upon commit.
+- DiceMaster items can now be seamlessly traded through the default Trade UI.
 - Added a new custom item action: Learn Skill. Custom items with this action can be used to learn a new custom-made skill, or further increase your rank in an existing skill.
 - Added a new custom item action: Casting Bar. Custom items with this action can be used to display a custom casting bar with additional features.
 - Added a new custom item action: Extra Button. Custom items with this action can be used to enable a custom extra button on your UI with additional features.

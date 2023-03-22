@@ -488,14 +488,14 @@ end
 function Me.StatInspector_Update()
 
 	if Me.inspectName and Me.inspectData[Me.inspectName].hasDM4 then
-		Me.statInspectName = Me.inspectName		
+		Me.statInspectName = Me.inspectName
 		Me.StatInspector_OnTabChanged()
 	end
 	
 	Me.StatInspector_BuildFilteredList()
 	local numSkills = #filteredList
 	local offset = FauxScrollFrame_GetOffset(DiceMasterStatInspectorSkillListScrollFrame) + 1;
-	
+
 	local index = 1;
 	for i=offset,  offset + 12 - 1 do
 		if ( i <= numSkills ) then
@@ -579,12 +579,14 @@ function Me.StatInspector_UpdatePet()
 		DiceMasterStatInspectorPetModel:SetModelByCreatureDisplayID( pet.model )
 		DiceMasterStatInspectorPetModel:SetScale( pet.scale or 0.2 )
 		PanelTemplates_EnableTab(DiceMasterStatInspector, 2)
-	elseif PanelTemplates_GetSelectedTab(DiceMasterStatInspector) == 2 then
-		PanelTemplates_SetTab(DiceMasterStatInspector, 1);
-		DiceMasterStatInspectorSkillFrame:Show();
-		DiceMasterStatInspectorPetFrame:Hide();
-		PlaySound(841)
-		PanelTemplates_DisableTab(DiceMasterStatInspector, 2)
+	else
+		if PanelTemplates_GetSelectedTab(DiceMasterStatInspector) == 2 then
+			PanelTemplates_SetTab(DiceMasterStatInspector, 1);
+			DiceMasterStatInspectorSkillFrame:Show();
+			DiceMasterStatInspectorPetFrame:Hide();
+			PlaySound(841)
+		end
+		PanelTemplates_DisableTab(DiceMasterStatInspector, 2);
 	end
 end
 

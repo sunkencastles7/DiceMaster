@@ -1,0 +1,62 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <!-- Edit Button -->
+  <Button name="DiceMasterEditButtonTemplate" virtual="true">
+	<Size x="28" y="26"/>
+	<NormalTexture atlas="chatframe-button-up" useAtlasSize="true"/>
+	<PushedTexture atlas="chatframe-button-down" useAtlasSize="true"/>
+	<HighlightTexture atlas="chatframe-button-highlight" useAtlasSize="true" alphaMode="ADD"/>
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="icon">
+				<Size x="16" y="16"/>
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="0"/>
+				</Anchors>
+			</Texture>
+			<FontString parentKey="text" inherits="GameFontNormal" text="C">
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="0"/>
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+	<Scripts>
+		<OnLoad>
+			if self.atlas then 
+				self.icon:SetAtlas(self.atlas);
+				self.text:Hide();
+				self.icon:Show();
+			elseif self.texture then
+				self.icon:SetTexture(self.texture);
+				self.text:Hide();
+				self.icon:Show();
+			elseif self.label then
+				self.text:SetText(self.label);
+				self.icon:Hide();
+				self.text:Show();
+			end
+		</OnLoad>
+		<OnMouseDown>
+			self.icon:ClearAllPoints();
+			self.icon:SetPoint("CENTER", -2, -2);
+			self.text:ClearAllPoints();
+			self.text:SetPoint("CENTER", -2, -2);
+		</OnMouseDown>
+		<OnMouseUp>
+			self.icon:ClearAllPoints();
+			self.icon:SetPoint("CENTER", 0, 0);
+			self.text:ClearAllPoints();
+			self.text:SetPoint("CENTER", 0, 0);
+		</OnMouseUp>
+		<OnEnter>
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+			GameTooltip_SetTitle(GameTooltip, self.title, HIGHLIGHT_FONT_COLOR);
+			GameTooltip_AddNormalLine(GameTooltip, self.description);
+			GameTooltip:Show();
+		</OnEnter>
+		<OnLeave function="GameTooltip_Hide"/>
+	</Scripts>
+</Button>
+
+</Ui>

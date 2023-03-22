@@ -118,6 +118,7 @@
   <Include file="Ui\Widgets\StatusBar.xml"/>
   <Include file="Ui\Widgets\TraitButton.xml"/>
   <Include file="Ui\Widgets\ItemButton.xml"/>
+  <Include file="Ui\Widgets\EditButton.xml"/>
   <Include file="Ui\Widgets\UnitPowerBar.xml"/>
   <Include file="Ui\Widgets\MapNode.xml"/>
   
@@ -167,7 +168,5 @@
   <Include file="Ui\LootToast.xml"/>
   <Include file="Ui\TradeSkillFrame.xml"/>
   <Include file="Ui\SplashFrame.xml"/>
-  <Include file="Ui\ExamineFrame.xml"/>
-  <Include file="Ui\DarkmoonCard.xml"/>
 </Ui>
  

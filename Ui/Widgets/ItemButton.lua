@@ -45,7 +45,7 @@ local EffectTypes = {
 	["screeneffect"] = "Screen Effect";
 	["sound"]	= "Play Sound";
 	["health"] = "Add/Remove Health",
-	["skill"] = "Learn Skills",
+	["skill"] = "Learn Skill",
 	["recipe"] = "Learn Recipe",
 	["pet"] = "Learn Pet",
 }

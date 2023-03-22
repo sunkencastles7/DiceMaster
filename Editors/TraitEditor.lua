@@ -186,61 +186,6 @@ StaticPopupDialogs["DICEMASTER4_IMPORTTRAIT"] = {
   preferredIndex = 3,
 }
 
-StaticPopupDialogs["DICEMASTER4_IMPORTSKILLS"] = {
-  text = "Paste an import code into the field below.|n|nThis will overwrite your current skills!",
-  button1 = "Import",
-  button2 = "Cancel",
-  OnShow = function (self, data)
-    self.editBox:SetText( "" )
-	self.editBox:SetFocus()
-  end,
-  OnAccept = function (self, data)
-	local data = self.editBox:GetText()
-	
-	if not data or data == nil or data == "" then
-		UIErrorsFrame:AddMessage( "Invalid import code.", 1.0, 0.0, 0.0 );
-		return
-	end
-	
-	data = Me.Decrypt( data )
-	T = nil
-	RunScript( "T=" .. data )
-	
-	local backup = Profile.skills or nil
-	
-	if not( T and ValidateSkillSheet(T)) then 
-		if backup then
-			Profile.skills = backup;
-		end
-		UIErrorsFrame:AddMessage( "Invalid import code.", 1.0, 0.0, 0.0 );
-		return 
-	end
-	
-	Profile.skills = T;
-	if #Profile.skills > 10 then
-		Me.PrintMessage( "|cFF8080ffYou have gained ".. #Profile.skills .." new skills.|r", "SYSTEM" )
-	else
-		for i = 1, #Profile.skills do
-			local skill = Profile.skills[i];
-			if skill.name and not( skill.type == "header" ) then
-				Me.PrintMessage( "|cFF8080ffYou have gained the ".. skill.name .." skill.|r", "SYSTEM" )
-			end
-		end
-	end
-	Me.SkillFrame_UpdateSkills()
-	
-	if not IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) then
-		Me.Inspect_SendSkills( "RAID" )
-	end
-  end,
-  hasEditBox = true,
-  timeout = 0,
-  whileDead = true,
-  showAlert = true,
-  hideOnEscape = true,
-  preferredIndex = 3,
-}
-
 StaticPopupDialogs["DICEMASTER4_IMPORTITEM"] = {
   text = "Paste an import code into the field below and select 'Import' to import the item.",
   button1 = "Import",
@@ -335,16 +280,15 @@ local TRAIT_EDITOR_TUTORIAL = {
 }
 
 local PETS_TUTORIAL = {
-	"Toggle whether or not your pet is active, enabling the Pet Frame and allowing other players to inspect your pet on the Inspect Frame.",
-	"You can choose a custom name, icon, and more for your pet.",
-	"Click the 'Select Model' button to choose a model for your pet.",
+	"Toggle whether or not your pet is active, enabling the Pet Frame and allowing other players to inspect your pet on the Inspect Frame.|n|nUse the buttons on the top bar to choose a model for your pet or adjust its scale.",
+	"You can choose a custom name, icon, and more for your pet.|n|nThe Pet Item slot is used for items with the 'Learn Pet' action.",
 }
 
 local SKILLS_TUTORIAL = {
-	"Your custom skills and current progress in those skills are listed here, representing your character's proficiency in a particular action.|n|nYou can learn new skills from custom items, or raise a skill's level by crafting or harvesting custom items of the appropriate level.",
+	"Your custom skills and current progress in those skills are listed here, representing your character's proficiency in a particular area.|n|nYou can learn new skills from custom items, or raise a skill's level by crafting or harvesting custom items of the appropriate level.",
 	"Selecting a skill from the list above will display more details about the skill here.|n|nClick the 'Unlearn' button if you wish to unlearn the selected skill.",
 	"Click the 'New' button to create a new custom skill.",
-	"You can export your skills with a unique import code which you can share with other players.",
+	"Choose your character's alignment from the dropdown menu.|n|nYou can export your skills with a unique import code which you can share with other players.",
 }
 
 local INVENTORY_TUTORIAL = {
@@ -1176,6 +1120,48 @@ local happinessTypes = {
 	[3] = { name = "Happy", desc = "Your pet is perfectly happy with you and the world." },
 }
 
+function Me.PetEditor_UpdateHappiness()
+	-- Calculate pet happiness
+	local happiness = 3;
+	local tooltipDesc = "";
+	if Profile.pet.isHungry then
+		happiness = happiness - 1;
+		tooltipDesc = tooltipDesc .. "|n|cFFFFFFFFHungry|r|nYour pet is hungry and requires food!|n";
+	end
+	if Profile.pet.isStinky then
+		happiness = happiness - 1;
+		tooltipDesc = tooltipDesc .. "|n|cFFFFFFFFStinky|r|nYour pet is filthy and needs a bath!|n";
+	end
+	if Profile.pet.isTired then
+		happiness = happiness - 1;
+		tooltipDesc = tooltipDesc .. "|n|cFFFFFFFFSleepy|r|nYour pet is exhausted and requires rest!|n";
+	end
+	if Profile.pet.isDirty then
+		happiness = happiness - 1;
+		tooltipDesc = tooltipDesc .. "|n|cFFFFFFFFDirty|r|nYour pet stables could use a good cleaning!|n";
+		DiceMasterPetModelFlies:Show();
+	else
+		DiceMasterPetModelFlies:Hide();
+	end
+	if Profile.pet.isCold then
+		happiness = happiness - 1;
+		tooltipDesc = tooltipDesc .. "|n|cFFFFFFFFCold|r|nYour pet needs warmth in order to hatch!|n";
+	end
+	if Profile.pet.name then
+		tooltipDesc = tooltipDesc:gsub( "Your pet", Profile.pet.name );
+	end
+	DiceMasterPetFrame.petHappiness.tooltipDesc = tooltipDesc;
+	happiness = Me.Clamp( happiness, 1, 3);
+	Profile.pet.happiness = happiness;
+	if ( happiness == 1 ) then
+		DiceMasterPetFrame.petHappiness.Texture:SetTexCoord(0.375, 0.5625, 0, 0.359375);
+	elseif ( happiness == 2 ) then
+		DiceMasterPetFrame.petHappiness.Texture:SetTexCoord(0.1875, 0.375, 0, 0.359375);
+	elseif ( happiness == 3 ) then
+		DiceMasterPetFrame.petHappiness.Texture:SetTexCoord(0, 0.1875, 0, 0.359375);
+	end
+end
+
 function Me.PetEditor_Happiness_OnEnter()
 	GameTooltip:SetOwner(DiceMasterPetFrame.petHappiness, "ANCHOR_RIGHT");
 	GameTooltip_SetTitle(GameTooltip, happinessTypes[ Profile.pet.happiness or 3 ].name, HIGHLIGHT_FONT_COLOR);
@@ -1248,44 +1234,11 @@ function Me.PetEditor_Refresh()
 			Profile.pet.isStinky = true;
 		end
 		
-		-- Calculate pet happiness
-		local happiness = 3;
-		local tooltipDesc = "";
-		if Profile.pet.isHungry then
-			happiness = happiness - 1;
-			tooltipDesc = tooltipDesc .. "|n|cFFFFFFFFHungry|r|nYour pet is hungry and requires food!|n";
-		end
-		if Profile.pet.isStinky then
-			happiness = happiness - 1;
-			tooltipDesc = tooltipDesc .. "|n|cFFFFFFFFStinky|r|nYour pet is filthy and needs a bath!|n";
-		end
-		if Profile.pet.isTired then
-			happiness = happiness - 1;
-			tooltipDesc = tooltipDesc .. "|n|cFFFFFFFFSleepy|r|nYour pet is exhausted and requires rest!|n";
-		end
-		if Profile.pet.isDirty then
-			happiness = happiness - 1;
-			tooltipDesc = tooltipDesc .. "|n|cFFFFFFFFDirty|r|nYour pet stables could use a good cleaning!|n";
-		end
-		if Profile.pet.isCold then
-			happiness = happiness - 1;
-			tooltipDesc = tooltipDesc .. "|n|cFFFFFFFFCold|r|nYour pet needs warmth in order to hatch!|n";
-		end
-		if Profile.pet.name then
-			tooltipDesc = tooltipDesc:gsub( "Your pet", Profile.pet.name );
-		end
-		DiceMasterPetFrame.petHappiness.tooltipDesc = tooltipDesc;
-		happiness = Me.Clamp( happiness, 1, 3);
-		Profile.pet.happiness = happiness;
-		if ( happiness == 1 ) then
-			DiceMasterPetFrame.petHappiness.Texture:SetTexCoord(0.375, 0.5625, 0, 0.359375);
-		elseif ( happiness == 2 ) then
-			DiceMasterPetFrame.petHappiness.Texture:SetTexCoord(0.1875, 0.375, 0, 0.359375);
-		elseif ( happiness == 3 ) then
-			DiceMasterPetFrame.petHappiness.Texture:SetTexCoord(0, 0.1875, 0, 0.359375);
-		end
+		Me.PetEditor_UpdateHappiness()
+		
 		DiceMasterPetFrame.petHappiness:Show()
 		DiceMasterPetFrame.feedButton:Show()
+		DiceMasterPetFrame.restButton:Show()
 		DiceMasterPetFrame.selectModel:Hide()
 		DiceMasterPetFrame.increaseScale:Hide()
 		DiceMasterPetFrame.decreaseScale:Hide()
@@ -1293,6 +1246,7 @@ function Me.PetEditor_Refresh()
 	else
 		DiceMasterPetFrame.petHappiness:Hide()
 		DiceMasterPetFrame.washButton:Hide()
+		DiceMasterPetFrame.restButton:Hide()
 		DiceMasterPetFrame.feedButton:Hide()
 		DiceMasterPetFrame.selectModel:Show()
 		DiceMasterPetFrame.increaseScale:Show()
@@ -1393,6 +1347,7 @@ function Me.PetEditor_FeedPet( item )
 	DiceMasterPetModel:SetSpellVisualKit( 232, true ) -- "Food heal" sparkles
 	DiceMasterPetModel:SetAnimation( 61 )
 	PlaySound( 157742 ) -- Eating sound
+	Me.PetEditor_UpdateHappiness()
 end
 
 -------------------------------------------------------------------------------
@@ -1408,6 +1363,35 @@ function Me.PetEditor_WashPet()
 	DiceMasterPetModel:SetSpellVisualKit( 110361, true )
 	DiceMasterPetModel:SetAnimation( 10 )
 	PlaySound( 73126 )
+	Me.PetEditor_UpdateHappiness()
+end
+
+-------------------------------------------------------------------------------
+-- Handler for resting the pet.
+--
+function Me.PetEditor_RestPet()
+	if Profile.pet.isTired then
+		DiceMasterPetModel:SetModelByCreatureDisplayID( Profile.pet.model )
+		Profile.pet.isTired = false;
+		local timestamp = time(date("*t"));
+		Profile.pet.lastNap = timestamp;
+	end
+	DiceMasterPetModel:SetAnimation( 99 )
+	DiceMasterPetModel.animation = 100;
+	PlaySound( 1509 )
+	Me.PetEditor_UpdateHappiness()
+end
+
+function Me.PetEditor_EndRest()
+	if Profile.pet.isTired then
+		DiceMasterPetModel:SetModelByCreatureDisplayID( Profile.pet.model )
+		Profile.pet.isTired = false;
+		local timestamp = time(date("*t"));
+		Profile.pet.lastNap = timestamp;
+	end
+	DiceMasterPetModel:SetAnimation( 101 )
+	DiceMasterPetModel.animation = 0;
+	Me.PetEditor_UpdateHappiness()
 end
 
 -------------------------------------------------------------------------------
@@ -1443,11 +1427,14 @@ function Me.PetEditor_CleanPetDroppings()
 	
 	C_Timer.After( 5, function()
 		PlaySound(34161);
-		StopSound(soundHandle);
+		if soundHandle then 
+			StopSound(soundHandle);
+		end
 		Profile.pet.numBMs = 0;
 		Profile.pet.isDirty = false;
 		DiceMasterPetFrame.petModelScene.broom:Hide();
 	end);
+	Me.PetEditor_UpdateHappiness()
 end
 
 -------------------------------------------------------------------------------
@@ -1461,7 +1448,7 @@ function Me.TraitEditor_WarmPetEgg()
 	local timestamp = time(date("*t"));
 	Profile.pet.lastWarmed = timestamp;
 	Profile.pet.isCold = false;
-
+	Me.PetEditor_UpdateHappiness()
 end
 
 -------------------------------------------------------------------------------
@@ -1666,7 +1653,7 @@ function Me.SkillFrame_CreateDefaults()
 			desc = v.desc;
 			type = "Attributes";
 			rank = 0;
-			maxRank = 10;
+			maxRank = 5;
 			author = UnitName("player");
 			expanded = true,
 			showOnMenu = false,
@@ -1689,7 +1676,7 @@ function Me.SkillFrame_CreateDefaults()
 				icon = "Interface/Icons/inv_misc_questionmark";
 				desc = v[i].desc;
 				rank = 0;
-				maxRank = 10;
+				maxRank = 5;
 				skillModifiers = { v[i].skill };
 				author = UnitName("player");
 				expanded = true;
@@ -1703,6 +1690,7 @@ function Me.SkillFrame_CreateDefaults()
 	
 	Me.SkillFrame_UpdateSkills();
 	DiceMasterTraitEditor.NoSkillsWarning:Hide();
+	Me.PrintMessage( "|cFF8080ffYou have gained ".. #Profile.skills .." new skills.|r", "SYSTEM" )
 end
 
 local function Placer_OnUpdate(self)
@@ -1801,6 +1789,46 @@ function Me.SkillFrame_ExportSheet()
 	DiceMasterExportDialog.ImportControl.InputContainer.EditBox:SetFocus();
 end
 
+function Me.SkillFrame_ImportSheet()
+	local text = DiceMasterImportDialog.ImportControl.InputContainer.EditBox:GetText();
+	
+	if not text or text == nil or text == "" then
+		UIErrorsFrame:AddMessage( "Invalid import code.", 1.0, 0.0, 0.0 );
+		return
+	end
+	
+	text = Me.Decrypt( text );
+	T = nil;
+	RunScript( "T=" .. text );
+	
+	local backup = Profile.skills or nil;
+	
+	if not( T and ValidateSkillSheet(T)) then 
+		if backup then
+			Profile.skills = backup;
+		end
+		UIErrorsFrame:AddMessage( "Invalid import code. 2", 1.0, 0.0, 0.0 );
+		return 
+	end
+	
+	Profile.skills = T;
+	if #Profile.skills > 10 then
+		Me.PrintMessage( "|cFF8080ffYou have gained ".. #Profile.skills .." new skills.|r", "SYSTEM" );
+	else
+		for i = 1, #Profile.skills do
+			local skill = Profile.skills[i];
+			if skill.name and not( skill.type == "header" ) then
+				Me.PrintMessage( "|cFF8080ffYou have gained the ".. skill.name .." skill.|r", "SYSTEM" );
+			end
+		end
+	end
+	Me.SkillFrame_UpdateSkills()
+	
+	if not IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) then
+		Me.Inspect_SendSkills( "RAID" )
+	end
+end
+
 function Me.SkillFrameTemplate_OnLoad(frame, level, menuList)
 	local info = UIDropDownMenu_CreateInfo();
 	info.text = "Skill Templates";
@@ -1808,19 +1836,24 @@ function Me.SkillFrameTemplate_OnLoad(frame, level, menuList)
 	info.notClickable = true;
 	info.notCheckable = true;
 	UIDropDownMenu_AddButton(info);
-	info.text = "Default";
+	info.text = "Default Template";
+	info.tooltipTitle = "Default";
+	info.tooltipText = "A standard set of attributes, skills, and saving throws.";
+	info.tooltipOnButton = true;
 	info.isTitle = false;
 	info.notClickable = false;
 	info.func = Me.SkillFrame_CreateDefaults;
 	info.disabled = false;
 	UIDropDownMenu_AddButton(info);
-	info.text = "|cFF00FF00Import|r";
+	info.text = CreateAtlasMarkup("editmode-new-layout-plus") .. " |cFF00FF00Import|r";
+	info.tooltipTitle = CreateAtlasMarkup("editmode-new-layout-plus") .. " |cFF00FF00Import|r";
+	info.tooltipText = "Use a code to import a template made by another player.";
 	info.arg1 = 0;
 	info.value = 0;
 	info.notCheckable = true;
 	info.isTitle = false;
 	info.disabled = false;
-	info.func = function() StaticPopup_Show( "DICEMASTER4_IMPORTSKILLS" ) end;
+	info.func = function() DiceMasterImportDialog:Show(); end;
 	UIDropDownMenu_AddButton(info, level);
 end
 
@@ -2551,11 +2584,11 @@ function DiceMasterTraitEditorTutorialMixin:ToggleHelpInfo()
 	elseif ( DiceMasterPetFrame:IsShown() ) then
 		self.helpInfo[1] = { ButtonPos = { x = 145,	y = 2 }, HighLightBox = { x = 50, y = -2, width = 275, height = 39 },	ToolTipDir = "DOWN", ToolTipText = PETS_TUTORIAL[1] };
 		self.helpInfo[2] = { ButtonPos = { x = 145,	y = -202 }, HighLightBox = { x = 10, y = -47, width = 315, height = 348 },	ToolTipDir = "DOWN", ToolTipText = PETS_TUTORIAL[2] };
-		self.helpInfo[3] = { ButtonPos = { x = 145,	y = -388 }, HighLightBox = { x = 110, y = -397, width = 120, height = 24 },	ToolTipDir = "UP", ToolTipText = PETS_TUTORIAL[3] };
 	elseif ( DiceMasterSkillFrame:IsShown() ) then
 		self.helpInfo[1] = { ButtonPos = { x = 145,	y = -140 }, HighLightBox = { x = 10, y = -47, width = 315, height = 215 },	ToolTipDir = "DOWN", ToolTipText = SKILLS_TUTORIAL[1] };
 		self.helpInfo[2] = { ButtonPos = { x = 145,	y = -315 }, HighLightBox = { x = 10, y = -275, width = 315, height = 120 },	ToolTipDir = "UP", ToolTipText = SKILLS_TUTORIAL[2] };
 		self.helpInfo[3] = { ButtonPos = { x = 210,	y = -388 }, HighLightBox = { x = 205, y = -397, width = 120, height = 24 },	ToolTipDir = "UP", ToolTipText = SKILLS_TUTORIAL[3] };
+		self.helpInfo[4] = { ButtonPos = { x = 90,	y = 2 }, HighLightBox = { x = 90, y = -2, width = 236, height = 39 },	ToolTipDir = "DOWN", ToolTipText = SKILLS_TUTORIAL[4] };
 	elseif ( DiceMasterTraitEditorInventoryFrame:IsShown() ) then
 		self.helpInfo[1] = { ButtonPos = { x = 180,	y = -1 }, HighLightBox = { x = 100, y = -9, width = 218, height = 28 },	ToolTipDir = "DOWN", ToolTipText = INVENTORY_TUTORIAL[1] };
 		self.helpInfo[2] = { ButtonPos = { x = 145,	y = -205 }, HighLightBox = { x = 15, y = -72, width = 303, height = 310 },	ToolTipDir = "DOWN", ToolTipText = INVENTORY_TUTORIAL[2] };

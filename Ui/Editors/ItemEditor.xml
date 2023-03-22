@@ -306,7 +306,7 @@
 			<Scripts>
 			  <OnLoad>
 				UIDropDownMenu_Initialize( self, DiceMaster4.ItemEditorQuality_OnLoad )
-				UIDropDownMenu_SetText(self, "Common")
+				UIDropDownMenu_SetText(self, "|cFFFFD100Quality:|r Common")
 				UIDropDownMenu_SetWidth(self, 170, 5)
 			  </OnLoad>
 			</Scripts>
@@ -529,7 +529,7 @@
 			<Scripts>
 			  <OnLoad>
 				UIDropDownMenu_Initialize( self, DiceMaster4.ItemEditorProperties_OnLoad )
-				UIDropDownMenu_SetText(self, "Properties: (None)")
+				UIDropDownMenu_SetText(self, "|cFFFFD100Item Properties:|r (None)")
 				UIDropDownMenu_SetWidth(self, 225, 5)
 			  </OnLoad>
 			</Scripts>
