@@ -90,6 +90,31 @@ local function CheckTooltipForTerms( text )
 	end
 end
 
+local function RecipeIsKnown( item )
+	-- check if we already know a recipe for this item
+	local itemData
+	if item and item.effects then
+		for i = 1, #item.effects do
+			if item.effects[i].type == "recipe" and item.effects[i].item then
+				itemData = item.effects[i].item;
+				break;
+			end
+		end
+	end
+	
+	-- Find duplicate recipes
+	if itemData then
+		for i = 1, #Me.Profile.recipes do
+			local recipe = Me.Profile.recipes[i]
+			if recipe and recipe.item and recipe.item.guid == itemData.guid then
+				return true;
+			end
+		end
+	end
+
+	return false
+end
+
 -------------------------------------------------------------------------------
 -- Chat filter for processing DiceMaster4 links.
 --
@@ -294,6 +319,14 @@ local function RefreshItemRef()
 			local color = ITEM_QUALITY_COLORS[ item.quality ]
 			ItemRefTooltip:AddLine( item.name, color.r, color.g, color.b, 1 )
 		end
+
+		if item.properties["Cosmetic"] then
+			ItemRefTooltip:AddLine( "Cosmetic", 1, 0.5, 1, 1 );
+		end
+
+		if item.properties["Crafting Reagent"] then
+			ItemRefTooltip:AddLine( "Crafting Reagent", 0.4, 0.733, 1, 1 );
+		end
 		
 		if item.soulbound then
 			ItemRefTooltip:AddLine( "Binds when picked up", 1, 1, 1, true )
@@ -386,10 +419,18 @@ local function RefreshItemRef()
 				ItemRefTooltip:AddLine( "Requires: "..item.requiredSkill.name.." ("..item.requiredSkill.rank..")", 1, 1, 1, true )
 			end
 		end
+
+		if item.requiresDMApproval then
+			if item.approvedBy and UnitIsGroupLeader( item.approvedBy , 1) then
+				-- GameTooltip:AddLine( "Requires Dungeon Master Permission", 1, 1, 1, true );
+			else
+				GameTooltip:AddLine( "Requires Dungeon Master Permission", 1, 0, 0, true );
+			end
+		end
 		
-		-- if RecipeIsKnown( item ) then
-			-- ItemRefTooltip:AddLine( "Already known", 1, 0, 0, true )
-		-- end
+		if RecipeIsKnown( item ) then
+			ItemRefTooltip:AddLine( "Already known", 1, 0, 0, true )
+		end
 		
 		if item.author then
 			ItemRefTooltip:AddLine( "<Made by " .. item.author .. ">", 0, 1, 0, true )

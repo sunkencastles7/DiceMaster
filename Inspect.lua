@@ -251,6 +251,32 @@ StaticPopupDialogs["DICEMASTER4_SETTARGETMANAMAX"] = {
   preferredIndex = 3,
 }
 
+StaticPopupDialogs["DICEMASTER4_CUSTOMITEMUSEREQUEST"] = {
+  text = "%s is requesting to use the following item:",
+  button1 = "Approve",
+  button2 = "Deny",
+  OnAccept = function ( self, data )
+	if not data or not data.guid or not data.sender then
+		return
+	end
+
+	local msg = {
+		guid = data.guid;
+		approved = true;
+	};
+	local msg = Me:Serialize( "ITEMAPP", msg )
+	Me:SendCommMessage( "DCM4", msg, "WHISPER", data.sender, "ALERT" )
+  end,
+  OnCancel = function( self )
+	PlaySound( 1203 )
+  end,
+  timeout = 0,
+  whileDead = true,
+  hasItemFrame = true,
+  hideOnEscape = true,
+  exclusive = true,
+}
+
 -------------------------------------------------------------------------------
 -- Update the buff frame.
 --
@@ -928,6 +954,8 @@ function Me.Inspect_SendItemSlot( index, isShop, dist, channel )
 		l = tonumber( item.lastCastTime ) or 0;
 		cn = item.consumeable or false;
 		co = item.copyable or false;
+		rd = item.requiresDMApproval or false;
+		de = item.canDisenchant or false;
 		a = tostring( item.author );
 		g = item.guid or 0;
 		e = item.effects or {};
@@ -1323,6 +1351,8 @@ function Me.Inspect_OnItemSlotMessage( data, dist, sender )
 		lastCastTime = data.l;
 		consumeable = data.cn;
 		copyable = data.co;
+		requiresDMApproval = data.rd;
+		canDisenchant = data.de;
 		author = data.a;
 		guid = data.g;
 		effects = data.e;
@@ -1655,6 +1685,48 @@ function Me.Inspect_OnSetManaMessage( data, dist, sender )
 	Me.Inspect_ShareStatusWithParty()
 	Me.DiceMasterRollDetailFrame_Update()
 	Me.DMRosterFrame_Update()
+end
+
+---------------------------------------------------------------------------
+-- Received ITEMUSE data.
+
+function Me.Inspect_OnItemUseRequest( data, dist, sender )
+	
+	-- Only the group leader and assistants can approve item requests.
+	if not Me.IsLeader( false ) then return end
+	
+	-- sanitize message
+	if not data.item then
+		return
+	end
+
+	local item = data.item;
+	local color = ITEM_QUALITY_COLORS[item.quality];
+	local data = {	["texture"] = item.icon, ["name"] = item.name, ["color"] = {color.r, color.g, color.b, 1}, 
+					["guid"] = item.guid, ["count"] = item.stackCount, ["sender"] = sender,
+	};
+	StaticPopup_Show( "DICEMASTER4_CUSTOMITEMUSEREQUEST", sender, nil, data );
+end
+
+---------------------------------------------------------------------------
+-- Received ITEMAPP data.
+
+function Me.Inspect_OnItemUseApproved( data, dist, sender )
+	-- Only the group leader and assistants can approve item requests.
+	if not UnitIsGroupLeader( sender , 1) then return end
+	
+	-- sanitize message
+	if not data.guid and data.approved then
+		return
+	end
+
+	for i = 1, 42 do
+		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == data.guid and Me.Profile.inventory[i].requiresDMApproval then
+			Me.Profile.inventory[i].approvedBy = sender;
+			local itemLink = Me.GetItemLink( UnitName("player"), data.guid );
+			Me.PrintMessage("|cFFFFFF00"..sender.." has approved your use of "..itemLink..".|r", "SYSTEM");
+		end
+	end
 end
 
 -------------------------------------------------------------------------------

@@ -118,6 +118,11 @@
 							<KeyValue key="title" value="Select Model"/>
 							<KeyValue key="description" value="Choose a model for this pet."/>
 						</KeyValues>
+						<Scripts>
+							<OnClick>
+								DiceMaster4.ModelPicker_Open( DiceMasterLearnPetEditor, self:GetParent():GetParent() );
+							</OnClick>
+						</Scripts>
 					</Button>
 					<Button parentKey="increaseScale" inherits="DiceMasterLearnPetEditorButtonTemplate">
 						<Anchors>
@@ -128,6 +133,13 @@
 							<KeyValue key="title" value="Increase Scale"/>
 							<KeyValue key="description" value="Increase the scale of the pet's model."/>
 						</KeyValues>
+						<Scripts>
+							<OnClick>
+								local scale = self:GetParent():GetActorAtIndex(1):GetScale();
+								scale = DiceMaster4.Clamp( scale + 0.01, 0, 1 );
+								self:GetParent():GetActorAtIndex(1):SetScale( scale );
+							</OnClick>
+						</Scripts>
 					</Button>
 					<Button parentKey="decreaseScale" inherits="DiceMasterLearnPetEditorButtonTemplate">
 						<Anchors>
@@ -142,6 +154,11 @@
 							<OnShow>
 								self.icon:SetHeight(8);
 							</OnShow>
+							<OnClick>
+								local scale = self:GetParent():GetActorAtIndex(1):GetScale();
+								scale = DiceMaster4.Clamp( scale - 0.01, 0, 1 );
+								self:GetParent():GetActorAtIndex(1):SetScale( scale );
+							</OnClick>
 						</Scripts>
 					</Button>
 				</Frames>
@@ -155,7 +172,34 @@
 					<OnLoad>
 						_G[self:GetName().."Text"]:SetText("|cFFFFD100Enable")
 						self.tooltip = "Enables this stage of this pet's life cycle."
+						self:SetChecked(true);
+						if self:GetParent().stage == "1" then self:Hide() end
 					</OnLoad>
+					<OnClick>
+						if not( self:GetChecked() ) then
+							self:GetParent():DesaturateHierarchy(1);
+							self:GetParent().ModelScene.decreaseScale:Disable();
+							self:GetParent().ModelScene.increaseScale:Disable();
+							self:GetParent().ModelScene.selectModel:Disable();
+							self:GetParent().petName:Disable();
+							self:GetParent().petIcon:Disable();
+							self:GetParent().petDiet.Button:Disable();
+							self:GetParent().petRequireWash:Disable();
+							self:GetParent().petRequireCleanUp:Disable();
+							self:GetParent().petRequireRest:Disable();
+						else
+							self:GetParent():DesaturateHierarchy(0);
+							self:GetParent().ModelScene.decreaseScale:Enable();
+							self:GetParent().ModelScene.increaseScale:Enable();
+							self:GetParent().ModelScene.selectModel:Enable();
+							self:GetParent().petName:Enable();
+							self:GetParent().petIcon:Enable();
+							self:GetParent().petDiet.Button:Enable();
+							self:GetParent().petRequireWash:Enable();
+							self:GetParent().petRequireCleanUp:Enable();
+							self:GetParent().petRequireRest:Enable();
+						end
+					</OnClick>
 				</Scripts>
 			</CheckButton>
 		
@@ -172,7 +216,7 @@
 				  </OnLoad>
 				  <OnClick>
 					PlaySound(54132)
-					DiceMaster4.IconPicker_Open( self:GetParent() )
+					DiceMaster4.IconPicker_Open( self )
 				  </OnClick>
 				</Scripts>
 			</DiceMasterTraitButton>
@@ -207,15 +251,15 @@
 			</EditBox>
 			
 			<Button name="$parentPetDiet" parentKey="petDiet" enableMouse="true" inherits="UIDropDownMenuTemplate">
-				<Size x="160" y="22"/>
+				<Size x="155" y="22"/>
 				<Anchors>
-				  <Anchor point="TOPLEFT" relativeKey="$parent.petIcon" relativePoint="BOTTOMLEFT" x="-18" y="-4"/> 
+				  <Anchor point="TOPLEFT" relativeKey="$parent.petIcon" relativePoint="BOTTOMLEFT" x="-15" y="-4"/> 
 				</Anchors>
 				<Scripts>
 				  <OnShow>
 					UIDropDownMenu_Initialize( self, DiceMaster4.LearnPetEditorDiet_OnLoad )
-					UIDropDownMenu_SetText(self, "Diet: (None)")
-					UIDropDownMenu_SetWidth(self, 160, 5)
+					UIDropDownMenu_SetText(self, "|cFFFFD100Diet:|r (None)")
+					UIDropDownMenu_SetWidth(self, 155, 5)
 				  </OnShow>
 				</Scripts>
 			</Button>
@@ -274,7 +318,7 @@
 					<OnEnter>
 						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
 						GameTooltip_SetTitle(GameTooltip, "|TInterface/MINIMAP/TRACKING/Innkeeper:16|t Requires Rest", HIGHLIGHT_FONT_COLOR);
-						GameTooltip_AddNormalLine(GameTooltip, "Enables this pet to periodically leave behind droppings, reducing their happiness until they are cleaned up after.", true);
+						GameTooltip_AddNormalLine(GameTooltip, "Enables this pet to periodically become tired, reducing their happiness until they rest.", true);
 						GameTooltip:Show();
 					</OnEnter>
 					<OnLeave>
@@ -284,8 +328,71 @@
 			</CheckButton>
 		</Frames>
 	</Frame>
+
+	<Button name="DiceMasterLearnPetEditorTimerTemplate" virtual="true">
+		<Size x="50" y="50"/>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture parentKey="BG" atlas="Garr_BuildingTimerBG" setAllPoints="true"/>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Text" inherits="GameFontNormalMed2" text="10 d">
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</FontString>
+				<Texture parentKey="CompleteRing" atlas="Garr_BuildingTimerFill" setAllPoints="true" hidden="true"/>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture atlas="CovenantSanctum-Renown-Arrow-Depressed">
+					<Size x="32" y="48"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" x="-8" y="0"/>
+					</Anchors>
+					<TexCoords left="1" right="0" top="0" bottom="1" />
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Cooldown parentKey="Cooldown" reverse="true" hideCountdownNumbers="true">
+				<Size x="64" y="64"/>
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+				<SwipeTexture file="Interface\Garrison\Garr_TimerFill"/>
+			</Cooldown>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self.Cooldown.Duration = 0;
+				self.Cooldown:SetCooldownUNIX(time()-864000, 864000);
+				self.Cooldown:Pause();
+			</OnLoad>
+			<OnClick>
+				if self.Cooldown.Duration &lt; 9 then
+					self.Cooldown.Duration = self.Cooldown.Duration + 1;
+				else
+					self.Cooldown.Duration = 0;
+				end
+				self.Cooldown:SetCooldownUNIX(time() - ( 864000 - ( self.Cooldown.Duration * 86400 )), 864000);
+				self.Text:SetText( tostring( 10 - self.Cooldown.Duration ) .. " d" );
+				self:GetScript("OnEnter")(self);
+			</OnClick>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+				GameTooltip_SetTitle(GameTooltip, "Evolution Time", HIGHLIGHT_FONT_COLOR);
+				if self.Cooldown.Duration == 9 then
+					GameTooltip_AddNormalLine(GameTooltip, "It will take " .. tostring( 10 - self.Cooldown.Duration ) .. " day before this pet is ready to evolve to the next stage.");
+				else
+					GameTooltip_AddNormalLine(GameTooltip, "It will take " .. tostring( 10 - self.Cooldown.Duration ) .. " days before this pet is ready to evolve to the next stage.");
+				end
+				GameTooltip:Show();
+			</OnEnter>
+			<OnLeave function="GameTooltip_Hide"/>
+		</Scripts>
+	</Button>
 	
-	<Frame name="DiceMasterLearnPetEditor" parent="UIParent" inherits="SimplePanelTemplate" hidden="true" frameStrata="DIALOG" topLevel="true">
+	<Frame name="DiceMasterLearnPetEditor" parent="UIParent" inherits="DefaultPanelTemplate" hidden="true" frameStrata="DIALOG" topLevel="true">
     <Size x="552" y="460" />
     <Anchors>
       <Anchor point="CENTER" />
@@ -310,53 +417,44 @@
     
     <Scripts>
       <OnLoad>
-	    if self.NineSlice then
-			self.NineSlice:SetFrameLevel(1)
-		end
-		
-		self.Inset:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 180, 26)
       </OnLoad>
     </Scripts>
     <Frames>
+		<Frame name="$parentInset1" parentKey="Inset1" inherits="DiceMasterLearnPetEditorInsetTemplate">
+			<Anchors>
+				<Anchor point="TOPLEFT" x="6" y="-26"/>
+			</Anchors>
+			<KeyValues>
+				<KeyValue key="stage" value="1"/>
+			</KeyValues>
+		</Frame>
 		<Frame name="$parentInset2" parentKey="Inset2" inherits="DiceMasterLearnPetEditorInsetTemplate">
 			<Anchors>
-				<Anchor point="TOPLEFT" relativeKey="$parent.Inset" relativePoint="TOPRIGHT" x="2" y="0"/>
+				<Anchor point="TOPLEFT" relativeKey="$parent.Inset1" relativePoint="TOPRIGHT" x="2" y="0"/>
 			</Anchors>
+			<KeyValues>
+				<KeyValue key="stage" value="2"/>
+			</KeyValues>
 		</Frame>
 		<Frame name="$parentInset3" parentKey="Inset3" inherits="DiceMasterLearnPetEditorInsetTemplate">
 			<Anchors>
 				<Anchor point="TOPLEFT" relativeKey="$parent.Inset2" relativePoint="TOPRIGHT" x="2" y="0"/>
 			</Anchors>
+			<KeyValues>
+				<KeyValue key="stage" value="3"/>
+			</KeyValues>
 		</Frame>
 
-		<Button name="$parentPhaseTwoButton">
-			<Size x="32" y="48"/>
-			<NormalTexture atlas="CovenantSanctum-Renown-Arrow-Depressed">
-				<TexCoords left="1" right="0" top="0" bottom="1" />
-			</NormalTexture>
+		<Button name="$parentTimerOne" inherits="DiceMasterLearnPetEditorTimerTemplate">
 			<Anchors>
-				<Anchor point="LEFT" relativeKey="$parent.Inset2" x="-16" y="0"/>
+				<Anchor point="CENTER" relativeKey="$parent.Inset1" relativePoint="RIGHT" x="0" y="0"/>
 			</Anchors>
-			<Scripts>
-				<OnClick>
-					-- DiceMaster4.LearnPetEditor_Save()
-				</OnClick>
-			</Scripts>
 		</Button>
 
-		<Button name="$parentPhaseThreeButton">
-			<Size x="32" y="48"/>
-			<NormalTexture atlas="CovenantSanctum-Renown-Arrow-Depressed">
-				<TexCoords left="1" right="0" top="0" bottom="1" />
-			</NormalTexture>
+		<Button name="$parentTimerTwo" inherits="DiceMasterLearnPetEditorTimerTemplate">
 			<Anchors>
-				<Anchor point="LEFT" relativeKey="$parent.Inset3" x="-16" y="0"/>
+				<Anchor point="CENTER" relativeKey="$parent.Inset2" relativePoint="RIGHT" x="0" y="0"/>
 			</Anchors>
-			<Scripts>
-				<OnClick>
-					-- DiceMaster4.LearnPetEditor_Save()
-				</OnClick>
-			</Scripts>
 		</Button>
 		
 		<Button name="$parentSaveButton" inherits="UIPanelButtonTemplate" text="Save">

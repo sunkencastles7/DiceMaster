@@ -34,6 +34,8 @@ local MessageHandlers = {
 	ITEMREQ = "ShopEditor_RequestItem";
 	ITEMBUY = "ShopEditor_BuyItem";
 	ITEMGET = "ShopEditor_ReceiveItem";
+	ITEMUSE = "Inspect_OnItemUseRequest";
+	ITEMAPP = "Inspect_OnItemUseApproved";
 	
 	TRDREM 	= "ItemTrade_RemoveTradeitem";
 	TRDACC 	= "ItemTrade_TradeAccepted";

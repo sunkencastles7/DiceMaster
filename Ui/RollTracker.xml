@@ -1071,7 +1071,7 @@
 					</Scripts>
 				</CheckButton>
 				
-				<ScrollFrame name="$parentDMNotes" parentKey="DMNotes" inherits="UIPanelScrollFrameTemplate2">
+				<ScrollFrame name="$parentDMNotes" parentKey="DMNotes" inherits="UIPanelScrollFrameTemplate">
 					<KeyValues>
 						<KeyValue key="safeLength" value="4000" type="number"/>
 					</KeyValues>

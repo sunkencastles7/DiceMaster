@@ -591,6 +591,16 @@ local GetItemAPI = function( item )
 	local api = {};
 	
 	-- Access api
+	api.SetRequiresDMApproval = function( requiresDMapproval )
+		if type(requiresDMApproval)~="boolean" then
+			return
+		end
+
+		item.requiresDMApproval = requiresDMApproval;
+	end
+	api.GetRequiresDMApproval = function()
+		return item.requiresDMApproval
+	end
 	api.IsCopyable = function()
 		return item.copyable
 	end
@@ -775,6 +785,16 @@ local GetItemAPI = function( item )
 			table.remove( item.effects, index )
 		end
 	end
+
+	-- Properties
+	api.SetProperty = function( property, value )
+		if (type(value)=="boolean") then
+			item.properties[property] = value;
+		end
+	end
+	api.GetProperty = function( property )
+		return item.properties[property];
+	end
 	
 	-- Disenchanting
 	api.SetDisenchantable = function( canDisenchant )
@@ -852,6 +872,8 @@ function Me.NewItem()
 		lastCastTime = 0;
 		consumeable = false;
 		copyable = false;
+		requiresDMApproval = false;
+		canDisenchant = false;
 		guid = GenerateGUID();
 		author = "DiceMaster Script";
 		effects = {}
@@ -1292,6 +1314,27 @@ function Me.SetMaxHealth( maxHealth )
 	Me.Inspect_ShareStatusWithParty()
 	Me.DiceMasterRollDetailFrame_Update()
 	Me.DMRosterFrame_Update()
+end
+
+---------------------------------------------------------------------------
+-- Set the player's mana.
+--
+-- @param mana	number		The amount of mana to add/remove
+
+function Me.SetMana( mana )
+	if not mana or type( mana ) ~= "number" then
+		mana = 0;
+	end
+	
+	mana = math.floor( mana )
+	
+	local effect = {
+		type = "mana";
+		health = health;
+		armour = armour;
+	}
+	
+	Me.AdjustHealthEditor_AdjustMana( effect )
 end
 
 ---------------------------------------------------------------------------

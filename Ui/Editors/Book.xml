@@ -2,7 +2,7 @@
  
   <!-- Book frame. -->
   
-    <Frame name="DiceMasterBookFrame" toplevel="true" movable="true" enableMouse="true" hidden="true" parent="UIParent" inherits="ButtonFrameTemplate">
+    <Frame name="DiceMasterBookFrame" toplevel="true" movable="true" enableMouse="true" hidden="true" parent="UIParent" frameStrata="HIGH" inherits="ButtonFrameTemplate">
 		<Size x="338" y="424"/>
 		<Anchors>
 		  <Anchor point="TOPLEFT" x="16" y="-116" />

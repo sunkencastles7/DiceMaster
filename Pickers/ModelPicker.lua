@@ -287,6 +287,15 @@ function Me.ModelPickerButton_OnClick( self, button )
 				self.check:Show()
 				Me.ModelEditing.scrollposition = DiceMasterModelPicker.selectorFrame.scroller:GetValue()
 				Me.ModelPicker_RefreshGrid()
+			elseif Me.ModelEditing:GetParent() == DiceMasterLearnPetEditor then
+				Me.ModelEditing.ModelScene:GetActorAtIndex(1):SetSpellVisualKit(0);
+				Me.ModelEditing.ModelScene:GetActorAtIndex(1):SetModelByCreatureDisplayID( value );
+				PlaySound(83)
+				
+				Me.ModelEditing.checked = value;
+				self.check:Show()
+				Me.ModelEditing.scrollposition = DiceMasterModelPicker.selectorFrame.scroller:GetValue()
+				Me.ModelPicker_RefreshGrid()
 			elseif Me.IsLeader( true ) then
 				Me.ModelEditing:ClearModel()
 				Me.ModelEditing:SetPosition(0,0,0)

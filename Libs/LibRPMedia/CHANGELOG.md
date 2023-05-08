@@ -1,3 +1,3 @@
-## v1.1.17
+## v1.2.1
 
-- Add 2246 new icons for retail patch 10.0.0.
+- Fixed an issue where FindAll functions in the old library interface would yield table values from their iterators.

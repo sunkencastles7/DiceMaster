@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Dice Master (C) 2021 <The League of Lordaeron> - Moon Guard
+-- Dice Master (C) 2023 <The League of Lordaeron> - Moon Guard
 -------------------------------------------------------------------------------
 
 --
@@ -9,12 +9,15 @@
 local Me = DiceMaster4
 local Profile = Me.Profile
 
-function Me.Disenchant_ProduceDust( itemQuality, itemData )
+local yields = {
+	{1,3}, {2,4}, {3,5}
+};
 
-	if not ( itemQuality ) then
+function Me.Disenchant_ProduceDust( itemQuality )
+	if not( itemQuality ) then
 		return
 	end
-	
+	local yield = random(yields[itemQuality - 1][1], yields[itemQuality - 1][2]);
 	local currencies = Me.Profile.currency
 	local currency = false; 
 	for i = 1, #currencies do
@@ -39,8 +42,8 @@ function Me.Disenchant_ProduceDust( itemQuality, itemData )
 	item.SetName("Arcane Dust")
 	item.SetIcon("Interface/AddOns/DiceMaster/Icons/ArcaneDust")
 	item.SetQuality( 1 )
-	item.SetStackSize( 20 )
-	item.SetStackCount( itemQuality - 1 )
+	item.SetStackSize( 100 )
+	item.SetStackCount( yield )
 	item.SetUseText("Use: Deposit |cFFFFFFFF1|r |TInterface/AddOns/DiceMaster/Texture/arcane-dust-icon:12|t into your inventory.")
 	item.SetFlavourText("A raw, magical resource extracted from disenchanting an item. Can be used to craft or enchant items, or exchanged for goods provided by the Arcane Sanctum.")
 	item.SetConsumed( true )
@@ -56,13 +59,28 @@ function Me.Disenchant_ProduceDust( itemQuality, itemData )
 	tinsert( item.effects, currency )
 	item.SetGUID( "ARCANE_DUST" )
 	item.Save()
-	
-	if ( itemData ) then
-		Me.DeleteItem( itemData.guid, itemData.stackCount )
-	end
 end
 
-function Me.Disenchant_DisenchantItem( item )
+local function Disenchant( slot, button )
+	local item = Me.Profile.inventory[slot];
+	if not item or not item.canDisenchant or not Me.PermittedUse() or item.stackCount < 1 then
+		return
+	end
+
+	item.stackCount = item.stackCount - 1;
+
+	Me.UIInteractFX( button );
+
+	if item.stackCount < 1 then
+		item = nil;
+		Me.TraitEditor_UpdateInventory();
+	end
+	
+	Me.Disenchant_ProduceDust( item.quality );
+end
+
+function Me.Disenchant_DisenchantItem( slot, button )
+	local item = Me.Profile.inventory[slot];
 	if not item or not item.canDisenchant or not Me.PermittedUse() then
 		return
 	end
@@ -74,6 +92,6 @@ function Me.Disenchant_DisenchantItem( item )
 	Dismount()
 	Me.CastBar( "cast", "Disenchant", nil, 1.5, false, 27 )
 	DiceMasterCastingBarFrame["OnFinished"] = function() 		
-		Me.Disenchant_ProduceDust( item.quality, item )
+		Disenchant( slot, button )
 	end
 end

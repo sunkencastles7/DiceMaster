@@ -1152,8 +1152,6 @@ function Me.GetModifierNamesFromSkillGUID( guid )
 			modifiers = modifiers .. ", " .. Profile.buffsActive[i].name;
 		end
 	end
-
-	modifiers = modifiers .. ")"
 	
 	return modifiers
 end
@@ -1449,6 +1447,12 @@ function Me:OnEnable()
 	Me.ApplyKeybindings()
 	Me.ApplyUiScale()
 	Me.ShowPanel( not Me.db.char.hidepanel )
+
+	for i = 1, 42 do
+		if Profile.inventory[i] then
+			Profile.inventory[i].approvedBy = nil;
+		end
+	end
 	
 	for i = 1,#Profile.traits do
 		Profile.traits[i].secret1Active = false;

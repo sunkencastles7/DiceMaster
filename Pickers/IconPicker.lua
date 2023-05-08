@@ -57,6 +57,8 @@ function Me.IconPickerButton_OnClick( self )
 		Me.ShopFrame_SelectIcon( GetIconPath(self) )
 	elseif DiceMasterIconPicker.parent == DiceMasterSkillEditor then
 		Me.SkillEditor_SelectIcon( GetIconPath(self) )
+	elseif DiceMasterIconPicker.parent:GetName():find("DiceMasterLearnPetEditor") then
+		DiceMasterIconPicker.parent:SetTexture( GetIconPath(self) );
 	else
 		Me.TraitEditor_Insert( "<img>"..GetIconPath(self).."</img>" )
 		Me.TraitEditor_SaveDescription()

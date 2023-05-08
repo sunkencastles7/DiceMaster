@@ -45,7 +45,7 @@
   <!-- Item editor frame. -->
   
   <Frame name="DiceMasterItemEditor" frameStrata="DIALOG" hidden="true" parent="UIParent" inherits="SimplePanelTemplate" toplevel="true">>
-    <Size x="516" y="404"/>
+    <Size x="516" y="424"/>
     <Anchors>
       <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
     </Anchors>
@@ -242,7 +242,7 @@
 						end
 					end
 					self:SetHeight( height )
-					DiceMasterItemEditor:SetHeight( 395 + height )
+					DiceMasterItemEditor:SetHeight( 420 + height )
 				</OnUpdate>
 			</Scripts>
 	  </Frame>
@@ -520,11 +520,27 @@
 			</OnClick>
 		</Scripts>
 	  </CheckButton>
+
+	  <CheckButton name="$parentRequiresDMApproval" parentKey="requiresDMApproval" inherits="ChatConfigCheckButtonTemplate">
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.copyable" relativePoint="BOTTOMLEFT" x="0" y="0" />
+		</Anchors>
+		
+		<Scripts>
+			<OnLoad>
+				_G[self:GetName().."Text"]:SetText("|cFFFFD100Requires Dungeon Master Permission")
+				self.tooltip = "Toggles whether the player must receive permission from the current Dungeon Master before they can use this item."
+			</OnLoad>
+			<OnClick>
+				DiceMaster4.ItemEditor_SaveRequiresDMApproval()
+			</OnClick>
+		</Scripts>
+	  </CheckButton>
 	  
 	  <Button name="$parentItemProperties" parentKey="itemProperties" enableMouse="true" inherits="UIDropDownMenuTemplate">
 			<Size x="180" y="22"/>
 			<Anchors>
-			  <Anchor point="TOPLEFT" relativeKey="$parent.copyable" relativePoint="BOTTOMLEFT" x="-16" y="0"/> 
+			  <Anchor point="TOPLEFT" relativeKey="$parent.requiresDMApproval" relativePoint="BOTTOMLEFT" x="-16" y="0"/> 
 			</Anchors>
 			<Scripts>
 			  <OnLoad>

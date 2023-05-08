@@ -336,6 +336,10 @@ local BOOK_MATERIALS = {
 		path = "QuestBackgroundDarkmoon",
 		type = "custom",
 	},
+	["BloodElf"] = {
+		path = "QuestBackgroundBloodElf",
+		type = "custom",
+	},
 	["Hand of Fate"] = {
 		atlas = "QuestBG-TheHandofFate",
 		type = "quest",

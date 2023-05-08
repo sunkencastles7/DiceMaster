@@ -260,6 +260,42 @@ StaticPopupDialogs["DICEMASTER4_CUSTOMITEMBINDONUSE"] = {
   exclusive = true,
 }
 
+StaticPopupDialogs["DICEMASTER4_CUSTOMITEMREQUIRESDMAPPROVAL"] = {
+  text = "Using this item requires permission from the Dungeon Master.|n|nWould you like to request permission?",
+  button1 = "Request",
+  button2 = "Cancel",
+  OnAccept = function ( self, data )
+	if not data or not data.itemIndex then
+		return
+	end  
+	local item = Me.Profile.inventory[ data.itemIndex ] or nil
+	if not item then
+		return
+	end
+
+	if IsInGroup( LE_PARTY_CATEGORY_HOME ) and not Me.IsLeader( false ) and not IsInGroup( LE_PARTY_CATEGORY_INSTANCE ) then
+		for i = 1, GetNumGroupMembers(1) do
+			local name, rank = GetRaidRosterInfo(i);
+			if rank == 2 then
+				local msg = Me:Serialize( "ITEMUSE", {
+					item = item;
+				})
+				Me:SendCommMessage( "DCM4", msg, "WHISPER", name, "ALERT" );
+				local itemLink = Me.GetItemLink( UnitName("player"), item.guid );
+				break
+			end
+		end
+	end
+  end,
+  OnCancel = function( self )
+	PlaySound( 1203 )
+  end,
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  exclusive = true,
+}
+
 -------------------------------------------------------------------------------
 
 function Me.MasterLoot_OnClick(self, arg1, arg2, checked)
@@ -440,6 +476,14 @@ function Me.OpenItemTooltip( owner, item, index, isShopItem, isBankItem )
 		local color = ITEM_QUALITY_COLORS[ item.quality or 1 ];
 		GameTooltip:AddLine( item.name, color.r, color.g, color.b, true )
 	end
+
+	if item.properties and item.properties["Cosmetic"] then
+		GameTooltip:AddLine( "Cosmetic", 1, 0.5, 1, true );
+	end
+
+	if item.properties and item.properties["Crafting Reagent"] then
+		GameTooltip:AddLine( "Crafting Reagent", 0.4, 0.733, 1, true );
+	end
 	 
 	if item.soulbound then 
 		GameTooltip:AddLine( "Soulbound", 1, 1, 1, true )
@@ -452,7 +496,7 @@ function Me.OpenItemTooltip( owner, item, index, isShopItem, isBankItem )
 	end
 	
 	if item.useText and string.len(item.useText)>0 then
-		if item.cooldown then
+		if item.cooldown and item.cooldown > 1 then
 			GameTooltip:AddLine( Me.FormatItemTooltip( item.useText ).." ("..SecondsToTime(item.cooldown).." Cooldown)", 0, 1, 0, true )
 		else
 			GameTooltip:AddLine( Me.FormatItemTooltip( item.useText ), 0, 1, 0, true )
@@ -538,6 +582,14 @@ function Me.OpenItemTooltip( owner, item, index, isShopItem, isBankItem )
 			GameTooltip:AddLine( "Requires "..item.requiredSkill.name.." ("..item.requiredSkill.rank..")", 1, 1, 1, true )
 		end
 	end
+
+	if item.requiresDMApproval then
+		if Me.IsLeader(false) or ( item.approvedBy and UnitIsGroupLeader( item.approvedBy , 1)) then
+			GameTooltip:AddLine( "Requires Dungeon Master Permission", 1, 1, 1, true );
+		else
+			GameTooltip:AddLine( "Requires Dungeon Master Permission", 1, 0, 0, true );
+		end
+	end
 	
 	if RecipeIsKnown( item ) then
 		GameTooltip:AddLine( "Already known", 1, 0, 0, true )
@@ -547,10 +599,10 @@ function Me.OpenItemTooltip( owner, item, index, isShopItem, isBankItem )
 		GameTooltip:AddLine( "<Made by " .. item.author .. ">", 0, 1, 0, true )
 	end
 	
-	if Me.PermittedUse() and DiceMasterCursorItemIcon.disenchantCursor then
+	if Me.PermittedUse() then
 		if item.canDisenchant then
 			GameTooltip:AddLine( "Disenchantable", 0.53, 0.67, 1.0, true )
-		else
+		elseif DiceMasterCursorItemIcon.disenchantCursor then
 			GameTooltip:AddLine( "Cannot be disenchanted", 1, 0, 0, true )
 		end
 	end
@@ -974,7 +1026,7 @@ local function OnClick( self, button )
 				UIErrorsFrame:AddMessage( "Item cannot be disenchanted", 1.0, 0.0, 0.0 );
 				return
 			end
-			Me.Disenchant_DisenchantItem( item )
+			Me.Disenchant_DisenchantItem( self.itemIndex, self )
 			Me.ClearCursorActions( true, true, true )
 		elseif cursorIcon.feedCursor and self.hasItem then
 			Me.PetEditor_FeedPet( item )
@@ -1166,6 +1218,13 @@ local function OnClick( self, button )
 			UIErrorsFrame:AddMessage( "Item is not ready yet.", 1.0, 0.0, 0.0 ); 
 		elseif item then
 			-- use item
+			if item.requiresDMApproval and not( Me.IsLeader(false)) then
+				if not( item.approvedBy and UnitIsGroupLeader( item.approvedBy , 1)) then
+					StaticPopup_Show( "DICEMASTER4_CUSTOMITEMREQUIRESDMAPPROVAL", nil, nil, self )
+					return
+				end
+			end
+
 			if item.itemBind and item.itemBind == 3 and not item.soulbound then
 				StaticPopup_Show( "DICEMASTER4_CUSTOMITEMBINDONUSE", nil, nil, self )
 				return

@@ -33,6 +33,7 @@ local ITEM_STACK_SIZES = {
 }
 
 local ITEM_COOLDOWNS = {
+	{name = "0 sec", time = 0},
 	{name = "1 sec", time = 1},
 	{name = "10 sec", time = 10},
 	{name = "15 sec", time = 15},
@@ -72,6 +73,10 @@ local ITEM_PROPERTIES = {
 		"Fungus",
 		"Cheese",
 	};
+	["Other"] = {
+		"Cosmetic",
+		"Crafting Reagent",
+	}
 }
 
 local function GetUnitGUID( unit )
@@ -499,7 +504,7 @@ function Me.ItemEditorCooldown_OnValueChanged( self, value, userInput )
 	Me.newItem.cooldown = ITEM_COOLDOWNS[value].time;
 	
 	local text = DiceMasterItemEditor.useText:GetText()
-	if string.len(text)> 0 then
+	if string.len(text)> 0 and DiceMasterItemEditor.cooldown:GetValue() > 1 then
 		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( Me.FormatItemTooltip(text).." ("..SecondsToTime(ITEM_COOLDOWNS[ DiceMasterItemEditor.cooldown:GetValue() ].time or 1).." Cooldown)" )
 	else
 		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( Me.FormatItemTooltip(text) )
@@ -529,6 +534,15 @@ function Me.ItemEditorProperties_OnClick(self, arg1, arg2, checked)
 		end
 		propertiesTable = Me.newItem.properties;
 	end
+
+	local text = DiceMasterItemEditor.whiteText1:GetText();
+	if propertiesTable["Crafting Reagent"] then
+		text = "|cFF66bbffCrafting Reagent|r|n" .. text;
+	end
+	if propertiesTable["Cosmetic"] then
+		text = "|cFFff80ffCosmetic|r|n" .. text;
+	end
+	DiceMasterItemEditorPreviewTooltipTextLeft3:SetText( text );
 	
 	local propertiesList = nil
 	local count = 0
@@ -630,7 +644,7 @@ end
 --
 function Me.ItemEditor_SaveUseText()
 	local text = DiceMasterItemEditor.useText:GetText()
-	if string.len(text)> 0 then
+	if string.len(text)> 0 and DiceMasterItemEditor.cooldown:GetValue() > 1 then
 		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( Me.FormatItemTooltip(text).." ("..SecondsToTime(ITEM_COOLDOWNS[ DiceMasterItemEditor.cooldown:GetValue() ].time or 1).." Cooldown)" )
 	else
 		DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( Me.FormatItemTooltip(text) )
@@ -686,6 +700,14 @@ function Me.ItemEditor_SaveCopyable()
 end
 
 -------------------------------------------------------------------------------
+-- Save requires DM Approval.
+--
+function Me.ItemEditor_SaveRequiresDMApproval()
+	local requiresDMApproval = DiceMasterItemEditor.requiresDMApproval:GetChecked()
+	Me.newItem.requiresDMApproval = requiresDMApproval;
+end
+
+-------------------------------------------------------------------------------
 -- Handler for when the flavour text editor loses focus.
 --
 function Me.ItemEditor_SaveDisenchantable()
@@ -719,6 +741,7 @@ function Me.ItemEditor_CreateItem()
 		lastCastTime = 0;
 		consumeable = Me.newItem.consumeable or false;
 		copyable = Me.newItem.copyable or false;
+		requiresDMApproval = Me.newItem.requiresDMApproval or false;
 		canDisenchant = Me.newItem.canDisenchant or false;
 		author = UnitName("player");
 		guid = GenerateGUID();
@@ -760,6 +783,7 @@ function Me.ItemEditor_SaveItemEdits()
 		lastCastTime = Me.ItemEditing.lastCastTime; -- don't change the remaining cooldown time
 		consumeable = editor.consumeable:GetChecked() or false;
 		copyable = editor.copyable:GetChecked() or false;
+		requiresDMApproval = editor.requiresDMApproval:GetChecked() or false;
 		canDisenchant = editor.canDisenchant:GetChecked() or false;
 		author = UnitName("player");
 		guid = Me.ItemEditing.guid; -- we don't generate a new GUID since it's the same item
@@ -827,6 +851,7 @@ function Me.ItemEditor_LoadEditItem( itemIndex )
 	end
 	
 	editor.copyable:SetChecked( data.copyable or false )
+	editor.requiresDMApproval:SetChecked( data.requiresDMApproval or false )
 	editor.canDisenchant:SetChecked( data.canDisenchant or false )
 	
 	-- set quality
@@ -848,8 +873,8 @@ function Me.ItemEditor_LoadEditItem( itemIndex )
 			end
 		end
 	end
-	UIDropDownMenu_SetText( DiceMasterItemEditor.itemProperties, "|cFFFFD100Item Properties:|r ".. (propertiesList or "(None)") )
-	
+	UIDropDownMenu_SetText( DiceMasterItemEditor.itemProperties, "|cFFFFD100Item Properties:|r ".. (propertiesList or "(None)") );
+
 	-- set stack size
 	for i = 1, #ITEM_STACK_SIZES do
 		if data.stackSize == ITEM_STACK_SIZES[i] then
@@ -869,10 +894,17 @@ function Me.ItemEditor_LoadEditItem( itemIndex )
 	end
 	
 	DiceMasterItemEditorPreviewTooltipTextLeft1:SetText( data.name )
-	DiceMasterItemEditorPreviewTooltipTextLeft3:SetText( data.whiteText1 or "" )
+	local whiteText1 = data.whiteText1 or "";
+	if data.properties["Crafting Reagent"] then
+		whiteText1 = "|cFF66bbffCrafting Reagent|r|n" .. whiteText1;
+	end
+	if data.properties["Cosmetic"] then
+		whiteText1 = "|cFFff80ffCosmetic|r|n" .. whiteText1;
+	end
+	DiceMasterItemEditorPreviewTooltipTextLeft3:SetText( whiteText1 );
 	DiceMasterItemEditorPreviewTooltipTextRight3:SetText( data.whiteText2 or "" )
 	if data.useText and string.len(data.useText)>0 then
-		if data.cooldown then
+		if data.cooldown and data.cooldown > 1 then
 			DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( Me.FormatItemTooltip(data.useText).." ("..SecondsToTime(data.cooldown).." Cooldown)" )
 		else
 			DiceMasterItemEditorPreviewTooltipTextLeft4:SetText( Me.FormatItemTooltip(data.useText) )
@@ -914,6 +946,7 @@ function Me.ItemEditor_ClearAllFields()
 	editor.consumeable:SetChecked( false )
 	editor.itemBind:SetChecked( false )
 	editor.copyable:SetChecked( false )
+	editor.requiresDMApproval:SetChecked( false )
 	editor.canDisenchant:SetChecked( false )
 	
 	UIDropDownMenu_SetText(editor.itemQuality, "|cFFFFD100Quality:|r " .. ITEM_QUALITY_COLORS[ 1 ].hex .. ITEM_QUALITIES[ 2 ])

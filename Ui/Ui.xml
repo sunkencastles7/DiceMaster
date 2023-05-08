@@ -1,5 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
   
+  <Include file="Ui\Fonts.xml"/>
+
   <Button name="DiceMasterCursorOverlay" parent="UIParent" frameStrata="BACKGROUND" setAllPoints="true" hidden="true" enableMouse="true">
 	<Layers>
 		<Layer level="ARTWORK">
@@ -111,8 +113,6 @@
 			<Anchor point="CENTER"/>
 		</Anchors>
   </Frame>
-  
-  <Include file="Ui\Fonts.xml"/>
   
   <!-- Intrinsics/Widgets -->
   <Include file="Ui\Widgets\StatusBar.xml"/>

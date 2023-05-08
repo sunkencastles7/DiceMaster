@@ -17,4 +17,8 @@
 	<Font name="DiceMasterFontReg" inherits="GameFontNormal" height="11" virtual="true">
 		<Color r="1.0" g="1.0" b="1.0"/>
 	</Font>
+
+	<Font name="DiceMasterFontFullscreen" font="Interface/AddOns/DiceMaster/Fonts/Belwe_Medium.ttf" height="20" virtual="true">
+		<Color r="1.0" g="1.0" b="1.0"/>
+	</Font>
 </Ui>

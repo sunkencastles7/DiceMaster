@@ -259,10 +259,10 @@ function Me.StatInspector_SetStatusBar( statusBarID, skillIndex, numSkills )
 		for i = 1, #skillModifiers do 
 			local modifier = GetSkillByGUID( skillModifiers[i] );
 			local color = RED_FONT_COLOR_CODE;
-			if tonumber( modifier.rank ) > 0 then
+			if modifier and tonumber( modifier.rank ) > 0 then
 				color = GREEN_FONT_COLOR_CODE.."+"
 			end
-			if tonumber( modifier.rank ) ~= 0 then
+			if modifier and tonumber( modifier.rank ) ~= 0 then
 				-- Add an extra line if it's the first skill
 				if i == 1 then
 					expandedDescription = expandedDescription .. "|n|n|cFFFFFFFFModifiers:|r|n"
@@ -666,6 +666,8 @@ function Me.StatInspectorShopFrame_Update()
 		GameTooltip:SetText( currency.name, 1, 1, 1 );
 		if currencyActive == 1 then
 			GameTooltip:AddLine( "A universal currency used by all DiceMaster users.", nil, nil, nil, true );
+		elseif currency.description then
+			GameTooltip:AddLine( currency.description, nil, nil, nil, true );
 		end
 		GameTooltip:AddLine( "|nTotal: |cFFFFFFFF" .. amount .. "|r", nil, nil, nil, true );
 		GameTooltip:Show();
@@ -763,6 +765,8 @@ function Me.StatInspectorShopFrame_Update()
 				GameTooltip:SetText( item.currency.name, 1, 1, 1 );
 				if item.currency.guid == 0 then
 					GameTooltip:AddLine( "A universal currency used by all DiceMaster users.", nil, nil, nil, true );
+				elseif currency.description then
+					GameTooltip:AddLine( currency.description, nil, nil, nil, true );
 				end
 				GameTooltip:Show();
 			end)
