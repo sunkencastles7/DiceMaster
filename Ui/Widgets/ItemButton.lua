@@ -87,6 +87,16 @@ local function ExecuteEffects( effects, item )
 	end
 end
 
+local function SetItemCooldown( guid, cooldown )
+	if not guid then return end
+	for i = 1, 42 do
+		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == guid then
+			local itemButton = "DiceMasterTraitEditorInventoryFrameItem" .. i;
+			CooldownFrame_Set( itemButton.Cooldown, GetTime(), cooldown, 1 );
+		end
+	end
+end
+
 local function ItemIsInShop( guid )
 	-- check if it's already in our shop
 	local found = false;
@@ -233,7 +243,7 @@ StaticPopupDialogs["DICEMASTER4_CUSTOMITEMBINDONUSE"] = {
 	end
 	item.soulbound = true;
 	item.lastCastTime = time()
-	CooldownFrame_Set( data.Cooldown, GetTime(), item.cooldown, 1 )
+	SetItemCooldown( item.guid, item.cooldown )
 	
 	if item.effects then
 		ExecuteEffects( item.effects, item )
@@ -1236,7 +1246,7 @@ local function OnClick( self, button )
 			end
 			
 			item.lastCastTime = time()
-			CooldownFrame_Set( self.Cooldown, GetTime(), item.cooldown, 1 )
+			SetItemCooldown( item.guid, item.cooldown );
 			
 			if item.effects then
 				ExecuteEffects( item.effects, item )

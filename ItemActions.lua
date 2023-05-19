@@ -131,12 +131,28 @@ local function GenerateGUID()
 end
 
 ---------------------------------------------------------------------------
--- Find the stacks of an item in the inventory.
+-- Builds a table of all item stack data for items with the given GUID.
 --
 -- @param guid			string		The unique guid of the item
 -- @returns stacks		table 		A table containing the item data for each stack
 
 function Me.FindAllStacks( guid )
+	local t = {}
+	for i = 1, 42 do
+		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == guid then
+			t[i] = Me.Profile.inventory[i];
+		end
+	end
+	return t;
+end
+
+---------------------------------------------------------------------------
+-- Builds a table of all item slots with the given GUID.
+--
+-- @param guid			string		The unique guid of the item
+-- @returns stacks		table 		A table containing the item data for each stack
+
+function Me.FindAllStackSlots( guid )
 	local t = {}
 	for i = 1, 42 do
 		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == guid then
