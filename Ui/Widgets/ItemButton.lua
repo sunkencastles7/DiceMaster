@@ -91,7 +91,7 @@ local function SetItemCooldown( guid, cooldown )
 	if not guid then return end
 	for i = 1, 42 do
 		if Me.Profile.inventory[i] and Me.Profile.inventory[i].guid == guid then
-			local itemButton = "DiceMasterTraitEditorInventoryFrameItem" .. i;
+			local itemButton = _G["DiceMasterInventoryFrameItem" .. i];
 			CooldownFrame_Set( itemButton.Cooldown, GetTime(), cooldown, 1 );
 		end
 	end

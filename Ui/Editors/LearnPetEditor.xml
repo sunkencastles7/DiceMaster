@@ -326,6 +326,27 @@
 					</OnLeave>
 				</Scripts>
 			</CheckButton>
+
+			<CheckButton name="$parentPetIsEgg" parentKey="petIsEgg" inherits="UICheckButtonTemplate">
+				<Anchors>
+				  <Anchor point="TOPLEFT" relativeKey="$parent.petRequireWash" relativePoint="BOTTOMLEFT" x="0" y="0" />
+				</Anchors>
+				
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("|TInterface/MINIMAP/TRACKING/Innkeeper:24|t");
+					</OnLoad>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip_SetTitle(GameTooltip, "|TInterface/AddOns/DiceMaster/Texture/egg-icon:16|t Is Egg", HIGHLIGHT_FONT_COLOR);
+						GameTooltip_AddNormalLine(GameTooltip, "Determines whether this pet is considered an egg at this stage.|n|nEggs require more frequent care and attention than other pets, but cannot be fed, washed, or cleaned up after.", true);
+						GameTooltip:Show();
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
 		</Frames>
 	</Frame>
 
@@ -464,7 +485,7 @@
 			</Anchors>
 			<Scripts>
 				<OnClick>
-					-- DiceMaster4.LearnPetEditor_Save()
+					DiceMaster4.LearnPetEditor_Save()
 				</OnClick>
 			</Scripts>
 		</Button>
@@ -476,7 +497,7 @@
 			</Anchors>
 			<Scripts>
 				<OnClick>
-					-- DiceMaster4.LearnPetEditor_Close()
+					DiceMaster4.LearnPetEditor_Close()
 				</OnClick>
 			</Scripts>
 		</Button>

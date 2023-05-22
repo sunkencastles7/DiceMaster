@@ -63,20 +63,15 @@ end
 
 local function Disenchant( slot, button )
 	local item = Me.Profile.inventory[slot];
-	if not item or not item.canDisenchant or not Me.PermittedUse() or item.stackCount < 1 then
+	if not item or not item.canDisenchant or not Me.PermittedUse() then
 		return
 	end
 
 	item.stackCount = item.stackCount - 1;
 
 	Me.UIInteractFX( button );
-
-	if item.stackCount < 1 then
-		item = nil;
-		Me.TraitEditor_UpdateInventory();
-	end
-	
 	Me.Disenchant_ProduceDust( item.quality );
+	Me.MaintainItemAmounts( item.guid );
 end
 
 function Me.Disenchant_DisenchantItem( slot, button )
