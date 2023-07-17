@@ -340,6 +340,10 @@ local BOOK_MATERIALS = {
 		path = "QuestBackgroundBloodElf",
 		type = "custom",
 	},
+	["KaelStaff"] = {
+		path = "QuestBackgroundKaelStaff",
+		type = "custom",
+	},
 	["Hand of Fate"] = {
 		atlas = "QuestBG-TheHandofFate",
 		type = "quest",
@@ -436,6 +440,7 @@ local BOOK_FONTS = {
 	["Trade Winds"] = "Interface\\AddOns\\DiceMaster\\Fonts\\TradeWinds-Regular.TTF",
 	["Deutsch Gothic"] = "Interface\\AddOns\\DiceMaster\\Fonts\\Deutsch.TTF",
 	["Ancient Runes"] = "Interface\\AddOns\\DiceMaster\\Fonts\\AncientRunes.TTF",
+	["Legion Runes"] = "Interface\\AddOns\\DiceMaster\\Fonts\\LegionRunes.TTF",
 	["Irish Uncialfabeta Bold"] = "Interface\\AddOns\\DiceMaster\\Fonts\\IrishUncialfabeta-Bold.TTF",
 	["Elementary Gothic Bookhand"] = "Interface\\AddOns\\DiceMaster\\Fonts\\Elementary_Gothic_Bookhand.TTF",
 	["Belwe Medium"] = "Interface\\AddOns\\DiceMaster\\Fonts\\Belwe_Medium.TTF",

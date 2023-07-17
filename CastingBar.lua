@@ -83,6 +83,7 @@ function Me.CastingBar_Show(type, text, texture, duration, notInterruptible, sou
 		frame:StopAnims();
 		frame:ApplyAlpha(1.0);
 
+		frame.CastTimeText:Hide();
 		if ( frame.BorderShield ) then
 			if ( frame.showShield and notInterruptible ) then
 				frame.BorderShield:Show();
@@ -130,6 +131,7 @@ function Me.CastingBar_Show(type, text, texture, duration, notInterruptible, sou
 		frame:StopAnims();
 		frame:ApplyAlpha(1.0);
 
+		frame.CastTimeText:Hide();
 		if ( frame.BorderShield ) then
 			if ( frame.showShield and notInterruptible ) then
 				frame.BorderShield:Show();

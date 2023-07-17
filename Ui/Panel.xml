@@ -343,7 +343,7 @@
 	  </Button>
 	  
 	  <Button name="TraitEditorButton" inherits="MainMenuBarMicroButton">
-		<Size x="18" y="24"/>
+		<Size x="32" y="40"/>
 		<Anchors>
 			<Anchor point="LEFT" relativeKey="$parent.roll" relativePoint="RIGHT" x="4" y="0"/>
 		</Anchors>
@@ -352,6 +352,9 @@
 		<HighlightTexture parentKey="HighlightTexture" atlas="ui-hud-micromenu-spellbookabilities-mouseover" alphaMode="ADD"/>
 		<DisabledTexture parentKey="DisabledTexture" atlas="ui-hud-micromenu-spellbookabilities-disabled"/>
 		<Scripts>
+			<OnLoad>
+				self.textureName = "SpellbookAbilities";
+			</OnLoad>
 			<OnClick>
 				if not( DiceMasterTraitEditor:IsShown() ) then
 					DiceMaster4.TraitEditor_Open()

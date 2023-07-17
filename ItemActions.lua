@@ -948,6 +948,9 @@ end
 ---------------------------------------------------------------------------
 -- Produce an item.
 --
+-- Note: This function won't work if the player has never encountered
+-- the item before!
+--
 -- @param guid		string		The unique guid of the item
 -- @param amount	number		Amount to produce
 

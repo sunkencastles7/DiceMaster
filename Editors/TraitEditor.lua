@@ -23,54 +23,6 @@ local function TraitUpdated()
 	Me.UpdatePanelTraits()
 end
 
-local function ValidateSkillSheet( sheet )
-	-- Iterate through an imported skill sheet to check for errors in the data structure.
-	-- We have to be EXTREMELY selective to avoid corrupting the Profile.skills table.
-	if not type( sheet ) == "table" then print(1) return false end
-	for i = 1, #sheet do
-		local skill = sheet[i];
-		if not type( skill ) == "table" then print(2) return false end
-		if not type( skill.name ) == "string" or skill.name == "" then print(3) return false end
-		if skill.desc then
-			if not type( skill.desc ) == "string" then print(4) return false end
-		end
-		if skill.type then
-			if not type( skill.type ) == "string" then print(5) return false end
-		end
-		if skill.rank then
-			if not type( skill.rank ) == "number" then print(6) return false end
-		end
-		if skill.maxRank then
-			if not type( skill.maxRank ) == "number" then print(7) return false end
-		end
-		if skill.author then
-			if not type( skill.author ) == "string" then print(8) return false end
-		end
-		if skill.skillModifiers then
-			if not type( skill.skillModifiers ) == "table" then print(9) return false end
-			for index = 1, #skill.skillModifiers do
-				local modifier = skill.skillModifiers[index];
-				if modifier.name then
-					if not type(modifier.name) == "string" or modifier.name == ""  then return false end
-				end
-				if modifier.icon then
-					if not type(modifier.icon) == "string" or modifier.icon == "" then return false end
-				end
-				if modifier.rank then
-					if not type(modifier.rank) == "number" then print(12) return false end
-				end
-			end
-		end
-		if skill.showOnMenu then
-			if not type( skill.showOnMenu ) == "boolean" then print(13) return false end
-		end
-		if skill.canEdit then
-			if not type( skill.canEdit ) == "boolean" then print(14) return false end
-		end
-	end
-	return true
-end
-
 StaticPopupDialogs["DICEMASTER4_REMOVESHOPITEM"] = {
   text = "Are you sure you want to remove this item from your shop?",
   button1 = "Yes",
@@ -388,6 +340,87 @@ function Me.Decrypt( data )
     for i=1,8 do c=c+(x:sub(i,i)=='1' and 2^(8-i) or 0) end
     return string.char(c)
   end))
+end
+
+function Me.ValidateSkillSheet( sheet )
+	-- Iterate through an imported skill sheet to check for errors in the data structure.
+	-- We have to be EXTREMELY selective to avoid corrupting the Profile.skills table.
+	if not type( sheet ) == "table" then return false end
+	for i = 1, #sheet do
+		local skill = sheet[i];
+		if not type( skill ) == "table" then return false end
+		if not type( skill.name ) == "string" or skill.name == "" then return false end
+		if skill.desc then
+			if not type( skill.desc ) == "string" then return false end
+		end
+		if skill.type then
+			if not type( skill.type ) == "string" then return false end
+		end
+		if skill.rank then
+			if not type( skill.rank ) == "number" then return false end
+		end
+		if skill.maxRank then
+			if not type( skill.maxRank ) == "number" then return false end
+		end
+		if skill.author then
+			if not type( skill.author ) == "string" then return false end
+		end
+		if skill.skillModifiers then
+			if not type( skill.skillModifiers ) == "table" then return false end
+			for index = 1, #skill.skillModifiers do
+				local modifier = skill.skillModifiers[index];
+				if modifier.name then
+					if not type(modifier.name) == "string" or modifier.name == ""  then return false end
+				end
+				if modifier.icon then
+					if not type(modifier.icon) == "string" or modifier.icon == "" then return false end
+				end
+				if modifier.rank then
+					if not type(modifier.rank) == "number" then return false end
+				end
+			end
+		end
+		if skill.showOnMenu then
+			if not type( skill.showOnMenu ) == "boolean" then return false end
+		end
+		if skill.canEdit then
+			if not type( skill.canEdit ) == "boolean" then return false end
+		end
+	end
+	return true
+end
+
+function Me.ValidateTrait( trait )
+	if not type( trait ) == "table" then return false end
+	if not( trait["name"] and type( trait["name"] ) == "string" ) then return end
+	if not( trait["icon"] and type( trait["icon"] ) == "string" ) then return end
+	if not( trait["desc"] and type( trait["desc"] ) == "string" ) then return end
+
+	local t = {
+		{ Me.TRAIT_USAGE_MODES, "usage" },
+		{ Me.TRAIT_CAST_TIME_MODES, "castTime" },
+		{ Me.TRAIT_RANGE_MODES, "range" },
+		{ Me.TRAIT_COOLDOWN_MODES, "cooldown" },
+	};
+	for i = 1, #t do
+		if trait[t[2]] then
+			local found = false;
+			for k,v in ipairs( t[1] ) do
+				if trait[t[2]] == v then
+					found = true;
+					break
+				end
+			end
+			if not( found ) then return end
+		end
+	end
+	if trait["effects"] then
+		for i = 1, #trait["effects"] do
+			-- TODO
+			-- iterate through effects and make sure they're clean
+		end
+	end
+	return true
 end
 
 -------------------------------------------------------------------------------
@@ -1774,14 +1807,16 @@ function Me.SkillFrame_ExportSheet()
 		end
 	end
 	
-	if not( ValidateSkillSheet(sheet) ) then
+	if not( Me.ValidateSkillSheet(sheet) ) then
 		return
 	end
 	
 	sheet = TableToString( sheet );
 	sheet = Me.Encrypt( sheet );
 	
+	DiceMasterExportDialog.titleText = "Export Skills";
 	DiceMasterExportDialog:Show();
+	DiceMasterExportDialog.ExclusionControl:Show();
 	DiceMasterExportDialog.ImportControl.InputContainer.EditBox:SetText( sheet );
 	DiceMasterExportDialog.ImportControl.InputContainer:UpdateScrollChildRect();
 	DiceMasterExportDialog.ImportControl.InputContainer:SetVerticalScroll(DiceMasterExportDialog.ImportControl.InputContainer:GetVerticalScrollRange());
@@ -1803,7 +1838,7 @@ function Me.SkillFrame_ImportSheet()
 	
 	local backup = Profile.skills or nil;
 	
-	if not( T and ValidateSkillSheet(T)) then 
+	if not( T and Me.ValidateSkillSheet(T)) then 
 		if backup then
 			Profile.skills = backup;
 		end
@@ -2783,22 +2818,29 @@ function Me.TraitEditor_Refresh()
 end
 
 function Me.TraitEditor_ExportTrait()
-	local data = Profile.traits[ Me.editing_trait ]
+	local trait = deepCopy( Profile.traits[ Me.editing_trait ] );
 	
-	if not data then
+	if not( Me.ValidateTrait(trait) ) then
 		return
 	end
 	
 	-- Remove trait approval
-	if data.officers then
-		data.officers = nil;
-		data.approved = false;
+	if trait.officers then
+		trait.officers = nil;
+		trait.approved = false;
 	end
 	
-	data = TableToString( data )
-	data = Me.Encrypt( data )
+	trait = TableToString( trait );
+	trait = Me.Encrypt( trait );
 	
-	StaticPopup_Show( "DICEMASTER4_EXPORT", nil, nil, data )
+	DiceMasterExportDialog.titleText = "Export Trait";
+	DiceMasterExportDialog:Show();
+	DiceMasterExportDialog.ExclusionControl:Hide();
+	DiceMasterExportDialog.ImportControl.InputContainer.EditBox:SetText( trait );
+	DiceMasterExportDialog.ImportControl.InputContainer:UpdateScrollChildRect();
+	DiceMasterExportDialog.ImportControl.InputContainer:SetVerticalScroll(DiceMasterExportDialog.ImportControl.InputContainer:GetVerticalScrollRange());
+	DiceMasterExportDialog.ImportControl.InputContainer.EditBox:HighlightText();
+	DiceMasterExportDialog.ImportControl.InputContainer.EditBox:SetFocus();
 end
 
 -------------------------------------------------------------------------------

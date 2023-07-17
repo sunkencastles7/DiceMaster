@@ -643,8 +643,9 @@ function Me.OpenItemTooltip( owner, item, index, isShopItem, isBankItem )
 	end
 	
 	if owner and DiceMasterCursorItemIcon.inspectCursor then
+		GameTooltip:AddLine( "|n|cFFFFD100Item GUID:|r " .. item.guid, 1, 1, 1, true )
 		if item.effects and #item.effects > 0 then
-			GameTooltip:AddLine( "|nItem Actions:", 1, 0.81, 0, true )
+			GameTooltip:AddLine( "Item Actions:", 1, 0.81, 0, true )
 			for i = 1, #item.effects do
 				if EffectTypes[item.effects[i].type] then
 					GameTooltip:AddLine( "- " .. EffectTypes[item.effects[i].type], 1, 1, 1, true )

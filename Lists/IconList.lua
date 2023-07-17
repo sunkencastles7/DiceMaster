@@ -797,9 +797,13 @@ local DICEMASTER_CUSTOM_ICONS = {
 	"AddOns/DiceMaster/Icons/Followers_Inquisitor",
 	"AddOns/DiceMaster/Icons/Followers_WitchHunter",
 	-- Rise of the Phoenix
+	"AddOns/DiceMaster/Icons/KaelStaff",
+	"AddOns/DiceMaster/Icons/KaelStaffSubjugate",
+	"AddOns/DiceMaster/Icons/KaelThasBook",
 	"AddOns/DiceMaster/Icons/Lembas",
 	"AddOns/DiceMaster/Icons/ManaWyrm",
 	"AddOns/DiceMaster/Icons/ManaWyrmBook",
+	"AddOns/DiceMaster/Icons/MarkOfTheLegion",
 	"AddOns/DiceMaster/Icons/Phoenix",
 	"AddOns/DiceMaster/Icons/PhoenixAleiah",
 	"AddOns/DiceMaster/Icons/PhoenixBell",

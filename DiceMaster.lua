@@ -82,7 +82,7 @@ local TOOLTIP_DESC_SUBS = {
 	{ "%<iron%>",      "|TInterface/AddOns/DiceMaster/Texture/resources:16:16:0:0:128:32:48:72:0:24|t" };			-- iron icon
 	{ "%<leather%>",      "|TInterface/AddOns/DiceMaster/Texture/resources:16:16:0:0:128:32:72:96:0:24|t" };		-- leather icon
 	-- Tags
-	{ "<rule>",		" |TInterface/COMMON/UI-TooltipDivider:4:220|t" };												-- <rule>
+	{ "<rule>",		" |n|TInterface/RAIDFRAME/Raid-HSeparator:8:220|t" };												-- <rule>
 	{ "(%s)(%d*)%s*<HP>",		"%1|cFFFFFFFF%2|r|TInterface/AddOns/DiceMaster/Texture/health-heart:12|t" };		-- <HP>
 	{ "(%s)(%d*)%s*<AR>",		"%1|cFFFFFFFF%2|r|TInterface/AddOns/DiceMaster/Texture/armour-icon:12|t" };			-- <AR>
 	{ "(%s)(%d*)%s*<MP>",		"%1|cFFFFFFFF%2|r|TInterface/AddOns/DiceMaster/Texture/mana-gem:12|t" };			-- <MP>

@@ -1099,6 +1099,10 @@ function Me.Inspect_SendSkills( dist, channel )
 	local skills = {}
 
 	if Profile.skills and #Profile.skills > 0 then		
+
+		if not( Me.ValidateSkillSheet(Profile.skills) ) then
+			return
+		end
 		
 		for i = 1, #Profile.skills do
 			local buffValue = GetSkillValue( Profile.skills[i].name )
@@ -1175,7 +1179,7 @@ function Me.Inspect_OnInspectMessage( data, dist, sender )
 	
 	if data.bs then
 		-- they're requesting base skills.
-		if not Profile.skills then
+		if not( Profile.skills ) or not( Me.ValidateSkillSheet( Profile.skills ) ) then
 			return
 		end
 		Me.Inspect_SendSkills( "WHISPER", sender )
@@ -1496,7 +1500,10 @@ function Me.Inspect_OnSkillsMessage( data, dist, sender )
 	
 	-- sanitize message
 	if not data.skills or not type(data.skills) == "table" then
-		-- we require index in message
+		return
+	end
+
+	if not( Me.ValidateSkillSheet(data.skills) ) then
 		return
 	end
 	

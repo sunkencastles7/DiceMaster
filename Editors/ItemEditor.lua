@@ -895,10 +895,10 @@ function Me.ItemEditor_LoadEditItem( itemIndex )
 	
 	DiceMasterItemEditorPreviewTooltipTextLeft1:SetText( data.name )
 	local whiteText1 = data.whiteText1 or "";
-	if data.properties["Crafting Reagent"] then
+	if data.properties and data.properties["Crafting Reagent"] then
 		whiteText1 = "|cFF66bbffCrafting Reagent|r|n" .. whiteText1;
 	end
-	if data.properties["Cosmetic"] then
+	if data.properties and data.properties["Cosmetic"] then
 		whiteText1 = "|cFFff80ffCosmetic|r|n" .. whiteText1;
 	end
 	DiceMasterItemEditorPreviewTooltipTextLeft3:SetText( whiteText1 );

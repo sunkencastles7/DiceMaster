@@ -29,6 +29,20 @@
 				self:Enable()
 			end
 		</OnUpdate>
+		<OnEnter>
+			if self.tooltipTitle and self.tooltipText then
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+				GameTooltip_SetTitle(GameTooltip, self.tooltipTitle, HIGHLIGHT_FONT_COLOR);
+				GameTooltip_AddNormalLine(GameTooltip, self.tooltipText, true);
+				if self.tooltipTip then
+					GameTooltip:AddLine("|n|cFF00ADEFTip:|r " .. self.tooltipTip, 1, 1, 1, true);
+				end
+				GameTooltip:Show();
+			end
+		</OnEnter>
+		<OnLeave>
+			GameTooltip:Hide();
+		</OnLeave>
 	</Scripts>
   </Button>
   
@@ -435,7 +449,7 @@
 	</Anchors>
 	<Layers>
 		<Layer level="ARTWORK">
-			<FontString parentKey="Title" inherits="GameFontHighlight" text="Export Skills">
+			<FontString parentKey="Title" inherits="GameFontHighlight" text="Export Code">
 				<Size x="250"/>
 				<Anchors>
 					<Anchor point="TOP" y="-20"/>
@@ -486,7 +500,7 @@
 				</OnLoad>
 			</Scripts>
 		</Frame>
-		<CheckButton name="$parentExclusionControl" parentKey="ExclusionControl" inherits="UICheckButtonTemplate">
+		<CheckButton name="$parentExclusionControl" parentKey="ExclusionControl" inherits="UICheckButtonTemplate" hidden="true">
 			<Size x="24" y="24"/>
 			<Anchors>
 				<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeKey="$parent.ImportControl" x="-5"  y="-5"/>
@@ -514,6 +528,15 @@
 			</Scripts>
 		</Button>
 	</Frames>
+	<Scripts>
+		<OnShow>
+			if self.titleText then
+				self.Title:SetText( self.titleText );
+			else
+				self.Title:SetText( "Export Code" );
+			end
+		</OnShow>
+	</Scripts>
   </Frame>
 
   <Frame name="DiceMasterImportDialog" frameStrata="DIALOG" frameLevel="100" parent="UIParent" hidden="true">
@@ -3188,8 +3211,9 @@
 			</Anchors>
 			<Scripts>
 				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to delete this trait." )
-					self.icon:SetTexCoord( 0.25, 0.5, 0, 0.25 )
+					self.tooltipTitle = "Clear";
+					self.tooltipText = "Reset this trait to default.";
+					self.icon:SetTexCoord( 0.25, 0.5, 0, 0.25 );
 				</OnLoad>
 				<OnClick>
 					StaticPopup_Show("DICEMASTER4_DELETETRAIT")
@@ -3203,8 +3227,10 @@
 			</Anchors>
 			<Scripts>
 				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert a colour tag." )
-					self.icon:SetTexCoord( 0, 0.25, 0, 0.25 )
+					self.tooltipTitle = "Color";
+					self.tooltipText = "Insert a text color tag.";
+					self.tooltipTip = "The color tag uses this format:|n|n|cFF808080&lt;color=|cFFFF0000RR|r|cFF00FF00GG|r|cFF0000FFBB|r>|rtext|cFF808080&lt;/color>|r|n|nEach pair of digits represents a color value as a hexidecimal number."
+					self.icon:SetTexCoord( 0, 0.25, 0, 0.25 );
 				</OnLoad>
 				<OnClick>
 					PlaySound(54132)
@@ -3219,7 +3245,9 @@
 			</Anchors>
 			<Scripts>
 				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert an icon." )
+					self.tooltipTitle = "Image";
+					self.tooltipText = "Insert an inline icon tag.";
+					self.tooltipTip = "The image tag uses this format:|n|n|cFF808080&lt;img>|rpath|cFF808080&lt;/img>|r|n|nThe path provided must be the full file name of the image."
 					self.icon:SetTexCoord( 0.5, 0.75, 0, 0.25 )
 				</OnLoad>
 				<OnClick>
@@ -3235,7 +3263,8 @@
 			</Anchors>
 			<Scripts>
 				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert a list." )
+					self.tooltipTitle = "List";
+					self.tooltipText = "Insert a bulleted list.";
 					self.icon:SetTexCoord( 0, 0.25, 0.25, 0.5 )
 				</OnLoad>
 				<OnClick>
@@ -3251,7 +3280,8 @@
 			</Anchors>
 			<Scripts>
 				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert a line rule." )
+					self.tooltipTitle = "Rule";
+					self.tooltipText = "Insert a horizontal line rule.";
 					self.icon:SetTexCoord( 0.75, 1, 0, 0.25 )
 				</OnLoad>
 				<OnClick>
@@ -3267,7 +3297,9 @@
 			</Anchors>
 			<Scripts>
 				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert a DiceMaster term." )
+					self.tooltipTitle = "DiceMaster Term";
+					self.tooltipText = "Insert an official DiceMaster term.";
+					self.tooltipTip = "DiceMaster terms wrapped in |cFF808080&lt;>|r brackets will display their definitions next to the tooltip for players with Enhanced Tooltips enabled."
 					self.icon:SetTexCoord( 0.5, 0.75, 0.5, 0.75 )
 				</OnLoad>
 				<OnClick>
@@ -3288,7 +3320,8 @@
 			</Anchors>
 			<Scripts>
 				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert a Health icon." )
+					self.tooltipTitle = "Health Icon";
+					self.tooltipText = "Insert a health icon.";
 					self.icon:SetTexCoord( 0.5, 0.75, 0.25, 0.5 )
 				</OnLoad>
 				<OnClick>
@@ -3304,7 +3337,8 @@
 			</Anchors>
 			<Scripts>
 				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to insert an Armour icon." )
+					self.tooltipTitle = "Armor Icon";
+					self.tooltipText = "Insert an armor icon.";
 					self.icon:SetTexCoord( 0.25, 0.5, 0.25, 0.5 )
 				</OnLoad>
 				<OnClick>
@@ -3320,7 +3354,8 @@
 			</Anchors>
 			<Scripts>
 				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to import a trait." )
+					self.tooltipTitle = CreateAtlasMarkup("editmode-new-layout-plus") .. " |cFF00FF00Import|r";
+					self.tooltipText = "Use a code to import a trait made by another player.";
 					self.icon:SetTexCoord( 0, 0.25, 0.5, 0.75 )
 				</OnLoad>
 				<OnClick>
@@ -3335,7 +3370,8 @@
 			</Anchors>
 			<Scripts>
 				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil, "|cFFFFD100Click to export this trait." )
+					self.tooltipTitle = "Export";
+					self.tooltipText = "Create an import code to share this trait with other players.";
 					self.icon:SetTexCoord( 0.25, 0.5, 0.5, 0.75 )
 				</OnLoad>
 				<OnClick>

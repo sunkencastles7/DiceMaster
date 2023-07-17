@@ -113,7 +113,54 @@ local function LearnPet( data )
 		return
 	end
 	
-	-- TODO
+	-- Sanitise the data.
+
+	local stage = data.currentStage or 1;
+	local name = tostring( data.stages[stage].name );
+	local type = tostring( data.stages[stage].type );
+	local icon = tostring( data.stages[stage].icon );
+	local model = tonumber( data.stages[stage].model );
+	local scale = tonumber( data.stages[stage].scale );
+	local health = tonumber( data.stages[stage].health );
+	local healthMax = tonumber( data.stages[stage].healthMax );
+	local armor = tonumber( data.stages[stage].armor );
+	local happiness = tonumber( data.stages[stage].happiness );
+	local foodTypes = {};
+	for i = 1, #data.stages[stage].foodTypes do
+		tinsert( foodTypes, data.stages[stage].foodTypes[i] );
+	end
+
+	Profile.pet.isComplex = true;
+	Profile.pet.name = name;
+	Profile.pet.type = type;
+	Profile.pet.icon = icon;
+	Profile.pet.model = model;
+	Profile.pet.scale = scale;
+	Profile.pet.health = health;
+	Profile.pet.healthMax = healthMax;
+	Profile.pet.armor = armor;
+	Profile.pet.happiness = happiness;
+	Profile.pet.foodTypes = foodTypes;
+	
+	if data.isEgg then
+		local lastWarmed = tonumber( data.stages[stage].lastWarmed );
+
+		Profile.pet.isEgg = true;
+		Profile.pet.lastWarmed = lastWarmed;
+	else
+		local lastWash = tonumber( data.stages[stage].lastWash );
+		local lastFed = tonumber( data.stages[stage].lastFed );
+		local lastBM = tonumber( data.stages[stage].lastBM );
+		local lastNap = tonumber( data.stages[stage].lastNap );
+
+		Profile.pet.isEgg = false;
+		Profile.pet.lastWash = lastWash;
+		Profile.pet.lastFed = lastFed;
+		Profile.pet.lastBM = lastBM;
+		Profile.pet.lastNap = lastNap;
+	end
+
+	Me.PetEditor_Refresh();
 end
 
 function Me.LearnPetEditor_Load( effectIndex )
