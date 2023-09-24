@@ -12,7 +12,7 @@
 		</Scripts>
 	</CheckButton>
 
-	<Frame name="DiceMasterActionBar" frameStrata="MEDIUM" parent="UIParent" enableMouse="true" toplevel="true" hidden="false">
+	<Frame name="DiceMasterActionBar" frameStrata="MEDIUM" parent="UIParent" enableMouse="true" toplevel="true" hidden="true">
 		<Animations>
 			<AnimationGroup parentKey="slideOut">
 				<Translation offsetX="0" offsetY="-180" duration="0.4" order="1"/>
