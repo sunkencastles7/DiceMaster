@@ -152,12 +152,14 @@
   <Include file="Ui\Pickers\EffectPicker.xml"/>
   
   <!-- Frames -->
-  <Include file="Ui\Panel.xml"/>							 
-  <!-- <Include file="Ui\ActionBar.xml"/> -->						 
+  <Include file="Ui\Panel.xml"/>
+  <Include file="Ui\MovementTracker.xml"/>
+  <Include file="Ui\ActionBar.xml"/>						 
   <Include file="Ui\StatInspector.xml"/>
   <Include file="Ui\Charges.xml"/>
   <Include file="Ui\Buffs.xml"/>
   <Include file="Ui\InspectFrame.xml"/>
+  <Include file="Ui\DiceRoller.xml"/>
   <Include file="Ui\RollTracker.xml"/>
   <Include file="Ui\RollBanner.xml"/>
   <Include file="Ui\SecretBanner.xml"/>

@@ -12,10 +12,19 @@
 		</Scripts>
 	</CheckButton>
 
-	<Frame name="DiceMasterActionBar" frameStrata="MEDIUM" parent="UIParent" enableMouse="true" toplevel="true" hidden="true">
+	<Frame name="DiceMasterActionBar" frameStrata="MEDIUM" parent="UIParent" enableMouse="true" toplevel="true" hidden="false">
 		<Animations>
+			<AnimationGroup parentKey="slideIn">
+				<Translation offsetX="0" offsetY="180" duration="1" order="1"/>
+				<Scripts>
+					<OnFinished>
+						DiceMasterActionBar:ClearAllPoints();
+						DiceMasterActionBar:SetPoint("BOTTOM", 0, 0);
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
 			<AnimationGroup parentKey="slideOut">
-				<Translation offsetX="0" offsetY="-180" duration="0.4" order="1"/>
+				<Translation offsetX="0" offsetY="-180" duration="1" order="1"/>
 				<Scripts>
 					<OnFinished>
 						if DiceMasterActionBar.hideOnFinish then
@@ -121,6 +130,12 @@
 			</Layer>
 		</Layers>
 		<Frames>
+			<Frame name="$parentTabsFrame" parentKey="tabsFrame">
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="0"/>
+				</Anchors>
+				<Size x="72" y="32"/>
+			</Frame>
 			<Frame name="$parentPitchFrame" parentKey="pitchFrame">
 				<Size x="100" y="100"/>
 				<Anchors>
@@ -255,14 +270,9 @@
 								<Anchor point="LEFT" x="28" y="0"/>
 							</Anchors>
 						</Texture>
-						<Texture parentKey="ArtFrame2" file="Interface\PetBattles\PassButtonFrame" hidden="true">
-							<Anchors>
-								<Anchor point="LEFT" x="28" y="-2"/>
-							</Anchors>
-						</Texture>
 						<FontString parentKey="TimerText" inherits="GameFontHighlight" text="Test">
 							<Anchors>
-								<Anchor point="CENTER" relativeKey="ArtFrame" relativePoint="CENTER" x="0" y="0"/>
+								<Anchor point="CENTER" relativeKey="$parent.ArtFrame" relativePoint="CENTER" x="0" y="0"/>
 							</Anchors>
 						</FontString>
 					</Layer>
@@ -285,7 +295,7 @@
 				</Frames>
 				<Scripts>
 					<OnUpdate>
-						-- TODO
+						DiceMaster4.ActionBar_TurnTimer_OnUpdate( self, elapsed );
 					</OnUpdate>
 				</Scripts>
 			</Frame>
@@ -617,8 +627,10 @@
 				DiceMaster4.ActionBar_OnLoad( self );
 			</OnLoad>
 			<OnShow>
+				DiceMaster4.ActionBar_OnShow( self );
 			</OnShow>
 			<OnHide>
+				DiceMaster4.ActionBar_OnHide( self );
 			</OnHide>
 		</Scripts>
 	</Frame>

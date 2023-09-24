@@ -1,0 +1,58 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <!-- The Dice Roller -->
+  
+  <Frame name="DiceMasterDiceRoller" frameStrata="MEDIUM" parent="UIParent" hidden="false">
+    
+    <Size x="530" y="631"/>
+    <Anchors>
+      <Anchor point="CENTER" x="0" y="100"/>
+    </Anchors>	
+    <Layers>
+      <Layer level="BACKGROUND">
+        <Texture atlas="perks-item-background">
+          <Size x="530" y="631" />
+          <Anchors>
+            <Anchor point="CENTER" x="0" y="0"/>
+          </Anchors>
+        </Texture>
+      </Layer>
+      <Layer level="ARTWORK">
+		<FontString parentKey="RollType" inherits="GameFontHighlightLarge" justifyH="CENTER" text="Charisma Check">
+			<Anchors>
+				<Anchor point="TOP" x="0" y="0"/>
+			</Anchors>
+		</FontString>
+        <FontString inherits="GameFontNormal" justifyH="CENTER" text="Deception">
+			<Anchors>
+				<Anchor point="TOP" relativeKey="$parent.RollType" relativePoint="BOTTOM" x="0" y="0"/>
+			</Anchors>
+		</FontString>
+      </Layer>
+    </Layers>
+    <Frames>
+        <Frame name="Bonus1" parentKey="bonus1">
+            <Size x="521" y="78" />
+            <Anchors>
+				<Anchor point="TOP" relativePoint="BOTTOM" x="0" y="0"/>
+			</Anchors>
+            <Layers>
+              <Layer level="BACKGROUND">
+                <Texture atlas="activities-complete">
+                  <Size x="521" y="78" />
+                  <Anchors>
+                    <Anchor point="CENTER" x="0" y="0"/>
+                  </Anchors>
+                </Texture>
+              </Layer>
+            </Layers>
+        </Frame>
+    </Frames>
+    
+    <Scripts>
+      <OnLoad>		
+		-- TODO
+      </OnLoad>
+    </Scripts>
+  </Frame>
+</Ui>

@@ -66,5 +66,6 @@ RangeRadar.lua
 Disenchant.lua
 SplashFrame.lua
 ItemTrade.lua
+ActionBar.lua
 
 Ui/Ui.xml

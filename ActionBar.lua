@@ -48,10 +48,69 @@ local xpBarTextureList = {
 	"XpR",
 }
 
+local actionIcons = {
+	["Movement"] = { 0, 0.25, 0, 0.25 };
+	["Action"] = { 0.25, 0.5, 0, 0.25 };
+	["Bonus Action"] = { 0.5, 0.75, 0, 0.25 };
+	["Bonus Action x2"] = { 0.75, 1.0, 0, 0.25 };
+	["Movement Used"] = { 0, 0.25, 0.25, 0.5 };
+	["Action Used"] = { 0.25, 0.5, 0.25, 0.5 };
+	["Bonus Action Used"] = { 0.5, 0.75, 0.25, 0.5 };
+	["Bonus Action x2 Used"] = { 0.75, 1.0, 0.25, 0.5 };
+}
+
+local spellSlotIcons = {
+	["1/1"] = { 0, 0.25, 0, 0.25 };
+	["2/2"] = { 0.25, 0.5, 0, 0.25 };
+	["3/3"] = { 0.5, 0.75, 0, 0.25 };
+	["4/4"] = { 0.75, 1.0, 0, 0.25 };
+	["0/1"] = { 0, 0.25, 0.25, 0.5 };
+	["1/2"] = { 0.25, 0.5, 0.25, 0.5 };
+	["2/3"] = { 0.5, 0.75, 0.25, 0.5 };
+	["3/4"] = { 0.75, 1.0, 0.25, 0.5 };
+	-- (empty) = { 0, 0.25, 0.5, 0.75 };
+	["0/2"] = { 0.25, 0.5, 0.5, 0.75 };
+	["1/3"] = { 0.5, 0.75, 0.5, 0.75 };
+	["2/4"] = { 0.75, 1.0, 0.5, 0.75 };
+	["4/4"] = { 0, 0.25, 0.75, 1.0 };
+	-- (empty) = { 0.25, 0.5, 0.75, 1.0 };
+	["0/3"] = { 0.5, 0.75, 0.75, 1.0 };
+	["1/4"] = { 0.75, 1.0, 0.75, 1.0 };
+}
+
 function Me.ActionBar_OnLoad( self )
 	-- Overriding is shown so that it returns false if the frame is animating out as well
 	self.IsShownBase = self.IsShown;
 	self.IsShown = self.IsShownOverride;
+
+	-- Setup action categories
+	local actionCategories = { "Movement", "Action", "Bonus Action", "1/1", "2/3" };
+	for i = 1, #actionCategories do
+		local tab = CreateFrame( "Button", "DiceMasterActionBarTab"..i, self.tabsFrame, "PanelTopTabButtonTemplate");
+		tab:SetPoint( "LEFT", self.tabsFrame, "LEFT", 32*i, 6 );
+		tab:SetSize( 32, 32 );
+		local icon;
+		if actionIcons[actionCategories[i]] then
+			local coord = actionIcons[actionCategories[i]];
+			icon = CreateTextureMarkup("Interface/AddOns/DiceMaster/Texture/action-icons", 128, 128, 28, 28, coord[1], coord[2], coord[3], coord[4]);
+		elseif spellSlotIcons[actionCategories[i]] then
+			local coord = spellSlotIcons[actionCategories[i]];
+			icon = CreateTextureMarkup("Interface/AddOns/DiceMaster/Texture/spell-slot-icons", 128, 128, 28, 28, coord[1], coord[2], coord[3], coord[4]);
+			tab.slotRank = tab:CreateFontString( nil, "OVERLAY", "GameFontHighlightOutline" );
+			tab.slotRank:SetPoint( "TOP", 0, -3 );
+			tab.slotRank:SetText( "I" );
+		end
+		tab:SetText( icon );
+		tab:SetID(i);
+		tab:SetScript("OnClick", function()
+			PanelTemplates_SetTab(DiceMasterActionBar, i);
+			PlaySound(841);
+		end);
+	end
+	self.tabsFrame:SetWidth( 72 * #actionCategories );
+	self.tabsFrame:SetPoint("BOTTOM", self, "TOP");
+	PanelTemplates_SetNumTabs(self, #actionCategories);
+	PanelTemplates_SetTab(self, 1);
 
 	--Setup the XP bar
 	local divWidth = self.xpBar.XpMid:GetWidth()/19;
@@ -63,6 +122,21 @@ function Me.ActionBar_OnLoad( self )
 		self.xpBar["XpDiv"..i] = texture;
 		xpBarTextureList[#xpBarTextureList + 1] = "XpDiv"..i;
 		xpos = xpos + divWidth;
+	end
+
+	-- Add buttons
+	self.buttons = {};
+	for y = 1,2 do
+        for x = 1,11 do
+			local btn = CreateFrame( "DiceMasterTraitButton", "DiceMasterActionBar" .. y .. "Button" .. x, self )
+			btn:SetPoint( "TOPLEFT", 32*x+204, -32*y+7 );
+
+			btn:SetSize( 32, 32 );
+			btn:SetScript( "OnMouseDown", function( self, button )
+				-- TODO
+			end)
+			tinsert( self.buttons, btn );
+		end
 	end
 
 	--Add End Turn Button Textures
@@ -84,9 +158,8 @@ function Me.ActionBar_OnLoad( self )
 	self:RegisterUnitEvent("UNIT_ENTERING_VEHICLE", "player");
 	self:RegisterUnitEvent("UNIT_EXITED_VEHICLE", "player");
 
-	Me.ActionBar_SetSkin( self, "NATURAL" );
+	Me.ActionBar_SetSkin( self, "WOOD" );
 end
-
 
 function Me.ActionBar_OnEvent( self, event, ... )
 	local arg1 = ...;
@@ -107,6 +180,10 @@ function Me.ActionBar_OnEvent( self, event, ... )
 	end
 end
 
+local actionBars = { 
+	"MainMenuBar", "MultiBarBottomLeft", "MultiBarBottomRight", "MultiBarLeft", "MultiBarRight", "MultiBar5", "MultiBar6", "MultiBar7"
+};
+
 function Me.ActionBar_OnShow( self )
 	if EditModeManagerFrame:IsEditModeActive() then
 		HideUIPanel(EditModeManagerFrame);
@@ -115,13 +192,48 @@ function Me.ActionBar_OnShow( self )
 	UIParentBottomManagedFrameContainer:UpdateManagedFramesAlphaState();
 	UIParentRightManagedFrameContainer:UpdateManagedFramesAlphaState();
 
+	for i = 1, #actionBars do
+        bar = _G[actionBars[i]];
+        if bar and bar:IsVisible() and bar.actionButtons then
+			bar.prevAlpha = bar:GetAlpha() or 1;
+			UIFrameFadeOut( bar, 1, bar.prevAlpha, 0);
+		end
+	end
+
 	EditModeManagerFrame:BlockEnteringEditMode(self);
 	EditModeManagerFrame:UpdateBottomActionBarPositions();
+
+	self:ClearAllPoints();
+	self:SetPoint("BOTTOM", 0, -180);
+	self.slideIn:Play();
+
+	local y1, x1, _, instance1 = UnitPosition("player");
+	DiceMasterMovementTracker:SetScript("OnUpdate", function()
+		local y2, x2, _, instance2 = UnitPosition( "player" );
+		local distance = instance1 == instance2 and ((x2 - x1) ^ 2 + (y2 - y1) ^ 2) ^ 0.5
+		if distance > 1 then
+			DiceMasterMovementTracker.Text:SetText( floor(distance) .. " yds");
+		else
+			DiceMasterMovementTracker.Text:SetText( "0 yds");
+		end
+	end)
+	DiceMasterMovementTracker:Show();
 end
 
 function Me.ActionBar_OnHide( self )
 	UIParentBottomManagedFrameContainer:UpdateManagedFramesAlphaState();
 	UIParentRightManagedFrameContainer:UpdateManagedFramesAlphaState();
+
+	for i = 1, #actionBars do
+        bar = _G[actionBars[i]];
+        if bar and bar:IsVisible() and bar.actionButtons then
+			if bar.prevAlpha then
+				UIFrameFadeIn( bar, 1, 0, bar.prevAlpha );
+			else
+				UIFrameFadeIn( bar, 1, 0, 1 );
+			end
+		end
+	end
 
 	UIParent_ManageFramePositions();
 
@@ -162,10 +274,10 @@ function Me.ActionBar_CalcSize( self )
 		texture:SetPoint("LEFT", self.xpBar.XpMid, "LEFT", floor(xpos), 10);
 		xpos = xpos + divWidth;
 	end
-	self:UpdateXpBar();
+	--self:UpdateXpBar();
 
-	UnitFrameHealthBar_Update(OverrideActionBarHealthBar, "vehicle");
-	UnitFrameManaBar_Update(OverrideActionBarPowerBar, "vehicle");
+	--UnitFrameHealthBar_Update(OverrideActionBarHealthBar, "vehicle");
+	--UnitFrameManaBar_Update(OverrideActionBarPowerBar, "vehicle");
 end
 
 function Me.ActionBar_StatusBars_ShowTooltip(self)
@@ -224,17 +336,83 @@ function Me.ActionBar_Setup( self, skin, barIndex )
 	Me.ActionBar_UpdateXpBar();
 end
 
-function Me.ActionBar_UpdateXpBar( self, newLevel )
-	local level = newLevel or UnitLevel("player");
-	if ( IsLevelAtEffectiveMaxLevel(level) or IsXPUserDisabled() ) then
-		self.xpBar:Hide();
+local TIMER_BAR_TEXCOORD_LEFT = 0.56347656;
+local TIMER_BAR_TEXCOORD_RIGHT = 0.89453125;
+local TIMER_BAR_TEXCOORD_TOP = 0.00195313;
+local TIMER_BAR_TEXCOORD_BOTTOM = 0.03515625;
+
+function Me.ActionBar_TurnTimer_OnUpdate( self, elapsed )
+	if ( ( C_PetBattles.GetBattleState() ~= Enum.PetbattleState.WaitingPreBattle ) and
+		 ( C_PetBattles.GetBattleState() ~= Enum.PetbattleState.RoundInProgress ) and
+		 ( C_PetBattles.GetBattleState() ~= Enum.PetbattleState.WaitingForFrontPets ) ) then
+		self.Bar:SetAlpha(0);
+		self.TimerText:SetText("");
+	elseif ( self.turnExpires ) then
+		local timeRemaining = self.turnExpires - GetTime();
+
+		--Deal with variable lag from the server without looking weird
+		if ( timeRemaining <= 0.01 ) then
+			timeRemaining = 0.01;
+		end
+
+		local timeRatio = 1.0;
+		if ( self.turnTime > 0.0 ) then
+			timeRatio = timeRemaining / self.turnTime;
+		end
+		local usableSpace = 337;
+
+		self.Bar:SetWidth(timeRatio * usableSpace);
+		self.Bar:SetTexCoord(TIMER_BAR_TEXCOORD_LEFT, TIMER_BAR_TEXCOORD_LEFT + (TIMER_BAR_TEXCOORD_RIGHT - TIMER_BAR_TEXCOORD_LEFT) * timeRatio, TIMER_BAR_TEXCOORD_TOP, TIMER_BAR_TEXCOORD_BOTTOM);
+
+		if ( C_PetBattles.IsWaitingOnOpponent() ) then
+			self.Bar:SetAlpha(0.5);
+			self.TimerText:SetText(PET_BATTLE_WAITING_FOR_OPPONENT);
+		else
+			self.Bar:SetAlpha(1);
+			if ( self.turnTime > 0.0 ) then
+				self.TimerText:SetText(ceil(timeRemaining));
+			else
+				self.TimerText:SetText("")
+			end
+		end
 	else
-		local currXP = UnitXP("player");
-		local nextXP = UnitXPMax("player");
-		self.xpBar:Show();
-		self.xpBar:SetMinMaxValues(min(0, currXP), nextXP);
-		self.xpBar:SetValue(currXP);
+		self.Bar:SetAlpha(0);
+		if ( self.IsWaitingOnOpponent ) then
+			self.TimerText:SetText(PET_BATTLE_WAITING_FOR_OPPONENT);
+		else
+			self.TimerText:SetText(PET_BATTLE_SELECT_AN_ACTION);
+		end
 	end
+end
+
+function Me.ActionBar_TurnTimer_UpdateValues( self )
+	local timeRemaining, turnTime = C_PetBattles.GetTurnTimeInfo(); 
+	self.turnExpires = GetTime() + timeRemaining;
+	self.turnTime = turnTime;
+end
+
+function Me.ActionBar_StartTimerBar( self, duration )
+	if ( IsLevelAtEffectiveMaxLevel(level) or IsXPUserDisabled() ) then
+		self.TurnTimer:Hide();
+	else
+		self.TurnTimer:Show();
+		self.TurnTimer:SetMinMaxValues( 0, duration );
+		self.TurnTimer:SetValue( duration );
+		self.Timer = C_Timer.NewTicker( 1, function()
+			local secondsLeft = self.TurnTimer:GetValue();
+			if secondsLeft > 0 then
+				self.TurnTimer:SetValue( secondsLeft - 1 );
+			else
+				self.Timer:Cancel();
+			end
+		end, duration);
+	end
+end
+
+function Me.ActionBar_EndTurn()
+	PlaySound(32052);
+	DiceMasterActionBar.hideOnFinish = true;
+	DiceMasterActionBar.slideOut:Play();
 end
 
 function Me.ActionBar_IsShownOverride( self )
