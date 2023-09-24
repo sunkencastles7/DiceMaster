@@ -153,6 +153,7 @@
   
   <!-- Frames -->
   <Include file="Ui\Panel.xml"/>							 
+  <Include file="Ui\ActionBar.xml"/>							 
   <Include file="Ui\StatInspector.xml"/>
   <Include file="Ui\Charges.xml"/>
   <Include file="Ui\Buffs.xml"/>

@@ -2,7 +2,7 @@
 -- Internal variables
 --
 
-local MAJOR, MINOR = "EditModeExpanded-1.0", 68
+local MAJOR, MINOR = "EditModeExpanded-1.0", 73
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -35,6 +35,7 @@ local originalSize = {}
 local defaultSize = {}
 
 local profilesInitialised
+local previousProfileNames = {}
 
 -- Custom version of FrameXML\Mixin.lua where I instead do *not* overwrite existing functions 
 local function Mixin(object, ...)
@@ -55,6 +56,7 @@ local pinToMinimap
 local unpinFromMinimap
 local getOffsetXY
 local registerFrameMovableWithArrowKeys
+local refreshCurrentProfile
 
 local function getSystemID(frame)
     if not frame.system then return false end
@@ -94,7 +96,8 @@ local MICRO_BUTTONS = {
 -- param3: db, a table in your saved variables to save the frame position in
 -- param4: frame to anchor to, default is UIParent
 -- param5: point to anchor, default is BOTTOMLEFT
-function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint)
+-- param6: whether to enable "clamped to screen". default is TRUE
+function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
     assert(type(frame) == "table")
     assert(type(name) == "string")
     assert(type(db) == "table")
@@ -103,6 +106,8 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint)
     if not anchorPoint then anchorPoint = "BOTTOMLEFT" end
     frame.EMEanchorTo = anchorTo
     frame.EMEanchorPoint = anchorPoint
+    
+    if clamped == nil then clamped = true end
     
     -- if this is the first frame being registered, load the other parts of this library
     if f.OnLoad then f.OnLoad() end
@@ -180,6 +185,9 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint)
     
     Mixin(frame, EditModeSystemMixin)
     
+    frame.BreakFrameSnap = function() end
+    frame.SnapToFrame = function() end
+    
     frame.system = index
     index = index + 1
     baseFramesDB[frame.system] = baseDB 
@@ -208,7 +216,7 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint)
     registerFrameMovableWithArrowKeys(frame, anchorPoint, anchorTo)
     
     -- prevent the frame from going outside the screen boundaries
-    if db.clamped == nil then db.clamped = 1 end
+    if db.clamped == nil then db.clamped = (clamped and 1 or 0) end
     if profilesInitialised and (db.clamped == 1) then
         frame:SetClampedToScreen(true)
     elseif profilesInitialised then
@@ -216,7 +224,7 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint)
     end
     if not framesDialogs[frame.system] then framesDialogs[frame.system] = {} end
     if not framesDialogsKeys[frame.system] then framesDialogsKeys[frame.system] = {} end
-    framesDialogsKeys[frame.system][ENUM_EDITMODEACTIONBARSETTING_CLAMPED] = true
+    framesDialogsKeys[frame.system][ENUM_EDITMODEACTIONBARSETTING_CLAMPED] = clamped
     table.insert(framesDialogs[frame.system],
         {
             setting = ENUM_EDITMODEACTIONBARSETTING_CLAMPED,
@@ -302,6 +310,8 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint)
         db.settings[Enum.EditModeUnitFrameSetting.FrameSize] = 100
         EditModeExpandedSystemSettingsDialog:Hide()
         frame:HighlightSystem()
+        
+        db.settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] = 0
     end)
     
     EditModeManagerExpandedFrame:HookScript("OnHide", function()
@@ -757,12 +767,41 @@ hooksecurefunc(f, "OnLoad", function()
             end
         end
     end)
+    
+    hooksecurefunc(EditModeManagerFrame, "MakeNewLayout", function(self, newLayoutInfo, layoutType, layoutName, isLayoutImported)
+        local oldProfileName = previousProfileNames[2]
+        if not oldProfileName then
+            oldProfileName = previousProfileNames[1]
+            if not oldProfileName then return end
+        end
+        
+        local newProfileName = layoutType.."-"..layoutName
+        if layoutType == Enum.EditModeLayoutType.Character then
+            local unitName, unitRealm = UnitFullName("player")
+            newProfileName = layoutType.."-"..unitName.."-"..unitRealm.."-"..layoutName
+        end
+        
+        if oldProfileName == newProfileName then return end
+
+        for _, frames in pairs({frames, existingFrames}) do
+            for name, frame in pairs(frames) do
+                if type(frame) == "boolean" then
+                    frame = _G[name]
+                end
+                local systemID = frame.EMESystemID or frame.system
+                local db = baseFramesDB[systemID]
+                
+                db.profiles[newProfileName] = CopyTable(db.profiles[oldProfileName])
+            end
+        end
+        
+        refreshCurrentProfile() 
+    end)
 
     --
     -- Edit Mode Dialog Box code
     --
-    local frame = CreateFrame("Frame", nil, UIParent, "ResizeLayoutFrame")
-    EditModeExpandedSystemSettingsDialog = frame
+    local frame = CreateFrame("Frame", "EditModeExpandedSystemSettingsDialog", UIParent, "ResizeLayoutFrame")
     Mixin(frame, EditModeSystemSettingsDialogMixin)
     frame:SetMovable(true)
     frame:SetClampedToScreen(true)
@@ -1103,6 +1142,130 @@ end)
 --
 -- Profile handling
 --
+function refreshCurrentProfile()
+    local layoutInfo = EditModeManagerFrame:GetActiveLayoutInfo()
+    local profileName = layoutInfo.layoutType.."-"..layoutInfo.layoutName
+    if layoutInfo.layoutType == Enum.EditModeLayoutType.Character then
+        local unitName, unitRealm = UnitFullName("player")
+        profileName = layoutInfo.layoutType.."-"..unitName.."-"..unitRealm.."-"..layoutInfo.layoutName
+    end
+    
+    if not previousProfileNames[1] then
+        previousProfileNames[1] = profileName
+    elseif previousProfileNames[1] == profileName then
+    else
+        previousProfileNames[2] = previousProfileNames[1]
+        previousProfileNames[1] = profileName
+    end
+    
+    for _, frames in pairs({frames, existingFrames}) do
+        for name, frame in pairs(frames) do
+            if type(frame) == "boolean" then
+                frame = _G[name]
+            end
+            EditModeExpandedSystemSettingsDialog:Hide()
+            local systemID = frame.EMESystemID or frame.system
+            local db = baseFramesDB[systemID]
+            
+            if not db.profiles then db.profiles = {} end
+            if not db.profiles[profileName] then
+                db.profiles[profileName] = {}
+                db.profiles[profileName].x = db.x
+                db.profiles[profileName].y = db.y
+                if frame.EMEdisabledByDefault then
+                    db.profiles[profileName].enabled = false
+                else
+                    db.profiles[profileName].enabled = db.enabled
+                end
+                db.profiles[profileName].settings = db.settings
+                db.profiles[profileName].defaultX = db.defaultX
+                db.profiles[profileName].defaultY = db.defaultY
+                
+                db.x = nil
+                db.y = nil
+                db.enabled = nil
+                db.settings = nil
+                db.clamped = nil
+            end
+            
+            if db.minimap then
+                db.profiles[profileName].minimap = db.minimap
+                db.minimap = nil
+            end
+            
+            db = db.profiles[profileName]
+            framesDB[systemID] = db
+            
+            -- frame hide option
+            if db.settings and (db.settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] ~= nil) then
+                if frame ~= TalkingHeadFrame then
+                    frame:SetShown(framesDB[systemID].settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] ~= 1)
+                end
+            end
+                
+            -- update scale
+            if framesDialogsKeys[systemID] and framesDialogsKeys[systemID][Enum.EditModeUnitFrameSetting.FrameSize] and db.settings and db.settings[Enum.EditModeUnitFrameSetting.FrameSize] then
+                frame:SetScaleOverride(db.settings[Enum.EditModeUnitFrameSetting.FrameSize]/100)
+            end
+
+            if not frame.EMESystemID then
+                
+                -- update position
+                frame:ClearAllPoints()
+                local anchorPoint = frame.EMEanchorPoint
+                if db.x and db.y then
+                    local x, y = getOffsetXY(frame, db.x, db.y)
+                    frame:SetPoint(anchorPoint, frame.EMEanchorTo, anchorPoint, x, y)
+                else
+                    if db.defaultX and db.defaultY then
+                        local x, y = getOffsetXY(frame, db.defaultX, db.defaultY)
+                        if not pcall( function() frame:SetPoint(anchorPoint, frame.EMEanchorTo, anchorPoint, x, y) end ) then
+                            frame:SetPoint(anchorPoint, nil, anchorPoint, x, y)
+                        end
+                    end
+                end
+            
+                -- minimap pinning
+                if framesDialogsKeys[systemID] and framesDialogsKeys[systemID][ENUM_EDITMODEACTIONBARSETTING_MINIMAPPINNED] then
+                    if db.settings and (db.settings[ENUM_EDITMODEACTIONBARSETTING_MINIMAPPINNED] ~= nil) then
+                        if db.settings[ENUM_EDITMODEACTIONBARSETTING_MINIMAPPINNED] == 1 then
+                            pinToMinimap(frame)
+                        else
+                            unpinFromMinimap(frame)
+                        end
+                    end
+                end
+                
+                -- the option in the expanded frame
+                if frame.EMEdisabledByDefault then
+                    db.enabled = false
+                end
+                if db.enabled == nil then
+                    db.enabled = true
+                end
+                frame.EMECheckButtonFrame:SetChecked(db.enabled)
+                
+                -- only way I can find to un-select frames
+                if EditModeManagerFrame.editModeActive and frame:IsShown() then
+                    frame:HighlightSystem()
+                end
+                
+                if db.clamped == 1 then
+                    frame:SetClampedToScreen(true)
+                else
+                    frame:SetClampedToScreen(false)
+                end
+            
+            end
+        end
+        
+        for _, func in pairs(customCheckboxCallDuringProfileInit) do
+            func()
+        end
+    end
+end
+
+
 do
     local lf = CreateFrame("Frame")
     hooksecurefunc(f, "OnLoad", function()
@@ -1110,118 +1273,7 @@ do
     end)
     lf:SetScript("OnEvent", function()
         profilesInitialised = true
-        
-        for _, frames in pairs({frames, existingFrames}) do
-            for name, frame in pairs(frames) do
-                if type(frame) == "boolean" then
-                    frame = _G[name]
-                end
-                EditModeExpandedSystemSettingsDialog:Hide()
-                local systemID = frame.EMESystemID or frame.system
-                local db = baseFramesDB[systemID]
-                
-                -- if currently selected Edit Mode profile does not exist in the db, try importing a legacy db instead
-                local layoutInfo = EditModeManagerFrame:GetActiveLayoutInfo()
-                local profileName = layoutInfo.layoutType.."-"..layoutInfo.layoutName
-                if layoutInfo.layoutType == Enum.EditModeLayoutType.Character then
-                    local unitName, unitRealm = UnitFullName("player")
-                    profileName = layoutInfo.layoutType.."-"..unitName.."-"..unitRealm.."-"..layoutInfo.layoutName
-                end
-                
-                if not db.profiles then db.profiles = {} end
-                if not db.profiles[profileName] then
-                    db.profiles[profileName] = {}
-                    db.profiles[profileName].x = db.x
-                    db.profiles[profileName].y = db.y
-                    if frame.EMEdisabledByDefault then
-                        db.profiles[profileName].enabled = false
-                    else
-                        db.profiles[profileName].enabled = db.enabled
-                    end
-                    db.profiles[profileName].settings = db.settings
-                    db.profiles[profileName].defaultX = db.defaultX
-                    db.profiles[profileName].defaultY = db.defaultY
-                    
-                    db.x = nil
-                    db.y = nil
-                    db.enabled = nil
-                    db.settings = nil
-                    db.clamped = nil
-                end
-                
-                if db.minimap then
-                    db.profiles[profileName].minimap = db.minimap
-                    db.minimap = nil
-                end
-                
-                db = db.profiles[profileName]
-                framesDB[systemID] = db
-                
-                -- frame hide option
-                if db.settings and (db.settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] ~= nil) then
-                    frame:SetShown(framesDB[systemID].settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] ~= 1)
-                end
-                
-                if not frame.EMESystemID then
-                    
-                    -- update scale
-                    if framesDialogsKeys[systemID] and framesDialogsKeys[systemID][Enum.EditModeUnitFrameSetting.FrameSize] and db.settings and db.settings[Enum.EditModeUnitFrameSetting.FrameSize] then
-                        frame:SetScaleOverride(db.settings[Enum.EditModeUnitFrameSetting.FrameSize]/100)
-                    end
-                    
-                    -- update position
-                    frame:ClearAllPoints()
-                    local anchorPoint = frame.EMEanchorPoint
-                    if db.x and db.y then
-                        local x, y = getOffsetXY(frame, db.x, db.y)
-                        frame:SetPoint(anchorPoint, frame.EMEanchorTo, anchorPoint, x, y)
-                    else
-                        if db.defaultX and db.defaultY then
-                            local x, y = getOffsetXY(frame, db.defaultX, db.defaultY)
-                            if not pcall( function() frame:SetPoint(anchorPoint, frame.EMEanchorTo, anchorPoint, x, y) end ) then
-                                frame:SetPoint(anchorPoint, nil, anchorPoint, x, y)
-                            end
-                        end
-                    end
-                
-                    -- minimap pinning
-                    if framesDialogsKeys[systemID] and framesDialogsKeys[systemID][ENUM_EDITMODEACTIONBARSETTING_MINIMAPPINNED] then
-                        if db.settings and (db.settings[ENUM_EDITMODEACTIONBARSETTING_MINIMAPPINNED] ~= nil) then
-                            if db.settings[ENUM_EDITMODEACTIONBARSETTING_MINIMAPPINNED] == 1 then
-                                pinToMinimap(frame)
-                            else
-                                unpinFromMinimap(frame)
-                            end
-                        end
-                    end
-                    
-                    -- the option in the expanded frame
-                    if frame.EMEdisabledByDefault then
-                        db.enabled = false
-                    end
-                    if db.enabled == nil then
-                        db.enabled = true
-                    end
-                    frame.EMECheckButtonFrame:SetChecked(db.enabled)
-                    
-                    -- only way I can find to un-select frames
-                    if EditModeManagerFrame.editModeActive and frame:IsShown() then
-                        frame:HighlightSystem()
-                    end
-                    
-                    if db.clamped == 1 then
-                        frame:SetClampedToScreen(true)
-                    else
-                        frame:SetClampedToScreen(false)
-                    end
-                
-                end
-            end
-            
-            for _, func in pairs(customCheckboxCallDuringProfileInit) do
-                func()
-            end
-        end
+        refreshCurrentProfile()
     end)
 end
 
@@ -1388,6 +1440,7 @@ function registerFrameMovableWithArrowKeys(frame, anchorPoint, anchorTo)
     frame.Selection:EnableKeyboard();
     frame.Selection:SetPropagateKeyboardInput(true);
     frame.Selection:SetScript("OnKeyDown", function(self, key)
+        if InCombatLockdown() then return end
         frame:MoveWithArrowKey(key);
     end)
 
