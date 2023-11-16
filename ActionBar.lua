@@ -84,10 +84,10 @@ function Me.ActionBar_OnLoad( self )
 	self.IsShown = self.IsShownOverride;
 
 	-- Setup action categories
-	local actionCategories = { "Movement", "Action", "Bonus Action", "1/1", "2/3" };
+	local actionCategories = { "Movement", "Action", "Bonus Action", "1/1", "2/3", "4/4", "1/3" };
 	for i = 1, #actionCategories do
 		local tab = CreateFrame( "Button", "DiceMasterActionBarTab"..i, self.tabsFrame, "PanelTopTabButtonTemplate");
-		tab:SetPoint( "LEFT", self.tabsFrame, "LEFT", 32*i, 6 );
+		tab:SetPoint( "LEFT", self.tabsFrame, "LEFT", 32*i-32, 6 );
 		tab:SetSize( 32, 32 );
 		local icon;
 		if actionIcons[actionCategories[i]] then
@@ -105,6 +105,10 @@ function Me.ActionBar_OnLoad( self )
 		tab:SetScript("OnClick", function()
 			PanelTemplates_SetTab(DiceMasterActionBar, i);
 			PlaySound(841);
+		end);
+		tab:SetScript("OnEnter", function()
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+			GameTooltip:SetText( "Edit Pet" )
 		end);
 	end
 	self.tabsFrame:SetWidth( 72 * #actionCategories );
@@ -158,7 +162,7 @@ function Me.ActionBar_OnLoad( self )
 	self:RegisterUnitEvent("UNIT_ENTERING_VEHICLE", "player");
 	self:RegisterUnitEvent("UNIT_EXITED_VEHICLE", "player");
 
-	Me.ActionBar_SetSkin( self, "WOOD" );
+	Me.ActionBar_SetSkin( self, "ALLIANCE" );
 end
 
 function Me.ActionBar_OnEvent( self, event, ... )
@@ -207,10 +211,11 @@ function Me.ActionBar_OnShow( self )
 	self:SetPoint("BOTTOM", 0, -180);
 	self.slideIn:Play();
 
-	local y1, x1, _, instance1 = UnitPosition("player");
+	self.PlayerStartPosition = { UnitPosition("player") };
 	DiceMasterMovementTracker:SetScript("OnUpdate", function()
+		local y, x, _, instance = unpack(self.PlayerStartPosition);
 		local y2, x2, _, instance2 = UnitPosition( "player" );
-		local distance = instance1 == instance2 and ((x2 - x1) ^ 2 + (y2 - y1) ^ 2) ^ 0.5
+		local distance = instance == instance2 and ((x2 - x) ^ 2 + (y2 - y) ^ 2) ^ 0.5
 		if distance > 1 then
 			DiceMasterMovementTracker.Text:SetText( floor(distance) .. " yds");
 		else

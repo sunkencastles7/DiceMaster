@@ -337,6 +337,7 @@
 							<OnEnter>
 								GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
 								GameTooltip_SetTitle(GameTooltip, "End Turn");
+								GameTooltip:AddLine("", 1, 0.81, 0, 1)
 								GameTooltip:Show();
 							</OnEnter>
 							<OnLeave function="GameTooltip_Hide"/>

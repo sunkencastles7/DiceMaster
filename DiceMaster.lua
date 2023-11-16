@@ -1392,7 +1392,7 @@ end
 -- @param noSound	Supress the sound effect. Optional.
 --
 
-function Me.UIInteractFX( parent, type, offsetX, offsetY, offsetZ, noSound)
+function Me.UIInteractFX( parent, type, offsetX, offsetY, offsetZ, noSound, animation)
 	if not( parent ) then
 		return
 	end

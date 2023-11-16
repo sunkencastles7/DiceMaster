@@ -368,7 +368,7 @@ end
 -- Record player roll info from a Dice Master roll command. (Locally or
 --   over the network.)
 --
-local function AddRollInfo( name, count, min, max, mod, vanilla, rollType, unitName )
+local function AddRollInfo( name, count, min, max, mod, vanilla, rollType )
 	playerRollInfo[name] = playerRollInfo[name] or {}
 	
 	local data = {
@@ -378,7 +378,6 @@ local function AddRollInfo( name, count, min, max, mod, vanilla, rollType, unitN
 		mod   = mod or 0;
 		v     = vanilla;
 		type  = rollType;
-		unit  = unitName;
 		time  = GetTime();
 	}
 	
@@ -409,7 +408,7 @@ local function AddServerRoll( name, roll, min, max )
 	CheckRolls( name )  
 end
 
-local function SendRollMessage( count, min, max, mod, vanilla, rollType, unitName )
+local function SendRollMessage( count, min, max, mod, vanilla, rollType )
 
 
 	if IsInGroup()  then
@@ -420,7 +419,6 @@ local function SendRollMessage( count, min, max, mod, vanilla, rollType, unitNam
 		if mod and mod ~= 0 then data.m = mod end
 		if vanilla then data.v = true end
 		if rollType then data.t = rollType end
-		if unitName then data.u = unitName end
 		
 		local msg = Me:Serialize( "R", data )
 		
@@ -430,7 +428,7 @@ local function SendRollMessage( count, min, max, mod, vanilla, rollType, unitNam
 		C_ChatInfo.SendAddonMessage( "DCM4", msg, "RAID" )
 	end
 	
-	AddRollInfo( UnitName("player"), count, min, max, mod, vanilla, rollType, unitName )
+	AddRollInfo( UnitName("player"), count, min, max, mod, vanilla, rollType )
 end
  
 -------------------------------------------------------------------------------
@@ -438,7 +436,7 @@ end
 --
 -- @param dice Dice format, e.g. 2d6+1, d20, 4D4-2
 --
-function Me.Roll( dice, rollType, unitName )
+function Me.Roll( dice, rollType )
 	
 	local function UIError( msg )
 		-- helper function to throw errors.
@@ -459,7 +457,6 @@ function Me.Roll( dice, rollType, unitName )
 	modtype  = modtype  == "" and "+" or modtype
 	mod      = mod      == "" and 0 or tonumber(mod)
 	rollType = rollType or nil
-	unitName = unitName or nil
 	
 	if count == 0 then    return UIError( "You must have at least one die." )              end 
 	if count > 10 then    return UIError( "You can only roll 10 dice at a time." )         end 
@@ -470,7 +467,7 @@ function Me.Roll( dice, rollType, unitName )
 		mod = -mod
 	end
 	
-	SendRollMessage( count, 1, sides, mod, nil, rollType, unitName )
+	SendRollMessage( count, 1, sides, mod, nil, rollType )
 	
 	doingDiceMasterRoll = true
 	

@@ -692,7 +692,7 @@
     <Frames>
 	
       <!-- Scroll frame for the trait description editing. -->
-      <ScrollFrame name="DiceMasterTraitsFrame" parentKey="scrollFrame" inherits="UIPanelScrollFrameTemplate">
+      <ScrollFrame name="DiceMasterTraitsFrame" parentKey="scrollFrame" inherits="UIPanelScrollFrameTemplate" hidden="false">
 		<Anchors>
 			<Anchor point="TOPLEFT" x="10" y="-64"/>
 			<Anchor point="BOTTOMRIGHT" x="-32" y="44"/>
@@ -1005,7 +1005,7 @@
         </ScrollChild>
         
       </ScrollFrame>
-	  
+
 	  <Frame parentKey="NoSkillsWarning" enableMouse="true" hidden="true">
 		<Size x="298" y="309"/>
 		<Anchors>
