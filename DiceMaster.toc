@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 100205
 ## Title: DiceMaster
 ## Author: Skylar, Rennae
 ## Notes: A dice-rolling tabletop addon for roleplay.
