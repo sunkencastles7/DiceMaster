@@ -1871,7 +1871,7 @@
 				<Scripts>
 					<OnLoad>
 						ScrollFrame_OnLoad(self);
-						self.scrollBarHideable = 1;
+						self.scrollBarHideable = 0;
 					</OnLoad>
 				</Scripts>
 				<ScrollChild>

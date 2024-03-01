@@ -453,6 +453,21 @@ end
 -- Open the model picker window.
 --
 function Me.ModelPicker_Open( frame, model )
+
+	-- Load the DiceMaster_Resources module needed to access the model list.
+	local loaded, reason = LoadAddOn("DiceMaster_Resources")
+	if not loaded then
+		if reason == "DISABLED" then
+			EnableAddOn("DiceMaster_Resources", true) -- enable for all characters on the realm
+			LoadAddOn("DiceMaster_Resources")
+		else
+			local failed_msg = format("%s - %s", reason, _G["ADDON_"..reason])
+			error(ADDON_LOAD_FAILED:format("DiceMaster_Resources", failed_msg))
+		end
+	end
+
+	if not( IsAddOnLoaded("DiceMaster_Resources")) then return end
+
 	Me.CloseAllEditors( nil, true, nil )
 	DiceMasterModelPicker:ClearAllPoints()
 	DiceMasterModelPicker:SetPoint( "LEFT", frame, "RIGHT" )

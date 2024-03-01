@@ -2095,9 +2095,9 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 			local modifiers = Me.GetModifiersFromSkillGUID( skillGUID );
 			local color = RED_FONT_COLOR_CODE;
 			if ( modifiers > 0 ) then
-				color = GREEN_FONT_COLOR_CODE.."+"
+				skillRank = GREEN_FONT_COLOR_CODE..(skillRank + modifiers);
 			end
-			statusBarSkillRank:SetText(skillRank.." "..color..modifiers..FONT_COLOR_CODE_CLOSE);
+			statusBarSkillRank:SetText(skillRank..FONT_COLOR_CODE_CLOSE);
 		else
 			statusBarSkillRank:SetText(skillRank);
 		end
@@ -2117,12 +2117,12 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 			local color = RED_FONT_COLOR_CODE;
 			statusBarFillBar:Hide();
 			if ( modifiers > 0 ) then
-				color = GREEN_FONT_COLOR_CODE.."+"
+				skillRank = GREEN_FONT_COLOR_CODE..(skillRank + modifiers);
 				statusBarFillBar:SetMinMaxValues(0, skillMaxRank);
 				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
-			statusBarSkillRank:SetText(skillRank.." "..color..modifiers..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
+			statusBarSkillRank:SetText(skillRank..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
 		end
 	end
 end

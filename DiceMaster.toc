@@ -24,7 +24,6 @@ DM5Import.lua
 Lists/IconList.lua
 Lists/TextureList.lua
 Lists/SoundList.lua
-Lists/ModelList.lua
 Lists/RollList.lua
 Lists/AlignmentList.lua
 Lists/HelpList.lua
