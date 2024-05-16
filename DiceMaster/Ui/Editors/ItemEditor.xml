@@ -1,0 +1,825 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+ 
+ 
+	<Button name="DiceMasterItemEditorEffectButtonTemplate" virtual="true">
+		<Size x="200" y="16"/>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture name="$parentIcon">
+					<Size x="14" y="14"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="6" y="-3"/>
+					</Anchors>
+				</Texture>
+				<FontString name="$parentEffect" inherits="GameFontHighlightSmall" justifyH="LEFT">
+					<Size x="80" y="14"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentIcon" relativePoint="RIGHT" x="8" y="0"/>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentDetails" inherits="GameFontHighlightSmall" justifyH="LEFT">
+					<Size x="112" y="14"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentEffect" relativePoint="RIGHT" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+			</OnLoad>
+			<OnClick>
+				DiceMaster4.ItemEditorEffectsList_OnClick(self, button);
+				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+			</OnClick>
+		</Scripts>
+		<HighlightTexture name="$parentHighlight" file="Interface\QuestFrame\UI-QuestTitleHighlight" alphaMode="ADD">
+			<Size x="200" y="16"/>
+			<Anchors>
+				<Anchor point="TOPLEFT" x="5" y="-2"/>
+			</Anchors>
+		</HighlightTexture>
+	</Button>
+	
+  <!-- Item editor frame. -->
+  
+  <Frame name="DiceMasterItemEditor" frameStrata="DIALOG" hidden="true" parent="UIParent" inherits="SimplePanelTemplate" toplevel="true">>
+    <Size x="516" y="424"/>
+    <Anchors>
+      <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
+    </Anchors>
+	
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="header" file="Interface/AddOns/DiceMaster/Texture/dicemaster-header">
+				<TexCoords left="0" right="0.623" top="0" bottom="0.566" />
+				<Size x="160" y="72"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-16" />
+				</Anchors>
+			</Texture>
+			<FontString parentKey="headerText" inherits="GameFontNormal" justifyH="center" text="Create Item">
+				<Anchors>
+				  <Anchor point="TOP" x="0" y="-12"/> 
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+    
+    <Scripts>
+      <OnLoad>
+		if self.NineSlice then
+			self.NineSlice:SetFrameLevel(1)
+		end
+		self.Inset:SetPoint("BOTTOMRIGHT", -256, 26)
+		DiceMaster4.ItemEditorEffectsList_OnLoad( self )
+      </OnLoad>
+      <OnShow>
+        
+        -- opening sound
+        PlaySound(839)
+      </OnShow>
+    </Scripts>
+    
+    <Frames>
+		<Frame parentKey="Inset2" inherits="InsetFrameTemplate">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeKey="$parent.Inset" relativePoint="TOPRIGHT" x="4" y="-26"/>
+				<Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT"  x="-6" y="-300"/>
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString name="DiceMasterItemEditorEffectTotals" inherits="GameFontNormalSmall">
+						<Size x="298" y="16"/>
+						<Anchors>
+							<Anchor point="BOTTOM" x="0" y="5"/>
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Frames>
+				<Button name="DiceMasterItemEditorEffectsColumnHeader1" inherits="WhoFrameColumnHeaderTemplate">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="2" y="24"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							WhoFrameColumn_SetWidth(self, 24);
+						</OnLoad>
+					</Scripts>
+				</Button>
+				
+				<Button name="DiceMasterItemEditorEffectsColumnHeader2" inherits="WhoFrameColumnHeaderTemplate" text="Action">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="DiceMasterItemEditorEffectsColumnHeader1" relativePoint="RIGHT" x="-2" y="0"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							WhoFrameColumn_SetWidth(self, 80);
+							self.sortType = "effect";
+							self.reversed = false;
+						</OnLoad>
+						<OnClick>
+							DiceMaster4.ItemEditorEffects_Sort( self, self.reversed, self.sortType )
+							PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+						</OnClick>
+					</Scripts>
+				</Button>
+				
+				<Button name="DiceMasterItemEditorEffectsColumnHeader3" inherits="WhoFrameColumnHeaderTemplate" text="Details">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="DiceMasterItemEditorEffectsColumnHeader2" relativePoint="RIGHT" x="-2" y="0"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							WhoFrameColumn_SetWidth(self, 120);
+							self.sortType = "details";
+							self.reversed = false;
+						</OnLoad>
+						<OnClick>
+							DiceMaster4.ItemEditorEffects_Sort( self, self.reversed, self.sortType )
+							PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+						</OnClick>
+					</Scripts>
+				</Button>
+				
+				<Button name="DiceMasterItemEditorEffectButton1" inherits="DiceMasterItemEditorEffectButtonTemplate" id="1">
+						<Anchors>
+							<Anchor point="TOPLEFT" x="2" y="-2"/>
+						</Anchors>
+				</Button>
+			</Frames>
+		</Frame>
+		<Frame name="$parentPreviewTooltip" parentKey="previewTooltip" inherits="TooltipBorderedFrameTemplate">
+			<Size>
+				<AbsDimension x="10" y="32"/>
+			</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" x="12" y="-48"/>
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString inherits="GameFontNormalLeft" justifyH="left" text="Tooltip Preview">
+						<Size x="150" y="12"/>
+						<Anchors>
+						  <Anchor point="TOPLEFT" x="6" y="12"/> 
+						</Anchors>
+					</FontString>
+					<FontString name="$parentTextLeft1" inherits="GameTooltipHeaderText" wordwrap="true">
+						<Size x="220" y="0"/>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-10"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</FontString>
+					<FontString name="$parentTextLeft2" inherits="GameTooltipText" wordwrap="true">
+						<Size x="220" y="0"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentTextLeft1" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+						</Anchors>
+					</FontString>
+					<FontString name="$parentTextRight2" inherits="GameTooltipText" wordwrap="true" justifyH="RIGHT">
+						<Size x="220" y="0"/>
+						<Anchors>
+							<Anchor point="TOP" relativeTo="$parentTextLeft2"/>
+							<Anchor point="RIGHT" x="-10" y="0"/>
+						</Anchors>
+					</FontString>
+					<FontString name="$parentTextLeft3" inherits="GameTooltipText" wordwrap="true">
+						<Size x="220" y="0"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentTextLeft2" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+						</Anchors>
+					</FontString>
+					<FontString name="$parentTextRight3" inherits="GameTooltipText" wordwrap="true" justifyH="RIGHT">
+						<Size x="220" y="0"/>
+						<Anchors>
+							<Anchor point="TOP" relativeTo="$parentTextLeft3"/>
+							<Anchor point="RIGHT" x="-10" y="0"/>
+						</Anchors>
+					</FontString>
+					<FontString name="$parentTextLeft4" inherits="GameTooltipText" wordwrap="true">
+						<Size x="220" y="0"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentTextLeft3" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+						</Anchors>
+					</FontString>
+					<FontString name="$parentTextRight4" inherits="GameTooltipText" wordwrap="true" justifyH="RIGHT">
+						<Size x="220" y="0"/>
+						<Anchors>
+							<Anchor point="TOP" relativeTo="$parentTextLeft4"/>
+							<Anchor point="RIGHT" x="-10" y="0"/>
+						</Anchors>
+					</FontString>
+					<FontString name="$parentTextLeft5" inherits="GameTooltipText" wordwrap="true">
+						<Size x="220" y="0"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentTextLeft4" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+						</Anchors>
+					</FontString>
+					<FontString name="$parentTextRight5" inherits="GameTooltipText" wordwrap="true" justifyH="RIGHT">
+						<Size x="220" y="0"/>
+						<Anchors>
+							<Anchor point="TOP" relativeTo="$parentTextLeft5"/>
+							<Anchor point="RIGHT" x="-10" y="0"/>
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts>
+				<OnShow>
+					self:SetWidth( 240 )
+				</OnShow>
+				<OnUpdate>
+					local height = 20;
+					for i = 1, 5 do
+						if _G[ "DiceMasterItemEditorPreviewTooltipTextLeft" .. i ] then
+							height = height + _G[ "DiceMasterItemEditorPreviewTooltipTextLeft" .. i ]:GetHeight()
+						end
+					end
+					self:SetHeight( height )
+					DiceMasterItemEditor:SetHeight( 420 + height )
+				</OnUpdate>
+			</Scripts>
+	  </Frame>
+      
+	  <EditBox name="$parentItemName" parentKey="itemName" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<Size x="230" y="12"/> 
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.previewTooltip" relativePoint="BOTTOMLEFT" x="6" y="-18"/> 
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+		  <FontString name="$parentItemNameTitle" inherits="GameFontNormalLeft" justifyH="left" text="Item Name">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="0" y="15"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<Scripts> 
+		  <OnLoad>
+			self:SetAutoFocus( false )
+			self:SetTextColor( 1, 1, 1 )
+			self:SetMaxLetters( 200 )
+		  </OnLoad>
+		  <OnEditFocusLost>
+			DiceMaster4.ItemEditor_SaveName()
+			self:HighlightText(0,0) 
+		  </OnEditFocusLost>
+		  <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEnterPressed function="EditBox_ClearFocus"/>
+		  <OnTabPressed>
+			DiceMasterItemEditor.whiteText1:SetFocus()
+		  </OnTabPressed>
+		</Scripts>
+	  </EditBox>
+	  
+	  <DiceMasterTraitButton name="$parentItemIconButton" parentKey="itemIcon" >
+        <Size x="42" y="42"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeKey="$parent.itemName" relativePoint="BOTTOMLEFT" x="-2" y="-10"/> 
+		</Anchors>
+        <Scripts>
+          <OnLoad>
+            
+            self:SetCustomTooltip( "|cFFFFD100Click to select an icon for this item." )
+            
+          </OnLoad>
+          <OnClick>
+            PlaySound(54132)
+            DiceMaster4.IconPicker_Open( self:GetParent() )
+          </OnClick>
+        </Scripts>
+      </DiceMasterTraitButton>
+	  
+	  <Button name="$parentItemQuality" parentKey="itemQuality" enableMouse="true" inherits="UIDropDownMenuTemplate">
+			<Size x="180" y="22"/>
+			<Anchors>
+			  <Anchor point="LEFT" relativeKey="$parent.itemIcon" relativePoint="RIGHT" x="-10" y="0"/> 
+			</Anchors>
+			<Scripts>
+			  <OnLoad>
+				UIDropDownMenu_Initialize( self, DiceMaster4.ItemEditorQuality_OnLoad )
+				UIDropDownMenu_SetText(self, "|cFFFFD100Quality:|r Common")
+				UIDropDownMenu_SetWidth(self, 170, 5)
+			  </OnLoad>
+			</Scripts>
+	  </Button>
+	  
+	  <EditBox name="$parentWhiteText1" parentKey="whiteText1" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<Size x="109" y="12"/> 
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.itemIcon" relativePoint="BOTTOMLEFT" x="2" y="-20"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+		  <FontString name="$parentWhiteText1Title" inherits="GameFontNormalLeft" justifyH="left" text="White Text (Left)">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="0" y="15"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<Scripts> 
+		  <OnLoad>
+			self:SetAutoFocus( false )
+			self:SetTextColor( 1, 1, 1 )
+			self:SetMaxLetters( 200 )
+		  </OnLoad>
+		  <OnEditFocusLost>
+			DiceMaster4.ItemEditor_SaveWhiteText1()
+			self:HighlightText(0,0) 
+		  </OnEditFocusLost>
+		  <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEnterPressed function="EditBox_ClearFocus"/>
+		  <OnTabPressed>
+			DiceMasterItemEditor.whiteText2:SetFocus()
+		  </OnTabPressed>
+		</Scripts>
+	  </EditBox>
+	  
+	  <EditBox name="$parentWhiteText2" parentKey="whiteText2" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<Size x="109" y="12"/> 
+		<Anchors>
+		  <Anchor point="LEFT" relativeKey="$parent.whiteText1" relativePoint="RIGHT" x="12" y="0"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+		  <FontString name="$parentWhiteText2Title" inherits="GameFontNormalLeft" justifyH="left" text="White Text (Right)">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="0" y="15"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<Scripts> 
+		  <OnLoad>
+			self:SetAutoFocus( false )
+			self:SetTextColor( 1, 1, 1 )
+			self:SetMaxLetters( 200 )
+		  </OnLoad>
+		  <OnEditFocusLost>
+			DiceMaster4.ItemEditor_SaveWhiteText2()
+			self:HighlightText(0,0) 
+		  </OnEditFocusLost>
+		  <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEnterPressed function="EditBox_ClearFocus"/>
+		  <OnTabPressed>
+			DiceMasterItemEditor.useText:SetFocus()
+		  </OnTabPressed>
+		</Scripts>
+	  </EditBox>
+	  
+	  <EditBox name="$parentUseText" parentKey="useText" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<Size x="230" y="12"/> 
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.whiteText1" relativePoint="BOTTOMLEFT" x="0" y="-20"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+		  <FontString name="$parentUseTextTitle" inherits="GameFontNormalLeft" justifyH="left" text="Green Text">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="0" y="15"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<Scripts> 
+		  <OnLoad>
+			self:SetAutoFocus( false )
+			self:SetTextColor( 1, 1, 1 )
+			self:SetMaxLetters( 200 )
+		  </OnLoad>
+		  <OnEditFocusLost>
+			DiceMaster4.ItemEditor_SaveUseText()
+			self:HighlightText(0,0) 
+		  </OnEditFocusLost>
+		  <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEnterPressed function="EditBox_ClearFocus"/>
+		  <OnTabPressed>
+			DiceMasterItemEditor.flavorText:SetFocus()
+		  </OnTabPressed>
+		</Scripts>
+	  </EditBox>
+	  
+	  <EditBox name="$parentFlavorText" parentKey="flavorText" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<Size x="230" y="12"/> 
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.useText" relativePoint="BOTTOMLEFT" x="0" y="-20"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+		  <FontString name="$parentFlavorTextTitle" inherits="GameFontNormalLeft" justifyH="left" text="Flavour Text">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="0" y="15"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<Scripts> 
+		  <OnLoad>
+			self:SetAutoFocus( false )
+			self:SetTextColor( 1, 1, 1 )
+			self:SetMaxLetters( 200 )
+		  </OnLoad>
+		  <OnEditFocusLost>
+			DiceMaster4.ItemEditor_SaveFlavorText()
+			self:HighlightText(0,0) 
+		  </OnEditFocusLost>
+		  <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEnterPressed function="EditBox_ClearFocus"/>
+		</Scripts>
+	  </EditBox>
+	  
+	  <Slider name="$parentStackSize" parentKey="stackSize" inherits="OptionsSliderTemplate" orientation="HORIZONTAL" enableMouse="true">
+		<Size x="110" y="20"/>
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.flavorText" relativePoint="BOTTOMLEFT" x="-4" y="-20" />
+		</Anchors>
+		
+		<Scripts>
+			<OnShow>
+				DiceMaster4.ItemEditorStackSize_OnLoad( self )
+			</OnShow>
+			<OnValueChanged>
+				DiceMaster4.ItemEditorStackSize_OnValueChanged( self, value, userInput )
+			</OnValueChanged>
+		</Scripts>
+	  </Slider>
+	  
+	  <Slider name="$parentCooldown" parentKey="cooldown" inherits="OptionsSliderTemplate" orientation="HORIZONTAL" enableMouse="true">
+		<Size x="110" y="20"/>
+		<Anchors>
+		  <Anchor point="LEFT" relativeKey="$parent.stackSize" relativePoint="RIGHT" x="14" y="0" />
+		</Anchors>
+		
+		<Scripts>
+			<OnShow>
+				DiceMaster4.ItemEditorCooldown_OnLoad( self )
+			</OnShow>
+			<OnValueChanged>
+				DiceMaster4.ItemEditorCooldown_OnValueChanged( self, value, userInput )
+			</OnValueChanged>
+		</Scripts>
+	  </Slider>
+	  
+	  <CheckButton name="$parentConsumeable" parentKey="consumeable" inherits="ChatConfigCheckButtonTemplate">
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.stackSize" relativePoint="BOTTOMLEFT" x="-4" y="0" />
+		</Anchors>
+		
+		<Scripts>
+			<OnLoad>
+				_G[self:GetName().."Text"]:SetText("|cFFFFD100Consumed on Use")
+				self.tooltip = "Toggles whether this item is consumed on use."
+			</OnLoad>
+			<OnClick>
+				DiceMaster4.ItemEditor_SaveConsumeable()
+			</OnClick>
+		</Scripts>
+	  </CheckButton>
+	  
+	  <CheckButton name="$parentItemBind" parentKey="itemBind" inherits="ChatConfigCheckButtonTemplate">
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.consumeable" relativePoint="BOTTOMLEFT" x="0" y="0" />
+		</Anchors>
+		
+		<Scripts>
+			<OnLoad>
+				_G[self:GetName().."Text"]:SetText("|cFFFFD100Bind on Use")
+				self.tooltip = "Toggles whether this item becomes Soulbound after it is used."
+			</OnLoad>
+			<OnClick>
+				DiceMaster4.ItemEditor_SaveBinding()
+			</OnClick>
+		</Scripts>
+	  </CheckButton>
+	  
+	  <CheckButton name="$parentCopyable" parentKey="copyable" inherits="ChatConfigCheckButtonTemplate">
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.itemBind" relativePoint="BOTTOMLEFT" x="0" y="0" />
+		</Anchors>
+		
+		<Scripts>
+			<OnLoad>
+				_G[self:GetName().."Text"]:SetText("|cFFFFD100Copyable by Others")
+				self.tooltip = "Toggles whether other players can export or make copies of this item."
+			</OnLoad>
+			<OnClick>
+				DiceMaster4.ItemEditor_SaveCopyable()
+			</OnClick>
+		</Scripts>
+	  </CheckButton>
+
+	  <CheckButton name="$parentRequiresDMApproval" parentKey="requiresDMApproval" inherits="ChatConfigCheckButtonTemplate">
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.copyable" relativePoint="BOTTOMLEFT" x="0" y="0" />
+		</Anchors>
+		
+		<Scripts>
+			<OnLoad>
+				_G[self:GetName().."Text"]:SetText("|cFFFFD100Requires Dungeon Master Permission")
+				self.tooltip = "Toggles whether the player must receive permission from the current Dungeon Master before they can use this item."
+			</OnLoad>
+			<OnClick>
+				DiceMaster4.ItemEditor_SaveRequiresDMApproval()
+			</OnClick>
+		</Scripts>
+	  </CheckButton>
+	  
+	  <Button name="$parentItemProperties" parentKey="itemProperties" enableMouse="true" inherits="UIDropDownMenuTemplate">
+			<Size x="180" y="22"/>
+			<Anchors>
+			  <Anchor point="TOPLEFT" relativeKey="$parent.requiresDMApproval" relativePoint="BOTTOMLEFT" x="-16" y="0"/> 
+			</Anchors>
+			<Scripts>
+			  <OnLoad>
+				UIDropDownMenu_Initialize( self, DiceMaster4.ItemEditorProperties_OnLoad )
+				UIDropDownMenu_SetText(self, "|cFFFFD100Item Properties:|r (None)")
+				UIDropDownMenu_SetWidth(self, 225, 5)
+			  </OnLoad>
+			</Scripts>
+	  </Button>
+		
+      <!-- Scroll frame for the item action editing. -->
+      <ScrollFrame parentKey="actionsScrollFrame" inherits="FauxScrollFrameTemplate">
+		<Anchors>
+			<Anchor point="TOPLEFT" x="10" y="-52"/>
+			<Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="-32" y="-300"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+					<Size x="31" y="256"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="-2" y="5"/>
+					</Anchors>
+					<TexCoords left="0" right="0.484375" top="0" bottom="1.0"/>
+				</Texture>
+				<Texture file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+					<Size x="31" y="106"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-2" y="-2"/>
+					</Anchors>
+					<TexCoords left="0.515625" right="1.0" top="0" bottom="0.4140625"/>
+				</Texture>
+			</Layer>
+		</Layers>
+        <Scripts>
+			<OnVerticalScroll>
+				FauxScrollFrame_OnVerticalScroll(self, offset, 15, DiceMaster4.ItemEditorEffectsList_Update);
+			</OnVerticalScroll>
+        </Scripts>       
+      </ScrollFrame>
+	  <Button parentKey="newActionButton" inherits="MagicButtonTemplate" text="New Action">
+		<Size x="100" y="22"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeKey="$parent.Inset2" relativePoint="BOTTOMLEFT" x="0" y="-4" />
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				UIDropDownMenu_Initialize( self, DiceMaster4.ItemEditorNewAction_OnLoad )
+				ToggleDropDownMenu(1, nil, self, self, 0, 0)
+				self:SetHeight(22)
+			</OnClick>
+		</Scripts>
+	  </Button>
+	  <Button parentKey="editActionButton" inherits="MagicButtonTemplate" text="Edit">
+		<Size x="60" y="22"/>
+		<Anchors>
+			<Anchor point="LEFT" relativeKey="$parent.newActionButton" relativePoint="RIGHT" x="0" y="0" />
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				DiceMaster4.ItemEditorEffects_Edit()
+			</OnClick>
+			<OnUpdate>
+				if DiceMasterItemEditor.selected then
+					self:Enable()
+				else
+					self:Disable()
+				end
+			</OnUpdate>
+		</Scripts>
+	  </Button>
+	  <Button parentKey="deleteActionButton" inherits="MagicButtonTemplate" text="Delete">
+		<Size x="80" y="22"/>
+		<Anchors>
+			<Anchor point="LEFT" relativeKey="$parent.editActionButton" relativePoint="RIGHT" x="0" y="0" />
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				DiceMaster4.ItemEditorEffects_Delete()
+			</OnClick>
+			<OnUpdate>
+				if DiceMasterItemEditor.selected then
+					self:Enable()
+				else
+					self:Disable()
+				end
+			</OnUpdate>
+		</Scripts>
+	  </Button>
+	  <CheckButton name="$parentCanDisenchant" parentKey="canDisenchant" inherits="ChatConfigCheckButtonTemplate" hidden="true">
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.newActionButton" relativePoint="BOTTOMLEFT" x="0" y="0" />
+		</Anchors>
+		
+		<Scripts>
+			<OnLoad>
+				_G[self:GetName().."Text"]:SetText("|cFFFFD100Disenchantable")
+				self.tooltip = "Toggles whether this item can be disenchanted."
+			</OnLoad>
+			<OnClick>
+				DiceMaster4.ItemEditor_SaveDisenchantable()
+			</OnClick>
+		</Scripts>
+	  </CheckButton>
+	  <Button parentKey="closeButton" inherits="MagicButtonTemplate" text="Close">
+		<Size x="100" y="22"/>
+		<Anchors>
+			<Anchor point="BOTTOMRIGHT"/>
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				DiceMaster4.ItemEditor_Close()
+			</OnClick>
+		</Scripts>
+	  </Button>
+	  <Button parentKey="createButton" inherits="MagicButtonTemplate" text="Create">
+		<Size x="100" y="22"/>
+		<Anchors>
+			<Anchor point="RIGHT" relativeKey="$parent.closeButton" relativePoint="LEFT"/>
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				DiceMaster4.ItemEditor_CreateItem()
+			</OnClick>
+		</Scripts>
+	  </Button>
+	  <Button parentKey="saveEditsButton" inherits="MagicButtonTemplate" hidden="true" text="Save">
+		<Size x="100" y="22"/>
+		<Anchors>
+			<Anchor point="RIGHT" relativeKey="$parent.closeButton" relativePoint="LEFT"/>
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				DiceMaster4.ItemEditor_SaveItemEdits()
+			</OnClick>
+		</Scripts>
+	  </Button>
+    </Frames>
+  </Frame>
+  
+  <Frame name="DiceMasterCurrencyEditor" frameStrata="DIALOG" hidden="true" parent="UIParent" inherits="SimplePanelTemplate" toplevel="true">>
+    <Size x="256" y="270"/>
+    <Anchors>
+      <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
+    </Anchors>
+    
+    <Scripts>
+      <OnLoad>
+		if self.NineSlice then
+			self.NineSlice:SetFrameLevel(1)
+		end
+		--self.Inset:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -6, 120)
+		self.disclaimer:SetText( "|TInterface/DialogFrame/UI-Dialog-Icon-AlertNew:16|t |cFFFFD100Note:|r |cFFFFFFFFCustom currencies have no gameplay or real world value and are intended for roleplay purposes only. Only the creator of a custom currency can produce more, but other players can trade and purchase or sell custom items with it.|r" )
+      </OnLoad>
+      <OnShow>
+        
+        -- opening sound
+        PlaySound(839)
+      </OnShow>
+    </Scripts>
+	
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="header" file="Interface/AddOns/DiceMaster/Texture/dicemaster-header">
+				<TexCoords left="0" right="0.623" top="0" bottom="0.566" />
+				<Size x="160" y="72"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-16" />
+				</Anchors>
+			</Texture>
+			<FontString parentKey="headerText" inherits="GameFontNormal" justifyH="center" text="Create Currency">
+				<Anchors>
+				  <Anchor point="TOP" x="0" y="-12"/> 
+				</Anchors>
+			</FontString>
+			<FontString parentKey="disclaimer" inherits="GameFontNormalLeft" justifyH="left">
+				<Size x="230" y="100"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="12" y="-140"/> 
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+    
+    <Frames>	  
+	  <DiceMasterTraitButton name="$parentCurrencyIconButton" parentKey="currencyIcon" >
+        <Size x="42" y="42"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" x="12" y="-34"/> 
+		</Anchors>
+        <Scripts>
+          <OnLoad>
+            
+            self:SetCustomTooltip( "|cFFFFD100Click to select an icon for this currency." )
+            
+          </OnLoad>
+          <OnClick>
+            PlaySound(54132)
+            DiceMaster4.IconPicker_Open( self:GetParent() )
+          </OnClick>
+        </Scripts>
+      </DiceMasterTraitButton>
+	  
+	  <EditBox name="$parentCurrencyName" parentKey="currencyName" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<Size x="175" y="12"/> 
+		<Anchors>
+			<Anchor point="LEFT" relativeKey="$parent.currencyIcon" relativePoint="RIGHT" x="12" y="0"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentCurrencyNameTitle" inherits="GameFontNormalLeft" justifyH="left" text="Currency Name">
+					<Size x="150" y="12"/>
+					<Anchors>
+					  <Anchor point="TOPLEFT" x="0" y="15"/> 
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts> 
+		  <OnLoad>
+			self:SetAutoFocus( false )
+			self:SetTextColor( 1, 1, 1 )
+			self:SetMaxLetters( 200 )
+		  </OnLoad>
+		  <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEnterPressed function="EditBox_ClearFocus"/>
+		</Scripts>
+	  </EditBox>
+	  
+	  <ScrollFrame name="$parentCurrencyDesc" parentKey="currencyDesc" inherits="InputScrollFrameTemplate">
+		<Size x="220" y="32"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeKey="$parent.currencyIcon" relativePoint="BOTTOMLEFT" x="4" y="-24"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+		  <FontString name="$parentCurrencyDescTitle" inherits="GameFontNormalLeft" justifyH="left" text="Description">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="0" y="20"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<KeyValues>
+			<KeyValue key="maxLetters" value="250"/>
+			<KeyValue key="instructions" value="A description of this currency."/>
+			<KeyValue key="hideCharCount" value="false" type="boolean"/>
+		</KeyValues>
+		<Scripts>
+			<OnLoad>
+				InputScrollFrame_OnLoad(self);
+			</OnLoad>
+		</Scripts>
+		</ScrollFrame>
+		
+	  <Button parentKey="closeButton" inherits="MagicButtonTemplate" text="Close">
+		<Size x="100" y="22"/>
+		<Anchors>
+			<Anchor point="BOTTOMRIGHT"/>
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				DiceMaster4.CurrencyEditor_Close()
+			</OnClick>
+		</Scripts>
+	  </Button>
+	  <Button parentKey="createButton" inherits="MagicButtonTemplate" text="Create">
+		<Size x="100" y="22"/>
+		<Anchors>
+			<Anchor point="RIGHT" relativeKey="$parent.closeButton" relativePoint="LEFT"/>
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				DiceMaster4.CurrencyEditor_CreateCurrency()
+			</OnClick>
+		</Scripts>
+	  </Button>
+    </Frames>
+  </Frame>
+  
+</Ui>

@@ -1,0 +1,306 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+	
+	<Button name="DiceMasterChangeLogEntryTemplate" mixin="DiceMasterChangeLogEntryMixin" virtual="true">
+		<Size x="575" y="48"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString inherits="GameFontNormal" justifyH="LEFT" parentKey="change" maxLines="2">
+					<Size x="460" y="24"/>
+					<Anchors>
+						<Anchor point="LEFT" x="10" y="0"/>
+					</Anchors>
+					<Color r="1" g="1" b="1" a="1"/>
+				</FontString>
+				<FontString inherits="GameFontNormal" justifyH="RIGHT" parentKey="version" text="Version">
+					<Size x="140" y="0"/>
+					<Anchors>
+						<Anchor point="RIGHT" x="-14" y="0"/>
+					</Anchors>
+					<Color r="0.77" g="0.77" b="0.77" a="1"/>
+				</FontString>
+			</Layer>
+		</Layers>
+		<NormalTexture inherits="_SearchBarLg" />
+		<PushedTexture inherits="_SearchBarLg" />
+		<Scripts>
+			<OnClick>
+				PlaySound(SOUNDKIT.IG_SPELLBOOK_OPEN);
+			</OnClick>
+		</Scripts>
+	</Button>
+	
+	<Frame name="DiceMasterChangeLog" parent="UIParent" toplevel="true" frameStrata="DIALOG" enableMouse="true" hidden="true">
+		<Size x="600" y="400"/>
+		<Anchors>
+			<Anchor point="CENTER" x="0" y="0"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentBg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+					<Color r="0.9" g="0.8" b="0.7" a="1"/>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER">
+				<FontString name="$parentTitleText" inherits="GameFontNormal" text="|TInterface/AddOns/DiceMaster/Texture/logo:14|t Change Log" parentKey="TitleText">
+					<Anchors>
+						<Anchor point="TOP" x="0" y="-7"/>
+						<Anchor point="LEFT" x="60"/>
+						<Anchor point="RIGHT" x="-60"/>
+					</Anchors>
+				</FontString>
+				<Texture name="$parentTopLeftCorner" inherits="UI-Frame-TopCornerLeft">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-7" y="4"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentTopRightCorner" inherits="UI-Frame-TopCornerRightSimple">
+					<Anchors>
+						<Anchor point="TOPRIGHT" x="4" y="4"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentTopBorder" inherits="_UI-Frame-Top">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentTopLeftCorner" relativePoint="TOPRIGHT" y="0"/>
+						<Anchor point="TOPRIGHT" relativeTo="$parentTopRightCorner" relativePoint="TOPLEFT" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentLeftBorder" inherits="!UI-Frame-LeftTile" parentKey="leftBorderBar">
+					<Anchors>
+						<Anchor point="BOTTOM" x="0" y="8" />
+						<Anchor point="TOPLEFT" relativeTo="$parentTopLeftCorner" relativePoint="BOTTOMLEFT"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentRightBorder" inherits="!UI-Frame-RightTile">
+					<Anchors>
+						<Anchor point="BOTTOM" x="0" y="0" />
+						<Anchor point="TOPRIGHT" relativeTo="$parentTopRightCorner" relativePoint="BOTTOMRIGHT" x="1" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentBottomLeftCorner" inherits="UI-Frame-BotCornerLeft">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="-7" y="-6"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentBottomRightCorner" inherits="UI-Frame-BotCornerRight">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" x="4" y="-6"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER" textureSubLevel="-1">
+				<Texture name="$parentTopTileStreaks" inherits="_UI-Frame-TopTileStreaks">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="0" y="0"/>
+						<Anchor point="TOPRIGHT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER" textureSubLevel="1">
+				<Texture name="$parentTopLeftCorner2" inherits="UI-Frame-TopCornerLeft">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-7" y="-20"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentTopRightCorner2" inherits="UI-Frame-TopCornerRightSimple">
+					<Anchors>
+						<Anchor point="TOPRIGHT" x="4" y="-20"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentTopBorder2" inherits="_UI-Frame-Top">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentTopLeftCorner2" relativePoint="TOPRIGHT" y="0"/>
+						<Anchor point="TOPRIGHT" relativeTo="$parentTopRightCorner2" relativePoint="TOPLEFT" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture name="$parentBottomBorder" inherits="_UI-Frame-Bot">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" x="-7" y="-6"/>
+						<Anchor point="BOTTOMLEFT" x="7" y="-6"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parentCloseButton" inherits="UIPanelCloseButton">
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="1" y="-3"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						self:GetParent():Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Frame parentKey="ScrollBox" inherits="WowScrollBoxList">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.TopLeftCorner2" x="1" y="-28"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BottomRightCorner" x="-24" y="1"/>
+				</Anchors>
+			</Frame>
+			<EventFrame parentKey="ScrollBar" inherits="WowTrimScrollBar">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.ScrollBox" relativePoint="TOPRIGHT" x="0" y="0"/>
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.ScrollBox" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+				</Anchors>
+			</EventFrame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				local view = CreateScrollBoxListLinearView();
+				view:SetElementInitializer("DiceMasterChangeLogEntryTemplate", function(button, elementData)
+					button:Init(elementData);
+				end);
+				ScrollUtil.InitScrollBoxListWithScrollBar(self.ScrollBox, self.ScrollBar, view);
+			</OnLoad>
+			<OnShow>
+				DiceMaster4.ChangeLog_OnShow();
+				PlaySound(SOUNDKIT.IG_SPELLBOOK_OPEN);
+			</OnShow>
+			<OnHide>
+				PlaySound(SOUNDKIT.IG_SPELLBOOK_CLOSE);
+			</OnHide>
+		</Scripts>
+	</Frame>
+	
+  <!-- The Splash Frame. -->
+  
+	<Frame name="DiceMasterSplashFrame" parent="UIParent" toplevel="true" frameStrata="DIALOG" enableMouse="true" hidden="true">
+		<Size x="882" y="584"/>
+		<Anchors>
+			<Anchor point="CENTER" y="60"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="LeftTexture" file="Interface/AddOns/DiceMaster/Texture/Splash">
+					<Size x="371" y="434"/>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+					</Anchors>
+					<TexCoords left="0.00195312" right="0.726562" top="0.573242" bottom="0.99707"/>
+				</Texture>
+				<Texture parentKey="RightTexture" file="Interface/AddOns/DiceMaster/Texture/Splash">
+					<Size x="510" y="584"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.LeftTexture" relativePoint="TOPRIGHT" x="0" y="-1"/>
+					</Anchors>
+					<TexCoords left="0.00195312" right="0.998047" top="0.000976562" bottom="0.571289"/>
+				</Texture>
+				<Texture parentKey="BottomTexture" file="Interface/AddOns/DiceMaster/Texture/Splash">
+					<Size x="137" y="371"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.LeftTexture" relativePoint="BOTTOMLEFT"/>
+					</Anchors>
+					<TexCoords left="0.730469" right="0.998047" top="0.573242" bottom="0.935547">
+						<Rect ULx="1" ULy="0" LLx="0" LLy="0" URx="1" URy="1" LRx="0" LRy="1"/>
+					</TexCoords>
+				</Texture>
+				<Texture parentKey="BottomLine" atlas="splash-botleft" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.BottomTexture" relativePoint="BOTTOMLEFT" x="3" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Header" inherits="SplashHeaderFont" text="|TInterface/AddOns/DiceMaster/Texture/logo:12|t What's New?">
+					<Anchors>
+						<Anchor point="TOP" x="-9" y="-16"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="Label" inherits="SystemFont_Large" justifyH="LEFT" justifyV="MIDDLE" text="New in DiceMaster!">
+					<Size x="400" y="45"/>
+					<Anchors>
+						<Anchor point="LEFT" x="61" y="211"/>
+					</Anchors>
+					<Color r="0.13" g="0.07" b="0"/>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="BottomChangeLogButton" inherits="UIPanelButtonTemplate" text="View Changelog">
+				<Size x="132" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOM" x="-72" y="34"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMasterChangeLog:Show();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button parentKey="BottomCloseButton" inherits="UIPanelButtonTemplate" text="CLOSE">
+				<Size x="132" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOM" x="72" y="34"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.SplashFrame_Close()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button parentKey="TopCloseButton" inherits="UIPanelCloseButtonNoScripts">
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="-14" y="-10"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.SplashFrame_Close()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Frame parentKey="TopLeftFeature" inherits="SplashFeatureFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="67" y="-122"/>
+				</Anchors>
+			</Frame>
+			<Frame parentKey="BottomLeftFeature" inherits="SplashFeatureFrameTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.TopLeftFeature" relativePoint="BOTTOM" x="0" y="-27"/>
+				</Anchors>
+			</Frame>
+			<Frame parentKey="RightFeature" >
+				<Size x="410" y="410"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent.TopLeftFeature" relativePoint="RIGHT" x="45" y="-90"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString parentKey="Description" inherits="SystemFont_Shadow_Med2">
+							<Size x="300" y="0"/>
+							<Anchors>
+								<Anchor point="BOTTOM" x="0" y="40"/>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="Title" inherits="Game72Font"  mixin="AutoScalingFontStringMixin" justifyV="BOTTOM">
+							<KeyValues>
+								<KeyValue key="minLineHeight" value="18" type="number"/>
+							</KeyValues>
+							<Size x="310" y="0"/>
+							<Anchors>
+								<Anchor point="BOTTOM" relativeKey="$parent.Description" relativePoint="TOP" x="0" y="10"/>
+							</Anchors>
+							<Shadow>
+								<Offset>
+									<AbsDimension x="1" y="-1"/>
+								</Offset>
+								<Color color="BLACK_FONT_COLOR" a="1"/>
+							</Shadow>
+							<Color color="DARKYELLOW_FONT_COLOR" a="1"/>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnShow>
+				DiceMaster4.SplashFrame_OnShow()
+			</OnShow>
+		</Scripts>
+	</Frame>
+  
+</Ui>

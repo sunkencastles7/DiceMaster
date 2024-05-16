@@ -1,0 +1,12 @@
+-------------------------------------------------------------------------------
+-- Dice Master (C) 2024 <The League of Lordaeron> - Moon Guard
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+-- Resource module.
+--
+--	Separated from the main DiceMaster to reduce memory usage while some optional
+--  features are not being used. 
+--
+--	This addon loads on demand so no need to enable. : )
+--

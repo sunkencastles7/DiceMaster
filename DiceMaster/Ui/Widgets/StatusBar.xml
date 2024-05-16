@@ -1,0 +1,29 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <Script file="StatusBar.lua"/>
+
+  <!-- Status bar widget for health frames, charges frames, etc. -->
+  <Frame name="DiceMasterStatusBar" enableMouse="true" intrinsic="true">
+    <Layers>
+      <Layer level="BACKGROUND">
+        <Texture parentKey="barback" setAllPoints="true" >
+          
+        </Texture>
+      </Layer>
+      <Layer level="ARTWORK">
+        <Texture parentKey="bar" >
+          <Anchors>
+            <Anchor point="TOPLEFT"/>
+            <Anchor point="BOTTOM"/>
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+    <Scripts>
+      <OnLoad intrinsicOrder="precall">
+        DiceMaster4.StatusBar_Init( self )
+      </OnLoad>
+    </Scripts> 
+  </Frame>
+
+</Ui>

@@ -1,0 +1,201 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+  
+  <!-- Template for the model buttons in the model selector. -->
+  <PlayerModel name="DiceMasterModelPickerButton" virtual="true">
+    <Size x="32" y="32"/>
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="check" file="Interface/Buttons/UI-CheckBox-Check" hidden="true">
+				<Size x="16" y="16"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+	</Layers>
+    <Scripts>
+      <OnMouseDown>
+        DiceMaster4.ModelPickerButton_OnClick( self, button )
+      </OnMouseDown>
+      <OnEnter>
+        DiceMaster4.ModelPickerButton_ShowTooltip( self )
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide()
+      </OnLeave>
+    </Scripts>
+  </PlayerModel>
+  
+  <!-- The icon selector, shown when you click on the trait icon to edit the texture. -->
+  <Frame name="DiceMasterModelPicker" parent="UIParent" hidden="true" inherits="SimplePanelTemplate" frameStrata="DIALOG" toplevel="true">
+    <Size x="256" y="372"/>
+    <Anchors>
+      <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
+    </Anchors>
+    
+    <Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="header" file="Interface/AddOns/DiceMaster/Texture/dicemaster-header">
+				<TexCoords left="0" right="0.623" top="0" bottom="0.566" />
+				<Size x="160" y="72"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-16" />
+				</Anchors>
+			</Texture>
+			<FontString inherits="GameFontNormal" justifyH="center" text="Model Picker">
+				<Anchors>
+				  <Anchor point="TOP" x="0" y="-12"/> 
+				</Anchors>
+			</FontString>
+		</Layer>
+    </Layers>
+    
+    <Scripts>
+      <OnLoad>	
+        self.Inset:SetPoint("TOPLEFT", self, "TOPLEFT", 3, -76)
+		-- create icon map
+		self.icons = {}
+		for y = 0,3 do
+		  for x = 0,3 do
+			local btn = CreateFrame( "PlayerModel", nil, self.selectorFrame, "DiceMasterModelPickerButton" )
+			btn.pickerIndex = index
+			btn:SetPoint( "TOPLEFT", self.selectorFrame, "TOPLEFT", 53*x, -65*y-2 )
+			btn:SetSize( 53, 65 )
+			
+			table.insert( self.icons, btn )
+			btn.pickerIndex = #self.icons
+		  end
+		end
+		
+		if self.NineSlice then
+			self.NineSlice:SetFrameLevel(1)
+		end
+      </OnLoad>
+    </Scripts>
+    <Frames>
+	
+	  <!-- Favourites filter. -->
+      <Button name="$parentFilter" parentKey="filter" enableMouse="true" inherits="UIDropDownMenuTemplate">
+		<Size x="150" y="22"/>
+		<Anchors>
+		  <Anchor point="TOPLEFT" x="0" y="-48"/> 
+		</Anchors>
+	  </Button>
+	  
+	  <Button name="$parentRenameButton" inherits="UIPanelButtonTemplate" text="R">
+			<Size x="24" y="24"/>
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="$parentFilter" relativePoint="TOPRIGHT" x="32" y="-2"/> 
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					StaticPopup_Show("DICEMASTER4_RENAMECOLLECTION", nil, nil, DiceMasterModelPickerFilterText:GetText())
+				</OnClick>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to rename this collection.")
+					self:Disable()
+				</OnLoad>
+			</Scripts>
+	  </Button>
+		
+	  <Button name="$parentDeleteButton" inherits="UIPanelButtonTemplate" text="X">
+			<Size x="24" y="24"/>
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="$parentRenameButton" relativePoint="TOPRIGHT" x="2" y="0"/> 
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					StaticPopup_Show("DICEMASTER4_DELETECOLLECTION", nil, nil, DiceMasterModelPickerFilterText:GetText())
+				</OnClick>
+				<OnLoad>
+					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to delete this collection.")
+					self:Disable()
+				</OnLoad>
+			</Scripts>
+	  </Button>
+    
+      <!-- Search/filter box. -->
+      <EditBox parentKey="search" inherits="SearchBoxTemplate">
+        <Size x="200" y="8" />
+        <Anchors>
+          <Anchor point="TOP" x="0" y="-34" />
+        </Anchors>
+        
+        <Scripts>
+          <OnTextChanged>
+            SearchBoxTemplate_OnTextChanged(self);
+			UIDropDownMenu_SetText(DiceMasterModelPickerFilter, "Default")
+			DiceMaster4.ModelPicker_FilterChanged( "default" )
+			DiceMasterModelPickerRenameButton:Disable()
+			DiceMasterModelPickerDeleteButton:Disable()
+          </OnTextChanged>
+          
+          
+          <OnEscapePressed function="EditBox_ClearFocus"/>
+        </Scripts>
+      </EditBox>
+	  
+	  <Button inherits="MagicButtonTemplate" text="CLOSE">
+		<Size x="100" y="22"/>
+		<Anchors>
+			<Anchor point="BOTTOM"/>
+		</Anchors>
+		<Scripts>
+			<OnClick>
+				DiceMaster4.ModelPicker_Close()
+			</OnClick>
+		</Scripts>
+	  </Button>
+      
+      <!-- Area for icon selector. -->
+      <Frame parentKey="selectorFrame">
+        <Anchors>
+			<Anchor point="TOPLEFT" relativeKey="$parent.Inset" x="5" y="-3"/>
+			<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Inset" x="-5" y="3"/>
+		</Anchors>
+        <Scripts>
+          <OnLoad>
+            self:EnableMouseWheel(true)
+          </OnLoad>
+          <OnMouseWheel>
+            DiceMaster4.ModelPicker_MouseScroll( delta )
+          </OnMouseWheel>
+        </Scripts>
+        
+        <Frames>
+        
+          <!-- Scroll bar -->
+          <Slider parentKey="scroller" inherits="UIPanelScrollBarTrimTemplate" minvalue="0" maxvalue="1" valuestep="3">
+            
+            <Anchors>
+              <Anchor point="TOPRIGHT" relativeKey="$parent.Inset" relativePoint="TOPRIGHT" x="2" y="-16" />
+              <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Inset" relativePoint="BOTTOMRIGHT" x="2" y="14" />
+            </Anchors>
+            
+            <Layers>
+              <Layer level="BACKGROUND">
+                
+                <!-- scroller background -->
+                <Texture setAllPoints="true">
+                  <Color r="0" g="0" b="0" a="0.25"/>
+                </Texture>
+                
+              </Layer>
+            </Layers>
+            <Scripts>
+              <OnLoad>
+                self:SetValueStep(1)
+                self.scrollStep = 4
+              </OnLoad>
+              <OnValueChanged>
+                DiceMaster4.ModelPicker_ScrollChanged( value )
+              </OnValueChanged>
+            </Scripts>
+          </Slider>
+		 
+        </Frames>
+      </Frame>
+      
+    </Frames>
+  </Frame>
+</Ui>

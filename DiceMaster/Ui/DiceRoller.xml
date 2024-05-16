@@ -1,0 +1,417 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <Button name="DiceMasterDiceRollerBonusCard" virtual="true">
+	<Size x="100" y="143"/>
+	<Anchors>
+		<Anchor point="TOP" y="-32"/>
+	</Anchors>
+	<Layers>
+		<Layer level="BACKGROUND">
+		<Texture parentKey="Background" file="Interface\Store\Store-Main" setAllPoints="true" > 
+			<TexCoords left="0.18457031" right="0.32714844" top="0.64550781" bottom="0.84960938"/>  
+		</Texture>
+		<MaskTexture parentKey="BackgroundMask" file="Interface/Glues/Models/UI_MAINMENU/GRADIENT" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+			<Anchors>
+				<Anchor point="TOP"/>
+			</Anchors>
+			<MaskedTextures>
+				<MaskedTexture childKey="Background"/>
+			</MaskedTextures>
+		</MaskTexture>
+		</Layer>
+		<Layer level="BORDER">
+		<Texture parentKey="Icon">
+			<Size x="64" y="64"/>
+			<Anchors>
+				<Anchor point="CENTER" x="0" y="4"/>
+			</Anchors> 
+		</Texture>
+		</Layer>
+		<Layer level="ARTWORK">
+		<Texture parentKey="IconBorder" file="Interface\Store\Store-Main">
+			<Size x="80" y="81"/>
+			<Anchors>
+				<Anchor point="CENTER" x="0" y="0"/>
+			</Anchors>
+			<TexCoords left="0.84375000" right="0.92187500" top="0.37207031" bottom="0.45117188"/>  
+		</Texture>
+		<FontString parentKey="Bonus" inherits="NumberFontNormalLarge">
+			<Anchors>
+				<Anchor point="BOTTOM" relativeKey="$parent.Icon" relativePoint="TOP" x="0" y="8"/>
+			</Anchors> 
+		</FontString>
+		<FontString parentKey="Title" inherits="GameFontNormalMed2" justifyV="TOP" wordwrap="true">
+			<Anchors>
+				<Anchor point="TOP" relativeKey="$parent.Icon" relativePoint="BOTTOM" x="0" y="-8"/>
+			</Anchors> 
+		</FontString>
+		</Layer>
+	</Layers>
+	<Scripts>
+		<OnLoad>
+			SetPortraitToTexture(self.Icon, "Interface/Icons/spell_holy_holyguidance");
+		</OnLoad>
+	</Scripts>
+  </Button>
+
+  <!-- The Dice Roller -->
+  
+  <Frame name="DiceMasterDiceRoller" frameStrata="HIGH" parent="UIParent" alpha="1" hidden="true">
+    
+    <Size x="400" y="327"/>
+	<Anchors>
+		<Anchor point="TOP" y="-160"/>
+	</Anchors>
+	<Layers>
+		<Layer level="BACKGROUND">
+			<Texture parentKey="ScreenOverlay" alpha="0.6">
+				<Color r="0" g="0" b="0" />
+				<Size x="4000" y="4000"/>
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+			</Texture>
+			<Texture parentKey="Background" atlas="store-card-splash1-nobanner" setAllPoints="true"/>
+		</Layer>
+		<Layer level="BACKGROUND" textureSubLevel="2">
+			<Texture parentKey="Rune" alphaMode="ADD" alpha="0.4" atlas="Artifacts-CrestRune-Gold">
+				<Anchors>
+					<Anchor point="CENTER" y="0"/>
+				</Anchors>
+			</Texture>
+			<Texture parentKey="Sunburst" alphaMode="ADD" alpha="0.5" atlas="heartofazeroth-animation-sunburst">
+				<Size x="400" y="400"/>
+				<Anchors>
+					<Anchor point="CENTER" y="0"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="BORDER">
+		</Layer>
+		<Layer level="ARTWORK" textureSubLevel="-1">
+			<Texture parentKey="DifficultyClassBG" atlas="ChallengeMode-SpikeyStar">
+				<Size x="64" y="64"/>
+				<Anchors>
+					<Anchor point="TOP" y="-48"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="ARTWORK">
+			<FontString parentKey="Title" inherits="QuestFont_39" text="Persuasion">
+				<Color r="1" g="1" b="1" />
+				<Anchors>
+					<Anchor point="TOP" x="0" y="80"/>
+				</Anchors>
+			</FontString>
+			<FontString parentKey="Subtitle" inherits="GameFontNormalOutline22" text="Charisma Check">
+				<Color r="1" g="1" b="1" />
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.Title" relativePoint="BOTTOM" x="0" y="0"/>
+				</Anchors>
+			</FontString>
+			<FontString parentKey="DifficultyClassLabel" inherits="GameFontNormalMed2" text="DIFFICULTY|nCLASS">
+				<Color r="1" g="1" b="1" />
+				<Anchors>
+					<Anchor point="BOTTOM" relativeKey="$parent.DifficultyClassBG" relativePoint="TOP" x="0" y="0"/>
+				</Anchors>
+			</FontString>
+			<FontString parentKey="DifficultyClass" inherits="SystemFont_Shadow_Huge1" justifyH="CENTER" text="14">
+				<Color r="1" g="1" b="1" />
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent.DifficultyClassBG" x="0" y="0"/>
+				</Anchors>
+			</FontString>
+		</Layer>
+		<Layer level="OVERLAY">
+			<Texture parentKey="Strikethrough" inherits="store-strikethrough" hidden="true" />
+		</Layer>
+	</Layers>
+
+    <Frames>
+		<Button name="RollButton">
+			<Size x="120" y="120"/>
+			<Anchors>
+				<Anchor point="CENTER" x="0" y="0"/>
+			</Anchors>
+			<Layers>
+				<Layer level="BACKGROUND">
+					<Texture atlas="ChallengeMode-KeystoneSlotBG" />
+				</Layer>
+				<Layer level="BORDER">
+					<Texture atlas="ChallengeMode-KeystoneSlotFrame" />
+				</Layer>
+				<Layer level="ARTWORK">
+					<Texture parentKey="Dice" file="Interface/AddOns/DiceMaster/Texture/Dice/single_roll">
+						<Size x="100" y="100"/>
+						<Anchors>
+							<Anchor point="CENTER" y="0"/>
+						</Anchors>
+					</Texture>
+					<Texture parentKey="Sheen" alphaMode="ADD" atlas="weeklyrewards-frame-sheen">
+						<Size x="100" y="100"/>
+						<Anchors>
+							<Anchor point="CENTER" x="-128"/>
+						</Anchors>
+					</Texture>
+					<MaskTexture parentKey="SheenMask" file="Interface/AddOns/DiceMaster/Texture/Dice/dice_mask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+						<Size x="100" y="100"/>
+						<Anchors>
+							<Anchor point="CENTER"/>
+						</Anchors>
+						<MaskedTextures>
+							<MaskedTexture childKey="Sheen"/>
+						</MaskedTextures>
+					</MaskTexture>
+					<Texture parentKey="ClickBanner" atlas="GarrMission_RewardsBanner-Desaturate">
+						<Size x="233" y="70"/>
+						<Anchors>
+							<Anchor point="BOTTOM" y="-42"/>
+						</Anchors>
+					</Texture>
+				</Layer>
+				<Layer level="OVERLAY">
+					<FontString parentKey="ClickText" inherits="GameFontNormalMed2" text="Click the dice to roll">
+						<Color r="1" g="1" b="1" />
+						<Anchors>
+							<Anchor point="CENTER" relativeKey="$parent.ClickBanner" x="0" y="4"/>
+						</Anchors>
+					</FontString>
+				</Layer>
+				<Layer level="HIGHLIGHT">
+					<Texture atlas="ChallengeMode-KeystoneSlotFrameGlow" />
+				</Layer>
+			</Layers>
+			<Frames>
+				<PlayerModel parentKey="Flash" hidden="true">
+					<Size x="300" y="300"/>
+					<Anchors>
+						<Anchor point="CENTER" y="0"/>
+					</Anchors>
+					<Scripts>
+						<OnShow>
+							self:SetViewInsets(50, 50, 50, 50);
+						</OnShow>
+						<OnAnimFinished>
+							self:Hide();
+						</OnAnimFinished>
+					</Scripts>
+				</PlayerModel>
+				<PlayerModel parentKey="Missile" hidden="true">
+					<Size x="400" y="400"/>
+					<Anchors>
+						<Anchor point="TOP" y="0"/>
+					</Anchors>
+					<Scripts>
+						<OnShow>
+							self:SetViewInsets(70, 70, 50, 50);
+							self:SetModel(4381160);
+							local pos = { -2, 0, 2 };
+							local p = pos[random(3)];
+							self:SetPosition(-5, p, -5);
+						</OnShow>
+						<OnUpdate>
+							local x, y, z = self:GetPosition();
+							if 0.3 >= z then
+								z = z + 0.05;
+							else
+								--self:Hide();
+							end
+							if 0 > y then
+								y = y + 0.02
+							elseif y > 0 then
+								y = y - 0.02
+							end
+							self:SetPosition(x, y, z);
+						</OnUpdate>
+					</Scripts>
+				</PlayerModel>
+			</Frames>
+			<Scripts>
+				<OnShow>
+					DiceMaster4.DiceRoller_Dice_OnShow( self )
+				</OnShow>
+				<OnClick>
+					DiceMaster4.DiceRoller_Dice_OnClick( self, button )
+				</OnClick>
+				<OnEnter>
+					DiceMaster4.DiceRoller_Dice_OnEnter( self )
+				</OnEnter>
+			</Scripts>
+			<Animations>
+				<AnimationGroup parentKey="RollDice" looping="NONE" setToFinalAlpha="true">
+					<FlipBook parentKey="Flipbook" smoothing="NONE" childKey="Dice" duration="2" order="1" flipBookRows="8" flipBookColumns="8" flipBookFrames="54" flipBookFrameWidth="0" flipBookFrameHeight="0"/>
+					<Scripts>
+						<OnPlay>
+							local parent = self:GetParent();
+							parent.Dice:SetTexture("Interface/AddOns/DiceMaster/Texture/Dice/single_roll");
+							parent.Slide:Play();
+							parent.ClickBanner:Hide();
+							parent.ClickText:Hide();
+						</OnPlay>
+						<OnFinished>
+							self:GetParent().Flash:SetModel(4524614);
+							self:GetParent().Flash:Show();
+							self:GetParent().RollFinish:Play();
+							C_Timer.After(3, function() self:GetParent().Bounce:Play() end);
+							C_Timer.After(4, function() self:GetParent().Bounce:Play() end);
+							C_Timer.After(5, function() self:GetParent().Bounce:Play() end);
+						</OnFinished>
+					</Scripts>
+				</AnimationGroup>
+				<AnimationGroup parentKey="RollFinish" looping="NONE" setToFinalAlpha="true">
+					<FlipBook parentKey="Flipbook" smoothing="NONE" childKey="Dice" duration="1" order="1" flipBookRows="4" flipBookColumns="5" flipBookFrames="18" flipBookFrameWidth="256" flipBookFrameHeight="256"/>
+					<Scripts>
+						<OnPlay>
+							local roll = random(20);
+							self:GetParent().Dice:SetTexture("Interface/AddOns/DiceMaster/Texture/Dice/d20_" .. roll );
+							PlaySound(200738);
+						</OnPlay>
+						<OnFinished>
+							self:GetParent():GetParent().DCPopOut:Play();
+						</OnFinished>
+					</Scripts>
+				</AnimationGroup>
+				<AnimationGroup parentKey="Slide" looping="NONE" setToFinalAlpha="true">
+					<Translation childKey="Dice" smoothing="IN" duration="0.15" order="1" offsetX="-100" offsetY="-100"/>
+					<Translation childKey="Dice" smoothing="NONE" duration="0.15" order="2" offsetX="100" offsetY="-50"/>
+					<Translation childKey="Dice" smoothing="NONE" duration="0.3" order="3" offsetX="150" offsetY="200"/>
+					<Translation childKey="Dice" smoothing="NONE" duration="0.3" order="4" offsetX="-100" offsetY="100"/>
+					<Translation childKey="Dice" smoothing="NONE" duration="0.4" order="5" offsetX="-100" offsetY="-50"/>
+					<Translation childKey="Dice" smoothing="OUT" duration="0.8" order="6" offsetX="50" offsetY="-100"/>
+					<Translation childKey="Dice" smoothing="OUT" duration="0" order="7" offsetX="0" offsetY="0"/>
+				</AnimationGroup>
+				<AnimationGroup parentKey="Bounce" looping="NONE" setToFinalAlpha="true">
+					<Translation childKey="Dice" smoothing="IN" duration="0.25" order="1" offsetX="0" offsetY="20"/>
+					<Scale childKey="Dice" smoothing="IN" duration="0.25" order="1" fromScaleX="1" fromScaleY="1" toScaleX="1.1" toScaleY="1.1"/>
+					<Translation childKey="Dice" smoothing="OUT" duration="0.3" order="2" offsetX="0" offsetY="-20"/>
+					<Scale childKey="Dice" smoothing="OUT" duration="0.3" order="2" fromScaleX="1" fromScaleY="1" toScaleX="0.9" toScaleY="0.9"/>
+				</AnimationGroup>
+				<AnimationGroup parentKey="SheenSlide" looping="NONE" setToFinalAlpha="true">
+					<Translation childKey="Sheen" smoothing="NONE" duration="1" order="1" offsetX="256" offsetY="0"/>
+				</AnimationGroup>
+			</Animations>
+		</Button>
+		<Frame parentKey="BonusFrame">
+			<Size x="400" y="160"/>
+			<Anchors>
+				<Anchor point="TOP" relativePoint="BOTTOM" x="0" y="-16"/>
+			</Anchors>
+			<Layers>
+				<Layer level="BACKGROUND">
+					<Texture atlas="AdventureMapLabel-Small">
+						<Size x="181" y="39"/>
+						<Anchors>
+							<Anchor point="BOTTOM" x="0" y="-12"/>
+						</Anchors>
+					</Texture>
+				</Layer>
+				<Layer level="ARTWORK">
+					<FontString parentKey="BonusTitle" inherits="GameFontNormalMed2">
+						<Color r="1" g="1" b="1" />
+						<Anchors>
+							<Anchor point="BOTTOM"/>
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+		</Frame>
+		<Frame parentKey="AddBonusFrame">
+			<Size x="400" y="200"/>
+			<Anchors>
+				<Anchor point="TOP" relativeKey="$parent.BonusFrame" relativePoint="BOTTOM" x="0" y="-16"/>
+			</Anchors>
+			<Frames>
+				<Button parentKey="AddBonusButton" enableMouse="true" inherits="UIPanelButtonTemplate" text="Add Bonus">
+					<Size x="145" y="24"/>
+					<Anchors>
+						<Anchor point="TOP" y="-24"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							self:SetText( CreateAtlasMarkup("Garr_Building-AddFollowerPlus") .. " Add Bonus");
+						</OnLoad>
+					</Scripts>
+				</Button>
+				<Button parentKey="bonus1" inherits="DiceMasterDiceRollerBonusCard" alpha="0.5">
+					<Anchors>
+						<Anchor point="TOP"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							self:SetHeight(72);
+							self.IconBorder:Hide();
+							self.Background:SetTexCoord( 0.18457031, 0.32714844, 0.64550781, 0.747558595 );
+							self.BackgroundMask:SetHeight(72);
+						</OnLoad>
+					</Scripts>
+				</Button>
+				<Button parentKey="bonus2" inherits="DiceMasterDiceRollerBonusCard" alpha="0.5">
+					<Anchors>
+						<Anchor point="TOP" x="-100"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							self:SetHeight(72);
+							self.IconBorder:Hide();
+							self.Background:SetTexCoord( 0.18457031, 0.32714844, 0.64550781, 0.747558595 );
+							self.BackgroundMask:SetHeight(72);
+						</OnLoad>
+					</Scripts>
+				</Button>
+				<Button parentKey="bonus3" inherits="DiceMasterDiceRollerBonusCard" alpha="0.5">
+					<Anchors>
+						<Anchor point="TOP" x="100"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							self:SetHeight(72);
+							self.IconBorder:Hide();
+							self.Background:SetTexCoord( 0.18457031, 0.32714844, 0.64550781, 0.747558595 );
+							self.BackgroundMask:SetHeight(72);
+						</OnLoad>
+					</Scripts>
+				</Button>
+			</Frames>
+		</Frame>
+		<Button parentKey="CloseButton" inherits="UIPanelCloseButton" frameLevel="100">
+			<Anchors>
+				<Anchor point="TOPRIGHT" x="-5" y="-5"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					self:GetParent():Hide();
+				</OnClick>
+			</Scripts>
+		</Button>
+    </Frames>
+
+	<Animations>
+		<AnimationGroup parentKey="SpinAnim" looping="REPEAT">
+			<Rotation childKey="Rune" order="1" duration="12" degrees="-360"/>
+			<Rotation childKey="Sunburst" order="1" duration="12" degrees="360"/>
+		</AnimationGroup>
+		<AnimationGroup parentKey="ScaleAnim" looping="REPEAT">
+			<Scale childKey="Rune" smoothing="OUT" duration="1" order="1" fromScaleX="1" fromScaleY="1" toScaleX="1.1" toScaleY="1.1"/>
+			<Scale childKey="Rune" smoothing="OUT" duration="1" order="2" fromScaleX="1" fromScaleY="1" toScaleX="0.9" toScaleY="0.9"/>
+		</AnimationGroup>
+		<AnimationGroup parentKey="ExplodeAnim" looping="NONE" setToFinalAlpha="true">
+			<Scale childKey="Rune" smoothing="OUT" duration="0.5" order="1" fromScaleX="1" fromScaleY="1" toScaleX="3" toScaleY="3"/>
+			<Alpha childKey="Rune" fromAlpha="1" toAlpha="0" duration="0.3" order="1"/>
+		</AnimationGroup>
+		<AnimationGroup parentKey="DCPopOut" looping="NONE" setToFinalAlpha="true">
+			<Scale childKey="DifficultyClass" smoothing="OUT" duration="0.5" order="1" fromScaleX="1" fromScaleY="1" toScaleX="2" toScaleY="2"/>
+			<Scale childKey="DifficultyClass" smoothing="OUT" duration="2" order="2" fromScaleX="2" fromScaleY="2" toScaleX="1" toScaleY="1"/>
+		</AnimationGroup>
+	</Animations>
+    
+    <Scripts>
+      <OnLoad>		
+		self.SpinAnim:Play();
+		self.ScaleAnim:Play();
+      </OnLoad>
+	  <OnShow>
+		DiceMaster4.DiceRoller_OnShow( self );
+	  </OnShow>
+    </Scripts>
+  </Frame>
+</Ui>

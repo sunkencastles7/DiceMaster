@@ -1,0 +1,38 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <!-- The Extra Action Bar Frame. -->
+  
+	<Frame name="DiceMasterExtraActionBarFrame" frameStrata="LOW" enableMouse="true" hidden="false">
+		<Size x="256" y="128"/>
+		<Animations>
+			<AnimationGroup parentKey="intro">
+				<Alpha fromAlpha="0" toAlpha="1" duration="0.3" order="1"/>
+				<Scripts>
+					<OnFinished>
+						self:GetParent():SetAlpha(1.0);
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+			<AnimationGroup parentKey="outro">
+				<Alpha fromAlpha="1" toAlpha="0" duration="0.3" order="1"/>
+				<Scripts>
+					<OnFinished>
+						self:GetParent():SetAlpha(0.0);
+						self:GetParent():Hide();
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+		</Animations>
+		<Frames>
+			<CheckButton name="ExtraActionButton1" inherits="ExtraActionButtonTemplate" id="1" parentKey="button">
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="0"/>
+				</Anchors>
+			</CheckButton>
+		</Frames>
+		<Scripts>
+			<OnLoad function="ExtraActionBar_OnLoad"/>
+			<OnHide function="ExtraActionBar_OnHide"/>
+		</Scripts>
+	</Frame>	
+</Ui>

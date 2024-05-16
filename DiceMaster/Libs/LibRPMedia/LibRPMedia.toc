@@ -1,0 +1,18 @@
+## Interface: 100100
+## Title: Lib: RP Media
+## Notes: LibRPMedia provides a common database of in-game resources for use by RP addons.
+## Author: Daniel "Meorawr" Yates <me@meorawr.io>
+## Version: v1.2.1
+## IconAtlas: minortalents-icon-book
+
+## X-Category: Library
+## X-License: Public Domain
+## X-Website: https://github.com/wow-rp-addons/LibRPMedia
+## X-Curse-Project-ID: 324111
+## X-Wago-ID: qv6357Gb
+## X-WoWI-ID: 25019
+
+Libs\LibStub\LibStub.lua
+
+lib.xml
+
