@@ -1,0 +1,434 @@
+### 5.1.8
+- Dragonflight support.
+- Updated to 10.0.
+- Added Dragonflight icons. 
+- Added Dragonflight models to the Model Picker.
+- Added a new Splash Frame that displays once upon updating to a new version of the addon to showcase latest features. 
+- Added a /dicemaster changelog command to view a full list of changes in the most recent update.
+- Added '/dm' as a valid alias for console commands. 
+- UI frames will now lock/unlock seamlessly with Edit Mode.
+- Fixed an issue where re-enabling the addon resets frame positions on the UI. 
+- Upgraded the Dice Panel with a new look for 10.0. The Panel is now condensed into a single button with an expanded radial menu of rolling options pulled from your list of custom skills.
+- Updated the config menu with new options and restructured to improve readability.
+- Renamed 'DM Manager' to 'Dungeon Manager.' 
+- Revamped Statistics tab. Statistics are now called Skills and have been expanded to support a custom icon and description. Skills can also now inherit the values of several other skills (up for one).
+- Revamped Pet tab. Pets can now be further customised with new options including diet, a hunger system that relies on DiceMaster items for food, hygiene, and other interactive features.
+- Renamed 'Charges' to 'Resource'. 
+- Changed the Trait Editor title text to 'Traits' instead of the player's MSP roleplay name.
+- Deleted extraneous libraries.
+- Updated the Inventory tab with sleeker new buttons.
+- Fixed an issue where edited items had their quality reset to Common upon commit.
+- DiceMaster items can now be seamlessly traded through the default Trade UI.
+- Added a new custom item action: Learn Skill. Custom items with this action can be used to learn a new custom-made skill, or further increase your rank in an existing skill.
+- Added a new custom item action: Casting Bar. Custom items with this action can be used to display a custom casting bar with additional features.
+- Added a new custom item action: Extra Button. Custom items with this action can be used to enable a custom extra button on your UI with additional features.
+- Emojis are now available with auto-complete integrated into the native chat frame. You can disable the auto-complete feature in the config menu.
+- Added a new button on the chat frame for the Typing Tracker, allowing players to manually toggle on/off their typing status.
+- Added an optional mana bar to the Player Frame, allowing players to track their personal mana pool. Other players can view your mana bar from the Inspect Frame, and group leaders can manually manipulate their party members' mana bars. You can also choose from several skin options in the config menu, including Focus, Rage, Energy, and Runic Power.
+- Resolved an issue where Icon Picker was returning fileID (numeric) instead of file path (string), resulting in untextured green squares for trait icons.
+- Fixed an issue with Book fonts due to new API changes.
+- Fixed an issue where editing an officer-approved trait would sometimes reset the description field (League of Lordaeron only).
+
+### 5.1.7
+- Added a new Skills tab to the Trait Editor, allowing players to create custom skills that represent their proficiency in certain actions.
+- Added a new Bank tab to the Trait Editor, allowing players to store custom items from their inventory. Custom items in the Bank tab are accessible across all character profiles as well!
+- Added a new Inspect button to the Inventory tab, allowing players to mouse over a custom item and view its actions in the tooltip.
+- Added a new Add to Bank button to the Inventory tab, allowing players to deposit custom items into their bank.
+- Updated the Inventory tab's button bar and moved it to the top of the frame.
+- Added a new Craft button to the Inventory tab, allowing players to craft custom items from the new Crafting Frame using recipes they have learned.
+- Added a new "Learn Recipe" item action, allowing players to create custom recipes. When a player uses an item with this action, the recipe is added to the list on the Crafting Frame.
+- Fixed an issue with the DiceMaster4.SendMessage function conflicting with AceEvent integration
+
+### 5.1.6
+- Patch 9.1 support
+- You can now add "Secret" effects to your traits, allowing you to add up to three hidden clauses to each trait that are revealed when one or more of the specified conditions occurs.
+- You can use the tags <secret1>text</secret1>, <secret2>text</secret2>, and <secret3>text</secret3> to hide your Secrets from other players. When the Secret is activated, the text will be revealed!
+- You can now import and export custom items! Items marked 'Copyable by Others' can also be exported by others.
+- Added a new "Master Loot" option to the Inventory Frame's Loot button, allowing the group leader to dispense items to a specific group member.
+- Fixed the model list to include all file names (thanks to Hatteras!).
+- Added new terms: "Taunt" and "Secret".
+- Added new icons.
+- Updated map nodes texture coordinates for 9.1
+- Fixed an issue with the DiceMaster4.ApplyBuff() function not allowing permanent buffs.
+- Fixed an issue with the Book interface.
+
+### 5.1.5
+- You can now export traits from the Trait Editor, generating a unique code which others players can use to import the trait data to their own profile.
+- You can also export an entire Statistics sheet, allowing other players to import each of your custom statistics' data to their own profile.
+- Added help systems to the Trait Editor and DM Manager frames to provide concise information on how to use each feature.
+- You can now shift-click custom map nodes to link them in chat. Players in your group who click these links will be able to view them on the World Map.
+- You can now affect the health bar of other players in your group! Players with 'Allow Effects from Other Players' enabled in the config menu will see an appropriate visual effect above their character's head when healed or damaged by another player.
+- Unit Frames can now display a casting bar beneath the frame with adjustable values and appearances.
+- Added a 'Send to targeted player' option to the Visual Effects Editor, allowing you to send effects to other players with 'Allow Effects from Other Players' enabled in the config menu.
+- Added a new Inventory tab to the Trait Editor, allowing players to create custom items with a variety of on-use action options which can be shared with other players. You can view other players' Inventories from the Inspector Frame.
+- Added a new Shop tab to the Trait Editor, allowing players to sell their custom items in a merchant-style interface. You can view other players' Shops from the Inspector Frame.
+- New Edit Merchant option on the Trait Editor's Shop tab allows you to choose a custom portrait/name for your shop.
+- Added a new custom currency system which allows players to create custom currencies and resources that can be traded or used to make purchases with other players.
+- Added a new 'Loot Toast' frame which displays whenever a new custom item is created, purchased, or obtained for the first time.
+- Updated the Typing Tracker to fade in and out more smoothly. Note: the frame may have changed position on your UI.
+- Added a variety of new skin options to the Progress Bar and Charges Bar.
+- Fixed an issue where the Range Radar was producing looping errors.
+- Fixed an old issue where map nodes would sometimes disappear when clicked.
+
+### 5.1.4
+- Patch 9.0 support
+- Added a new Visual Effects feature to traits, allowing players to display an on-screen visual effect when they right-click the associated trait.
+- Added over 600 new Smite icons to the icon library.
+- Added new Shadowlands skins to the Charges and Progress Bars.
+- Traits can now display their remaining uses in the bottom right corner of the icon.
+- Added a new Range Radar to track distance between players (accessible with the '/dicemaster range [number]' console command.
+- You can now add hyperlinks to chat, allowing players to click the links to roll a designated dice value or statistic. Format: [DiceMaster4Roll:value]
+- You can also insert icons in public chat channels using [DiceMaster4Icon:path].
+- New config menu option to enable/disable icon links in chat channels.
+- Added Shadowlands models to the Model Picker.
+- Added Shadowlands backdrops to the Unit Editor.
+- Updated TexCoords for map nodes.
+- Changed the map node icons to sort alphabetically.
+- Changed the Turn Tracker timer to update using a timer function rather than the OnUpdate handler.
+- The Turn Tracker timer now plays a warning sound every second after the timer reaches 00:10 remaining.
+- Fixed an issue where traits on a turn-based cooldown were not updating when the turn was changed.
+- Fixed an issue where unit frame markers changed when the Unit Editor was opened.
+- Fixed an issue where unit frame animations were not saving properly.
+- Added a new version check feature.
+- Added all default Conditions to the Apply Buff dropdown in the Unit Editor.
+- Fixed an issue where Area Sounds were not working correctly.
+
+### 5.1.3
+- Players can now create custom Map Nodes from the DM Manager! These nodes can be customised with a unique tooltip, and dragged and dropped around the World Map.
+- While in a party or raid, players will see the group leader's Map Nodes on their World Map and Minimap!
+- Added new formating tools to the DM Manager Notes tab.
+- Added a new Combat Turn Tracker, allowing players to track the current turn-based combat round (after a "Combat Begins" Banner has been sent).
+- Trait and Unit Frame buffs can now set a duration in "turns" which are automatically depleted when the Combat Turn Tracker advances to a new round.
+- Added new options for the Combat Turn Tracker on the Send Banner pop-up frame.
+- Enabled Banners for non-League of Lordaeron players.
+- Added new displayIDs to the Model Picker for 8.3 (however, many lack file names and there are some empty entries in the list).
+- Increased the size of the Trait Editor and Inspector frames.
+- Added new options to the configuration menu to Display Group Leader's Map Nodes and Enable Combat Turn Tracker.
+- Fixed an issue where trait buffs using the "Modify Statistic by Name" feature were not correctly applying the value to rolls.
+- Changes made in the Unit Editor now update in real time.
+- Fixed an issue where Talking Heads were incorrectly showing 'Unknown' as the NPC name.
+- Fixed an issue where unit frame animations were not saving properly.
+- Fixed an issue where the Talking Heads button on Unit Frames were using the wrong Unit Frame data.
+- Fixed an error resulting from trying to change a Unit Frame's health from the Unit Editor.
+- Fixed an issue where rolls in the Roll Tracker sorted alphabetically instead of numerically.
+- Added {shapes} and {colours} to the Roll Tracker's Notes tab subs.
+- Fixed an issue where the Shadowmoon Valley (Outland) and Shadowmoon Valley (Draenor) backdrops were confused by the Unit Editor.
+- Added a slash command to enable/disable Unit Frames.
+
+### 5.1.2
+ - Added new skin options for the Charges bar.
+ - Increased the Charges max from 8 to 100 (only for Charges bars that use one of the status bar skins).
+ - Added Nazjatar and Ny'alotha backdrops to the Unit Editor.
+ - Fixed an issue resulting from changes made to the SetPoint API.
+ - Added a confirmation prompt to the DM Notes "Clear" button.
+ - Converted the DM Manager Experience tab to a new Roster tab.
+ - While in a party or raid, you can view nameplates for all group members in the Roster tab, which displays their health, level, and experience.
+ - Expanded the DM Manager detail frame.
+ - New config menu option to anchor the DM Manager detail frame on the left/right.
+ - New config menu option to anchor your Charges bar above/below your health bar.
+ - Added new 8.3 icons to the icon library.
+ - New LibRPMedia added to generate the icon list.
+ - Added missing backdrop textures to the Unit Editor.
+ - Added tooltip icons for all Combat Actions, Skills, and Saving Throws.
+ - Added Talking Heads button to Unit Frames.
+ - New config menu options for Unit Frames.
+ - Group leaders can now choose to allow group assistants to send Talking Heads from the config menu.
+ - Added a new "Clear Sounds" button to the Sound Picker to clear Unit Frames of all assigned sounds.
+ - Fixed an issue where Unit Frame sounds were not resetting properly after being deleted and re-created.
+ - Fixed some minor bugs with the Unit Editor's visibility button.
+ - You can now roll from the Unit Editor as any of your Unit Frames.
+ - Added a new Animation Picker to the Unit Editor, allowing you to customise your Unit Frames' animations.
+ - Added new sound binding options to the Sound Picker.
+ - Talking Heads will now create a queue if more than one are sent at a time to ensure none get lost.
+
+### 5.1.1
+ - Fixed an issue with the "Select Model" button in the Unit Editor.
+ - You can now assign sound effects to Unit Frames in the Unit Editor! These sounds will play when the unit spawns, takes damage, dies, and sends a Talking Head message.
+ - New config menu option to enable/disable Unit Frame sound effects.
+ - New animations added to Unit Frames.
+ - New "blood effects" option added to Unit Frames, enabling blood spurt effects when a unit takes damage.
+ - Added a "toggle visibility" button to Unit Frames to facilitate quicker visibility toggling.
+ - Collapsed Unit Frames no longer clip the unit's head.
+ - Fixed subbing tags for Saving Throw terms.
+ - Fixed an issue where sorting the Roll Tracker produced Lua errors.
+
+### 5.1
+ - Patch 8.2 support
+ - Added support for img and color tags in the DM Manager Notes tab, as well as world markers in {} brackets.
+ - Unit Frames cap increased to 6 (was 5).
+ - Active-use traits can now specify a cast time and range.
+ - Added enhanced tooltips to the ItemRefTooltip.
+ - Enhanced tooltips should no longer go off-screen.
+ - DiceMaster no longer automatically colours certain terms in white text. You will now have to put those terms in <> brackets.
+ - Added a new "insert terms" option to the Trait Editor markdown toolbar.
+ - Fixed an issue where Pet models were not saving between sessions.
+ - Added new 8.2 NPC displayIDs to the Model Picker.
+ - Fixed an issue where sorting the Roll Tracker by Roll or Type produced Lua errors when some entries were missing values.
+ - Fixed an issue causing Statistics headers to sometimes display as statistics.
+ - Fixed an issue where DiceMaster caused "You are not in a raid group" messages to spam chat when the player is in instanced content.
+ - Added Anduin's Heroes of the Storm icons, plus a 40+ Diablo 3 icons that were missing.
+ - Added new buttons to set health and maximum health to the Unit Editor.
+ - Added a new StaticPopUpDialog when a player tries to edit the description field of an approved trait (League of Lordaeron only).
+ 
+### 5.0.9
+ - New Diablo 3 and Heroes of the Storm icons have been added to the icon libraries.
+ - Rank icons have been removed from the Trait Editor.
+ - The value of the Dice Panel now saves between sessions.
+ - Collections have been re-added to the Model Picker.
+ - You can now search for models by their displayID in the Model Picker.
+ - Colour tags should no longer break when interrupted by highlighted terms.
+ - Added support for custom Unit Frame backdrops.
+
+### 5.0.8
+ - DiceMaster tooltip icons now anchor to the top left of the tooltip instead of appearing inline.
+ - Chapter trait icons now display a gold dragon around their tooltip icon.
+ - The Icon Picker has been redesigned and now shows 49 icons at a time (up from 30).
+ - Added new formatting tools to the Trait Editor, providing a variety of new markdown options for trait descriptions.
+ - The markdown for colour tags has changed and will now only accept hexadecimal values (e.g. <color=RRGGBB></color>)
+ - A new Pet tab has been added to the Trait Editor, allowing players to create custom pets, followers, or guardians for their characters.
+ - Added Pet Frames to the Charges bar and Inspect Frame to display custom pets. 
+ - Added Pet tab to the Inspect Statistics Frame.
+ - Unit Frames is once again opt-in only. You must enable them in the config menu if you wish to see them.
+ - The Unit Editor has been completely redesigned.
+ - You can now manipulate the position, rotation, and scale of each Unit Frame model.
+ - Removed all nil/non-existent models from the Model Picker.
+ - The Model Picker should no longer cause unexpected memory errors/crashes.
+ - The Effects Picker has been removed due to memory errors/crashes. This feature may return if a solution can be found.
+ - Models can now be searched for by file name.
+ - Many new animation options have been added to the Unit Editor.
+ - You can also choose a custom backdrop for Unit Frames from hundreds of different in-game zones.
+ - New Talking Heads skins (Alliance, Horde, Neutral, and Normal).
+ - You can now save, load, and delete units in the Unit Editor for quick accessibility.
+ - You can now assign specific Attributes to new Statistics.
+ - Fixed an issue where clicking the 'Clear' button on the Roll Tracker detail frame was producing errors.
+ - Increased the width of the Roll Tracker detail frame so text wouldn't get cut off.
+ - Rolls should no longer be logged twice in the Roll Tracker detail frame.
+ - Adjusted the column widths of the Roll Tracker frame.
+ - Strings passed through the colour tags will no longer highlight special terms.
+ - Fixed an issue where swapping profiles would reset health to 5/5.
+
+### 5.0.7
+ - The /dice command can now be used to roll for a specific roll option (such as /dice bluff).
+ - Fixed an issue causing raid rolls in raid/party chat to clip off the first letter of a name.
+ - The group leader and assistants can now change their group members' health.
+ - Expanded the number of default Statistics, including Combat Actions, Skills, Attributes, and Saving Throws.
+ - New Apply Buff option: Modify Statistic by Name: Modifies the specified Statistic by x amount.
+ - New Effect: Roll Dice: Allows a trait to roll with a specific pair of dice and (optionally) add a specific Statistic as a modifier.
+ - Fixed an issue where Saving Throw options on the Roll Wheel (Will Save, Reflex Save, Fortitude Save) were not inheriting the right Statistic modifier.
+ - Fixed an issue where Always apply to self buffs were applying to targeted Unit Frames.
+ - Individual players can now set the options (up to 8) on their own Roll Wheels by right clicking the Roll Dice button on the Dice Panel.
+ - Removed the Roll Options button from the DM Manager.
+ - The Roll Tracker has a new category for Roll Types.
+ - Over 108 new Warhammer Online icons added to the icon library.
+ - Fixed an issue where Statistics headers were displaying incorrectly as Statistics.
+
+### 5.0.6
+ - Added a new selection wheel to the Roll Dice button on the Dice Panel (hold down the button to access).
+ - The Trait Editor now removes extra spaces/lines from the beginning and end of trait descriptions.
+ - Replaced the "List Results..." button on the Roll Tracker with a "Roll Options" button, allowing the group leader to set up to 8 options to display on the Roll Dice selection wheel for all group members.
+ - Added new glossary terms.
+ - Statistics can now have negative values.
+ - Added an option to create headers in the Statistics list.
+ - Moved the values for Statistics to the right side on the Statistics Inspector.
+ - Fixed a visibility issue with Unit Frames buffs.
+ - Added UI sounds to some frames and buttons.
+
+### 5.0.5
+ - Added buffs to Unit Frames (replaced affixes).
+ - Added option for players to apply buffs to Unit Frame units by left clicking the desired frame and then using a trait.
+ - Fixed a Lua error that popped up when using the /dicemaster manager command.
+ - Replaced the "Grant Character Experience" button on the Roll Tracker History frame with a "Send Personal Banner..." button (League of Lordaeron only).
+ - Fixed an issue preventing players from inputting non-numerical type in some pop up dialogs.
+ - Fixed Unit Frame visibility issues that resulted when group leadership was exchanged.
+ - Removed misnamed texture files from the icon list.
+ - Added roll buttons to Statistics.
+
+### 5.0.4
+ - Fixed issues communicating between users with Unit Frames.
+ - Added a loading delay to Unit Frames models and effects to prevent memory-related crashes.
+
+### 5.0.3
+ - Fixed timestamps in the Roll Tracker displaying 0 hours for entries past midnight.
+ - Ignore update requests from group members if Unit Frames is disabled.
+ - Fixed an issue where player buff tooltips were't updating when new buffs were applied.
+ - Temporarily disabled raid assistant functions for Unit Frames until a solution can be found.
+ - Fixed an issue where the Unit Frames name field could be edited.
+ - Fixed an issue where the "damageText" FontString was missing for some users.
+ - Adjusted PortraitZoom for collapsed Unit Frames to avoid clipping off some models' heads.
+ - Fixed an issue allowing players to set Unit Frames' max health to a value below their current health.
+ 
+### 5.0.2
+ - Added "Statistics" tab to Trait Editor.
+ - Fixed an issue displaying health values above 10.
+ - Unit Frames enable automatically when the group leader has enabled them.
+ - Changed FrameStrata of the Unit Frames Panel, DM Manager, and Roll Prompt Banners.
+ - Fixed issues causing the Unit Frame Panel to disappear when raid assistants are promoted.
+ - Fixed the DM Manager Scale option not showing when DM Manager is enabled.
+ - Added death animations to Unit Frames at 0 health.
+ - Added keybinding options for the DM Manager to the config menu.
+ - Roll Prompts now print in chat as well.
+ - Added character sheet (statistics) viewer to the Inspect Frame.
+ - Added experience bar to the statistics frame.
+ - New Experience tab on the DM Manager.
+
+### 5.0.1
+ - Minor bug fixes.
+ - Fixed errors resulting from NineSlice element.
+ - Buff Frame no longer overlaps default buff frame.
+ - Fixed issues with disappearing Progress Bar.
+ - Allow independent scaling of the Progress Bar.
+ - Fixed issues with drag frames.
+ - Fixed Roll Tracker not recording modifiers on logged rolls.
+ - Fixed Roll Tracker not detecting raid markers in chat.
+ - Allow health bar to anchor below traits on the Inspect Frame (config menu option).
+
+### 5.0
+ - Patch 8.1 compatbility.
+ - DiceMaster and DiceMaster Unit Frames are now fully integrated.
+ - Revamped the Trait Editor.
+ - Changed "Command Traits" to "Chapter Traits."
+ - Fixed the scroll frame issues with the Trait Editor description field.
+ - Changed health bars from tiled heart textures to a proper bar, allowing values larger than 8. 
+ - Added "armour" options to health bars.
+ - Fixed an issue where the Progress Bar wasn't updating for all party members.
+ - Renamed the Roll Tracker frame to DM Manager. 
+ - Added a "public notes" section to DM Manager frame, allowing the DMs (group leaders and assistants) to edit a text field all group members can see.
+ - Reorganised the config menu.
+ - Unit Frame backgrounds now change to reflect the zone you're currently in. (Some exclusions)
+ - Added new 8.1 icons to the icon library.
+
+### 4.9
+ - Added new Progress Bar frame, allowing players to track a group-wide resource (controlled by the leader).
+ - Added Progress Bar options to the config menu.
+ - Fixed an error calculating the duration of buffs.
+ - Buffs Frame can now be moved from its default anchor position.
+ - Guild officers can now approve traits (League of Lordaeron only).
+ - Charges can now have custom tooltip descriptions.
+ - Players can now cast/remove buffs on themselves regardless of their party status.
+ - Fixed an issue with the Typing Tracker firing Lua errors for offline members.
+ - Fixed an issue where icons in trait chat links were showing as empty.
+ - The Roll Tracker now tracks all individual rolls for multiple dice rolls (e.g. 2D20).
+ - You can now select a target manually from the Roll Tracker.
+ - Resolved an issue where sending messages via Roll Tracker was using the wrong name.
+
+### 4.8.9
+ - Added "Apply Buff" and "Remove Buff" modules to traits.
+ - Added new Buff Frame (anchors to default buff frame).
+ - Added new Target Buff Frame (anchors above Inspect Frame by default).
+ - Removed grey drag tabs. Frames can now be unlocked/moved in the config menu or with the command /dicemaster (lock | unlock).
+ - Roll history entries in the Roll Tracker are now coloured based on Difficulty Class.
+ - Roll Tracker now scales independently (config menu, or /dicemaster trackerscale (number).
+ - "List Results..." now includes roll values.
+ - Added new Roll Prompt Banner option (League of Lordaeron only).
+ - Moved default Post Tracker anchor to above chat frame.
+ - You should no longer appear in your own Post Tracker.
+ - Players who log out while typing should no longer remain in the Post Tracker.
+ - Term "Rescue" is now "Immunity."
+
+### 4.8.8
+ - Many new QoL changes.
+ - Removed Trait Editor button from panel.
+ - Chat links now include an icon.
+ - Command Traits no longer show for those without them.
+ - Fixed linking target's traits from Inspect frame.
+ - Fixed a display issue with Post Tracker.
+
+### 4.8.7
+ - Fixed an issue with Roll Tracker.
+ - Added new Post Tracker.
+
+### 4.8.6
+ - Fixed an issue with an outdated Lib.
+ - Added new Roll Tracker.
+
+### 4.8.5
+ - Fixed issues with an erroneous update.
+ - Added new icons to the icon library.
+
+### 4.8.3
+ - Fixed chat links in public channels.
+ - Added new Battle for Azeroth icons to the icon library.
+
+### 4.8.2
+ - Battle for Azeroth compatibility.
+ - Fixed an issue with dice rolls while in a party.
+
+### 4.8.1
+ - Added help system for trait rules to the Trait Editor.
+
+### 4.8
+ - Added shift-click tooltip line for dice panel traits.
+ - Other players' traits can be linked from the Inspect frame.
+ - Added new skins for the Charges bar.
+ - Moved the Charges bar below the Health bar.
+
+### 4.7
+ - Redesigned the dice panel and added a trait bar to it.
+ - Added image and colour tag functionality to trait descriptions.
+ - Added enhanced tooltips to the config menu.
+ - New elite border around Command Traits.
+ - R.I.P. Arcane Crucible.
+
+### 4.6
+ - Added the Recruit rank to rank tuples.
+
+### 4.5
+ - Fixed Arcane Crucible support.
+
+### 4.4
+ - Changed the "Veteran" rank to "Advisor."
+ - Added new icons.
+ - Added new symbols for some text subbing tuples. 
+
+#### 4.3.9
+ - DiceMaster Arcane Crucible support.
+
+#### 4.3.8
+ - Patch 7.3 support.
+
+#### 4.3.7
+ - Corrected some issues with mixing /roll with dicemaster rolls.
+ - Added highlight for critical rolls (e.g. 3/23 for d20+3).
+ - Clicking on the world or clicking the roll button will clear focus from the dice panel.
+ - Dice roll result should not be broadcasted in foreign languages.
+
+#### 4.3.6
+ - Corrected some missing updates.
+
+#### 4.3.5
+ - Added new icons and recognized definitions.
+
+#### 4.3.4
+ - Fixed healthbar not showing up for some.
+ 
+#### 4.3.3
+ - Fixed sharing traits over custom channels.
+
+#### 4.3.2
+ - Hide healthbar when DiceMaster panel is hidden.
+ - Option to hide trait inspect frame too.
+
+#### 4.3.1
+ - Better backward compatbility.
+ - Dice AceComm messages.
+
+#### 4.2
+ - Simplified the trait editor UIParent
+ - Consolidated the health bar to the charges bar
+ - added health icon to the text subbing tuples 
+ - ui scaling changes
+
+#### 4.0 changelog
+ - Improved comm protocol. (old one is not recommended, with the amount of prefixes it uses)
+ -   not compatible with old protocol
+ - Fixed memory leak when opening trait editor & iconpicker.
+ - CLEANED EVERYTHING UP
+ - Uses ingame /roll, so tech savvy people can't insert cheats for themselves, and people w/o addon can see rolls.
+ - Announce modified result in chat so people w/o addon can see results.
+ - Use the UIParent for the traits editor.
+ - Increased mousewheel scrolling speed when editing trait description.
+ - Optimizations!
+ - made everything a lot more DRY
+ - more robust/safer chat links (e.g. allowing colons -- just think that "Power Word: xxx" would break before)
+ - fixed support for trp names
+ - LOTS OF OTHER LITTLE THINGS.

@@ -1,0 +1,12 @@
+## Interface: 100205
+## Title: DiceMaster Resources
+## Author: Skylar
+## Notes: A load-on-demand database of resources used by DiceMaster.
+## Version: 1.0
+## LoadOnDemand: 1
+## RequiredDeps: DiceMaster
+## SavedVariables: DiceMaster4_Database
+
+DiceMaster_Resources.lua
+Lists/SoundList.lua
+Lists/ModelList.lua

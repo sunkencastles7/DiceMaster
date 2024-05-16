@@ -1,0 +1,511 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+	
+	<Button name="DiceMasterLearnPetEditorButtonTemplate" virtual="true">
+		<Size x="28" y="26"/>
+		<NormalTexture atlas="chatframe-button-up" useAtlasSize="true"/>
+		<PushedTexture atlas="chatframe-button-down" useAtlasSize="true"/>
+		<HighlightTexture atlas="chatframe-button-highlight" useAtlasSize="true" alphaMode="ADD"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="icon">
+					<Size x="16" y="16"/>
+					<Anchors>
+						<Anchor point="CENTER" x="1" y="-1"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				if self.atlas then 
+					self.icon:SetAtlas(self.atlas);
+				else
+					self.icon:SetTexture(self.texture);
+				end
+			</OnLoad>
+			<OnMouseDown>
+				self.icon:ClearAllPoints();
+				self.icon:SetPoint("CENTER", -1, -3);
+			</OnMouseDown>
+			<OnMouseUp>
+				self.icon:ClearAllPoints();
+				self.icon:SetPoint("CENTER", 1, -1);
+			</OnMouseUp>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+				GameTooltip_SetTitle(GameTooltip, self.title, HIGHLIGHT_FONT_COLOR);
+				GameTooltip_AddNormalLine(GameTooltip, self.description);
+				GameTooltip:Show();
+			</OnEnter>
+			<OnLeave function="GameTooltip_Hide"/>
+		</Scripts>
+	</Button>
+
+	<Frame name="DiceMasterLearnPetEditorInsetTemplate" inherits="InsetFrameTemplate" virtual="true">
+		<Size x="180" y="200" />
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentModelBG" file="Interface/AddOns/DiceMaster/Texture/PetFrameBackgroundAlliance">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="4" y="-4"/>
+						<Anchor point="BOTTOMRIGHT" x="-4" y="2"/>
+					</Anchors>
+					<TexCoords left="0.0" right="0.63671875" top="0.0" bottom="0.69921875"/>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER">
+				<Texture name="$parentModelShadow" atlas="PetJournal-BattleSlot-Shadow" alpha="0.5" hidden="false">
+					<Size x="100" y="50"/>
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="-50"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<ModelScene parentKey="ModelScene" enableMouse="false" inherits="NonInteractableModelSceneMixinTemplate" frameLevel="2">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="4" y="-4"/>
+					<Anchor point="BOTTOMRIGHT" x="-4" y="2"/>
+                </Anchors>
+				<KeyValues>
+					<KeyValue key="reversedLighting" value="true" type="boolean"/>
+				</KeyValues>
+                <Scripts>
+					<OnLoad>
+						self.cameras = {};
+						self.actorTemplate = "DiceMasterPetFrameActorTemplate";
+						self.tagToActor = {};
+						self.tagToCamera = {};
+
+						if self.reversedLighting then
+							local lightPosX, lightPosY, lightPosZ = self:GetLightPosition();
+							self:SetLightPosition(-lightPosX, -lightPosY, lightPosZ);
+
+							local lightDirX, lightDirY, lightDirZ = self:GetLightDirection();
+							self:SetLightDirection(-lightDirX, -lightDirY, lightDirZ);
+						end
+	
+						local camera = CameraRegistry:CreateCameraByType("OrbitCamera")
+						camera.panningXOffset = 0
+						camera.panningYOffset = 0
+						camera.modelSceneCameraInfo = {
+							flags = 0,
+							}
+						self:AddCamera(camera)
+						camera:SetTarget(0, 0, -0.3)
+						camera:SnapToTargetInterpolationTarget()
+						camera:SetPitch(math.rad(10))
+						camera:SetYaw(math.rad(180))
+						camera:SetMinZoomDistance(1)
+						camera:SetZoomDistance(0)
+						
+						local actor = self:CreateActor(nil, "DiceMasterPetFrameActorTemplate"); 
+						actor:SetScale(0.2);
+						actor:SetPosition(0,0,0);
+						actor:SetAnimationBlendOperation(LE_MODEL_BLEND_OPERATION_ANIM);
+						actor:SetAlpha(1);
+						actor:SetModelByCreatureDisplayID(31);
+					</OnLoad>
+                </Scripts>
+				<Frames>
+					<Button parentKey="selectModel" inherits="DiceMasterLearnPetEditorButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPRIGHT" x="-4" y="-4"/>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="atlas" value="Barbershop-32x32"/>
+							<KeyValue key="title" value="Select Model"/>
+							<KeyValue key="description" value="Choose a model for this pet."/>
+						</KeyValues>
+						<Scripts>
+							<OnClick>
+								DiceMaster4.ModelPicker_Open( DiceMasterLearnPetEditor, self:GetParent():GetParent() );
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button parentKey="increaseScale" inherits="DiceMasterLearnPetEditorButtonTemplate">
+						<Anchors>
+							<Anchor point="RIGHT" relativeKey="$parent.selectModel" relativePoint="LEFT"/>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="atlas" value="UI-HUD-Minimap-Zoom-In"/>
+							<KeyValue key="title" value="Increase Scale"/>
+							<KeyValue key="description" value="Increase the scale of the pet's model."/>
+						</KeyValues>
+						<Scripts>
+							<OnClick>
+								local scale = self:GetParent():GetActorAtIndex(1):GetScale();
+								scale = DiceMaster4.Clamp( scale + 0.01, 0, 1 );
+								self:GetParent():GetActorAtIndex(1):SetScale( scale );
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button parentKey="decreaseScale" inherits="DiceMasterLearnPetEditorButtonTemplate">
+						<Anchors>
+							<Anchor point="RIGHT" relativeKey="$parent.increaseScale" relativePoint="LEFT"/>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="atlas" value="UI-HUD-Minimap-Zoom-Out"/>
+							<KeyValue key="title" value="Decrease Scale"/>
+							<KeyValue key="description" value="Decrease the scale of the pet's model."/>
+						</KeyValues>
+						<Scripts>
+							<OnShow>
+								self.icon:SetHeight(8);
+							</OnShow>
+							<OnClick>
+								local scale = self:GetParent():GetActorAtIndex(1):GetScale();
+								scale = DiceMaster4.Clamp( scale - 0.01, 0, 1 );
+								self:GetParent():GetActorAtIndex(1):SetScale( scale );
+							</OnClick>
+						</Scripts>
+					</Button>
+				</Frames>
+			</ModelScene>
+			<CheckButton name="$parentPetEnable" parentKey="petEnable" inherits="UICheckButtonTemplate">
+				<Anchors>
+				  <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="4" y="-4" />
+				</Anchors>
+				
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("|cFFFFD100Enable")
+						self.tooltip = "Enables this stage of this pet's life cycle."
+						self:SetChecked(true);
+						if self:GetParent().stage == "1" then self:Hide() end
+					</OnLoad>
+					<OnClick>
+						if not( self:GetChecked() ) then
+							self:GetParent():DesaturateHierarchy(1);
+							self:GetParent().ModelScene.decreaseScale:Disable();
+							self:GetParent().ModelScene.increaseScale:Disable();
+							self:GetParent().ModelScene.selectModel:Disable();
+							self:GetParent().petName:Disable();
+							self:GetParent().petIcon:Disable();
+							self:GetParent().petDiet.Button:Disable();
+							self:GetParent().petRequireWash:Disable();
+							self:GetParent().petRequireCleanUp:Disable();
+							self:GetParent().petRequireRest:Disable();
+						else
+							self:GetParent():DesaturateHierarchy(0);
+							self:GetParent().ModelScene.decreaseScale:Enable();
+							self:GetParent().ModelScene.increaseScale:Enable();
+							self:GetParent().ModelScene.selectModel:Enable();
+							self:GetParent().petName:Enable();
+							self:GetParent().petIcon:Enable();
+							self:GetParent().petDiet.Button:Enable();
+							self:GetParent().petRequireWash:Enable();
+							self:GetParent().petRequireCleanUp:Enable();
+							self:GetParent().petRequireRest:Enable();
+						end
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+		
+			<DiceMasterTraitButton name="$parentPetIconButton" parentKey="petIcon" >
+				<Size x="42" y="42"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="4" y="-8"/> 
+				</Anchors>
+				<Scripts>
+				  <OnLoad>
+					
+					self:SetCustomTooltip( "|cFFFFD100Click to select an icon for this pet." )
+					
+				  </OnLoad>
+				  <OnClick>
+					PlaySound(54132)
+					DiceMaster4.IconPicker_Open( self )
+				  </OnClick>
+				</Scripts>
+			</DiceMasterTraitButton>
+			  
+			<EditBox name="$parentPetName" parentKey="petName" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+				<Size x="120" y="12"/> 
+				<Anchors>
+				  <Anchor point="BOTTOMLEFT" relativeKey="$parent.petIcon" relativePoint="BOTTOMRIGHT" x="8" y="6"/> 
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+				  <FontString name="$parentPetNameTitle" inherits="GameFontNormalLeft" justifyH="left" text="Default Name">
+						<Size x="150" y="12"/>
+						<Anchors>
+						  <Anchor point="TOPLEFT" x="0" y="20"/> 
+						</Anchors>
+					</FontString>
+				  </Layer>
+				</Layers>
+				<Scripts> 
+				  <OnLoad>
+					self:SetAutoFocus( false )
+					self:SetTextColor( 1, 1, 1 )
+					self:SetMaxLetters( 200 )
+				  </OnLoad>
+				  <OnEscapePressed function="EditBox_ClearFocus"/>
+				  <OnEnterPressed function="EditBox_ClearFocus"/>
+				  <OnTabPressed>
+					-- DiceMasterDMBuffEditorBuffDesc.EditBox:SetFocus()
+				  </OnTabPressed>
+				</Scripts>
+			</EditBox>
+			
+			<Button name="$parentPetDiet" parentKey="petDiet" enableMouse="true" inherits="UIDropDownMenuTemplate">
+				<Size x="155" y="22"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" relativeKey="$parent.petIcon" relativePoint="BOTTOMLEFT" x="-15" y="-4"/> 
+				</Anchors>
+				<Scripts>
+				  <OnShow>
+					UIDropDownMenu_Initialize( self, DiceMaster4.LearnPetEditorDiet_OnLoad )
+					UIDropDownMenu_SetText(self, "|cFFFFD100Diet:|r (None)")
+					UIDropDownMenu_SetWidth(self, 155, 5)
+				  </OnShow>
+				</Scripts>
+			</Button>
+			
+			<CheckButton name="$parentPetRequireWash" parentKey="petRequireWash" inherits="UICheckButtonTemplate">
+				<Anchors>
+				  <Anchor point="TOPLEFT" relativeKey="$parent.petDiet" relativePoint="BOTTOMLEFT" x="16" y="0" />
+				</Anchors>
+				
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("|TInterface/AddOns/DiceMaster/Texture/wash-icon:24|t");
+					</OnLoad>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip_SetTitle(GameTooltip, "|TInterface/AddOns/DiceMaster/Texture/wash-icon:16|t Requires Wash", HIGHLIGHT_FONT_COLOR);
+						GameTooltip_AddNormalLine(GameTooltip, "Enables this pet to periodically become dirty, reducing their happiness until they receive a wash.", true);
+						GameTooltip:Show();
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
+			
+			<CheckButton name="$parentPetRequireCleanUp" parentKey="petRequireCleanUp" inherits="UICheckButtonTemplate">
+				<Anchors>
+				  <Anchor point="LEFT" relativeKey="$parent.petRequireWash" relativePoint="RIGHT" x="28" y="0" />
+				</Anchors>
+				
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("|TInterface/AddOns/DiceMaster/Texture/broom-icon:24|t");
+					</OnLoad>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip_SetTitle(GameTooltip, "|TInterface/AddOns/DiceMaster/Texture/broom-icon:16|t Requires Clean-Up", HIGHLIGHT_FONT_COLOR);
+						GameTooltip_AddNormalLine(GameTooltip, "Enables this pet to periodically leave behind droppings, reducing their happiness until they are cleaned up after.", true);
+						GameTooltip:Show();
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
+
+			<CheckButton name="$parentPetRequireRest" parentKey="petRequireRest" inherits="UICheckButtonTemplate">
+				<Anchors>
+				  <Anchor point="LEFT" relativeKey="$parent.petRequireCleanUp" relativePoint="RIGHT" x="28" y="0" />
+				</Anchors>
+				
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("|TInterface/MINIMAP/TRACKING/Innkeeper:24|t");
+					</OnLoad>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip_SetTitle(GameTooltip, "|TInterface/MINIMAP/TRACKING/Innkeeper:16|t Requires Rest", HIGHLIGHT_FONT_COLOR);
+						GameTooltip_AddNormalLine(GameTooltip, "Enables this pet to periodically become tired, reducing their happiness until they rest.", true);
+						GameTooltip:Show();
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
+
+			<CheckButton name="$parentPetIsEgg" parentKey="petIsEgg" inherits="UICheckButtonTemplate">
+				<Anchors>
+				  <Anchor point="TOPLEFT" relativeKey="$parent.petRequireWash" relativePoint="BOTTOMLEFT" x="0" y="0" />
+				</Anchors>
+				
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText("|TInterface/AddOns/DiceMaster/Texture/egg-icon:24|t");
+					</OnLoad>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip_SetTitle(GameTooltip, "|TInterface/AddOns/DiceMaster/Texture/egg-icon:16|t Is Egg", HIGHLIGHT_FONT_COLOR);
+						GameTooltip_AddNormalLine(GameTooltip, "Determines whether this pet is considered an egg at this stage.|n|nEggs require more frequent care and attention than other pets, but cannot be fed, washed, or cleaned up after.|n|n|cFF00ADEFTip:|r Use an egg-like model if you enable this or the results could get WEIRD.", true);
+						GameTooltip:Show();
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
+		</Frames>
+	</Frame>
+
+	<Button name="DiceMasterLearnPetEditorTimerTemplate" virtual="true">
+		<Size x="50" y="50"/>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture parentKey="BG" atlas="Garr_BuildingTimerBG" setAllPoints="true"/>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Text" inherits="GameFontNormalMed2" text="10 d">
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</FontString>
+				<Texture parentKey="CompleteRing" atlas="Garr_BuildingTimerFill" setAllPoints="true" hidden="true"/>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture atlas="CovenantSanctum-Renown-Arrow-Depressed">
+					<Size x="32" y="48"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" x="-8" y="0"/>
+					</Anchors>
+					<TexCoords left="1" right="0" top="0" bottom="1" />
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Cooldown parentKey="Cooldown" reverse="true" hideCountdownNumbers="true">
+				<Size x="64" y="64"/>
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+				<SwipeTexture file="Interface\Garrison\Garr_TimerFill"/>
+			</Cooldown>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self.Cooldown.Duration = 0;
+				self.Cooldown:SetCooldownUNIX(time()-864000, 864000);
+				self.Cooldown:Pause();
+			</OnLoad>
+			<OnClick>
+				if self.Cooldown.Duration &lt; 9 then
+					self.Cooldown.Duration = self.Cooldown.Duration + 1;
+				else
+					self.Cooldown.Duration = 0;
+				end
+				self.Cooldown:SetCooldownUNIX(time() - ( 864000 - ( self.Cooldown.Duration * 86400 )), 864000);
+				self.Text:SetText( tostring( 10 - self.Cooldown.Duration ) .. " d" );
+				self:GetScript("OnEnter")(self);
+			</OnClick>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+				GameTooltip_SetTitle(GameTooltip, "Evolution Time", HIGHLIGHT_FONT_COLOR);
+				if self.Cooldown.Duration == 9 then
+					GameTooltip_AddNormalLine(GameTooltip, "It will take " .. tostring( 10 - self.Cooldown.Duration ) .. " day before this pet is ready to evolve to the next stage.");
+				else
+					GameTooltip_AddNormalLine(GameTooltip, "It will take " .. tostring( 10 - self.Cooldown.Duration ) .. " days before this pet is ready to evolve to the next stage.");
+				end
+				GameTooltip:Show();
+			</OnEnter>
+			<OnLeave function="GameTooltip_Hide"/>
+		</Scripts>
+	</Button>
+	
+	<Frame name="DiceMasterLearnPetEditor" parent="UIParent" inherits="DefaultPanelTemplate" hidden="true" frameStrata="DIALOG" topLevel="true">
+    <Size x="552" y="460" />
+    <Anchors>
+      <Anchor point="CENTER" />
+    </Anchors>
+	
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="header" file="Interface/AddOns/DiceMaster/Texture/dicemaster-header">
+				<TexCoords left="0" right="0.623" top="0" bottom="0.566" />
+				<Size x="160" y="72"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-14" />
+				</Anchors>
+			</Texture>
+			<FontString parentKey="headerText" inherits="GameFontNormal" justifyH="center" text="Learn Pet">
+				<Anchors>
+				  <Anchor point="TOP" x="0" y="-6"/> 
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+    
+    <Scripts>
+      <OnLoad>
+		if self.NineSlice then
+			self.NineSlice:SetFrameLevel(1)
+		end
+      </OnLoad>
+    </Scripts>
+    <Frames>
+		<Frame name="$parentInset1" parentKey="Inset1" inherits="DiceMasterLearnPetEditorInsetTemplate">
+			<Anchors>
+				<Anchor point="TOPLEFT" x="6" y="-26"/>
+			</Anchors>
+			<KeyValues>
+				<KeyValue key="stage" value="1"/>
+			</KeyValues>
+		</Frame>
+		<Frame name="$parentInset2" parentKey="Inset2" inherits="DiceMasterLearnPetEditorInsetTemplate">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeKey="$parent.Inset1" relativePoint="TOPRIGHT" x="2" y="0"/>
+			</Anchors>
+			<KeyValues>
+				<KeyValue key="stage" value="2"/>
+			</KeyValues>
+		</Frame>
+		<Frame name="$parentInset3" parentKey="Inset3" inherits="DiceMasterLearnPetEditorInsetTemplate">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeKey="$parent.Inset2" relativePoint="TOPRIGHT" x="2" y="0"/>
+			</Anchors>
+			<KeyValues>
+				<KeyValue key="stage" value="3"/>
+			</KeyValues>
+		</Frame>
+
+		<Button name="$parentTimerOne" inherits="DiceMasterLearnPetEditorTimerTemplate">
+			<Anchors>
+				<Anchor point="CENTER" relativeKey="$parent.Inset1" relativePoint="RIGHT" x="0" y="0"/>
+			</Anchors>
+		</Button>
+
+		<Button name="$parentTimerTwo" inherits="DiceMasterLearnPetEditorTimerTemplate">
+			<Anchors>
+				<Anchor point="CENTER" relativeKey="$parent.Inset2" relativePoint="RIGHT" x="0" y="0"/>
+			</Anchors>
+		</Button>
+		
+		<Button name="$parentSaveButton" inherits="UIPanelButtonTemplate" text="Save">
+			<Size x="85" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMLEFT" x="6" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.LearnPetEditor_Save()
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button name="$parentCancelButton" inherits="UIPanelButtonTemplate" text="Cancel">
+			<Size x="85" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.LearnPetEditor_Close()
+				</OnClick>
+			</Scripts>
+		</Button>
+
+    </Frames>
+  </Frame>
+  
+</Ui>

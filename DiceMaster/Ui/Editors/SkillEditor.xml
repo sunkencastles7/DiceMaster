@@ -1,0 +1,345 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+	
+  <Frame name="DiceMasterSkillEditor" parent="UIParent" inherits="SimplePanelTemplate" hidden="true" frameStrata="DIALOG" topLevel="true">
+    <Size x="256" y="320" />
+    <Anchors>
+      <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
+    </Anchors>
+	
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="header" file="Interface/AddOns/DiceMaster/Texture/dicemaster-header">
+				<TexCoords left="0" right="0.623" top="0" bottom="0.566" />
+				<Size x="160" y="72"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-16" />
+				</Anchors>
+			</Texture>
+			<FontString inherits="GameFontNormal" justifyH="center" text="Create Skill">
+				<Anchors>
+				  <Anchor point="TOP" x="0" y="-12"/> 
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+    
+    <Scripts>
+      <OnLoad>
+		if self.NineSlice then
+			self.NineSlice:SetFrameLevel(1)
+		end
+      </OnLoad>
+	  <OnShow>
+		DiceMaster4.SkillEditor_ClearAllFields()
+	  </OnShow>
+    </Scripts>
+    <Frames>
+	
+	  <DiceMasterTraitButton name="$parentIconButton" parentKey="Icon" >
+        <Size x="42" y="42"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" x="12" y="-34"/> 
+		</Anchors>
+        <Scripts>
+          <OnLoad>
+            
+            self:SetCustomTooltip( "|cFFFFD100Click to select an icon for this skill." )
+            
+          </OnLoad>
+          <OnClick>
+            PlaySound(54132)
+            DiceMaster4.IconPicker_Open( self:GetParent() )
+          </OnClick>
+        </Scripts>
+      </DiceMasterTraitButton>
+      
+	  <EditBox name="$parentName" parentKey="Name" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<Size x="175" y="12"/> 
+		<Anchors>
+		  <Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="12" y="0"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+		  <FontString name="$parentNameTitle" inherits="GameFontNormalLeft" justifyH="left" text="Skill Name">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="0" y="15"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<Scripts> 
+		  <OnLoad>
+			self:SetAutoFocus( false )
+			self:SetTextColor( 1, 1, 1 )
+			self:SetMaxLetters( 200 )
+		  </OnLoad>
+		  <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEnterPressed function="EditBox_ClearFocus"/>
+		  <OnTabPressed>
+			DiceMasterSkillEditorDesc.EditBox:SetFocus()
+		  </OnTabPressed>
+		</Scripts>
+	  </EditBox>
+	  
+	  <ScrollFrame parentKey="Desc" name="$parentDesc" inherits="InputScrollFrameTemplate">
+		<Size x="220" y="64"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="BOTTOMLEFT" x="4" y="-24"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+		  <FontString name="$parentDescTitle" inherits="GameFontNormalLeft" justifyH="left" text="Description">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="0" y="20"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<KeyValues>
+			<KeyValue key="maxLetters" value="200"/>
+			<KeyValue key="instructions" value="A description of this skill."/>
+			<KeyValue key="hideCharCount" value="false" type="boolean"/>
+		</KeyValues>
+		<Scripts>
+			<OnLoad>
+				InputScrollFrame_OnLoad(self);
+			</OnLoad>
+		</Scripts>
+		</ScrollFrame>
+		
+		<Button name="$parentSkillType" parentKey="SkillType" enableMouse="true" inherits="UIDropDownMenuTemplate">
+			<Size x="210" y="22"/>
+			<Anchors>
+			  <Anchor point="TOPLEFT" relativeKey="$parent.Desc" relativePoint="BOTTOMLEFT" x="-20" y="-10"/> 
+			</Anchors>
+			<Scripts>
+			  <OnLoad>
+				UIDropDownMenu_SetWidth(self, 210, 5)
+			  </OnLoad>
+			  <OnShow>
+				UIDropDownMenu_Initialize( self, DiceMaster4.SkillEditorType_OnLoad )
+			  </OnShow>
+			</Scripts>
+	    </Button>
+		
+		<Button name="$parentSkillModifiers" parentKey="SkillModifiers" enableMouse="true" inherits="UIDropDownMenuTemplate">
+			<Size x="210" y="22"/>
+			<Anchors>
+			  <Anchor point="TOPLEFT" relativeKey="$parent.SkillType" relativePoint="BOTTOMLEFT" x="0" y="0"/> 
+			</Anchors>
+			<Scripts>
+			  <OnLoad>
+				UIDropDownMenu_SetWidth(self, 210, 5)
+			  </OnLoad>
+			  <OnShow>
+				UIDropDownMenu_Initialize( self, DiceMaster4.SkillEditorModifiers_OnLoad )
+			  </OnShow>
+			</Scripts>
+	    </Button>
+		
+		<EditBox name="$parentMaxRank" parentKey="MaxRank" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+			<Size x="52" y="12"/> 
+			<Anchors>
+			  <Anchor point="TOPRIGHT" relativeKey="$parent.Desc" relativePoint="BOTTOMRIGHT" x="4" y="-80"/> 
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+				  <FontString name="$parentRankTitle" inherits="GameFontNormalLeft" justifyH="right" text="Max Rank:">
+						<Anchors>
+						  <Anchor point="RIGHT" relativePoint="LEFT" x="-10" y="0"/> 
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts> 
+			  <OnLoad>
+				self:SetAutoFocus( false )
+				self:SetTextColor( 1, 1, 1 )
+				self:SetMaxLetters( 4 )
+			  </OnLoad>
+			  <OnEditFocusGained>
+				self.lastValue = tonumber(self:GetText()) or 0;
+			  </OnEditFocusGained>
+			  <OnEditFocusLost>
+				self:HighlightText(0, 0)
+				if self:GetText()=="" then
+					self:SetText(self.lastValue)
+				end
+				if not tonumber(self:GetText()) then
+					self:SetText(self.lastValue)
+				elseif tonumber(self:GetText()) > 999 or tonumber(self:GetText()) &lt; 0 then
+					self:SetText(self.lastValue)
+				end
+			  </OnEditFocusLost>
+			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			  <OnEnterPressed function="EditBox_ClearFocus"/>
+			</Scripts>
+		</EditBox>
+		
+		<CheckButton name="$parentEditable" parentKey="Editable" inherits="ChatConfigCheckButtonTemplate">
+			<Anchors>
+			  <Anchor point="TOPLEFT" relativeKey="$parent.SkillModifiers" relativePoint="BOTTOMLEFT" x="12" y="-28" />
+			</Anchors>
+			
+			<Scripts>
+				<OnLoad>
+					_G[self:GetName().."Text"]:SetText("|cFFFFD100Editable by Others")
+					self.tooltip = "Toggles whether this skill can be edited by other players if imported or learned from an item."
+				</OnLoad>
+			</Scripts>
+		</CheckButton>
+		
+		<Button name="$parentCancelButton" inherits="UIPanelButtonTemplate" text="Cancel">
+			<Size x="85" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMLEFT" x="6" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.SkillEditor_Close()
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button name="$parentSaveButton" inherits="UIPanelButtonTemplate" text="Save">
+			<Size x="85" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMRIGHT" x="-6" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.SkillEditor_CreateSkill()
+				</OnClick>
+			</Scripts>
+		</Button>
+
+    </Frames>
+  </Frame>
+  
+  <Frame name="DiceMasterLearnSkillEditor" parent="UIParent" inherits="SimplePanelTemplate" hidden="true" frameStrata="DIALOG" topLevel="true">
+    <Size x="256" y="115" />
+    <Anchors>
+      <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
+    </Anchors>
+	
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="header" file="Interface/AddOns/DiceMaster/Texture/dicemaster-header">
+				<TexCoords left="0" right="0.623" top="0" bottom="0.566" />
+				<Size x="160" y="72"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-16" />
+				</Anchors>
+			</Texture>
+			<FontString inherits="GameFontNormal" justifyH="center" text="Learn Skill">
+				<Anchors>
+				  <Anchor point="TOP" x="0" y="-12"/> 
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+    
+    <Scripts>
+      <OnLoad>
+		if self.NineSlice then
+			self.NineSlice:SetFrameLevel(1)
+		end
+      </OnLoad>
+	  <OnShow>
+		DiceMaster4.LearnSkillEditor_Refresh()
+	  </OnShow>
+    </Scripts>
+    <Frames>
+      
+		<Button name="$parentSkillName" parentKey="SkillName" enableMouse="true" inherits="UIDropDownMenuTemplate">
+			<Size x="150" y="22"/>
+			<Anchors>
+			  <Anchor point="TOPRIGHT" x="-42" y="-32"/> 
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString name="$parentSkillTypeTitle" inherits="GameFontNormalLeft" justifyH="left" text="Skills:">
+						<Anchors>
+						  <Anchor point="RIGHT" relativePoint="LEFT" x="10" y="0"/> 
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts>
+			  <OnShow>
+				UIDropDownMenu_Initialize( self, DiceMaster4.LearnSkillEditorSkill_OnLoad )
+				UIDropDownMenu_SetText(self, "(None)")
+				UIDropDownMenu_SetWidth(self, 150, 5)
+			  </OnShow>
+			</Scripts>
+	    </Button>
+		
+		<EditBox name="$parentRank" parentKey="Rank" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+			<Size x="42" y="12"/> 
+			<Anchors>
+			  <Anchor point="TOPRIGHT" relativeKey="$parent.SkillName" relativePoint="BOTTOMRIGHT" x="28" y="0"/> 
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+				  <FontString name="$parentRankTitle" inherits="GameFontNormalLeft" justifyH="right" text="Rank:">
+						<Anchors>
+						  <Anchor point="RIGHT" relativePoint="LEFT" x="-10" y="0"/> 
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts> 
+			  <OnLoad>
+				self:SetAutoFocus( false )
+				self:SetTextColor( 1, 1, 1 )
+				self:SetMaxLetters( 3 )
+			  </OnLoad>
+			  <OnEditFocusGained>
+				self.lastValue = tonumber(self:GetText()) or 1;
+			  </OnEditFocusGained>
+			  <OnEditFocusLost>
+				self:HighlightText(0, 0)
+				if self:GetText()=="" then
+					self:SetText(self.lastValue)
+				end
+				if not tonumber(self:GetText()) then
+					self:SetText(self.lastValue)
+				elseif tonumber(self:GetText()) > 999 or tonumber(self:GetText()) &lt; 1 then
+					self:SetText(self.lastValue)
+				end
+			  </OnEditFocusLost>
+			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			  <OnEnterPressed function="EditBox_ClearFocus"/>
+			</Scripts>
+		</EditBox>
+		
+		<Button name="$parentCancelButton" inherits="UIPanelButtonTemplate" text="Cancel">
+			<Size x="85" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMRIGHT" x="-6" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.LearnSkillEditor_Close()
+				</OnClick>
+			</Scripts>
+		</Button>
+		
+		<Button name="$parentSaveButton" inherits="UIPanelButtonTemplate" text="Save">
+			<Size x="85" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMLEFT" x="6" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.LearnSkillEditor_Save()
+				</OnClick>
+			</Scripts>
+		</Button>
+
+    </Frames>
+  </Frame>
+  
+</Ui>

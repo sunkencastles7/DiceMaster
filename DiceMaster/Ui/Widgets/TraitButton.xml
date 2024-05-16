@@ -1,0 +1,470 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <Script file="TraitButton.lua"/>
+  
+  <Frame name="DiceMasterTooltip" frameStrata="TOOLTIP" hidden="true" parent="GameTooltip" inherits="TooltipBorderedFrameTemplate">
+	<Size>
+		<AbsDimension x="10" y="32"/>
+	</Size>
+		<Anchors>
+			<Anchor point="LEFT"/>
+	</Anchors>
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="TopOverlay" file="Interface/AddOns/DiceMaster/Texture/Tooltip">
+				<Size x="95" y="27"/>
+				<Anchors>
+					<Anchor point="CENTER" relativePoint="TOP" x="0" y="-2"/>
+				</Anchors>
+				<TexCoords left="0.0078125" right="0.75" top="0.226562" bottom="0.4375"/>
+			</Texture>
+		</Layer>
+		<Layer level="ARTWORK">
+			<FontString name="$parentTextLeft1" parentKey="TextLeft1" inherits="GameTooltipText">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="12" y="-12"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+	<Scripts>
+			<OnShow>
+				local layout = NineSliceUtil.GetLayout("TooltipAzeriteLayout");
+				NineSliceUtil.ApplyLayout(self.NineSlice, layout);
+				self.NineSlice:Show();
+				self.TopOverlay:SetScale(0.75);
+				self:ClearAllPoints()
+				self:SetPoint("TOPLEFT", GameTooltip, "TOPRIGHT")
+				if self.TextLeft1:GetWidth() > 230 then self.TextLeft1:SetWidth( 230 ); end
+				self:SetWidth( self.TextLeft1:GetWidth() + 24 );	
+				self:SetHeight( self.TextLeft1:GetHeight() + 24 )
+				if self:GetRight() and self:GetRight() > GetScreenWidth() then
+					self:ClearAllPoints()
+					self:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT")
+				end
+				if self:GetBottom() and 0 > self:GetBottom() then
+					self:ClearAllPoints()
+					self:SetPoint("BOTTOMLEFT", GameTooltip, "TOPLEFT")
+				end
+				if self:GetTop() and self:GetTop() > GetScreenHeight() then
+					self:ClearAllPoints()
+					self:SetPoint("TOPRIGHT", GameTooltip, "TOPLEFT", 0, -45)
+				end
+			</OnShow>
+	</Scripts>
+  </Frame>
+  
+  <Frame name="DiceMasterTooltipIcon" frameStrata="TOOLTIP" hidden="true" parent="GameTooltip">
+	<Size x="42" y="42"/>
+	<Layers>
+		<Layer level="ARTWORK">
+			<Texture parentKey="icon" setAllPoints="true" file="Interface/Icons/inv_misc_questionmark">
+			</Texture>
+		</Layer>
+		<Layer level="OVERLAY">
+			<Texture parentKey="approved" file="Interface/AddOns/DiceMaster/Texture/trait-approved" hidden="true">
+				<Size x="24" y="24"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="8" y="-8"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+	</Layers>
+	<Scripts>
+		<OnShow>
+			self:SetPoint("TOPRIGHT", GameTooltip, "TOPLEFT", -2, -2)
+		</OnShow>
+	</Scripts>
+  </Frame>
+  
+  <Frame name="DiceMasterItemRefTooltip" frameStrata="TOOLTIP" hidden="true" parent="ItemRefTooltip" inherits="TooltipBorderedFrameTemplate">
+	<Size>
+		<AbsDimension x="128" y="64"/>
+	</Size>
+		<Anchors>
+			<Anchor point="LEFT"/>
+	</Anchors>
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture parentKey="TopOverlay" file="Interface/AddOns/DiceMaster/Texture/Tooltip">
+				<Size x="95" y="27"/>
+				<Anchors>
+					<Anchor point="CENTER" relativePoint="TOP" x="0" y="-2"/>
+				</Anchors>
+				<TexCoords left="0.0078125" right="0.75" top="0.226562" bottom="0.4375"/>
+			</Texture>
+		</Layer>
+		<Layer level="ARTWORK">
+			<FontString name="$parentTextLeft1" parentKey="TextLeft1" inherits="GameTooltipText">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="10" y="-10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+	<Scripts>
+		<OnShow>
+			local layout = NineSliceUtil.GetLayout("TooltipAzeriteLayout");
+			NineSliceUtil.ApplyLayout(self.NineSlice, layout);
+			self.NineSlice:Show();
+			self.TopOverlay:SetScale(0.75);
+			self:ClearAllPoints()
+			self:SetPoint("TOPLEFT", ItemRefTooltip, "TOPRIGHT")
+			if self.TextLeft1:GetWidth() > 230 then self.TextLeft1:SetWidth( 230 ); end
+			self:SetWidth( self.TextLeft1:GetWidth() + 20 );	
+			self:SetHeight( self.TextLeft1:GetHeight() + 20 )
+		</OnShow>
+	</Scripts>
+  </Frame>
+  
+  <Frame name="DiceMasterItemRefIcon" frameStrata="TOOLTIP" hidden="true" parent="ItemRefTooltip">
+	<Size x="42" y="42"/>
+	<Layers>
+		<Layer level="ARTWORK">
+			<Texture parentKey="icon" setAllPoints="true" file="Interface/Icons/inv_misc_questionmark"/>
+		</Layer>
+		<Layer level="OVERLAY">
+			<Texture parentKey="approved" file="Interface/AddOns/DiceMaster/Texture/trait-approved">
+				<Size x="24" y="24"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="8" y="-8"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+	</Layers>
+	<Scripts>
+		<OnShow>
+			self:SetPoint("TOPRIGHT", ItemRefTooltip, "TOPLEFT", -2, -2)
+		</OnShow>
+	</Scripts>
+  </Frame>
+  
+  <Frame name="DiceMasterItemAnim" frameStrata="DIALOG" toplevel="true" hidden="true">
+		<Size x="30" y="30"/>
+		<Animations>
+			<AnimationGroup parentKey="flyin">
+				<Scale childKey="animIcon" fromScaleX="0.125" fromScaleY="0.125" toScaleX="1" toScaleY="1" duration="1" order="1"/>
+				<Alpha childKey="animIcon" fromAlpha="0" toAlpha="1" duration="1" order="1"/>
+				<Path childKey="animIcon" curve="SMOOTH" duration="1" order="1">
+					<ControlPoints>
+						<ControlPoint offsetX="-15" offsetY="30"/>
+						<ControlPoint offsetX="-75" offsetY="60"/>
+					</ControlPoints>
+				</Path>
+				<Scripts>
+					<OnPlay>
+						local iconFrame = self:GetParent();
+						iconFrame.animIcon:Show();
+					</OnPlay>
+					<OnFinished>
+						local iconFrame = self:GetParent();
+						iconFrame.animIcon:Hide();
+						iconFrame:Hide()
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+		</Animations>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture  parentKey="animIcon" setAllPoints="true"/>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnShow>
+				self.flyin:Play(true);
+			</OnShow>
+		</Scripts>
+	</Frame>
+  
+  <!-- Template for the main "trait" buttons. -->
+  <Button name="DiceMasterTraitButton" enableMouse="true" intrinsic="true">
+    <Size x="45" y="45"/>
+    <Layers>
+    
+      <Layer level="BACKGROUND">
+        <Texture name="$parentIcon" parentKey="icon" file="Interface/Icons/inv_misc_questionmark"/>
+		<MaskTexture parentKey="IconMask" atlas="UI-HUD-ActionBar-IconFrame-Mask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+			<Size x="45" y="45"/>
+			<Anchors>
+				<Anchor point="CENTER" relativeKey="$parent.icon"/>
+			</Anchors>
+			<MaskedTextures>
+				<MaskedTexture childKey="icon"/>
+			</MaskedTextures>
+		</MaskTexture>
+		<Texture parentKey="SlotBackground" atlas="UI-HUD-ActionBar-IconFrame-Background" setAllPoints="true"/>
+      </Layer>
+        
+      <Layer level="BORDER">
+        <Texture parentKey="border" atlas="ui-hud-actionbar-iconframe">
+			<Size x="46" y="45"/>
+			<Anchors>
+				<Anchor point="TOPLEFT"/>
+			</Anchors>
+		</Texture>
+		<FontString parentKey="count" inherits="NumberFontNormal" justifyH="RIGHT" hidden="true">
+			<Anchors>
+				<Anchor point="BOTTOMRIGHT">
+					<Offset>
+						<AbsDimension x="-5" y="2"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</FontString>
+      </Layer>
+       
+      <Layer level="OVERLAY" textureSubLevel="1"> 
+		<Texture parentKey="highlight" atlas="UI-HUD-ActionBar-IconFrame-Mouseover" alphaMode="ADD" hidden="true">
+			<Size x="46" y="45"/>
+			<Anchors>
+				<Anchor point="CENTER"/>
+			</Anchors>
+		</Texture>
+      </Layer>
+      
+    </Layers>
+	<Frames>
+		<Cooldown parentKey="cooldown" inherits="CooldownFrameTemplate" setAllPoints="true">
+			<Layers>
+				<Layer level="OVERLAY">
+					<FontString parentKey="text" inherits="Game15Font_o1" justifyH="CENTER" hidden="true">
+						<Anchors>
+							<Anchor point="CENTER" x="0" y="0"/>
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+		</Cooldown>
+		
+		<Frame parentKey="secret" hidden="true">
+			<Size x="36" y="12"/>
+			<Anchors>
+				<Anchor point="TOP" x="0" y="4"/> 
+			</Anchors>
+			<Frames>
+				<Button parentKey="one" enableMouse="true" hidden="true">
+					<Size x="12" y="12"/>
+					<Anchors>
+						<Anchor point="CENTER" x="-10" y="0"/> 
+					</Anchors>
+					<NormalTexture file="Interface/AddOns/DiceMaster/Texture/secret-icon"/>
+					<Scripts>
+						<OnLoad>
+							self:RegisterForClicks("RightButtonDown")
+						</OnLoad>
+						<OnEnter>
+							local trait = DiceMaster4.inspectData[self:GetParent():GetParent().traitPlayer].traits[self:GetParent():GetParent().traitIndex]
+							
+							if self:GetParent():GetParent().traitPlayer == UnitName("player") and ( self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame or self:GetParent():GetParent():GetParent()==DiceMasterTraitEditor ) then
+								if trait["effects"]["secret"] then
+									GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+									GameTooltip:AddLine( "|TInterface/AddOns/DiceMaster/Texture/secret-icon:12|t Secret!" , 1, 1, 1)
+									GameTooltip:AddLine( trait["effects"]["secret"]["desc1"], 1, 0.49, 1, 1)
+									local conditionsList = ""
+									local count = 0
+									for k, v in pairs( trait["effects"]["secret"]["conditions1"] ) do
+										if k then
+											count = count + 1
+										end
+										k = k:gsub( "%.%.%.", "" )
+										if count == 1 then
+											conditionsList = "- " .. k .. "."
+										else
+											conditionsList = conditionsList .. "|n- " .. k .. "."
+										end
+									end
+									GameTooltip:AddLine( "|cFFFFD100This secret is activated when...|r|n"..conditionsList , 1, 1, 1)
+									if self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame then
+										GameTooltip:AddLine( "&lt;Right Click to Disable>" , 0.44, 0.44, 0.44)
+									end
+									GameTooltip:Show()
+								end
+							else
+								GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+								GameTooltip:AddLine( "|TInterface/AddOns/DiceMaster/Texture/secret-icon:12|t Secret!" , 1, 1, 1)
+								GameTooltip:AddLine( "This secret is revealed when activated by a specific condition.", 0.44, 0.44, 0.44, 1)
+								GameTooltip:Show()
+							end
+						</OnEnter>
+						<OnClick>
+							if button=="RightButton" and self:GetParent():GetParent().traitPlayer == UnitName("player") and self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame then
+								DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].secret1Active = false;
+								DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].secret1Enabled = false;
+								self:Hide()
+								PlaySound(857)
+								print("|cFFFFFF00You have disabled |cFF67BCFF["..DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].name.."]|r's |TInterface/AddOns/DiceMaster/Texture/secret-icon:12|t |cFFFFFFFFSecret!|r|r")
+								DiceMaster4.TraitEditor_Refresh()
+								if IsInRaid( LE_PARTY_CATEGORY_HOME ) then
+									DiceMaster4.Inspect_SendTraits( "RAID", nil )
+								elseif IsInGroup( LE_PARTY_CATEGORY_HOME ) then
+									DiceMaster4.Inspect_SendTraits( "PARTY", nil )
+								end
+							end
+						</OnClick>
+						<OnLeave>
+							GameTooltip:Hide()
+						</OnLeave>
+					</Scripts>
+				</Button>
+				<Button parentKey="two" enableMouse="true" hidden="true">
+					<Size x="12" y="12"/>
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="0"/> 
+					</Anchors>
+					<NormalTexture file="Interface/AddOns/DiceMaster/Texture/secret-icon"/>
+					<Scripts>
+						<OnLoad>
+							self:RegisterForClicks("RightButtonDown")
+						</OnLoad>
+						<OnEnter>
+							local trait = DiceMaster4.inspectData[self:GetParent():GetParent().traitPlayer].traits[self:GetParent():GetParent().traitIndex]
+							
+							if self:GetParent():GetParent().traitPlayer == UnitName("player") and ( self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame or self:GetParent():GetParent():GetParent()==DiceMasterTraitEditor ) then
+								if trait["effects"]["secret"] then
+									GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+									GameTooltip:AddLine( "|TInterface/AddOns/DiceMaster/Texture/secret-icon:12|t Secret!" , 1, 1, 1)
+									GameTooltip:AddLine( trait["effects"]["secret"]["desc2"], 1, 0.49, 1, 1)
+									local conditionsList = ""
+									local count = 0
+									for k, v in pairs( trait["effects"]["secret"]["conditions2"] ) do
+										if k then
+											count = count + 1
+										end
+										k = k:gsub( "%.%.%.", "" )
+										if count == 1 then
+											conditionsList = "- " .. k .. "."
+										else
+											conditionsList = conditionsList .. "|n- " .. k .. "."
+										end
+									end
+									GameTooltip:AddLine( "|cFFFFD100This secret is activated when...|r|n"..conditionsList , 1, 1, 1)
+									if self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame then
+										GameTooltip:AddLine( "&lt;Right Click to Disable>" , 0.44, 0.44, 0.44)
+									end
+									GameTooltip:Show()
+								end
+							else
+								GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+								GameTooltip:AddLine( "|TInterface/AddOns/DiceMaster/Texture/secret-icon:12|t Secret!" , 1, 1, 1)
+								GameTooltip:AddLine( "This secret is revealed when activated by a specific condition.", 0.44, 0.44, 0.44, 1)
+								GameTooltip:Show()
+							end
+						</OnEnter>
+						<OnClick>
+							if button=="RightButton" and self:GetParent():GetParent().traitPlayer == UnitName("player") and self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame then
+								DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].secret2Active = false;
+								DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].secret2Enabled = false;
+								self:Hide()
+								PlaySound(857)
+								print("|cFFFFFF00You have disabled |cFF67BCFF["..DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].name.."]|r's |TInterface/AddOns/DiceMaster/Texture/secret-icon:12|t |cFFFFFFFFSecret!|r|r")
+								DiceMaster4.TraitEditor_Refresh()
+								if IsInRaid( LE_PARTY_CATEGORY_HOME ) then
+									DiceMaster4.Inspect_SendTraits( "RAID", nil )
+								elseif IsInGroup( LE_PARTY_CATEGORY_HOME ) then
+									DiceMaster4.Inspect_SendTraits( "PARTY", nil )
+								end
+							end
+						</OnClick>
+						<OnLeave>
+							GameTooltip:Hide()
+						</OnLeave>
+					</Scripts>
+				</Button>
+				<Button parentKey="three" enableMouse="true" hidden="true">
+					<Size x="12" y="12"/>
+					<Anchors>
+						<Anchor point="CENTER" x="10" y="0"/> 
+					</Anchors>
+					<NormalTexture file="Interface/AddOns/DiceMaster/Texture/secret-icon"/>
+					<Scripts>
+						<OnLoad>
+							self:RegisterForClicks("RightButtonDown")
+						</OnLoad>
+						<OnEnter>
+							local trait = DiceMaster4.inspectData[self:GetParent():GetParent().traitPlayer].traits[self:GetParent():GetParent().traitIndex]
+							
+							if self:GetParent():GetParent().traitPlayer == UnitName("player") and ( self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame or self:GetParent():GetParent():GetParent()==DiceMasterTraitEditor ) then
+								if trait["effects"]["secret"] then
+									GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+									GameTooltip:AddLine( "|TInterface/AddOns/DiceMaster/Texture/secret-icon:12|t Secret!" , 1, 1, 1)
+									GameTooltip:AddLine( trait["effects"]["secret"]["desc3"], 1, 0.49, 1, 1)
+									local conditionsList = ""
+									local count = 0
+									for k, v in pairs( trait["effects"]["secret"]["conditions3"] ) do
+										if k then
+											count = count + 1
+										end
+										k = k:gsub( "%.%.%.", "" )
+										if count == 1 then
+											conditionsList = "- " .. k .. "."
+										else
+											conditionsList = conditionsList .. "|n- " .. k .. "."
+										end
+									end
+									GameTooltip:AddLine( "|cFFFFD100This secret is activated when...|r|n"..conditionsList , 1, 1, 1)
+									if self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame then
+										GameTooltip:AddLine( "&lt;Right Click to Disable>" , 0.44, 0.44, 0.44)
+									end
+									GameTooltip:Show()
+								end
+							else
+								GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+								GameTooltip:AddLine( "|TInterface/AddOns/DiceMaster/Texture/secret-icon:12|t Secret!" , 1, 1, 1)
+								GameTooltip:AddLine( "This secret is revealed when activated by a specific condition.", 0.44, 0.44, 0.44, 1)
+								GameTooltip:Show()
+							end
+						</OnEnter>
+						<OnClick>
+							if button=="RightButton" and self:GetParent():GetParent().traitPlayer == UnitName("player") and self:GetParent():GetParent():GetParent()==DiceMasterChargesFrame then
+								DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].secret3Active = false;
+								DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].secret3Enabled = false;
+								self:Hide()
+								PlaySound(857)
+								print("|cFFFFFF00You have disabled |cFF67BCFF["..DiceMaster4.Profile.traits[self:GetParent():GetParent().traitIndex].name.."]|r's |TInterface/AddOns/DiceMaster/Texture/secret-icon:12|t |cFFFFFFFFSecret!|r|r")
+								DiceMaster4.TraitEditor_Refresh()
+								if IsInRaid( LE_PARTY_CATEGORY_HOME ) then
+									DiceMaster4.Inspect_SendTraits( "RAID", nil )
+								elseif IsInGroup( LE_PARTY_CATEGORY_HOME ) then
+									DiceMaster4.Inspect_SendTraits( "PARTY", nil )
+								end
+							end
+						</OnClick>
+						<OnLeave>
+							GameTooltip:Hide()
+						</OnLeave>
+					</Scripts>
+				</Button>
+			</Frames>
+			<Scripts>
+				<OnHide>
+					self.one:Hide()
+					self.two:Hide()
+					self.three:Hide()
+				</OnHide>
+			</Scripts>
+		</Frame>
+	</Frames>
+    <Scripts>
+      <OnLoad>
+        DiceMaster4.TraitButton_Init( self )
+      </OnLoad>
+      <OnSizeChanged>
+        
+        local qw, qh = self:GetWidth(), self:GetHeight()
+        self.IconMask:SetSize( qw*1.4, qh*1.4 )
+        self.border:SetSize( qw*1.02, qh )
+        self.highlight:SetSize( qw*1.02, qh )
+      </OnSizeChanged>
+    </Scripts>
+    
+  </Button>
+
+</Ui>
