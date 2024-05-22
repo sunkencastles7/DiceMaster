@@ -35,23 +35,20 @@
 			</OnClick>
 		</Scripts>
 	</Button>
+
+	<Frame name="DiceMasterAuraDummyTemplate" enableMouse="false" virtual="true">
+		<Size x="30" y="30"/>
+	</Frame>
   
-	<Frame name="DiceMasterBuffFrame" parent="UIParent" frameStrata="LOW" toplevel="true">
-		<Size x="100" y="30"/>
+	<Frame name="DiceMasterBuffFrame" parent="UIParent">
 		<Anchors>
 			<Anchor point="TOPRIGHT" relativeTo="BuffFrame" relativePoint="TOPRIGHT" x="0" y="0">
 			</Anchor>
 		</Anchors>
 		<Scripts>
 			<OnLoad> 
-				self.Title = "Buffs Frame"
-				tinsert(DiceMaster4.EditModeFrames, self);
-				
 				DiceMaster4.BuffFrame_OnLoad(self)
 			</OnLoad>
-			<OnEvent>
-				DiceMaster4.BuffFrame_OnEvent(self, event, ...)
-			</OnEvent>
 		</Scripts>
 	</Frame>
 

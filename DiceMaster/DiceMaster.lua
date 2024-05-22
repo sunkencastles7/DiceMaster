@@ -1173,6 +1173,13 @@ function Me.GetModifiersFromSkillGUID( guid, includeSelf )
 		modifiers = skill.rank;
 	end
 
+	-- Find any buffs that are also boosting this skill...
+	for i = 1,#Profile.buffsActive do
+		if Profile.buffsActive[i].skill and Profile.buffsActive[i].skill == skill.name then
+			modifiers = modifiers + ( Profile.buffsActive[i].skillRank * Profile.buffsActive[i].count );
+		end
+	end
+
 	if not( skill and skill.skillModifiers ) then
 		return modifiers;
 	end
@@ -1183,14 +1190,14 @@ function Me.GetModifiersFromSkillGUID( guid, includeSelf )
 		for i = 1, #Me.Profile.skills do
 			if Me.Profile.skills[i].guid == skill.skillModifiers[skillIndex] then
 				modifiers = modifiers + Me.Profile.skills[i].rank;
+
+				-- Find any buffs that are also boosting this skill...
+				for index = 1,#Profile.buffsActive do
+					if Profile.buffsActive[index].skill and Profile.buffsActive[index].skill == Me.Profile.skills[i].name then
+						modifiers = modifiers + ( Profile.buffsActive[index].skillRank * Profile.buffsActive[index].count );
+					end
+				end
 			end
-		end
-	end
-	
-	-- Find any buffs that are also boosting this skill...
-	for i = 1,#Profile.buffsActive do
-		if Profile.buffsActive[i].skill and Profile.buffsActive[i].skill == guid then
-			modifiers = modifiers + ( Profile.buffsActive[i].skillRank * Profile.buffsActive[i].count );
 		end
 	end
 	

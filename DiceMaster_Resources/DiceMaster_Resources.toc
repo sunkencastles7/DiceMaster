@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 100207
 ## Title: DiceMaster Resources
 ## Author: Skylar
 ## Notes: A load-on-demand database of resources used by DiceMaster.
@@ -10,3 +10,4 @@
 DiceMaster_Resources.lua
 Lists/SoundList.lua
 Lists/ModelList.lua
+Lists/SpellVisualKitList.lua

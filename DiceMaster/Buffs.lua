@@ -42,59 +42,114 @@ function Me.BuffFrame_OnLoad(self)
 	self:RegisterEvent("GROUP_ROSTER_UPDATE");
 	self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
 
+	for i = 1, #BuffFrame.auraFrames do
+		BuffFrame.auraFrames[i].Dummy = CreateFrame("FRAME", nil, BuffFrame.auraFrames[i], "DiceMasterAuraDummyTemplate");
+		BuffFrame.auraFrames[i].Dummy:SetAllPoints();
+		BuffFrame.auraFrames[i].Dummy:SetScript("OnUpdate", function(self)
+			if GameTooltip:IsOwned(self) then
+				self:GetParent():GetScript("OnEnter")(self:GetParent())
+			end
+		end);
+	end
 
 	hooksecurefunc( BuffFrame, "UpdateAuras", function()
 		for i = 1, #Profile.buffsActive do
-			local buffTable = BuffFrame.auraInfo
-			local data = {
-				auraType = "DiceMaster Buff";
-				index = #buffTable + 1;
-				name = Profile.buffsActive[i].name;
-				texture = Profile.buffsActive[i].icon;
-				description = Profile.buffsActive[i].description;
-				count = Profile.buffsActive[i].count;
-				duration = Profile.buffsActive[i].duration;
-				turns = Profile.buffsActive[i].turns or 0;
-				expirationTime = Profile.buffsActive[i].expirationTime;
-				sender = Profile.buffsActive[i].sender;
-			}
-			tinsert( buffTable, data )
+			local timeLeft = Profile.buffsActive[i].expirationTime - GetTime();
+			if ( timeLeft > 0 ) or ( Profile.buffsActive[i].duration and Profile.buffsActive[i].duration == 0 ) or ( Profile.buffsActive[i].turns and Profile.buffsActive[i].turns > 0 ) then
+				local buffTable = BuffFrame.auraInfo
+				local data = {
+					isDMBuff = true;
+					auraType = "Debuff";
+					debuffType = Profile.buffsActive[i].debuffType or nil;
+					index = 0;
+					ID = i;
+					name = Profile.buffsActive[i].name;
+					texture = Profile.buffsActive[i].icon;
+					description = Profile.buffsActive[i].description;
+					count = Profile.buffsActive[i].count;
+					duration = Profile.buffsActive[i].duration;
+					turns = Profile.buffsActive[i].turns or 0;
+					expirationTime = Profile.buffsActive[i].expirationTime or 0;
+					sender = Profile.buffsActive[i].sender;
+				}
+				tinsert( buffTable, data )
+			end
 		end
-			
 	end)
 
 	for i = 1, #BuffFrame.auraFrames do
 		BuffFrame.auraFrames[i]:HookScript("OnEnter", function( self )
-			if self.auraType == "DiceMaster Buff" then
-				GameTooltip:Show();
+			if self.buttonInfo.isDMBuff then
+				local data = self.buttonInfo;
+				local timeLeft;
+				if ( data.duration and data.duration > 0 and data.expirationTime ) then
+					timeLeft = (data.expirationTime - GetTime());
+				end
+				GameTooltip:SetOwner( self.Dummy, "ANCHOR_BOTTOMLEFT" )
+				if data.debuffType then
+					GameTooltip:AddDoubleLine( data.name, data.debuffType, 1, 0.81, 0, 1, 0.81, 0, true, true )
+				else
+					GameTooltip:AddLine( data.name, 1, 0.81, 0, true )
+				end
+				GameTooltip:AddLine( Me.FormatDescTooltip( data.description ), 1, 1, 1, true )
+				if timeLeft then
+					GameTooltip:AddLine( Me.BuffButton_FormatTime(timeLeft).." remaining", 1, 0.81, 0, true )
+				elseif data.turns and data.turns > 0 then
+					if data.turns > 1 then
+						GameTooltip:AddLine( data.turns .. " turns remaining", 1, 0.81, 0, true )
+					else
+						GameTooltip:AddLine( data.turns .. " turn remaining", 1, 0.81, 0, true )
+					end
+				end
+				GameTooltip:AddLine( "Given by ".. data.sender, 0.5, 0.5, 0.5, true )
+				GameTooltip:Show()
+			end
+		end)
+		BuffFrame.auraFrames[i]:HookScript("OnClick", function( self, button )
+			if self.buttonInfo.isDMBuff then
+				local data = self.buttonInfo;
+				if Profile.buffsActive[self:GetID()].count == 1 then
+					tremove( Profile.buffsActive, self:GetID() )
+				else
+					Profile.buffsActive[self:GetID()].count = Profile.buffsActive[self:GetID()].count - 1
+				end
+				BuffFrame:Update();
+				Me.SkillFrame_UpdateSkills()
+			end
+		end)
+		hooksecurefunc(BuffFrame.auraFrames[i], "Update", function( self, buttonInfo )
+			if buttonInfo.isDMBuff then
+				local data = buttonInfo;
+				local timeLeft = (data.expirationTime - GetTime());
+				if ( data.duration and data.duration > 0 and data.expirationTime and data.expirationTime > 0 ) or ( data.turns and data.turns > 0 ) then
+					self.Duration:Show()
+					if data.turns and data.turns > 0 then
+						self.Duration:SetText( data.turns .. " t" )
+						self.Duration:SetVertexColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
+					else
+						self.Duration:SetFormattedText(SecondsToTimeAbbrev(timeLeft));
+						if timeLeft < BUFF_DURATION_WARNING_TIME then
+							self.Duration:SetVertexColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
+						else
+							self.Duration:SetVertexColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
+						end
+					end
+				else
+					self.Duration:Hide()
+				end
+			end
+		end)
+		hooksecurefunc(BuffFrame.auraFrames[i], "UpdateDuration", function( self, timeLeft )
+			if self.buttonInfo.isDMBuff then
+				if timeLeft <= 0 then
+					BuffFrame:UpdateAuras();
+					BuffFrame:UpdateAuraButtons();
+					tremove( Profile.buffsActive, self:GetID() )
+					Me.SkillFrame_UpdateSkills()
+				end
 			end
 		end)
 	end
-end
-
-function Me.BuffFrame_OnEvent(self, event, ...)
-	local unit = ...;
-	if ( event == "UNIT_AURA" ) then
-		if ( unit == PlayerFrame.unit ) then
-			Me.BuffFrame_Update();
-		end
-	elseif ( event == "GROUP_ROSTER_UPDATE" or event == "PLAYER_SPECIALIZATION_CHANGED" or event == "PLAYER_ENTERING_WORLD" ) then
-		Me.BuffFrame_Update();
-	end
-end
-
-function Me.BuffFrame_Update()
-	-- Handle Buffs
-	DiceMasterBuffFrame.Display = 0;
-	for i=1, ( 5 ) do
-		if ( Me.BuffButton_Update("DiceMasterBuffButton", i) ) then
-			DiceMasterBuffFrame.Display = DiceMasterBuffFrame.Display + 1;
-		end
-	end
-
-	--Me.BuffFrame_UpdateAllBuffAnchors();
-	Me.BumpSerial( Me.db.char, "statusSerial" )
-	Me.Inspect_ShareStatusWithParty()
 end
 
 function Me.BuffButton_Update(buttonName, index)
@@ -272,68 +327,6 @@ function Me.BuffButton_OnClick(self)
 	Me.Inspect_ShareStatusWithParty()
 end
 
-local function FramesOverlap(frameA, frameB)
-  local sA, sB = frameA:GetEffectiveScale(), frameB:GetEffectiveScale();
-  return ((frameA:GetLeft()*sA) < (frameB:GetRight()*sB))
-     and ((frameB:GetLeft()*sB) < (frameA:GetRight()*sA))
-     and ((frameA:GetBottom()*sA) < (frameB:GetTop()*sB))
-     and ((frameB:GetBottom()*sB) < (frameA:GetTop()*sA));
-end
-
-function Me.BuffFrame_UpdateAllBuffAnchors()
-	local buff, previousBuff, aboveBuff, index;
-	local numBuffs = 0;
-	local numAuraRows = 0;
-	
-	for i = 1, DiceMasterBuffFrame.Display do
-		buff = _G["DiceMasterBuffButton"..i];
-		numBuffs = numBuffs + 1;
-		if ( buff.parent ~= DiceMasterBuffFrame ) then
-			buff.count:SetFontObject(NumberFontNormal);
-			buff:SetParent(DiceMasterBuffFrame);
-			buff.parent = DiceMasterBuffFrame;
-		end
-		buff:ClearAllPoints();
-		if FramesOverlap(DiceMasterBuffFrame, BuffFrame) then
-			if ( (numBuffs > 1) and (mod(0 + numBuffs, BUFFS_PER_ROW) == 1) ) then
-				-- New row
-				numAuraRows = numAuraRows + 1;
-				buff:SetPoint("TOPRIGHT", aboveBuff, "BOTTOMRIGHT", 0, -BUFF_ROW_SPACING);
-				aboveBuff = buff;
-			elseif ( numBuffs == 1 ) then
-				numAuraRows = 1;
-				if _G["BuffButton1"] then
-					buff:SetPoint("TOPRIGHT", _G["BuffButton" .. 0], "TOPLEFT", BUFF_HORIZ_SPACING, 0);
-					if numBuffs < 0 then
-						aboveBuff = _G["BuffButton" .. numBuffs];
-					else
-						aboveBuff = buff
-					end
-				else
-					buff:SetPoint("TOPRIGHT", DiceMasterBuffFrame, "TOPRIGHT", 0, 0);
-					aboveBuff = buff
-				end
-			else
-				buff:SetPoint("RIGHT", previousBuff, "LEFT", BUFF_HORIZ_SPACING, 0);
-			end
-		else
-			if ( (numBuffs > 1) and (mod(numBuffs, BUFFS_PER_ROW) == 1) ) then
-				-- New row
-				numAuraRows = numAuraRows + 1;
-				buff:SetPoint("TOPRIGHT", aboveBuff, "BOTTOMRIGHT", 0, -BUFF_ROW_SPACING);
-				aboveBuff = buff;
-			elseif ( numBuffs == 1 ) then
-				numAuraRows = 1;
-				buff:SetPoint("TOPRIGHT", DiceMasterBuffFrame, "TOPRIGHT", 0, 0);
-				aboveBuff = buff
-			else
-				buff:SetPoint("RIGHT", previousBuff, "LEFT", BUFF_HORIZ_SPACING, 0);
-			end
-		end
-		previousBuff = buff;
-	end
-end
-
 function Me.BuffFrame_CastBuff( data )
 	local buff
 	if type( data ) == "table" and data.type and data.type == "buff" then
@@ -345,6 +338,10 @@ function Me.BuffFrame_CastBuff( data )
 		local name = tostring( buff.name )
 		local icon = tostring( buff.icon )
 		local desc = tostring( buff.desc )
+		local debuffType
+		if buff.debuffType then
+			debuffType = tostring( buff.debuffType );
+		end
 		local skill = tostring( buff.skill )
 		local skillRank = tonumber( buff.skillRank )
 		local duration = 0;
@@ -373,6 +370,7 @@ function Me.BuffFrame_CastBuff( data )
 			na = name;
 			ic = icon;
 			de = desc;
+			dt = debuffType;
 			at = skill;
 			am = skillRank;
 			st = stackable;
@@ -502,18 +500,22 @@ function Me.BuffFrame_OnBuffMessage( data, dist, sender )
 		end		
 	end
 	
-	-- if buff doesn't exist and we have less than 5, apply it
-	if not found and #Profile.buffsActive < 5 then
+	-- if buff doesn't exist and we have less than 32, apply it
+	if not found and #Profile.buffsActive < 32 then
 		local buff = {
 			name = tostring(data.na),
 			icon = tostring(data.ic),
 			description = tostring(data.de),
 			count = tonumber(data.co),
 			duration = 0,
+			expirationTime = 0,
 			turns = 0,
 			sender = sender,
 		}
-		if data.du then
+		if data.dt and DebuffTypeColor[tostring(data.dt)] then
+			buff.debuffType = tostring(data.dt)
+		end
+		if data.du and tonumber(data.du) > 0 then
 			buff.duration = tonumber(data.du)
 			buff.expirationTime = (GetTime() + tonumber( data.du ))
 		end
@@ -528,7 +530,7 @@ function Me.BuffFrame_OnBuffMessage( data, dist, sender )
 	end
 	Me.SkillFrame_UpdateSkills()
 	Me.BumpSerial( Me.db.char, "statusSerial" )
-	Me.BuffFrame_Update()
+	BuffFrame:Update();
 	Me.Inspect_ShareStatusWithParty()
 	Me.Inspect_SendSkills( "RAID" )
 end
@@ -562,6 +564,6 @@ function Me.BuffFrame_OnRemoveBuffMessage( data, dist, sender )
 	end
 	Me.SkillFrame_UpdateSkills()
 	Me.BumpSerial( Me.db.char, "statusSerial" )
-	Me.BuffFrame_Update()
+	BuffFrame:Update();
 	Me.Inspect_ShareStatusWithParty()
 end
