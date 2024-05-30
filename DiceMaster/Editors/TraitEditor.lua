@@ -2053,46 +2053,63 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 	statusBarBorder.skillIcon = skillIcon;
 	-- Set skill description text
 	if ( skillDescription ) then
-		local modifiedSkillRank;
+		local coloredSkillRank;
+		local expandedDescription = skillDescription .. "|n|cFFFFFFFF( " .. skillRank;
 		if ( Me.GetModifiersFromSkillGUID( skillGUID ) ~= 0 ) then
 			local modifiers = Me.GetModifiersFromSkillGUID( skillGUID );
 			local color = RED_FONT_COLOR_CODE;
 			if ( modifiers > 0 ) then
 				color = GREEN_FONT_COLOR_CODE.."+"
 			end
-			modifiedSkillRank = skillRank .." "..color..modifiers..FONT_COLOR_CODE_CLOSE;
+			coloredSkillRank = color.. (skillRank+modifiers)..FONT_COLOR_CODE_CLOSE;
 		else
-			modifiedSkillRank = skillRank;
+			coloredSkillRank = skillRank;
 		end
+		statusBarBorder.expandedDescriptionModifiers = {};
+		if skillModifiers and #skillModifiers > 0 then
+			for i = 1, #skillModifiers do 
+				local modifier = Me.GetSkillByGUID( skillModifiers[i] );
+				local color = RED_FONT_COLOR_CODE;
+				if tonumber( modifier.rank ) > 0 then
+					color = GREEN_FONT_COLOR_CODE.."+"
+				end
+				if tonumber( modifier.rank ) ~= 0 then
+					local mod = {
+						color .. modifier.rank .. "|r";
+						"|T" .. modifier.icon .. ":12|t " .. modifier.name;
+					}
+					tinsert( statusBarBorder.expandedDescriptionModifiers, mod );
+					expandedDescription = expandedDescription .. " " .. color .. modifier.rank .. "|r";
+				end
+			end
+		end
+		for i = 1, #Profile.buffsActive do
+			if Profile.buffsActive[i].skill and Profile.buffsActive[i].skill == skillName then
+				local modifier = Profile.buffsActive[i].skillRank;
+				local color = RED_FONT_COLOR_CODE;
+				if tonumber( modifier ) > 0 then
+					color = GREEN_FONT_COLOR_CODE.."+"
+				end
+				if tonumber( modifier ) ~= 0 then
+					local mod = {
+						color .. Profile.buffsActive[i].skillRank .. "|r";
+						"|T" .. Profile.buffsActive[i].icon .. ":12|t " .. Profile.buffsActive[i].name;
+					}
+					tinsert( statusBarBorder.expandedDescriptionModifiers, mod );
+					expandedDescription = expandedDescription .. " " .. color .. Profile.buffsActive[i].skillRank .. "|r";
+				end
+			end
+		end
+		expandedDescription = expandedDescription .. " = " .. coloredSkillRank .. " / " .. skillMaxRank .. " )|r";
+		
 		if ( skillMaxRank == 0) then
-			skillDescription = "|cFFFFFFFFRank " .. modifiedSkillRank .. "|r|n" .. skillDescription;
+			skillDescription = "|cFFFFFFFFRank " .. coloredSkillRank .. "|r|n" .. skillDescription;
 		else
-			skillDescription = skillDescription .. "|n|cFFFFFFFF( " .. modifiedSkillRank .. " / " .. skillMaxRank .. " )|r";
+			skillDescription = skillDescription .. "|n|cFFFFFFFF( " .. coloredSkillRank .. " / " .. skillMaxRank .. " )|r";
 		end
+		statusBarBorder.skillDescription = skillDescription;
+		statusBarBorder.expandedDescription = expandedDescription;
 	end
-	statusBarBorder.skillDescription = skillDescription;
-	local expandedDescription = skillDescription;
-	if skillModifiers and #skillModifiers > 0 then
-		for i = 1, #skillModifiers do 
-			local modifier = Me.GetSkillByGUID( skillModifiers[i] );
-			local color = RED_FONT_COLOR_CODE;
-			if tonumber( modifier.rank ) > 0 then
-				color = GREEN_FONT_COLOR_CODE.."+"
-			end
-			if tonumber( modifier.rank ) ~= 0 then
-				-- Add an extra line if it's the first skill
-				if i == 1 then
-					expandedDescription = expandedDescription .. "|n|n|cFFFFFFFFModifiers:|r|n"
-				end
-				if i == #skillModifiers then
-					expandedDescription = expandedDescription .. color .. modifier.rank .. "|r " .. "|T" .. modifier.icon .. ":12|t " .. modifier.name;
-				else
-					expandedDescription = expandedDescription .. color .. modifier.rank .. "|r " .. "|T" .. modifier.icon .. ":12|t " .. modifier.name .. "|n";
-				end
-			end
-		end
-	end
-	statusBarBorder.expandedDescription = expandedDescription;
 	
 	-- Anchor the text to the left by default
 	statusBarName:ClearAllPoints();
@@ -2143,25 +2160,26 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 		statusBarFillBar:Hide();
 		statusBarBackground:SetVertexColor(1.0, 1.0, 1.0, 0.5);
 	elseif ( skillMaxRank > 0 ) then
+		local color;
 		statusBar:SetMinMaxValues(0, skillMaxRank);
 		statusBar:SetValue(skillRankStart);
 		if tonumber( skillRank ) < 0 then
-			skillRank = RED_FONT_COLOR_CODE .. skillRank .. FONT_COLOR_CODE_CLOSE;
+			color = RED_FONT_COLOR_CODE;
 		end
 		if ( Me.GetModifiersFromSkillGUID( skillGUID ) == 0 ) then
-			statusBarSkillRank:SetText(skillRank.."/"..skillMaxRank);
+			statusBarSkillRank:SetText(skillRank..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
 			statusBarFillBar:Hide();
 		else
 			local modifiers = Me.GetModifiersFromSkillGUID( skillGUID );
-			local color = RED_FONT_COLOR_CODE;
+			color = RED_FONT_COLOR_CODE;
 			statusBarFillBar:Hide();
 			if ( modifiers > 0 ) then
-				skillRank = GREEN_FONT_COLOR_CODE..(skillRank + modifiers);
+				color = GREEN_FONT_COLOR_CODE;
 				statusBarFillBar:SetMinMaxValues(0, skillMaxRank);
 				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
-			statusBarSkillRank:SetText(skillRank..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
+			statusBarSkillRank:SetText( color .. (skillRank+modifiers) ..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
 		end
 	end
 end
@@ -2307,6 +2325,7 @@ function Me.SkillDetailFrame_SetStatusBar( skillPosition )
 		statusBarBackground:SetVertexColor(1.0, 1.0, 1.0, 0.5);
 		statusBarFillBar:Hide();
 	elseif ( skillMaxRank > 0 ) then
+		statusBarFillBar:Hide();
 		statusBar:SetMinMaxValues(0, skillMaxRank);
 		statusBar:SetValue(skillRank);
 		if tonumber( skillRank ) < 0 then
@@ -2314,7 +2333,6 @@ function Me.SkillDetailFrame_SetStatusBar( skillPosition )
 		end
 		if ( Me.GetModifiersFromSkillGUID( skillGUID ) == 0 ) then
 			statusBarSkillRank:SetText(skillRank.."/"..skillMaxRank);
-			statusBarFillBar:Hide();
 		else
 			local modifiers = Me.GetModifiersFromSkillGUID( skillGUID );
 			local color = RED_FONT_COLOR_CODE;
@@ -2687,6 +2705,120 @@ function DiceMasterTraitEditorTutorialMixin:ToggleHelpInfo()
 	end
 end
 
+
+function Me.ChooseTraitListButton_OnClick( self, button )
+	if not( DiceMasterChooseTraitList.parentButton ) then
+		return
+	end
+
+	if self.traitIndex then
+		DiceMasterChooseTraitList.selectedSpell = self.spellName;
+		-- DiceMasterChooseTraitList.parentButton.Icon:SetTexture( "Interface/AddOns/DiceMaster/Icons/BG3/" .. spell.icon);
+		Me.DiceMasterChooseSpellList_UpdateShownSpells( DiceMasterChooseTraitList )
+		DiceMasterChooseTraitList:Hide();
+	end
+end
+
+function Me.ChooseTraitListButton_Update( button )
+	
+	local trait = button.trait;
+
+	if (trait.locked) then
+		button.Name:SetTextColor(DISABLED_FONT_COLOR:GetRGB());
+		button.Icon:SetDesaturated(true);
+		button.Icon:SetVertexColor(1, 1, 1);
+		button.Selected:Hide();
+		button.disallowNormalClicks = true;
+	else
+		if button.selected or button.selectedOther then
+			button.Name:SetTextColor(YELLOW_FONT_COLOR:GetRGB());
+		else
+			button.Name:SetTextColor(HIGHLIGHT_FONT_COLOR:GetRGB());
+		end
+		button.Icon:SetDesaturated(false);
+		button.Selected:SetShown(button.selected);
+		button.disallowNormalClicks = false;
+	end
+
+	if button.selectedOther then
+		button:SetAlpha(0.4);
+	else
+		button:SetAlpha(1);
+	end
+
+	button.SelectedOtherCheck:SetShown(button.selectedOther);
+
+	button.Border:SetShown(not button.selected and not button.selectedOther);
+
+	button.Name:SetText( trait.name );
+	button.Icon:SetTexture( trait.icon );
+
+	if GameTooltip:GetOwner() == button then
+		button:OnEnter();
+	end
+end
+
+function Me.ChooseTraitListButton_Init(button, elementData)
+	button.trait = elementData.trait;
+	button.traitName = elementData.traitName;
+	button.selected = elementData.selected;
+	button.selectedOther = elementData.selectedOther;
+	button.owner = elementData.owner;
+	Me.ChooseTraitListButton_Update( button );
+end
+
+function Me.ChooseTraitList_OnLoad( self )
+	local view = CreateScrollBoxListLinearView();
+	view:SetElementInitializer("DiceMasterChooseTraitListButtonTemplate", function(button, elementData)
+		Me.ChooseTraitListButton_Init( button, elementData );
+	end);
+	view:SetPadding( 1, 0, 0, 0, PVP_TALENT_LIST_BUTTON_OFFSET );
+	
+	self.ScrollBox:Init(view);
+end
+
+function Me.ChooseTraitList_OnShow( self )
+	self.ScrollBox:ScrollToBegin(ScrollBoxConstants.NoScrollInterpolation);
+	Me.ChooseTraitList_Update( self );
+
+	local view = self.ScrollBox:GetView();
+	local viewHeight = view:GetExtent();
+	self:SetSize(self:GetWidth(), Me.Clamp( viewHeight, 0, 300 ));
+
+	Me.ChooseTraitList_UpdateShownTraits( self );
+end
+
+function Me.ChooseTraitList_OnHide( self )
+	self.availableTraits = nil;
+	self.parentButton = nil;
+	self.selectedTrait = nil;
+	selectedTraits = {};
+end
+
+function Me.ChooseTraitList_UpdateShownTraits( self )
+	self.ScrollBox:ForEachFrame(function(listButton)
+		Me.ChooseTraitListButton_Update( listButton )
+	end);
+end
+
+function Me.ChooseTraitList_Update( self )
+	local numTraits = #self.availableTraits;
+	local availableTraits = self.availableTraits;
+
+	local selectedTrait = self.selectedTrait;
+	local selectedTraits = selectedTraits or {};
+
+	local dataProvider = CreateDataProvider();
+	for index = 1, numTraits do
+		local trait = availableTraits[index];
+		local traitName = availableTraits[index].name;
+		local selected = selectedTrait == traitName;
+		local selectedOther = not( selected ) and tContains( selectedTraits, traitName );
+		dataProvider:Insert( {trait=trait, traitName=traitName, selected=selected, selectedOther=selectedOther, owner=self} );
+	end
+	self.ScrollBox:SetDataProvider(dataProvider);
+end
+
 -------------------------------------------------------------------------------
 -- OnLoad handler
 --
@@ -2711,6 +2843,21 @@ function Me.TraitEditor_OnLoad( self )
 		self.trait_buttons[i].editable_trait = true
 		self.trait_buttons[i]:SetScript( "OnMouseDown", function( self, button )
 			Me.TraitEditor_OnTraitClicked( self, button )
+		end)
+	end
+	
+	if Me.PermittedUse() then
+		self.trait_buttons[5]:SetScript( "OnMouseDown", function( self, button )
+			if not( DiceMasterChooseTraitList:IsShown() ) then
+				DiceMasterChooseTraitList.availableTraits = DiceMaster4.EquipmentSlotItems;
+				DiceMasterChooseTraitList.parentButton = self;
+				DiceMasterChooseTraitList.selectedTrait = nil;
+				DiceMasterChooseTraitList.Title:SetText( "Choose an Item:" );
+				DiceMasterChooseTraitList:Show();
+				DiceMasterChooseTraitList:SetPoint("BOTTOM", self, "TOP", 0, 0);
+			else
+				DiceMasterChooseTraitList:Hide();
+			end
 		end)
 	end
 end
@@ -2854,6 +3001,10 @@ function Me.TraitEditor_Refresh()
 		Me.editor.trait_buttons[i]:Select( false )
 	end
 	Me.editor.trait_buttons[Me.editing_trait]:Select( true )
+
+	if Me.PermittedUse() then
+		-- TODO
+	end
 end
 
 function Me.TraitEditor_ExportTrait()

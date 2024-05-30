@@ -59,7 +59,7 @@ function Me.BuffFrame_OnLoad(self)
 				local buffTable = BuffFrame.auraInfo
 				local data = {
 					isDMBuff = true;
-					auraType = "Debuff";
+					auraType = "Buff";
 					debuffType = Profile.buffsActive[i].debuffType or nil;
 					index = 0;
 					ID = i;
@@ -82,7 +82,7 @@ function Me.BuffFrame_OnLoad(self)
 			if self.buttonInfo.isDMBuff then
 				local data = self.buttonInfo;
 				local timeLeft;
-				if ( data.duration and data.duration > 0 and data.expirationTime ) then
+				if ( data.duration and data.duration > 0 and data.expirationTime and data.expirationTime > 0 ) then
 					timeLeft = (data.expirationTime - GetTime());
 				end
 				GameTooltip:SetOwner( self.Dummy, "ANCHOR_BOTTOMLEFT" )

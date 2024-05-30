@@ -115,7 +115,7 @@ local function GetTradeSkillIcon( skillIndex )
 		return recipe.item.icon;
 	end
 	
-	return nil;
+	return "";
 end
 
 local function GetTradeSkillSelectionIndex()
@@ -488,7 +488,7 @@ function Me.TradeSkillFrame_Update()
 	-- ScrollFrame update
 	FauxScrollFrame_Update(DiceMasterTradeSkillListScrollFrame, numTradeSkills, 8, 16, nil, nil, nil, DiceMasterTradeSkillHighlightFrame, 293, 316 );
 	
-	if ( DiceMasterTradeSkillDetailScrollFrameScrollBar:IsVisible() ) then
+	if ( DiceMasterTradeSkillDetailScrollFrame.ScrollBar:IsVisible() ) then
 		DiceMasterTradeSkillDetailScrollFrame:SetWidth(300)
 		DiceMasterTradeSkillDetailScrollChildFrame:SetWidth(300)
 	else

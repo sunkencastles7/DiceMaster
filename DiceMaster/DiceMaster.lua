@@ -1142,13 +1142,20 @@ function Me.GetModifierNamesFromSkillGUID( guid )
 					color = GREEN_FONT_COLOR_CODE.."+"
 				end
 				modifiers = modifiers .. ", " .. color .. modifierTotals .. " " .. Me.Profile.skills[i].name;
+
+				-- Find any buffs that are also boosting this skill...
+				for index = 1,#Profile.buffsActive do
+					if Profile.buffsActive[index].skill and Profile.buffsActive[index].skill == Me.Profile.skills[i].name then
+						modifiers = modifiers .. ", " .. Profile.buffsActive[index].name;
+					end
+				end
 			end
 		end
 	end
 	
 	-- Find any buffs that are also boosting this skill...
 	for i = 1,#Profile.buffsActive do
-		if Profile.buffsActive[i].skill and Profile.buffsActive[i].skill == guid then
+		if Profile.buffsActive[i].skill and Profile.buffsActive[i].skill == skill.name then
 			modifiers = modifiers .. ", " .. Profile.buffsActive[i].name;
 		end
 	end
@@ -1238,9 +1245,7 @@ function Me.DiceButton_ExpandMenu( self )
 			self.menuItems[index].tooltipIcon = skillsList[index].icon;
 			self.menuItems[index].tooltipTitle = skillsList[index].name;
 			self.menuItems[index].tooltipText = skillsList[index].desc;
-			if skillsList[index].skillModifiers and #skillsList[index].skillModifiers > 0 then
-				self.menuItems[index].tooltipDetail = Me.GetModifierNamesFromSkillGUID( skillsList[index].guid );
-			end
+			self.menuItems[index].tooltipDetail = Me.GetModifierNamesFromSkillGUID( skillsList[index].guid );
 			_G[ self.menuItems[index]:GetName() .. "Icon" ]:SetTexture( skillsList[index].icon )
 			
 			if self.menuItems[index].FlyOut:IsPlaying() then

@@ -46,6 +46,116 @@
 	</Scripts>
   </Button>
   
+  <Button name="DiceMasterChooseTraitListButtonTemplate" enableMouse="true" virtual="true">
+	<Size x="220" y="40"/>
+	<Layers>
+		<Layer level="ARTWORK">
+			<Texture parentKey="Icon">
+				<Size x="36" y="36"/>
+				<Anchors>
+					<Anchor point="LEFT" x="2" y="0"/>
+				</Anchors>
+			</Texture>
+			<FontString parentKey="Name" inherits="GameFontHighlightSmall" justifyH="LEFT">
+				<Size x="150" y="12"/>
+				<Anchors>
+					<Anchor point="LEFT"  relativeKey="$parent.Icon" relativePoint="RIGHT" x="20" y="0"/>
+				</Anchors>
+			</FontString>
+		</Layer>
+		<Layer level="OVERLAY">
+			<Texture parentKey="Border" atlas="talents-node-pvpflyout-green" >
+				<Size x="36" y="36"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" x="2" y="-2"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="OVERLAY">
+			<Texture parentKey="Selected" atlas="talents-node-pvpflyout-yellow"  hidden="true" >
+				<Size x="36" y="36"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" x="2" y="-2"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="OVERLAY" textureSubLevel="1">
+			<Texture parentKey="SelectedOtherCheck" atlas="talents-node-pvpflyout-yellow" hidden="true">
+				<Size x="36" y="36"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" x="2" y="-2"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+	</Layers>
+	<HighlightTexture atlas="talents-pvpflyout-rowhighlight" alphaMode="ADD"/>
+	<Scripts>
+		<OnClick>
+			DiceMaster4.ChooseTraitListButton_OnClick( self, button )
+		</OnClick>
+		<OnEnter>
+			if self.spellName then
+				-- DiceMaster4.OpenSpellTooltip( self, DiceMaster4.FindSpellIDBySpellName( self.spellName ) );
+			end
+		</OnEnter>
+		<OnLeave>
+			-- DiceMaster4.CloseSpellTooltip();
+		</OnLeave>
+	</Scripts>
+  </Button>
+  <Frame name="DiceMasterChooseTraitList" frameStrata="HIGH" topLevel="true" parent="UIParent" hidden="true">
+	<Size x="220" y="404"/>
+	<Layers>
+		<Layer level="BACKGROUND">
+			<Texture parentKey="Top" atlas="talents-pvpflyout-background-top" useAtlasSize="true">
+				<Anchors>
+					<Anchor point="TOP" x="0" y="25"/>
+				</Anchors>
+			</Texture>
+			<Texture parentKey="Middle" atlas="talents-pvpflyout-background-middle" useAtlasSize="true">
+				<Anchors>
+					<Anchor point="TOP" x="0" y="0"/>
+					<Anchor point="BOTTOM" x="0" y="0"/>
+				</Anchors>
+			</Texture>
+			<Texture parentKey="Bottom" atlas="talents-pvpflyout-background-bottom" useAtlasSize="true">
+				<Anchors>
+					<Anchor point="BOTTOM" x="0" y="-30"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="ARTWORK">
+			<FontString parentKey="Title" inherits="GameFontHighlight" wordwrap="true" justifyH="CENTER">
+				<Size x="200" y="0"/>
+				<Anchors>
+					<Anchor point="TOP" x="0" y="0"/>
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+	<Frames>
+		<Frame parentKey="ScrollBox" inherits="WowScrollBoxList" frameStrata="HIGH">
+			<Anchors>
+				<Anchor point="TOP" relativeKey="$parent.Title" relativePoint="BOTTOM" x="0" y="-5"/>
+				<Anchor point="LEFT" x="0" y="0"/>
+				<Anchor point="RIGHT"  x="0" y="0"/>
+				<Anchor point="BOTTOM"  x="0" y="0"/>
+			</Anchors>
+		</Frame>
+	</Frames>
+	<Scripts>
+		<OnLoad>
+			DiceMaster4.ChooseTraitList_OnLoad( self );
+		</OnLoad>
+		<OnShow>
+			DiceMaster4.ChooseTraitList_OnShow( self )
+		</OnShow>
+		<OnHide>
+			DiceMaster4.ChooseTraitList_OnHide( self )
+		</OnHide>
+	</Scripts>
+  </Frame>
+
   <StatusBar name="DiceMasterSkillStatusBarTemplate" hidden="true" virtual="true" drawLayer="BACKGROUND" minValue="0" maxValue="1" defaultValue="0">
 		<Size>
 			<AbsDimension x="251" y="15"/>
@@ -117,7 +227,13 @@
 						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 						GameTooltip:AddLine( self.skillName, 1, 1, 1 )
 						if ( IsShiftKeyDown() ) then
-							GameTooltip:AddLine( self.expandedDescription, 1, 0.81, 0, true )
+							GameTooltip:AddLine( self.expandedDescription, 1, 0.81, 0, true );
+							if #self.expandedDescriptionModifiers > 0 then
+								GameTooltip:AddLine( "|nModifiers:", 1, 1, 1, true );
+								for i = 1, #self.expandedDescriptionModifiers do
+									GameTooltip:AddDoubleLine( self.expandedDescriptionModifiers[i][1], self.expandedDescriptionModifiers[i][2], 1, 0.81, 0, 1, 0.81, 0, true, true );
+								end
+							end
 						else
 							GameTooltip:AddLine( self.skillDescription, 1, 0.81, 0, true )
 							GameTooltip:AddLine( "&lt;Hold Shift for Details>", 0.5, 0.5, 0.5, true )

@@ -71,12 +71,6 @@
 					DiceMaster4.TradeSkillSkillButton_OnClick(self,button);
 				end
 			</OnClick>
-			<OnEnter>
-				_G[self:GetName().."SubText"]:SetTextColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
-			</OnEnter>
-			<OnLeave>
-				_G[self:GetName().."SubText"]:SetTextColor(self.subR, self.subG, self.subB);
-			</OnLeave>
 		</Scripts>
 	</Button>
 	
@@ -620,7 +614,7 @@
 					</OnVerticalScroll>
 				</Scripts>
 			</ScrollFrame>
-			<ScrollFrame name="DiceMasterTradeSkillDetailScrollFrame" inherits="UIPanelScrollFrameTemplate">
+			<ScrollFrame name="DiceMasterTradeSkillDetailScrollFrame" inherits="ScrollFrameTemplate">
 				<Size>
 					<AbsDimension x="297" y="176"/>
 				</Size>
@@ -631,36 +625,6 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture name="$parentTop" file="Interface\ClassTrainerFrame\UI-ClassTrainer-ScrollBar">
-							<Size>
-								<AbsDimension x="30" y="123"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT" relativePoint="TOPRIGHT">
-									<Offset>
-										<AbsDimension x="-2" y="5"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-							<TexCoords left="0" right="0.46875" top="0" bottom="0.9609375"/>
-						</Texture>
-						<Texture name="$parentBottom" file="Interface\ClassTrainerFrame\UI-ClassTrainer-ScrollBar">
-							<Size>
-								<AbsDimension x="30" y="123"/>
-							</Size>
-							<Anchors>
-								<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT">
-									<Offset>
-										<AbsDimension x="-2" y="-1"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-							<TexCoords left="0.53125" right="1.0" top="0.03125" bottom="1.0"/>
-						</Texture>
-					</Layer>
-				</Layers>
 				<Scripts>
 					<OnLoad>
 						ScrollFrame_OnLoad(self);
@@ -1090,7 +1054,7 @@
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativeTo="DiceMasterTradeSkillFrame" relativePoint="TOPRIGHT">
 						<Offset>
-							<AbsDimension x="-29" y="-8"/>
+							<AbsDimension x="-34" y="-12"/>
 						</Offset>
 					</Anchor>
 				</Anchors>

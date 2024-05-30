@@ -10,4 +10,3 @@
 DiceMaster_Resources.lua
 Lists/SoundList.lua
 Lists/ModelList.lua
-Lists/SpellVisualKitList.lua

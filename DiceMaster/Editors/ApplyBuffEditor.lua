@@ -141,7 +141,7 @@ function Me.BuffEditor_Save()
 	if not buff.cancelable then
 		buff.duration = Me.buffeditor.buffDuration:GetValue()
 	else
-		buff.duration = 1
+		buff.duration = 0
 	end
 	buff.target = Me.buffeditor.buffTarget:GetChecked()
 	buff.aoe = Me.buffeditor.buffAOE:GetChecked()
@@ -185,7 +185,7 @@ function Me.BuffEditor_SaveEdits()
 	if not buff.cancelable then
 		buff.duration = Me.buffeditor.buffDuration:GetValue()
 	else
-		buff.duration = 1
+		buff.duration = 0
 	end
 	buff.target = Me.buffeditor.buffTarget:GetChecked()
 	buff.aoe = Me.buffeditor.buffAOE:GetChecked()

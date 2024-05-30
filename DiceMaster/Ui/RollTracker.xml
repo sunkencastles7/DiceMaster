@@ -163,7 +163,7 @@
 			</Button>
 			<Button parentKey="CloseButton" inherits="UIPanelCloseButton">
 				<Anchors>
-					<Anchor point="TOPRIGHT" x="-3" y="-3"/>
+					<Anchor point="TOPRIGHT" x="-6" y="-6"/>
 				</Anchors>
 				<Scripts>
 					<OnClick>
