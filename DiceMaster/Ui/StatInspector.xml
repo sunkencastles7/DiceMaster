@@ -72,6 +72,12 @@
 						GameTooltip:AddLine( self.skillName, 1, 1, 1 )
 						if ( IsShiftKeyDown() ) then
 							GameTooltip:AddLine( self.expandedDescription, 1, 0.81, 0, true )
+							if #self.expandedDescriptionModifiers > 0 then
+								GameTooltip:AddLine( "|nModifiers:", 1, 1, 1, true );
+								for i = 1, #self.expandedDescriptionModifiers do
+									GameTooltip:AddDoubleLine( self.expandedDescriptionModifiers[i][1], self.expandedDescriptionModifiers[i][2], 1, 0.81, 0, 1, 0.81, 0, true, true );
+								end
+							end
 						else
 							GameTooltip:AddLine( self.skillDescription, 1, 0.81, 0, true )
 							GameTooltip:AddLine( "&lt;Hold Shift for Details>", 0.5, 0.5, 0.5, true )
@@ -438,7 +444,7 @@
 					</OnVerticalScroll>
 				</Scripts>
 			</ScrollFrame>
-			<ScrollFrame name="DiceMasterStatInspectorSkillDetailScrollFrame" inherits="UIPanelScrollFrameTemplate">
+			<ScrollFrame name="DiceMasterStatInspectorSkillDetailScrollFrame" inherits="ScrollFrameTemplate">
 				<Size>
 					<AbsDimension x="296" y="125"/>
 				</Size>
@@ -449,36 +455,6 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Layers>
-					<Layer level="ARTWORK">
-						<Texture file="Interface\ClassTrainerFrame\UI-ClassTrainer-ScrollBar">
-							<Size>
-								<AbsDimension x="30" y="100"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT" relativePoint="TOPRIGHT">
-									<Offset>
-										<AbsDimension x="-3" y="5"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-							<TexCoords left="0" right="0.46875" top="0" bottom="0.78125"/>
-						</Texture>
-						<Texture file="Interface\ClassTrainerFrame\UI-ClassTrainer-ScrollBar">
-							<Size>
-								<AbsDimension x="30" y="100"/>
-							</Size>
-							<Anchors>
-								<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT">
-									<Offset>
-										<AbsDimension x="-3" y="-2"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-							<TexCoords left="0.53125" right="1.0" top="0.21875" bottom="1.0"/>
-						</Texture>
-					</Layer>
-				</Layers>
 				<Scripts>
 					<OnLoad>
 						ScrollFrame_OnLoad(self);

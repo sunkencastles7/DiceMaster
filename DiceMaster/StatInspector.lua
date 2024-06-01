@@ -51,31 +51,46 @@ local function GetModifierNamesFromSkillGUID( guid )
 		return
 	end
 
-	local modifiers = "(Modified by " .. GetSkillByGUID( skill.skillModifiers[1] )["name"];
+	local modifiers = "|cFFFFD100Modifiers:|r " .. GetSkillByGUID( skill.skillModifiers[1] )["name"];
+	local store = Me.inspectData[Me.statInspectName];
 	
 	-- Grab values from skills in the modifiers table
 	-- by GUID
 	for skillIndex = 2,#skill.skillModifiers do
-		for i = 1, #Me.inspectData[Me.statInspectName].skills do
-			if Me.inspectData[Me.statInspectName].skills[i].guid == skill.skillModifiers[skillIndex] then
-				modifiers = modifiers .. ", " .. Me.inspectData[Me.statInspectName].skills[i].name;
+		for i = 1, #store.skills do
+			if store.skills[i].guid == skill.skillModifiers[skillIndex] then
+				local modifierTotals = Me.GetModifiersFromSkillGUID( skillGUID );
+				local color = RED_FONT_COLOR_CODE;
+				if ( modifierTotals > 0 ) then
+					color = GREEN_FONT_COLOR_CODE.."+"
+				end
+				modifiers = modifiers .. ", " .. color .. modifierTotals .. " " .. store.skills[i].name;
+
+				-- Find any buffs that are also boosting this skill...
+				for index = 1,#store.buffsActive do
+					if store.buffsActive[index].skill and store.buffsActive[index].skill == store.skills[i].name then
+						modifiers = modifiers .. ", " .. store.buffsActive[index].name;
+					end
+				end
 			end
 		end
 	end
 	
 	-- Find any buffs that are also boosting this skill...
-	for i = 1,#Me.inspectData[Me.statInspectName].buffsActive do
-		if Me.inspectData[Me.statInspectName].buffsActive[i].skill and Me.inspectData[Me.statInspectName].buffsActive[i].skill == guid then
-			modifiers = modifiers + ( Me.inspectData[Me.statInspectName].buffsActive[i].skillRank * Me.inspectData[Me.statInspectName].buffsActive[i].count );
+	for i = 1,#store.buffsActive do
+		if store.buffsActive[i].skill and store.buffsActive[i].skill == skill.name then
+			modifiers = modifiers .. ", " .. store.buffsActive[i].name;
 		end
 	end
-
-	modifiers = modifiers .. ")"
 	
 	return modifiers
 end
 
-local function GetModifiersFromSkillGUID( guid )
+-------------------------------------------------------------------------------
+-- Return total modifiers value for a skill by GUID.
+--
+
+local function GetModifiersFromSkillGUID( guid, includeSelf )
 	if not guid then
 		return 0;
 	end
@@ -86,22 +101,33 @@ local function GetModifiersFromSkillGUID( guid )
 		return 0;
 	end
 
+	-- Start with the value of the skill itself.
 	local modifiers = 0;
+
+	if skill and includeSelf then
+		modifiers = skill.rank;
+	end
+
+	local store = Me.inspectData[Me.statInspectName];
 	
+	-- Find any buffs that are boosting this skill...
+	for i = 1,#store.buffsActive do
+		if store.buffsActive[i].skill and store.buffsActive[i].skill == skill.name then
+			modifiers = modifiers + ( store.buffsActive[i].skillRank * store.buffsActive[i].count );
+		end
+	end
+
+	if not( skill and skill.skillModifiers ) then
+		return modifiers;
+	end
+
 	-- Grab values from skills in the modifiers table
 	-- by GUID
 	for skillIndex = 1, #skill.skillModifiers do
-		for i = 1, #Me.inspectData[Me.statInspectName].skills do
-			if Me.inspectData[Me.statInspectName].skills[i].guid == skill.skillModifiers[skillIndex] then
-				modifiers = modifiers + Me.inspectData[Me.statInspectName].skills[i].rank;
+		for i = 1, #store.skills do
+			if store.skills[i].guid == skill.skillModifiers[skillIndex] then
+				modifiers = modifiers + GetModifiersFromSkillGUID( store.skills[i].guid, true );
 			end
-		end
-	end
-	
-	-- Find any buffs that are also boosting this skill...
-	for i = 1,#Profile.buffsActive do
-		if Me.inspectData[Me.statInspectName].buffsActive[i].skill and Me.inspectData[Me.statInspectName].buffsActive[i].skill == guid then
-			modifiers = modifiers + ( Me.inspectData[Me.statInspectName].buffsActive[i].skillRank * Me.inspectData[Me.statInspectName].buffsActive[i].count );
 		end
 	end
 	
@@ -175,6 +201,8 @@ function Me.StatInspector_SetStatusBar( statusBarID, skillIndex, numSkills )
 	-- Get info
 	local skillName, skillIcon, skillDescription, skillType, skillRank, skillMaxRank, skillAuthor, skillGUID, skillModifiers, skillShowOnMenu, skillCanEdit = GetSkillLineInfo(skillIndex);
 	skillRankStart = skillRank;
+
+	skillRank = tonumber(skillRank) or 0;
 	
 	-- Skill bar objects
 	local statusBar = _G["DiceMasterStatInspectorSkillRankFrame"..statusBarID];
@@ -238,46 +266,64 @@ function Me.StatInspector_SetStatusBar( statusBarID, skillIndex, numSkills )
 	statusBarBorder.skillIcon = skillIcon;
 	-- Set skill description text
 	if ( skillDescription ) then
-		local modifiedSkillRank;
+		local coloredSkillRank;
+		local expandedDescription = skillDescription .. "|n|cFFFFFFFF( " .. skillRank;
 		if ( GetModifiersFromSkillGUID( skillGUID ) ~= 0 ) then
 			local modifiers = GetModifiersFromSkillGUID( skillGUID );
 			local color = RED_FONT_COLOR_CODE;
 			if ( modifiers > 0 ) then
-				color = GREEN_FONT_COLOR_CODE.."+"
+				color = GREEN_FONT_COLOR_CODE
 			end
-			modifiedSkillRank = skillRank .." "..color..modifiers..FONT_COLOR_CODE_CLOSE;
+			coloredSkillRank = color.. (skillRank+modifiers)..FONT_COLOR_CODE_CLOSE;
 		else
-			modifiedSkillRank = skillRank;
+			coloredSkillRank = skillRank;
 		end
+		statusBarBorder.expandedDescriptionModifiers = {};
+		if skillModifiers and #skillModifiers > 0 then
+			for i = 1, #skillModifiers do 
+				local modifier = GetSkillByGUID( skillModifiers[i] );
+				local rank = GetModifiersFromSkillGUID( skillModifiers[i], true )
+				local color = RED_FONT_COLOR_CODE;
+				if tonumber( rank ) > 0 then
+					color = GREEN_FONT_COLOR_CODE.."+"
+				end
+				if tonumber( rank ) ~= 0 then
+					local mod = {
+						color .. rank .. "|r";
+						"|T" .. modifier.icon .. ":12|t " .. modifier.name;
+					}
+					tinsert( statusBarBorder.expandedDescriptionModifiers, mod );
+					expandedDescription = expandedDescription .. " " .. color .. rank .. "|r";
+				end
+			end
+		end
+		for i = 1, #Me.inspectData[Me.statInspectName].buffsActive do
+			if Me.inspectData[Me.statInspectName].buffsActive[i].skill and Me.inspectData[Me.statInspectName].buffsActive[i].skill == skillName then
+				local modifier = Me.inspectData[Me.statInspectName].buffsActive[i].skillRank;
+				local color = RED_FONT_COLOR_CODE;
+				if tonumber( modifier ) > 0 then
+					color = GREEN_FONT_COLOR_CODE.."+"
+				end
+				if tonumber( modifier ) ~= 0 then
+					local mod = {
+						color .. Me.inspectData[Me.statInspectName].buffsActive[i].skillRank .. "|r";
+						"|T" .. Me.inspectData[Me.statInspectName].buffsActive[i].icon .. ":12|t " .. Me.inspectData[Me.statInspectName].buffsActive[i].name;
+					}
+					tinsert( statusBarBorder.expandedDescriptionModifiers, mod );
+					expandedDescription = expandedDescription .. " " .. color .. Me.inspectData[Me.statInspectName].buffsActive[i].skillRank .. "|r";
+				end
+			end
+		end
+		expandedDescription = expandedDescription .. " = " .. coloredSkillRank .. " / " .. skillMaxRank .. " )|r";
+		
 		if ( skillMaxRank == 0) then
-			skillDescription = "|cFFFFFFFFRank " .. modifiedSkillRank .. "|r|n" .. skillDescription;
+			skillDescription = "|cFFFFFFFFRank " .. coloredSkillRank .. "|r|n" .. skillDescription;
 		else
-			skillDescription = skillDescription .. "|n|cFFFFFFFF( " .. modifiedSkillRank .. " / " .. skillMaxRank .. " )|r";
+			skillDescription = skillDescription .. "|n|cFFFFFFFF( " .. coloredSkillRank .. " / " .. skillMaxRank .. " )|r";
 		end
+		statusBarBorder.skillDescription = skillDescription;
+		statusBarBorder.expandedDescription = expandedDescription;
 	end
-	statusBarBorder.skillDescription = skillDescription;
-	local expandedDescription = skillDescription or "";
-	if skillModifiers and #skillModifiers > 0 then
-		for i = 1, #skillModifiers do 
-			local modifier = GetSkillByGUID( skillModifiers[i] );
-			local color = RED_FONT_COLOR_CODE;
-			if modifier and tonumber( modifier.rank ) > 0 then
-				color = GREEN_FONT_COLOR_CODE.."+"
-			end
-			if modifier and tonumber( modifier.rank ) ~= 0 then
-				-- Add an extra line if it's the first skill
-				if i == 1 then
-					expandedDescription = expandedDescription .. "|n|n|cFFFFFFFFModifiers:|r|n"
-				end
-				if i == #skillModifiers then
-					expandedDescription = expandedDescription .. color .. modifier.rank .. "|r " .. "|T" .. modifier.icon .. ":12|t " .. modifier.name;
-				else
-					expandedDescription = expandedDescription .. color .. modifier.rank .. "|r " .. "|T" .. modifier.icon .. ":12|t " .. modifier.name .. "|n";
-				end
-			end
-		end
-	end
-	statusBarBorder.expandedDescription = expandedDescription;
 	
 	-- Anchor the text to the left by default
 	statusBarName:ClearAllPoints();
@@ -320,25 +366,26 @@ function Me.StatInspector_SetStatusBar( statusBarID, skillIndex, numSkills )
 		statusBarFillBar:Hide();
 		statusBarBackground:SetVertexColor(1.0, 1.0, 1.0, 0.5);
 	elseif ( skillMaxRank > 0 ) then
+		local color;
 		statusBar:SetMinMaxValues(0, skillMaxRank);
 		statusBar:SetValue(skillRankStart);
 		if tonumber( skillRank ) < 0 then
-			skillRank = RED_FONT_COLOR_CODE .. skillRank .. FONT_COLOR_CODE_CLOSE;
+			color = RED_FONT_COLOR_CODE;
 		end
 		if ( GetModifiersFromSkillGUID( skillGUID ) == 0 ) then
-			statusBarSkillRank:SetText(skillRank.."/"..skillMaxRank);
+			statusBarSkillRank:SetText(skillRank..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
 			statusBarFillBar:Hide();
 		else
 			local modifiers = GetModifiersFromSkillGUID( skillGUID );
-			local color = RED_FONT_COLOR_CODE;
+			color = RED_FONT_COLOR_CODE;
 			statusBarFillBar:Hide();
 			if ( modifiers > 0 ) then
-				skillRank = GREEN_FONT_COLOR_CODE..(skillRank + modifiers);
+				color = GREEN_FONT_COLOR_CODE;
 				statusBarFillBar:SetMinMaxValues(0, skillMaxRank);
 				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
-			statusBarSkillRank:SetText(skillRank..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
+			statusBarSkillRank:SetText(color .. (skillRank+modifiers) ..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
 		end
 	end
 end
@@ -450,15 +497,16 @@ function Me.StatInspectorDetailFrame_SetStatusBar( skillPosition )
 			local modifiers = GetModifiersFromSkillGUID( skillGUID );
 			local color = RED_FONT_COLOR_CODE;
 			if ( modifiers > 0 ) then
-				color = GREEN_FONT_COLOR_CODE.."+"
+				color = GREEN_FONT_COLOR_CODE
 			end
-			statusBarSkillRank:SetText(skillRank.." "..color..modifiers..FONT_COLOR_CODE_CLOSE);
+			statusBarSkillRank:SetText(color..(skillRank+modifiers)..FONT_COLOR_CODE_CLOSE);
 		else
 			statusBarSkillRank:SetText(skillRank);
 		end
 		statusBarBackground:SetVertexColor(1.0, 1.0, 1.0, 0.5);
 		statusBarFillBar:Hide();
 	elseif ( skillMaxRank > 0 ) then
+		statusBarFillBar:Hide();
 		statusBar:SetMinMaxValues(0, skillMaxRank);
 		statusBar:SetValue(skillRankStart);
 		if tonumber( skillRank ) < 0 then
@@ -470,12 +518,12 @@ function Me.StatInspectorDetailFrame_SetStatusBar( skillPosition )
 			local modifiers = GetModifiersFromSkillGUID( skillGUID );
 			local color = RED_FONT_COLOR_CODE;
 			if ( modifiers > 0 ) then
-				color = GREEN_FONT_COLOR_CODE.."+"
+				color = GREEN_FONT_COLOR_CODE
 				statusBarFillBar:SetMinMaxValues(0, skillMaxRank);
 				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
-			statusBarSkillRank:SetText(skillRank.." "..color..modifiers..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
+			statusBarSkillRank:SetText(color..(skillRank+modifiers)..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
 		end
 	end
 end

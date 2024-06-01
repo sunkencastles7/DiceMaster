@@ -26,7 +26,6 @@ Lists/TextureList.lua
 Lists/RollList.lua
 Lists/AlignmentList.lua
 Lists/HelpList.lua
-Lists/ItemList.lua
 Pickers/IconPicker.lua
 Pickers/TexturePicker.lua
 Pickers/ColourPicker.lua
