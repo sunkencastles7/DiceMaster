@@ -108,7 +108,7 @@ StaticPopupDialogs["DICEMASTER4_CREATESKILLHEADER"] = {
     self.editBox:SetText( "" )
 	self.editBox:SetFocus()
   end,
-  OnAccept = function (self, data)
+  OnAccept = function (self)
 	local data = self.editBox:GetText()
 	
 	if not data or data == nil or data == "" or string.len(data) > 150 then
@@ -120,6 +120,8 @@ StaticPopupDialogs["DICEMASTER4_CREATESKILLHEADER"] = {
 		UIErrorsFrame:AddMessage( "A skill category with that name already exists.", 1.0, 0.0, 0.0 );
 		return
 	end
+
+	print(data)
 	
 	local header = {
 		name = data;

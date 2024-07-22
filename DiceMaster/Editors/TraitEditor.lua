@@ -1698,7 +1698,7 @@ local function CheckForEmptyHeaders()
 end
 
 function Me.SkillFrame_BuildFilteredList()
-	CheckForEmptyHeaders()
+	--CheckForEmptyHeaders()
 	filteredList = {}
 	for i = 1, #Me.Profile.skills do
 		if Me.Profile.skills[i].expanded or Me.Profile.skills[i].type == "header" then
@@ -1810,16 +1810,20 @@ function Me.SkillFrame_DragStop( self, button )
 	if ( DiceMasterSkillLabelPlacer:IsShown() ) then
 		DiceMasterSkillLabelPlacer:Hide();
 		
-		if GetMouseFocus()~=nil and GetMouseFocus():GetParent()~=nil and GetMouseFocus():GetParent():GetName():find( "DiceMasterSkillRankFrame" ) then
-			local newPosition = GetMouseFocus():GetParent().skillPosition;
-			local oldPosition = DiceMasterSkillLabelPlacer.skillPosition;
+		local regions = GetMouseFoci();
+		for i = 1, #regions do
+			if regions[i]:GetParent() and regions[i]:GetParent():GetName():find("DiceMasterSkillRankFrame") then
+				local newPosition = GetMouseFocus():GetParent().skillPosition;
+				local oldPosition = DiceMasterSkillLabelPlacer.skillPosition;
 			
-			local skillOne = Profile.skills[ newPosition ];
-			local skillTwo = Profile.skills[ oldPosition ];
+				local skillOne = Profile.skills[ newPosition ];
+				local skillTwo = Profile.skills[ oldPosition ];
 			
-			Profile.skills[ oldPosition ] = skillOne;
-			Profile.skills[ newPosition ] = skillTwo;
-			Me.SkillFrame_UpdateSkills()
+				Profile.skills[ oldPosition ] = skillOne;
+				Profile.skills[ newPosition ] = skillTwo;
+				Me.SkillFrame_UpdateSkills()
+				break
+			end
 		end
 	end
 end

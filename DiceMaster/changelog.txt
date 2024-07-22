@@ -1,4 +1,11 @@
-### 5.1.8
+### 5.1.0
+- The War Within pre-patch support.
+- Updated to 11.0.
+- Added The War Within icons. 
+- Added an optional "target" arguement to DiceMaster4.SetHealth(health, target) to affect targeted player instead of player.
+
+### 
+
 - Dragonflight support.
 - Updated to 10.0.
 - Added Dragonflight icons. 
@@ -13,7 +20,7 @@
 - Renamed 'DM Manager' to 'Dungeon Manager.' 
 - Revamped Statistics tab. Statistics are now called Skills and have been expanded to support a custom icon and description. Skills can also now inherit the values of several other skills (up for one).
 - Revamped Pet tab. Pets can now be further customised with new options including diet, a hunger system that relies on DiceMaster items for food, hygiene, and other interactive features.
-- Renamed 'Charges' to 'Resource'. 
+- Renamed 'Charges' to more generic-sounding 'Resource' to avoid common confusion with 'Uses.' 
 - Changed the Trait Editor title text to 'Traits' instead of the player's MSP roleplay name.
 - Deleted extraneous libraries.
 - Updated the Inventory tab with sleeker new buttons.

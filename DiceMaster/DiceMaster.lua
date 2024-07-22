@@ -8,7 +8,7 @@
 
 local MAX_MAXHEALTH = 1000
 
-local VERSION = GetAddOnMetadata( "DiceMaster", "Version" )
+local VERSION = C_AddOns.GetAddOnMetadata( "DiceMaster", "Version" )
 DiceMaster4 = LibStub("AceAddon-3.0"):NewAddon( "DiceMaster", 
 	             		  "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0" ) 
 local Me = DiceMaster4 
@@ -1480,10 +1480,10 @@ function Me:OnEnable()
 		EditModeExpanded:RegisterFrame( frame, "|TInterface/AddOns/DiceMaster/Texture/logo:12|t " .. frame.Title, Me.Profile.framePositions[frame.Title] );
 	end
 	
-	if not( Me.db.global.lastSplashShown ) or not( Me.db.global.lastSplashShown == "5.1.8" ) then
+	if not( Me.db.global.lastSplashShown ) or not( Me.db.global.lastSplashShown == "5.1.9" ) then
 		-- If we haven't seen the splash frame for the latest version, show it.
 		DiceMasterSplashFrame:Show();
-		Me.db.global.lastSplashShown = "5.1.8";
+		Me.db.global.lastSplashShown = "5.1.9";
 	end
 	
 	Me.UpdatePanelTraits()

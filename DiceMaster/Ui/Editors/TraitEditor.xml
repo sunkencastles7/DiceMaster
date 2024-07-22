@@ -109,7 +109,7 @@
 						self:RegisterEvent("MODIFIER_STATE_CHANGED")
 					</OnLoad>
 					<OnEvent>
-						if event == "MODIFIER_STATE_CHANGED" and GetMouseFocus() == self then
+						if event == "MODIFIER_STATE_CHANGED" and self:IsMouseMotionFocus() then
 							self:GetScript("OnEnter")( self )
 						end
 					</OnEvent>
@@ -1442,7 +1442,7 @@
 						</HighlightTexture>
 						<Scripts>
 							<OnUpdate>
-								if IsMouseButtonDown() and GetMouseFocus() == self then
+								if IsMouseButtonDown() and self:IsMouseMotionFocus() then
 									local yaw = DiceMasterPetModel:GetYaw();
 									DiceMasterPetModel:SetYaw( yaw + math.rad(-1) );
 								end
@@ -1478,7 +1478,7 @@
 						</HighlightTexture>
 						<Scripts>
 							<OnUpdate>
-								if IsMouseButtonDown() and GetMouseFocus() == self then
+								if IsMouseButtonDown() and self:IsMouseMotionFocus() then
 									local yaw = DiceMasterPetModel:GetYaw();
 									DiceMasterPetModel:SetYaw( yaw + math.rad(1) );
 								end

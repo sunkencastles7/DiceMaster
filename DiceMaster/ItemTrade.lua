@@ -299,7 +299,7 @@ function Me.TradeItemButtonOnUpdate(self, elapsed)
 		end
 	end
 
-	if (GetMouseFocus() == self) then
+	if (self:IsMouseMotionFocus()) then
 		Me.TradeItemButtonOnEnter(self, self:GetParent():GetID());
 	end
 end
@@ -322,7 +322,7 @@ function Me.RecipientTradeItemButtonOnUpdate(self, elapsed)
 		end
 	end
 
-	if (GetMouseFocus() == self) then
+	if (self:IsMouseMotionFocus()) then
 		Me.RecipientTradeItemButtonOnEnter(self, self:GetParent():GetID());
 	end
 end

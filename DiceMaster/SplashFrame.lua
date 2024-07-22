@@ -9,6 +9,10 @@
 local Me = DiceMaster4
 
 local changelog = {
+	{ "The War Within pre-patch support.", "5.1.9" },
+	{ "Updated to 11.0.", "5.1.9" },
+	{ "Added The War Within icons.", "5.1.9" },
+	{ "Added an optional 'target' arguement to DiceMaster4.SetHealth(health, target) to affect targeted player instead of player.", "5.1.9" },
 	{ "Dragonflight support.", "5.1.8" },
 	{ "Updated to 10.0.", "5.1.8" },
 	{ "Added Dragonflight icons.", "5.1.8" },
@@ -65,7 +69,7 @@ function Me.ChangeLog_OnShow()
 end
 
 function Me.SplashFrame_OnShow()
-	DiceMasterSplashFrame.RightFeature.Title:SetText("Ready for Dragonflight!")
+	DiceMasterSplashFrame.RightFeature.Title:SetText("Ready for The War Within!")
 	DiceMasterSplashFrame.RightFeature.Description:SetText("The UI has undergone an art refresh. Customize it while in Edit Mode!")
 	
 	DiceMasterSplashFrame.TopLeftFeature.Title:SetText("Revamped Skills")

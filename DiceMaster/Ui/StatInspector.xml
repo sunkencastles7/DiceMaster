@@ -63,7 +63,7 @@
 						self:RegisterEvent("MODIFIER_STATE_CHANGED")
 					</OnLoad>
 					<OnEvent>
-						if event == "MODIFIER_STATE_CHANGED" and GetMouseFocus() == self then
+						if event == "MODIFIER_STATE_CHANGED" and self:IsMouseMotionFocus() then
 							self:GetScript("OnEnter")( self )
 						end
 					</OnEvent>

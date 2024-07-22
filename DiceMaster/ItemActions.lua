@@ -1287,12 +1287,13 @@ function Me.GetDiceMasterExperience()
 end
 
 ---------------------------------------------------------------------------
--- Set the player's health and/or armour.
+-- Set the player (or target)'s health and/or armour.
 --
 -- @param health	number		The amount of health to add/remove
 -- @param armour	number		The amount of armour to add/remove
+-- @param target	boolean		true if this affects the target (optional)
 
-function Me.SetHealth( health, armour )
+function Me.SetHealth( health, armour, target )
 	if not health or type( health ) ~= "number" then
 		health = 0;
 	end
@@ -1303,6 +1304,20 @@ function Me.SetHealth( health, armour )
 	
 	health = math.floor( health )
 	armour = math.floor( armour )
+
+	if target then
+		if not( Me.inspectName ) then
+			return
+		end
+		-- Send update to target.
+		local msg = Me:Serialize( "SETHP", {
+			h = Me.inspectData[Me.inspectName].health + health;
+			hm = Me.inspectData[Me.inspectName].healthMax;
+			ar = Me.inspectData[Me.inspectName].armor + armour;
+		})
+		
+		Me:SendCommMessage( "DCM4", msg, "WHISPER", Me.inspectName, "ALERT" )
+	else
 	
 	local effect = {
 		type = "health";
@@ -1314,7 +1329,7 @@ function Me.SetHealth( health, armour )
 end
 
 ---------------------------------------------------------------------------
--- Set the player's maximum health.
+-- Set the player (or target)'s maximum health.
 --
 -- @param maxHealth		number		The new maximum health value
 
@@ -1338,7 +1353,7 @@ end
 ---------------------------------------------------------------------------
 -- Set the player's mana.
 --
--- @param mana	number		The amount of mana to add/remove
+-- @param mana		number		The amount of mana to add/remove
 
 function Me.SetMana( mana )
 	if not mana or type( mana ) ~= "number" then
