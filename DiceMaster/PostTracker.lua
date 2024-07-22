@@ -22,6 +22,7 @@ function Me.PostTracker_SendUpdate( typing )
 	data.tp = typing
 	local msg = Me:Serialize( "TYPE", data )
 	C_ChatInfo.SendAddonMessage( "DCM4", msg, "RAID" )
+	C_ChatInfo.SendAddonMessage( "DCM4", msg, "WHISPER", UnitName("player") )
 end
 
 function Me.PostTracker_Typing( self )
@@ -142,7 +143,7 @@ end
 
 function Me.PostTracker_OnTyping( data, dist, sender )	
 	-- Ignore our own data.
-	if sender == UnitName( "player" )  then return end
+	--if sender == UnitName( "player" )  then return end
  
 	-- sanitize message
 	if not data.na or not Me.db.global.hideTypeTracker then

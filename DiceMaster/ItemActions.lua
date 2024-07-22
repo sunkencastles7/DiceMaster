@@ -1319,13 +1319,14 @@ function Me.SetHealth( health, armour, target )
 		Me:SendCommMessage( "DCM4", msg, "WHISPER", Me.inspectName, "ALERT" )
 	else
 	
-	local effect = {
-		type = "health";
-		health = health;
-		armour = armour;
-	}
+		local effect = {
+			type = "health";
+			health = health;
+			armour = armour;
+		}
 	
-	Me.AdjustHealthEditor_AdjustHealth( effect )
+		Me.AdjustHealthEditor_AdjustHealth( effect )
+	end
 end
 
 ---------------------------------------------------------------------------

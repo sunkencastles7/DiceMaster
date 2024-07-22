@@ -1,0 +1,6 @@
+move-folders:
+    DiceMaster/DiceMaster: DiceMaster
+    DiceMaster/DiceMaster_Resources: DiceMaster_Resources
+
+ignore:
+  - .gitignore
