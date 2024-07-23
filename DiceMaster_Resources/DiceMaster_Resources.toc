@@ -1,4 +1,4 @@
-## Interface: 100207
+## Interface: 110000
 ## Title: DiceMaster Resources
 ## Author: Skylar
 ## Notes: A load-on-demand database of resources used by DiceMaster.

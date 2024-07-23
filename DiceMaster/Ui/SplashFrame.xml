@@ -276,7 +276,7 @@
 								<Anchor point="BOTTOM" x="0" y="40"/>
 							</Anchors>
 						</FontString>
-						<FontString parentKey="Title" inherits="Game72Font"  mixin="AutoScalingFontStringMixin" justifyV="BOTTOM">
+						<FontString parentKey="Title" inherits="Game27Font"  mixin="AutoScalingFontStringMixin" justifyV="BOTTOM">
 							<KeyValues>
 								<KeyValue key="minLineHeight" value="18" type="number"/>
 							</KeyValues>

@@ -73,10 +73,10 @@ function Me.SplashFrame_OnShow()
 	DiceMasterSplashFrame.RightFeature.Description:SetText("The UI has undergone an art refresh. Customize it while in Edit Mode!")
 	
 	DiceMasterSplashFrame.TopLeftFeature.Title:SetText("Revamped Skills")
-	DiceMasterSplashFrame.TopLeftFeature.Description:SetText("Statistics are now called Skills and come with brand new features!")
+	DiceMasterSplashFrame.TopLeftFeature.Description:SetText("Statistics are now called Skills and come with brand new features.")
 	
-	DiceMasterSplashFrame.BottomLeftFeature.Title:SetText("Updated Pet Features")
-	DiceMasterSplashFrame.BottomLeftFeature.Description:SetText("Pets can take part in new opt-in features using the new 'Learn Pet' item action!")
+	DiceMasterSplashFrame.BottomLeftFeature.Title:SetText("Updated Pet Tab")
+	DiceMasterSplashFrame.BottomLeftFeature.Description:SetText("The Pet tab has received a visual update and additional features.")
 	SetClampedTextureRotation( DiceMasterSplashFrame.BottomTexture, 270 );
 end
 
