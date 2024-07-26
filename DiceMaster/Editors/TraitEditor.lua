@@ -1813,7 +1813,7 @@ function Me.SkillFrame_DragStop( self, button )
 		local regions = GetMouseFoci();
 		for i = 1, #regions do
 			if regions[i]:GetParent() and regions[i]:GetParent():GetName():find("DiceMasterSkillRankFrame") then
-				local newPosition = GetMouseFocus():GetParent().skillPosition;
+				local newPosition = regions[i]:GetParent().skillPosition;
 				local oldPosition = DiceMasterSkillLabelPlacer.skillPosition;
 			
 				local skillOne = Profile.skills[ newPosition ];

@@ -1113,10 +1113,10 @@ function Me.OpenConfig()
 	
 	-- the first time we open the options frame, it wont go to the right page
 	if interfaceOptionsNeedsInit then
-		InterfaceOptionsFrame_OpenToCategory( "DiceMaster" )
+		Settings.OpenToCategory( "DiceMaster" )
 		interfaceOptionsNeedsInit = nil
 	end
-	InterfaceOptionsFrame_OpenToCategory( "DiceMaster" )
+	Settings.OpenToCategory( "DiceMaster" )
 	LibStub("AceConfigRegistry-3.0"):NotifyChange( "DiceMaster" )
 end
 

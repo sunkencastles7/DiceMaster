@@ -13,6 +13,7 @@ local changelog = {
 	{ "Updated to 11.0.", "5.1.9" },
 	{ "Added The War Within icons.", "5.1.9" },
 	{ "Added an optional 'target' arguement to DiceMaster4.SetHealth(health, target) to affect targeted player instead of player.", "5.1.9" },
+	{ "Moved the minimap icon to the new Addon Compartment Frame (just below the calendar icon).", "5.1.9" },
 	{ "Dragonflight support.", "5.1.8" },
 	{ "Updated to 10.0.", "5.1.8" },
 	{ "Added Dragonflight icons.", "5.1.8" },
