@@ -1,11 +1,11 @@
-### 5.1.0
+### 5.1.9
 - The War Within pre-patch support.
 - Updated to 11.0.
 - Added The War Within icons. 
 - Added an optional "target" arguement to DiceMaster4.SetHealth(health, target) to affect targeted player instead of player.
+- Moved the minimap icon to the new Addon Compartment Frame (just below the calendar icon).
 
-### 
-
+### 5.1.8
 - Dragonflight support.
 - Updated to 10.0.
 - Added Dragonflight icons. 

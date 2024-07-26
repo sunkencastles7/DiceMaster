@@ -105,12 +105,12 @@ function SlashCmdList.DICEMASTER(msg, editbox)
 		DiceMasterChangeLog:Show()
 	else
 		Me.PrintMessage("- /dicemaster config", "SYSTEM");
-		Me.PrintMessage("- /dicemaster whatsnew", "SYSTEM");
 		Me.PrintMessage("- /dicemaster changelog", "SYSTEM");
-		Me.PrintMessage("- /dicemaster (show || hide)", "SYSTEM");
-		Me.PrintMessage("- /dicemaster showraidrolls (true || false)", "SYSTEM");
 		Me.PrintMessage("- /dicemaster manager (show || hide)", "SYSTEM");
 		Me.PrintMessage("- /dicemaster range (number)", "SYSTEM");
+		Me.PrintMessage("- /dicemaster (show || hide)", "SYSTEM");
+		Me.PrintMessage("- /dicemaster showraidrolls (true || false)", "SYSTEM");
+		Me.PrintMessage("- /dicemaster whatsnew", "SYSTEM");
 	end
 end
 
