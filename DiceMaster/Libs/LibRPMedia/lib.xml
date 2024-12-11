@@ -2,7 +2,6 @@
 https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
     <Include file="LibRPMedia-1.2.lua"/>
     <Include file="LibRPMedia-1.0.lua"/>
-    <Include file="LibRPMediaData_1027.lua"/>
     <Include file="LibRPMediaData_Cata.lua"/>
     <Include file="LibRPMediaData_Mainline.lua"/>
     <Include file="LibRPMediaData_Vanilla.lua"/>

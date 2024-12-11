@@ -581,6 +581,6 @@ function Me.Emoji_Init()
             return;
         end
 
-        editBox:SetTextInsets(15 + header:GetWidth() + (headerSuffix:IsShown() and headerSuffix:GetWidth() or 0), 13 + 20, 0, 0);
+        editBox:SetTextInsets(15 + header:GetWidth() + (headerSuffix:IsShown() and headerSuffix:GetWidth() or 0) + (editBox.languageHeader:IsShown() and editBox.languageHeader:GetWidth() or 0), 13 + 20, 0, 0);
     end);
 end

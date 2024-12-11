@@ -1,7 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
 	
 	<Frame name="DiceMasterBuffEditor" parent="UIParent" inherits="SimplePanelTemplate" hidden="true" frameStrata="DIALOG" topLevel="true">
-    <Size x="256" y="400" />
+    <Size x="256" y="426" />
     <Anchors>
       <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
     </Anchors>
@@ -35,11 +35,18 @@
 	  </OnShow>
     </Scripts>
     <Frames>
+	
+	  <DropdownButton name="$parentLoadDropdown" parentKey="LoadDropdown" inherits="DiceMasterCollectionDropdownTemplate">
+		<Size x="220" y="22"/>
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.Inset" x="12" y="-12"/> 
+		</Anchors>
+	  </DropdownButton>
 
 	  <DiceMasterTraitButton name="$parentBuffIconButton" parentKey="buffIcon" >
         <Size x="42" y="42"/>
 		<Anchors>
-			<Anchor point="TOPLEFT" relativeKey="$parent.Inset" relativePoint="TOPLEFT" x="12" y="-12"/> 
+			<Anchor point="TOPLEFT" relativeKey="$parent.Inset" relativePoint="TOPLEFT" x="12" y="-38"/> 
 		</Anchors>
         <Scripts>
           <OnLoad>
@@ -308,7 +315,7 @@
   </Frame>
   
   <Frame name="DiceMasterDMBuffEditor" parent="UIParent" inherits="SimplePanelTemplate" hidden="true" frameStrata="DIALOG" topLevel="true">
-    <Size x="256" y="400" />
+    <Size x="256" y="426" />
 	
 	<Layers>
 		<Layer level="OVERLAY">
@@ -337,10 +344,17 @@
     </Scripts>
     <Frames>
 
+	  <DropdownButton name="$parentLoadDropdown" parentKey="LoadDropdown" inherits="DiceMasterCollectionDropdownTemplate">
+		<Size x="220" y="22"/>
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.Inset" x="12" y="-12"/> 
+		</Anchors>
+	  </DropdownButton>
+
 	  <DiceMasterTraitButton name="$parentBuffIconButton" parentKey="buffIcon" >
         <Size x="42" y="42"/>
 		<Anchors>
-			<Anchor point="TOPLEFT" relativeKey="$parent.Inset" relativePoint="TOPLEFT" x="12" y="-12"/> 
+			<Anchor point="TOPLEFT" relativeKey="$parent.Inset" relativePoint="TOPLEFT" x="12" y="-38"/> 
 		</Anchors>
         <Scripts>
           <OnLoad>
@@ -583,78 +597,17 @@
 			</Scripts>
 		</Button>
 		
-		<Button name="$parentLoadButton" parentKey="loadButton" inherits="UIPanelButtonTemplate" text="Load">
-			<Size x="80" y="22"/>
+		<Button name="$parentCloseButton" parentKey="closeButton" inherits="UIPanelButtonTemplate" text="Close">
+			<Size x="100" y="22"/>
 			<Anchors>
-				<Anchor point="BOTTOMLEFT" x="6" y="4"/>
+				<Anchor point="BOTTOM" x="0" y="4"/>
 			</Anchors>
 			<Scripts>
-				  <OnLoad>
-					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to load a saved buff.")
-				  </OnLoad>
-				  <OnShow>
-					UIDropDownMenu_Initialize( self, DiceMaster4.DMBuffEditorDropDown_OnLoad )
-					UIDropDownMenu_SetText(self, "Load")
-					self:SetHeight(22)
-				  </OnShow>
-				  <OnClick>
-					UIDropDownMenu_Initialize( self, DiceMaster4.DMBuffEditorDropDown_OnLoad )
-					ToggleDropDownMenu(1, nil, self, self, 0, 0)
-					self:SetHeight(22)
-				  </OnClick>
-				  <OnUpdate>
-					self:SetHeight(22)
-				  </OnUpdate>
-			</Scripts>
-		</Button>
-		
-		<Button name="$parentSaveButton" parentKey="saveButton" inherits="UIPanelButtonTemplate" text="Save">
-			<Size x="80" y="22"/>
-			<Anchors>
-				<Anchor point="LEFT" relativeKey="$parent.loadButton" relativePoint="RIGHT" x="0" y="0"/>
-			</Anchors>
-			<Scripts>
-				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to save this buff.")
-				</OnLoad>
-				<OnClick>
-					DiceMaster4.DMBuffEditor_Save()
-				</OnClick>
-			</Scripts>
-		</Button>
-		
-		<Button name="$parentDeleteButton" parentKey="deleteButton" inherits="UIPanelButtonTemplate" text="Delete">
-			<Size x="80" y="22"/>
-			<Anchors>
-				<Anchor point="LEFT" relativeKey="$parent.saveButton" relativePoint="RIGHT" x="0" y="0"/>
-			</Anchors>
-			<Scripts>
-				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to delete this buff.")
-				</OnLoad>
-				<OnClick>
-					DiceMaster4.DMBuffEditor_Delete()
-				</OnClick>
-			</Scripts>
-		</Button>
-		
-		<Button parentKey="MinimizeButton">
-			<Size x="24" y="24"/>
-			<Anchors>
-				<Anchor point="TOPRIGHT" x="-5" y="-5"/>
-			</Anchors>
-			<Scripts>
-				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to collapse the Apply Buff Editor.")
-				</OnLoad>
 				<OnClick>
 					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 					DiceMasterDMBuffEditor:Hide();
 				</OnClick>
 			</Scripts>
-			<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
-			<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
-			<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
 		</Button>
 
     </Frames>

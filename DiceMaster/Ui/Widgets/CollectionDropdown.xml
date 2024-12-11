@@ -1,0 +1,14 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+	<Script file="CollectionDropdown.lua"/>
+ 
+    <DropdownButton name="DiceMasterCollectionDropdownTemplate" inherits="WowStyle1DropdownTemplate" virtual="true">
+		<Size x="200" y="22"/>
+		<Scripts>
+			<OnLoad>
+				DiceMaster4.CollectionDropdown_Init( self )
+			</OnLoad>
+		</Scripts>
+	</DropdownButton>
+
+</Ui>

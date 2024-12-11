@@ -39,6 +39,12 @@ local DB_DEFAULTS = {
 		miniFrames = false;
 		bank = {};
 		savedBuffs = {};
+		collections = {
+			buffs		= {};
+			models		= {};
+			statistics	= {};
+			banners		= {};
+		};
 		lastSplashShown = nil;
 	};
 	
@@ -168,7 +174,7 @@ Me.configOptions = {
 			name  = "Configure the core settings for DiceMaster.";
 			type  = "description";
 		};
-		
+
 		mmicon = {
 			order = 1;
 			name  = "Enable Minimap Icon";
@@ -191,6 +197,7 @@ Me.configOptions = {
 				Me.db.char.uiScale = val;
 				Me.ApplyUiScale()
 			end;
+			width = "double";
 			get = function( info ) return Me.db.char.uiScale end;
 		};
 		
@@ -718,6 +725,7 @@ Me.configOptionsCharges = {
 						["mana-gems-bar"] = "Mana Gems",
 						["holy-power-bar"] = "Holy Power",
 						["balance-bar"] = "Balance",
+						["druid-seed-bar"] = "Druid Seeds",
 					};
 					set   = function( info, val ) 
 						Me.db.profile.charges.symbol = val
@@ -891,6 +899,7 @@ Me.configOptionsProgressBar = {
 						["mana-gems-bar"] = "Mana Gems",
 						["holy-power-bar"] = "Holy Power",
 						["balance-bar"] = "Balance",
+						["druid-seed-bar"] = "Druid Seeds",
 					};
 					set   = function( info, val ) 
 						Me.db.profile.morale.symbol = val

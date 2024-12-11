@@ -322,18 +322,18 @@ end
 function Me.SoundPicker_Open( parent )
 	
 	-- Load the DiceMaster_Resources module needed to access the sound list.
-	local loaded, reason = LoadAddOn("DiceMaster_Resources")
+	local loaded, reason = C_AddOns.LoadAddOn("DiceMaster_Resources")
 	if not loaded then
 		if reason == "DISABLED" then
-			EnableAddOn("DiceMaster_Resources", true) -- enable for all characters on the realm
-			LoadAddOn("DiceMaster_Resources")
+			C_AddOns.EnableAddOn("DiceMaster_Resources", true) -- enable for all characters on the realm
+			C_AddOns.LoadAddOn("DiceMaster_Resources")
 		else
 			local failed_msg = format("%s - %s", reason, _G["ADDON_"..reason])
 			error(ADDON_LOAD_FAILED:format("DiceMaster_Resources", failed_msg))
 		end
 	end
 	-- Failsafe
-	if not( IsAddOnLoaded("DiceMaster_Resources")) then return end
+	if not( C_AddOns.IsAddOnLoaded("DiceMaster_Resources")) then return end
 
 	if parent then
 		Me.CloseAllEditors( nil, nil, true )

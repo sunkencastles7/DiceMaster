@@ -711,7 +711,7 @@
 						local actor = self:CreateActor("DiceMasterStatInspectorPetModel", "DiceMasterPetFrameActorTemplate"); 
 						actor:SetScale(0.2);
 						actor:SetPosition(0,0,0);
-						actor:SetAnimationBlendOperation(LE_MODEL_BLEND_OPERATION_ANIM);
+						actor:SetAnimationBlendOperation(0);
 						actor:SetAlpha(1);
 					</OnLoad>
                 </Scripts>

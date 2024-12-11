@@ -4,6 +4,11 @@
 
 local Me = DiceMaster4
 
+Me.MinimapButton = {}
+
+local LDB    = LibStub:GetLibrary( "LibDataBroker-1.1" )
+local DBIcon = LibStub:GetLibrary( "LibDBIcon-1.0"     )
+
 -------------------------------------------------------------------------------
 function Me.MinimapButton_Init()
 	AddonCompartmentFrame:RegisterAddon({
@@ -11,28 +16,55 @@ function Me.MinimapButton_Init()
 		 icon = "Interface/AddOns/DiceMaster/Icons/DiceMaster",
 		 notCheckable = true,
 		 func = function(data, menuInputData, menu)
-			 Me.MinimapButton_OnClick(menuInputData.buttonName)
+			 Me.MinimapButton:OnClick(data, menuInputData.buttonName)
 		 end,
-		 funcOnEnter = function(...)
-			Me.MinimapButton_OnEnter(...)
+		 funcOnEnter = function(self)
+			Me.MinimapButton:OnEnter(self)
 		 end,
-		 funcOnLeave = function(...)
-			Me.MinimapButton_OnLeave(...)
+		 funcOnLeave = function(self)
+			Me.MinimapButton:OnLeave(self)
 		 end,
+	})
+
+	local self = Me.MinimapButton
+	
+	self.data = LDB:NewDataObject( "DiceMaster", {
+		type = "data source";
+		text = "DiceMaster";
+		icon = "Interface/AddOns/DiceMaster/Icons/DiceMaster";
+		OnClick = function(self, button) Me.MinimapButton:OnClick(self, button) end;
+		OnEnter = function(self) Me.MinimapButton:OnEnter(self) end;
+		OnLeave = function(self) Me.MinimapButton:OnLeave(self) end;
 	})
 end
 
 -------------------------------------------------------------------------------
-function Me.MinimapButton_OnClick( buttonName )
-	if buttonName == "LeftButton" then
+function Me.MinimapButton:OnLoad() 
+	DBIcon:Register( "DiceMaster", self.data, Me.db.char.minimapicon )
+end
+
+-------------------------------------------------------------------------------
+function Me.MinimapButton:Show( show )
+	if show then
+		DBIcon:Show( "DiceMaster" )
+		Me.db.char.minimapicon.hide = false
+	else
+		DBIcon:Hide( "DiceMaster" )
+		Me.db.char.minimapicon.hide = true
+	end
+end
+
+-------------------------------------------------------------------------------
+function Me.MinimapButton:OnClick( self, button )
+	if button == "LeftButton" then
 		Me.ShowPanel( Me.db.char.hidepanel )
-	elseif buttonName == "RightButton" then
+	elseif button == "RightButton" then
 		Me.OpenConfig()
 	end
 end
    
 -------------------------------------------------------------------------------
-function Me.MinimapButton_OnEnter( frame ) 
+function Me.MinimapButton:OnEnter( frame ) 
 	-- Section the screen into 6 sextants and define the tooltip 
 	-- anchor position based on which sextant the cursor is in.
 	-- Code taken from WeakAuras.
@@ -56,6 +88,6 @@ function Me.MinimapButton_OnEnter( frame )
 end
 
 -------------------------------------------------------------------------------
-function Me.MinimapButton_OnLeave( frame ) 
+function Me.MinimapButton:OnLeave( frame ) 
 	GameTooltip:Hide()
 end

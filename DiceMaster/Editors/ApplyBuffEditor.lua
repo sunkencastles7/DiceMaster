@@ -108,6 +108,62 @@ function Me.BuffEditor_Refresh( effectIndex )
 	Me.buffeditor.buffStackable:SetChecked( buff.stackable )
 end
 
+
+function Me.BuffEditor_GetBuffData()
+	if not Me.buffeditor.buffIcon.icon:GetTexture() then 
+		UIErrorsFrame:AddMessage( "You can't save a buff without an icon.", 1.0, 0.0, 0.0 );
+		return
+	end
+
+	local buff = {
+		icon = Me.buffeditor.buffIcon.icon:GetTexture();
+		name = Me.buffeditor.buffName:GetText();
+		desc = Me.buffeditor.buffDesc.EditBox:GetText();
+		skill = Me.buffeditor.buffSkillName:GetText();
+		skillRank = Me.buffeditor.buffSkillRank:GetText();
+		cancelable = true;
+		duration = 1;
+		aoe = Me.buffeditor.buffAOE:GetChecked();
+		stackable = Me.buffeditor.buffStackable:GetChecked();
+	}
+	
+	if not Me.buffeditor.buffCancelable:GetChecked() then
+		buff.duration = Me.buffeditor.buffDuration:GetValue()
+	end
+
+	if buff.name == "" then
+		UIErrorsFrame:AddMessage( "You can't save a buff without a name.", 1.0, 0.0, 0.0 );
+		return 
+	end
+	
+	return buff;
+end
+
+function Me.BuffEditor_SetBuffData( buffData )
+	if not( buffData ) then
+		return
+	end
+	Me.buffeditor.buffIcon:SetTexture( buffData.icon )
+	Me.buffeditor.buffName:SetText( buffData.name )
+	Me.buffeditor.buffDesc.EditBox:SetText( buffData.desc )
+	if buffData.skill then
+		Me.buffeditor.buffSkillName:SetText( buffData.skill )
+		Me.buffeditor.buffSkillRank:SetText( buffData.skillRank )
+	else
+		Me.buffeditor.buffSkillName:SetText( "" )
+		Me.buffeditor.buffSkillRank:SetText( "" )
+	end
+	if not( buffData.cancelable ) then
+		Me.buffeditor.buffCancelable:SetChecked( false )
+		Me.buffeditor.buffDuration:SetValue( buffData.duration )
+	else
+		Me.buffeditor.buffCancelable:SetChecked( true )
+		Me.buffeditor.buffDuration:SetValue( 1 )
+	end
+	Me.buffeditor.buffAOE:SetChecked( buffData.aoe or false )
+	Me.buffeditor.buffStackable:SetChecked( buffData.stackable );
+end
+
 function Me.BuffEditor_DeleteBuff()
 	if not Me.buffeditor.parent then
 		Profile.traits[Me.editing_trait]["effects"]["buff"] = nil
@@ -261,6 +317,8 @@ function Me.BuffEditor_Open( parent )
 		Me.BuffEditor_Save()
 		Me.BuffEditor_OnCloseClicked()
 	end)
+
+	Me.buffeditor.LoadDropdown:SetCollection(nil, "Buffs", Me.BuffEditor_GetBuffData, nil, Me.BuffEditor_SetBuffData);
    
 	Me.BuffEditor_Refresh()
 	Me.buffeditor:Show()
@@ -288,20 +346,14 @@ function Me.DMBuffEditor_Refresh( effectIndex )
 	Me.dmbuffeditor.buffAOE:SetChecked( false )
 	Me.dmbuffeditor.buffRange:SetText( 0 )
 	Me.dmbuffeditor.buffStackable:SetChecked( false )
+	Me.dmbuffeditor.collectionName = nil;
 end
 
-function Me.DMBuffEditor_Delete()
-	for i = 1, #Me.db.global.savedBuffs do
-		if Me.db.global.savedBuffs[i].name == Me.dmbuffeditor.buffName:GetText() and Me.db.global.savedBuffs[i].icon == Me.dmbuffeditor.buffIcon.icon:GetTexture() then
-			Me.PrintMessage("|T".. Me.dmbuffeditor.buffIcon.icon:GetTexture() ..":16|t |cFF67BCFF[".. Me.dmbuffeditor.buffName:GetText() .."]|r deleted.", "SYSTEM");
-			tremove( Me.db.global.savedBuffs, i )
-			break
-		end
+function Me.DMBuffEditor_GetBuffData()
+	if not Me.dmbuffeditor.buffIcon.icon:GetTexture() then 
+		UIErrorsFrame:AddMessage( "You can't save a buff without an icon.", 1.0, 0.0, 0.0 );
+		return
 	end
-end
-
-function Me.DMBuffEditor_Save()
-	if not Me.dmbuffeditor.buffIcon.icon:GetTexture() then return end
 
 	local buff = {
 		icon = Me.dmbuffeditor.buffIcon.icon:GetTexture();
@@ -318,23 +370,38 @@ function Me.DMBuffEditor_Save()
 	if not Me.dmbuffeditor.buffCancelable:GetChecked() then
 		buff.duration = Me.dmbuffeditor.buffDuration:GetValue()
 	end
-	
-	if buff.name ~= "" then
-		for i = 1, #Me.db.global.savedBuffs do
-			if Me.db.global.savedBuffs[i].name == buff.name and Me.db.global.savedBuffs[i].icon == buff.icon then
-				UIErrorsFrame:AddMessage( "You have already saved a buff with this name and icon.", 1.0, 0.0, 0.0 );
-				break
-			elseif i == #Me.db.global.savedBuffs then
-				print("inserted")
-				tinsert( Me.db.global.savedBuffs, buff );
-				return
-			end
-		end
-		if #Me.db.global.savedBuffs == 0 then
-			tinsert( Me.db.global.savedBuffs, buff );
-		end
-		Me.PrintMessage("|T".. buff.icon ..":16|t |cFF67BCFF[".. buff.name .."]|r saved.", "SYSTEM");
+
+	if buff.name == "" then
+		UIErrorsFrame:AddMessage( "You can't save a buff without a name.", 1.0, 0.0, 0.0 );
+		return 
 	end
+	
+	return buff;
+end
+
+function Me.DMBuffEditor_SetBuffData( buffData )
+	if not( buffData ) then
+		return
+	end
+	Me.dmbuffeditor.buffIcon:SetTexture( buffData.icon )
+	Me.dmbuffeditor.buffName:SetText( buffData.name )
+	Me.dmbuffeditor.buffDesc.EditBox:SetText( buffData.desc )
+	if buffData.skill then
+		Me.dmbuffeditor.buffSkillName:SetText( buffData.skill )
+		Me.dmbuffeditor.buffSkillRank:SetText( buffData.skillRank )
+	else
+		Me.dmbuffeditor.buffSkillName:SetText( "" )
+		Me.dmbuffeditor.buffSkillRank:SetText( "" )
+	end
+	if not( buffData.cancelable ) then
+		Me.dmbuffeditor.buffCancelable:SetChecked( false )
+		Me.dmbuffeditor.buffDuration:SetValue( buffData.duration )
+	else
+		Me.dmbuffeditor.buffCancelable:SetChecked( true )
+		Me.dmbuffeditor.buffDuration:SetValue( 1 )
+	end
+	Me.dmbuffeditor.buffAOE:SetChecked( buffData.aoe or false )
+	Me.dmbuffeditor.buffStackable:SetChecked( buffData.stackable );
 end
 
 function Me.DMBuffEditor_Cast()
@@ -360,88 +427,8 @@ function Me.DMBuffEditor_Cast()
 	Me.BuffFrame_CastBuff( buff )
 end
 
--------------------------------------------------------------------------------
--- Dropdown handlers for the load buffs menu.
---
-function Me.DMBuffEditorDropDown_OnClick(self, arg1, arg2, checked)
-	local duration = arg1.duration or 0
-	local stackable = arg1.stackable or false
-	local editor = DiceMasterDMBuffEditor
-	
-	editor.buffIcon:SetTexture( arg1.icon )
-	editor.buffName:SetText( arg1.name )
-	editor.buffDesc.EditBox:SetText( arg1.desc )
-	if arg1.skill then
-		editor.buffSkillName:SetText( arg1.skill )
-		editor.buffSkillRank:SetText( arg1.skillRank )
-	else
-		editor.buffSkillName:SetText( "" )
-		editor.buffSkillRank:SetText( "" )
-	end
-	if not arg1.cancelable then
-		editor.buffCancelable:SetChecked( false )
-		editor.buffDuration:SetValue( duration )
-	else
-		editor.buffCancelable:SetChecked( true )
-		editor.buffDuration:SetValue( 1 )
-	end
-	editor.buffAOE:SetChecked( arg1.aoe or false )
-	editor.buffStackable:SetChecked( stackable )
-end
-
-function Me.DMBuffEditorDropDown_OnLoad( frame, level, menuList )
-	local info      = UIDropDownMenu_CreateInfo();
-	
-	if level == 1 then
-		info.notCheckable = true;
-		info.text = "Conditions";
-		info.disabled = false;
-		info.notClickable = false;
-		info.hasArrow = true;
-		info.menuList = "Conditions";
-		UIDropDownMenu_AddButton(info);
-		info.hasArrow = false;
-		info.menuList = nil;
-		for i = 1, #Me.db.global.savedBuffs do
-			local buff = Me.db.global.savedBuffs[i]
-			if not buff then return end
-		   info.icon	   = buff.icon or "Interface/Icons/inv_misc_questionmark";
-		   info.tooltipTitle = buff.name;
-		   info.tooltipText = buff.desc;
-		   info.tooltipOnButton = true;
-		   info.text       = buff.name;
-		   info.value      = 1;
-		   info.notCheckable = true;
-		   info.arg1	   = buff;
-		   info.func       = Me.DMBuffEditorDropDown_OnClick;
-		   UIDropDownMenu_AddButton(info); 
-		end
-	elseif menuList then
-		for i = 1,#Me.TermsList["Conditions"] do
-			local conditionData = {
-				name = Me.TermsList["Conditions"][i].altName,
-				icon = Me.TermsList["Conditions"][i].icon,
-				desc = Me.TermsList["Conditions"][i].desc,
-				duration = 0,
-				cancelable = true,
-				stackable = false,
-			}
-			info.icon = Me.TermsList["Conditions"][i].icon;
-			info.tooltipTitle = Me.TermsList["Conditions"][i].altName;
-			info.tooltipText = Me.TermsList["Conditions"][i].desc;
-			info.tooltipOnButton = true;
-			info.text = Me.TermsList["Conditions"][i].altName;
-			info.value = 1;
-			info.notCheckable = true;
-			info.arg1 = conditionData;
-			info.func = Me.DMBuffEditorDropDown_OnClick;
-			UIDropDownMenu_AddButton(info, level); 
-		end
-	end
-end
-
 function Me.DMBuffEditor_SelectIcon( texture )
-	DiceMasterDMBuffEditor.buffIcon:SetTexture( texture )
+	Me.dmbuffeditor.buffIcon:SetTexture( texture )
 end
 
 function Me.DMBuffEditor_UpdateCastButton()
@@ -462,18 +449,13 @@ function Me.DMBuffEditor_Open()
 	if Me.db.global.trackerAnchor == "RIGHT" then
 		Me.dmbuffeditor:ClearAllPoints()
 		Me.dmbuffeditor:SetPoint( "LEFT", DiceMasterRollFrame, "RIGHT" )
-		Me.dmbuffeditor.MinimizeButton:SetNormalTexture("Interface/Buttons/UI-SpellbookIcon-PrevPage-Up")
-		Me.dmbuffeditor.MinimizeButton:SetPushedTexture("Interface/Buttons/UI-SpellbookIcon-PrevPage-Down")
-		Me.dmbuffeditor.MinimizeButton:ClearAllPoints()
-		Me.dmbuffeditor.MinimizeButton:SetPoint("TOPLEFT", 5, -5)
 	else
 		Me.dmbuffeditor:ClearAllPoints()
 		Me.dmbuffeditor:SetPoint( "RIGHT", DiceMasterRollFrame, "LEFT" )
-		Me.dmbuffeditor.MinimizeButton:SetNormalTexture("Interface/Buttons/UI-SpellbookIcon-NextPage-Up")
-		Me.dmbuffeditor.MinimizeButton:SetPushedTexture("Interface/Buttons/UI-SpellbookIcon-NextPage-Down")
-		Me.dmbuffeditor.MinimizeButton:ClearAllPoints()
-		Me.dmbuffeditor.MinimizeButton:SetPoint("TOPRIGHT", -5, -5)
 	end
+
+	Me.dmbuffeditor.LoadDropdown:SetCollection(nil, "Buffs", Me.DMBuffEditor_GetBuffData, nil, Me.DMBuffEditor_SetBuffData);
+
 	Me.dmbuffeditor:Show()
 	Me.DMBuffEditor_UpdateCastButton()
 end

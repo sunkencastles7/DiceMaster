@@ -1,0 +1,191 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+	
+	<!--The Unit Details Frame-->
+	<Frame name="DiceMasterUnitDetailsFrame" toplevel="true" parent="UIParent" inherits="ButtonFrameTemplate" mixin="DiceMasterUnitDetailsFrameMixin" framestrata="DIALOG" enableMouse="true" hidden="true">
+		<Size x="704" y="607"/>
+		<Anchors>
+			<Anchor point="LEFT" x="20" y="40"/> 
+		</Anchors>
+		<Frames>
+			<DiceMasterUnitHealthBar parentKey="HealthBar">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="73" y="-41"/>
+				</Anchors>
+			</DiceMasterUnitHealthBar>
+			<ModelScene parentKey="ModelFrame" enableMouse="true" useParentLevel="true" drawLayer="BORDER" inherits="PanningModelSceneMixinTemplate">
+				<Size x="313" y="580"/>
+				<Anchors>
+					<Anchor point="LEFT" x="5" y="-9"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture parentKey="ModelBackground" file="Interface/PetBattles/MountJournal-BG">
+							<Size x="400" y="580"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					 <Layer level="ARTWORK">
+						<Texture parentKey="​BackgroundOverlay" atlas="AlliedRace-UnlockingFrame-ModelFrame" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" x="-8" y="-5"/>
+							</Anchors>
+						</Texture>
+					 </Layer>
+				</Layers>
+				<Frames>
+					<Button parentKey="RotateLeftButton">
+						<Size x="35" y="35" />
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativePoint="BOTTOM" x="-5" y="50"/>
+						</Anchors>
+						<NormalTexture file="Interface\Buttons\UI-RotationLeft-Button-Up"/>
+						<PushedTexture file="Interface\Buttons\UI-RotationLeft-Button-Down"/>
+						<HighlightTexture file="Interface\Buttons\ButtonHilight-Round" alphaMode="ADD"/>
+					</Button>
+					<Button parentKey="RotateRightButton">
+						<Size x="35" y="35" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="BOTTOM" x="5" y="50"/>
+						</Anchors>
+						<NormalTexture file="Interface\Buttons\UI-RotationRight-Button-Up"/>
+						<PushedTexture file="Interface\Buttons\UI-RotationRight-Button-Down"/>
+						<HighlightTexture file="Interface\Buttons\ButtonHilight-Round" alphaMode="ADD"/>
+					</Button>
+				</Frames>
+				<Scripts>
+					<OnLoad>
+						self.cameras = {};
+						self.actorTemplate = "ModelSceneActorTemplate";
+						self.tagToActor = {};
+						self.tagToCamera = {};
+
+						if self.reversedLighting then
+							local lightPosX, lightPosY, lightPosZ = self:GetLightPosition();
+							self:SetLightPosition(-lightPosX, -lightPosY, lightPosZ);
+
+							local lightDirX, lightDirY, lightDirZ = self:GetLightDirection();
+							self:SetLightDirection(-lightDirX, -lightDirY, lightDirZ);
+						end
+						self.Model = self:CreateActor()
+						self:SetCameraPosition(-5, 0, 2)
+					</OnLoad>
+				</Scripts>
+			</ModelScene>
+			<Frame parentKey="UnitInfoFrame">
+				<Size x="330" y="464"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="DiceMasterUnitDetailsFrame"  x="-26" y="-1"/>
+				</Anchors>
+				<Frames>
+					<ScrollFrame parentKey="ScrollFrame" inherits="UIPanelScrollFrameCodeTemplate">
+						<Size x="330" y="520"/>
+						<Anchors>
+							<Anchor point="RIGHT" relativeTo="DiceMasterUnitDetailsFrame" x="-25" y="-36"/>
+						</Anchors>
+						<ScrollChild>
+							<Frame parentKey="Child">
+								<Size x="275" y="1"/>
+								<Layers>
+									<Layer level="ARTWORK">
+										<FontString parentKey="Distance" inherits="GameFontBlackMedium" justifyH="CENTER">
+											<Size x="287" y="30"/>
+											<Anchors>
+												<Anchor point="TOPLEFT" x="28" y="0"/>
+											</Anchors>
+											<Color r="0.25" g="0.1484375" b=".02" a="1"/>
+										</FontString>
+									</Layer>
+								</Layers>
+								<Frames>
+									<DiceMasterUnitInfoTemplate name="$parentStatisticsFrame" parentKey="StatisticsFrame">
+										<Size x="287" y="24"/>
+										<Anchors>
+											<Anchor point="TOP" x="28" y="-35"/>
+										</Anchors>
+										<Scripts>
+											<OnLoad>
+												self.button.title:SetText("Statistics");
+												self.index = 1;
+											</OnLoad>
+										</Scripts>
+									</DiceMasterUnitInfoTemplate>
+									<DiceMasterUnitInfoTemplate name="$parentTraitsFrame" parentKey="TraitsFrame">
+										<Size x="287" y="24"/>
+										<Anchors>
+											<Anchor point="TOP" relativeKey="$parent.StatisticsFrame" relativePoint="BOTTOM" x="0" y="-6"/>
+										</Anchors>
+										<Scripts>
+											<OnLoad>
+												self.button.title:SetText("Traits");
+												self.index = 2;
+											</OnLoad>
+										</Scripts>
+									</DiceMasterUnitInfoTemplate>
+									<DiceMasterUnitInfoTemplate name="$parentDescriptionFrame" parentKey="DescriptionFrame">
+										<Size x="287" y="24"/>
+										<Anchors>
+											<Anchor point="TOP" relativeKey="$parent.TraitsFrame" relativePoint="BOTTOM" x="0" y="-6"/>
+										</Anchors>
+										<Scripts>
+											<OnLoad>
+												self.button.title:SetText("Description");
+												self.index = 3;
+											</OnLoad>
+										</Scripts>
+									</DiceMasterUnitInfoTemplate>
+								</Frames>
+							</Frame>
+						</ScrollChild>
+						<Scripts>
+							<OnLoad>
+								ScrollFrame_OnLoad(self);
+							</OnLoad>
+							<OnUpdate>
+								if DiceMasterUnitDetailsFrame:IsShown() and DiceMasterUnitDetailsFrame.unitData then
+									-- TODO Update Distance Text
+									self.Child.Distance:SetText( DiceMaster4.GetDistanceToMapIcon( DiceMasterUnitDetailsFrame ) .. " yd away" )
+								end
+							</OnUpdate>
+						</Scripts>
+					</ScrollFrame>
+				</Frames>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString parentKey="UnitName" inherits="Fancy48Font" justifyH="CENTER" mixin="ShrinkUntilTruncateFontStringMixin">
+							<Size x="270" y="40"/>
+							<Anchors>
+								<Anchor point="TOPRIGHT" relativeTo="DiceMasterUnitDetailsFrame" x="-52" y="-38"/>
+							</Anchors>
+							<Color r="0.1" g="0.1" b="0.1"/>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="FrameBackground" atlas="AlliedRace-UnlockingFrame-Background" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="1">
+				<Texture parentKey="Banner" atlas="AlliedRace-UnlockingFrame-RaceBanner" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.ModelFrame" relativePoint="TOPRIGHT" x="-76" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad  method="OnLoad"/>
+			<OnHide  method="OnHide"/>
+			<OnShow  method="OnShow"/>
+		</Scripts> 
+	</Frame>
+
+
+</Ui>

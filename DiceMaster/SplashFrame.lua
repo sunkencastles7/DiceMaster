@@ -9,6 +9,16 @@
 local Me = DiceMaster4
 
 local changelog = {
+	{ "Patch 11.0.2 support.", "5.2.0" },
+	{ "Fixed an issue with some outdated backdrops.", "5.2.0" },
+	{ "Added a new 'Edit' button that appears on the bottom corner of the Skills frame when an editable skill is selected.", "5.2.0" },
+	{ "Added a new \"My Collections\" system for saving buffs, models, banners, and more!", "5.2.0" },
+	{ "Saved buffs using the old system have been automatically migrated.", "5.2.0" },
+	{ "Added a new Druid Seed skin for Custom Resource and Progress Bars.", "5.2.0" },
+	{ "Re-added the minimap button (oops).", "5.2.0" },
+	{ "Revamped the Send Banner feature to allow users to customise up to 10 optional submenu options with a custom title, icon, and description.", "5.2.0" },
+	{ "Expanded the Model Picker to included larger model frames.", "5.2.0" },
+	{ "Updated Ace libraries.", "5.2.0" },
 	{ "The War Within pre-patch support.", "5.1.9" },
 	{ "Updated to 11.0.", "5.1.9" }, 
 	{ "Added The War Within icons.", "5.1.9" },
@@ -70,14 +80,14 @@ function Me.ChangeLog_OnShow()
 end
 
 function Me.SplashFrame_OnShow()
-	DiceMasterSplashFrame.RightFeature.Title:SetText("Ready for The War Within!")
-	DiceMasterSplashFrame.RightFeature.Description:SetText("The UI has undergone an art refresh. Customize it while in Edit Mode!")
+	DiceMasterSplashFrame.RightFeature.Title:SetText("Crafting Items")
+	DiceMasterSplashFrame.RightFeature.Description:SetText("You can now design your own Crafting recipes with custom items!")
 	
-	DiceMasterSplashFrame.TopLeftFeature.Title:SetText("Revamped Skills")
-	DiceMasterSplashFrame.TopLeftFeature.Description:SetText("Statistics are now called Skills and come with brand new features.")
+	DiceMasterSplashFrame.TopLeftFeature.Title:SetText("Collections")
+	DiceMasterSplashFrame.TopLeftFeature.Description:SetText("You can now save models, buffs, banners, and more in custom loadouts called Collections!")
 	
-	DiceMasterSplashFrame.BottomLeftFeature.Title:SetText("Updated Pet Tab")
-	DiceMasterSplashFrame.BottomLeftFeature.Description:SetText("The Pet tab has received a visual update and additional features.")
+	DiceMasterSplashFrame.BottomLeftFeature.Title:SetText("New Banner Options")
+	DiceMasterSplashFrame.BottomLeftFeature.Description:SetText("The Send Banner feature can now be customised with up to 10 submenu options.")
 	SetClampedTextureRotation( DiceMasterSplashFrame.BottomTexture, 270 );
 end
 

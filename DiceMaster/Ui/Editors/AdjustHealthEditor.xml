@@ -15,7 +15,7 @@
 					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-16" />
 				</Anchors>
 			</Texture>
-			<FontString inherits="GameFontNormal" justifyH="center" text="Add/Remove Health">
+			<FontString inherits="GameFontNormal" justifyH="center" text="Add/Remove Health/Resource">
 				<Anchors>
 				  <Anchor point="TOP" x="0" y="-12"/> 
 				</Anchors>
@@ -61,10 +61,36 @@
 			</Scripts>
 		</EditBox>
 		
+		<EditBox name="$parentMana" parentKey="mana" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+			<Size x="64" y="12"/> 
+			<Anchors>
+			  <Anchor point="LEFT" relativeKey="$parent.health" relativePoint="RIGHT" x="16" y="0"/> 
+			</Anchors>
+			<Layers>
+				<Layer level="ARTWORK">
+					<FontString inherits="GameFontNormalLeft" justifyH="left" text="Mana">
+						<Size x="150" y="12"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" x="0" y="20"/> 
+						</Anchors>
+					</FontString>
+				</Layer>
+			</Layers>
+			<Scripts> 
+			  <OnLoad>
+				self:SetAutoFocus( false )
+				self:SetTextColor( 1, 1, 1 )
+				self:SetMaxLetters( 5 )
+			  </OnLoad>
+			  <OnEscapePressed function="EditBox_ClearFocus"/>
+			  <OnEnterPressed function="EditBox_ClearFocus"/>
+			</Scripts>
+		</EditBox>
+		
 		<EditBox name="$parentArmour" parentKey="armour" font="GameFontNormalMed2" inherits="InputBoxTemplate">
 			<Size x="64" y="12"/> 
 			<Anchors>
-			  <Anchor point="LEFT" relativeKey="$parent.health" relativePoint="RIGHT" x="24" y="0"/> 
+			  <Anchor point="LEFT" relativeKey="$parent.mana" relativePoint="RIGHT" x="16" y="0"/> 
 			</Anchors>
 			<Layers>
 				<Layer level="ARTWORK">
@@ -90,7 +116,7 @@
 		<EditBox name="$parentDelay" parentKey="delay" font="GameFontNormalMed2" inherits="InputBoxTemplate">
 			<Size x="40" y="12"/> 
 			<Anchors>
-			  <Anchor point="LEFT" relativeKey="$parent.armour" relativePoint="RIGHT" x="24" y="0"/> 
+			  <Anchor point="LEFT" relativeKey="$parent.armour" relativePoint="RIGHT" x="16" y="0"/> 
 			</Anchors>
 			<Layers>
 				<Layer level="ARTWORK">

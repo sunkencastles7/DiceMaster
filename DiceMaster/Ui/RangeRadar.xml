@@ -52,7 +52,7 @@
     <Frames>
 	  <Button parentKey="CloseButton" inherits="UIPanelHideButtonNoScripts">
 		<Anchors>
-			<Anchor point="TOPRIGHT" x="-40" y="-18"/>
+			<Anchor point="TOPRIGHT" x="-45" y="-22"/>
 		</Anchors>
 		<Scripts>
 			<OnClick>

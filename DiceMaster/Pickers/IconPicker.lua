@@ -31,34 +31,40 @@ end
 -- When one of the icon buttons are clicked.
 --
 function Me.IconPickerButton_OnClick( self )
-	-- Apply the icon to the edited trait and close the picker. 
-	if DiceMasterIconPicker.parent == DiceMasterBuffEditor then
-		Me.BuffEditor_SelectIcon( GetIconPath(self) )
-	elseif DiceMasterIconPicker.parent == DiceMasterDMBuffEditor then
-		Me.DMBuffEditor_SelectIcon( GetIconPath(self) )
-	elseif DiceMasterIconPicker.parent == Me.editor then
-		Me.TraitEditor_SelectIcon( GetIconPath(self) )
-	elseif DiceMasterIconPicker.parent == DiceMasterSkillDetailSkillIconButton then
-		Me.SkillFrame_SelectIcon( GetIconPath(self) )
-	elseif DiceMasterIconPicker.parent == DiceMasterPetFrame then
-		Me.PetEditor_SelectIcon( GetIconPath(self) ) 
-	elseif DiceMasterIconPicker.parent == DiceMasterItemEditor then
-		Me.ItemEditor_SelectIcon( GetIconPath(self) )
-	elseif DiceMasterIconPicker.parent == DiceMasterCurrencyEditor then
-		Me.CurrencyEditor_SelectIcon( GetIconPath(self) )
-	elseif DiceMasterIconPicker.parent == DiceMasterDMNotesDMNotes.EditBox then
-		Me.TraitEditor_Insert( "<img>"..GetIconPath(self).."</img>", DiceMasterIconPicker.parent )
-		DiceMasterNotesEditBox_OnTextChanged(DiceMasterIconPicker.parent)
-	elseif DiceMasterIconPicker.parent == DiceMasterBookFrame then
-		Me.BookEditor_Insert( "{icon:"..GetIconPath(self)..":32}" )
-	elseif DiceMasterIconPicker.parent == DiceMasterTraitEditorInventoryTab then
-		Me.TraitEditor_SelectInventoryIcon( GetIconPath(self) )
-	elseif DiceMasterIconPicker.parent == DiceMasterTraitEditorShopTab then
-		Me.ShopFrame_SelectIcon( GetIconPath(self) )
-	elseif DiceMasterIconPicker.parent == DiceMasterSkillEditor then
-		Me.SkillEditor_SelectIcon( GetIconPath(self) )
-	elseif DiceMasterIconPicker.parent:GetName():find("DiceMasterLearnPetEditor") then
-		DiceMasterIconPicker.parent:SetTexture( GetIconPath(self) );
+	-- Apply the icon to the edited trait and close the picker.
+	if DiceMasterIconPicker.parent then
+		if DiceMasterIconPicker.parent == DiceMasterBuffEditor then
+			Me.BuffEditor_SelectIcon( GetIconPath(self) )
+		elseif DiceMasterIconPicker.parent == DiceMasterDMBuffEditor then
+			Me.DMBuffEditor_SelectIcon( GetIconPath(self) )
+		elseif DiceMasterIconPicker.parent == Me.editor then
+			Me.TraitEditor_SelectIcon( GetIconPath(self) )
+		elseif DiceMasterIconPicker.parent == DiceMasterSkillDetailSkillIconButton then
+			Me.SkillFrame_SelectIcon( GetIconPath(self) )
+		elseif DiceMasterIconPicker.parent == DiceMasterPetFrame then
+			Me.PetEditor_SelectIcon( GetIconPath(self) ) 
+		elseif DiceMasterIconPicker.parent == DiceMasterItemEditor then
+			Me.ItemEditor_SelectIcon( GetIconPath(self) )
+		elseif DiceMasterIconPicker.parent == DiceMasterCurrencyEditor then
+			Me.CurrencyEditor_SelectIcon( GetIconPath(self) )
+		elseif DiceMasterIconPicker.parent == DiceMasterDMNotesDMNotes.EditBox then
+			Me.TraitEditor_Insert( "<img>"..GetIconPath(self).."</img>", DiceMasterIconPicker.parent )
+			DiceMasterNotesEditBox_OnTextChanged(DiceMasterIconPicker.parent)
+		elseif DiceMasterIconPicker.parent == DiceMasterBookFrame then
+			Me.BookEditor_Insert( "{icon:"..GetIconPath(self)..":32}" )
+		elseif DiceMasterIconPicker.parent == DiceMasterTraitEditorInventoryTab then
+			Me.TraitEditor_SelectInventoryIcon( GetIconPath(self) )
+		elseif DiceMasterIconPicker.parent == DiceMasterTraitEditorShopTab then
+			Me.ShopFrame_SelectIcon( GetIconPath(self) )
+		elseif DiceMasterIconPicker.parent == DiceMasterSkillEditor then
+			Me.SkillEditor_SelectIcon( GetIconPath(self) )
+		elseif DiceMasterIconPicker.parent:GetParent():GetName():find("DiceMasterBannerPromptDialog") then
+			Me.RollBannerPromptDialog_SelectIcon( GetIconPath(self), DiceMasterIconPicker.parent )
+		elseif DiceMasterIconPicker.parent:GetName():find("DiceMasterLearnPetEditor") then
+			DiceMasterIconPicker.parent:SetTexture( GetIconPath(self) );
+		elseif DiceMasterIconPicker.parent == DiceMasterUnitManagerFieldEditor then
+			DiceMasterUnitManagerFieldEditorIconButton:SetTexture( GetIconPath(self) );
+		end
 	else
 		Me.TraitEditor_Insert( "<img>"..GetIconPath(self).."</img>" )
 		Me.TraitEditor_SaveDescription()

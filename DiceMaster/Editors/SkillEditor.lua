@@ -268,6 +268,9 @@ function Me.SkillEditorModifiers_OnLoad(frame, level, menuList)
 	end
 end
 
+-------------------------------------------------------------------------------
+-- Create a new skill.
+--
 function Me.SkillEditor_CreateSkill()
 	
 	local name = DiceMasterSkillEditor.Name:GetText();
@@ -335,13 +338,20 @@ function Me.SkillEditor_CreateSkill()
 	DiceMasterTraitEditor.NoSkillsWarning:Hide();
 end
 
+-------------------------------------------------------------------------------
+-- Select an icon.
+--
 function Me.SkillEditor_SelectIcon( texture )
 	DiceMasterSkillEditorIconButton:SetTexture( texture )
 end
 
+-------------------------------------------------------------------------------
+-- Clear all fields of the editor.
+--
 function Me.SkillEditor_ClearAllFields()
 	local editor = DiceMasterSkillEditor
 	
+	editor.headerText:SetText("Create Skill");
 	DiceMasterSkillEditorIconButton:SetTexture("Interface/Icons/inv_misc_questionmark")
 	editor.Name:SetText( "" )
 	editor.Desc.EditBox:SetText( "" )
@@ -349,6 +359,9 @@ function Me.SkillEditor_ClearAllFields()
 	UIDropDownMenu_SetText( editor.SkillModifiers, "|cFFFFD100Skill Modifiers:|r (None)" )
 	SkillEditorModifiers = {};
 	editor.MaxRank:SetText( 100 )
+	editor.Editable:SetChecked( false );
+
+	editor.editingGUID = nil;
 	
 	-- Find first valid category
 	-- if it exists
@@ -361,6 +374,114 @@ function Me.SkillEditor_ClearAllFields()
 		end
 	end
 	
+	DiceMasterSkillEditorSaveButton:SetScript("OnClick", function()
+		Me.SkillEditor_CreateSkill()
+	end);
+	
+end
+
+-------------------------------------------------------------------------------
+-- Edit an existing skill.
+--
+function Me.SkillEditor_Edit()
+	Me.SkillEditor_Open()
+	local editor = DiceMasterSkillEditor
+
+	if not( DiceMasterSkillFrame.statusBarClickedPosition ) then
+		return
+	end
+
+	-- Get info
+	local skill = Profile.skills[DiceMasterSkillFrame.statusBarClickedPosition];
+
+	if not ( skill.author == UnitName("player") or skill.canEdit ) then
+		UIErrorsFrame:AddMessage( "You can't do that.", 1.0, 0.0, 0.0 );
+		return
+	end
+	
+	editor.headerText:SetText("Edit Skill");
+	DiceMasterSkillEditorIconButton:SetTexture(skill.icon or "Interface/Icons/inv_misc_questionmark")
+	editor.Name:SetText( skill.name or "" )
+	editor.Desc.EditBox:SetText( skill.desc or "" )
+
+	local header = GetSkillHeaderName( skill.guid )
+	UIDropDownMenu_SetSelectedValue( editor.SkillType, header, false)
+	UIDropDownMenu_SetText( editor.SkillType, "|cFFFFD100Skill Category:|r " .. header )
+
+	local modifiersList = "(None)";
+	if skill.skillModifiers then
+		for i = 1, #skill.skillModifiers do
+			if modifiersList == "(None)" then
+				modifiersList = GetSkillNameFromGUID( skill.skillModifiers[i] );
+			else
+				modifiersList = modifiersList .. ", ".. GetSkillNameFromGUID( skill.skillModifiers[i] );
+			end
+		end
+	end
+	UIDropDownMenu_SetText( editor.SkillModifiers, "|cFFFFD100Skill Modifiers:|r " .. modifiersList )
+	SkillEditorModifiers = skill.skillModifiers;
+
+	editor.MaxRank:SetText( skill.maxRank or 100 )
+	editor.Editable:SetChecked( skill.canEdit );
+
+	editor.editingGUID = skill.guid;
+
+	DiceMasterSkillEditorSaveButton:SetScript("OnClick", function()
+		Me.SkillEditor_SaveEdits()
+	end);
+end
+
+-------------------------------------------------------------------------------
+-- Save edits to an existing skill.
+--
+function Me.SkillEditor_SaveEdits()
+	local editor = DiceMasterSkillEditor
+
+	if not( editor.editingGUID ) then
+		return
+	end
+
+	local skill = Me.GetSkillByGUID( editor.editingGUID )
+
+	if not( skill ) then
+		return
+	end
+	
+	local name = editor.Name:GetText();
+	local icon = DiceMasterSkillEditorIconButton.icon:GetTexture();
+	local description = editor.Desc.EditBox:GetText();
+	local skillType = UIDropDownMenu_GetSelectedValue( editor.SkillType ) or "Miscellaneous";
+	local maxRank = tonumber( editor.MaxRank:GetText() ) or 0;
+	local canEdit = editor.Editable:GetChecked();
+
+	if not name or name == "" then
+		UIErrorsFrame:AddMessage( "Invalid name: too short.", 1.0, 0.0, 0.0 );
+		return
+	end
+	
+	if description == "" then
+		description = nil
+	end
+
+	skill.name = name;
+	skill.icon = icon;
+	skill.desc = description;
+	skill.type = nil;
+	skill.maxRank = maxRank;
+	skill.skillModifiers = {};
+	skill.canEdit = canEdit;
+
+	if skill.maxRank > skill.rank then
+		skill.rank = skill.maxRank
+	end
+
+	for i = 1, #SkillEditorModifiers do
+		tinsert( skill.skillModifiers, SkillEditorModifiers[i])
+	end
+	
+	Me.SkillFrame_UpdateSkills()
+	Me.SkillEditor_Close()
+	DiceMasterTraitEditor.NoSkillsWarning:Hide();
 end
 
 -------------------------------------------------------------------------------

@@ -423,3 +423,54 @@ end
 function Me.ActionBar_IsShownOverride( self )
 	return self:IsShownBase() and (not self.slideOut:IsPlaying() or self.slideOut:IsReverse());
 end
+
+function Me.InitiativeBar_OnLoad( self )
+	
+    self.Title = "Initiative Bar"
+	tinsert( DiceMaster4.EditModeFrames, self );
+	self.ScrollLeft:Disable();
+	self.SkipLeft:Disable();
+	self.Cards = CreateFramePool( "DiceMasterUnitCard", self );
+	DiceMasterInitiativeBar.offset = 0;
+	DiceMasterInitiativeBar.maxOffset = 0;
+
+end
+
+local units = { "Test", "George Washington", "Bob Ross", "Kalecgos", "Bolvar Fordragon", "Shakira", "Ysera", "Someone Else", "Test", "Another One", "Aleiah", "Demitria", "Cartres", "Lohn", "Loraes Hawthorne" }
+
+function Me.InitiativeBar_Refresh()
+	DiceMasterInitiativeBar.Cards:ReleaseAll();
+	local totalCards = 0;
+	local maxCards = Me.Clamp( #units, 0, 10 );
+	DiceMasterInitiativeBar.maxOffset = #units - 10;
+
+	for i = 1, maxCards do
+		local index = i + ( DiceMasterInitiativeBar.offset );
+		totalCards = totalCards + 1;
+		local card = DiceMasterInitiativeBar.Cards:Acquire();
+		card:SetPoint("LEFT", DiceMasterInitiativeBar, 12+(i-1)*87, 0);
+		card:SetUnit("player");
+		card:SetPortraitZoom(0.5);
+		card.Name:SetText( units[index] );
+		card:SetDraggable();
+		card:SetID(index);
+		card:Show();
+	end
+	DiceMasterInitiativeBar:SetWidth(16+(maxCards)*87)
+
+	if DiceMasterInitiativeBar.offset > 0 then
+		DiceMasterInitiativeBar.ScrollLeft:Enable();
+		DiceMasterInitiativeBar.SkipLeft:Enable();
+	else
+		DiceMasterInitiativeBar.ScrollLeft:Disable();
+		DiceMasterInitiativeBar.SkipLeft:Disable();
+	end
+
+	if DiceMasterInitiativeBar.offset < DiceMasterInitiativeBar.maxOffset then
+		DiceMasterInitiativeBar.ScrollRight:Enable();
+		DiceMasterInitiativeBar.SkipRight:Enable();
+	else
+		DiceMasterInitiativeBar.ScrollRight:Disable();
+		DiceMasterInitiativeBar.SkipRight:Disable();
+	end
+end

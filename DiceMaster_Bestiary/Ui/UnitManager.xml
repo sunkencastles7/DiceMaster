@@ -1,0 +1,1132 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+	<!-- Unit Portrait Template -->
+	<Button name="DiceMasterUnitListPortraitTemplate" virtual="true">
+		<Size x="45" y="52"/>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture parentKey="PortraitRing" atlas="pet-list_default-ring">
+					<Size x="62" y="62"/>
+					<Anchors>
+						<Anchor point="CENTER" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER" textureSubLevel="-1">
+				<Texture parentKey="Portrait">
+					<Size x="42" y="42"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="PortraitHighlight" atlas="pet-list_active-ring" hidden="true" alpha="0.6">
+					<Size x="62" y="62"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+		</Scripts>
+	</Button>
+  
+	<Button name="DiceMasterUnitInfoPortraitTemplate" motionScriptsWhileDisabled="true" virtual="true">
+		<Size x="80" y="76"/>
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="6">
+				<Texture parentKey="Portrait">
+					<Size x="50" y="50"/>
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="raidMarker" enableMouse="true" RegisterForClicks="LeftButtonUp,RightButtonUp">
+				<Size x="32" y="32"/>
+				<Anchors>
+					<Anchor point="TOP" x="0" y="10"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetNormalTexture("Interface/TargetingFrame/UI-RaidTargetingIcon_7");
+					</OnLoad>
+					<OnEnter>
+						GameTooltip:SetOwner( self, "ANCHOR_RIGHT")
+						GameTooltip:SetText( "Raid Marker", 1, 1, 1)
+						GameTooltip:AddLine("A unique icon to represent this unit.|n|nUse a matching World Raid Marker to show players where this unit is located in the game world.", 1, 0.81, 0, 1);
+						GameTooltip:AddLine( "&lt;Left/Right Click to Toggle>", 0.44, 0.44, 0.44, true);
+						GameTooltip:Show()
+					</OnEnter>
+					<OnClick>
+						DiceMaster4.UnitManagerUnitEditor_RaidMarkerButtonOnClick( self, button )
+					</OnClick>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</Button>
+		</Frames>
+		<NormalTexture file="Interface\EncounterJournal\UI-EncounterJournalTextures" >
+			<Size x="80" y="76"/>
+			<TexCoords left="0.50585938" right="0.63085938" top="0.02246094" bottom="0.08203125"/>
+		</NormalTexture>
+		<HighlightTexture file="Interface\EncounterJournal\UI-EncounterJournalTextures" alphaMode="ADD" >
+			<Size x="80" y="76"/>
+			<TexCoords left="0.50585938" right="0.63085938" top="0.02246094" bottom="0.08203125"/>
+		</HighlightTexture>
+		<Scripts>
+			<OnClick>
+				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION);
+				DiceMaster4.ModelPicker_Open( DiceMasterUnitManager, self.Portrait )
+			</OnClick>
+			<OnEnter>
+				GameTooltip:SetOwner( self, "ANCHOR_RIGHT")
+				GameTooltip:SetText( "Model", 1, 1, 1)
+				GameTooltip:AddLine("A model to represent this unit.", 1, 0.81, 0);
+				GameTooltip:AddLine( "&lt;Left Click to Edit>", 0.44, 0.44, 0.44, true);
+				GameTooltip:Show()
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide();
+			</OnLeave>
+		</Scripts>
+	</Button>
+  
+	<!-- Cursor Drag Portrait -->
+	<Frame name="DiceMasterUnitManagerCursorIcon" parent="UIParent" frameStrata="DIALOG" toplevel="true" hidden="true" inherits="DiceMasterUnitListPortraitTemplate">
+		<Scripts>
+			<OnUpdate>
+				local cursorX, cursorY = GetCursorPosition();
+				local uiScale = UIParent:GetScale();
+				self:SetPoint("TOP", UIParent, "BOTTOMLEFT", cursorX / uiScale, cursorY / uiScale + 25);
+			</OnUpdate>
+		</Scripts>
+	</Frame>
+	
+	<!-- Template for Unit List Buttons -->
+	<Button name="DiceMasterUnitListButtonTemplate" motionScriptsWhileDisabled="true" virtual="true">
+		<Size x="230" y="46"/>
+		<Frames>
+			<Button parentKey="portrait" inherits="DiceMasterUnitListPortraitTemplate">
+				<Anchors>
+					<Anchor point="LEFT" x="-16" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:RegisterForDrag("LeftButton");
+						self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+					</OnLoad>
+					<OnEnter>
+						if ( not self.unitData ) then
+							return;
+						end
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+						GameTooltip:AddLine( "|cFFFFD100" .. self.unitData.name .. "|r" )
+						GameTooltip:AddLine( "|cFF707070&lt;Left Click to Drag onto World Map>" )
+						GameTooltip:Show()
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide()
+					</OnLeave>
+					<OnClick>
+						if button == "RightButton" then
+							DiceMasterUnitManager.dropDownFrame = self;
+							ToggleDropDownMenu( 1, nil, DiceMasterUnitManager.unitOptionsMenu, self, 0, 0 );
+							PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+						end
+					</OnClick>
+					<OnDragStart>
+						DiceMaster4.UnitManagerUnitEditor_OnDragStartListButton( self )
+					</OnDragStart>
+					<OnDragStop>
+						DiceMaster4.UnitManagerUnitEditor_OnDragStopListButton( self )
+					</OnDragStop>
+				</Scripts>
+			</Button>
+			<Button parentKey="visibleButton">
+				<Size x="32" y="32"/>
+				<Anchors>
+					<Anchor point="RIGHT" x="-8" y="0"/>
+				</Anchors>
+				<NormalTexture parentKey="NormalTexture" atlas="gm-icon-visible" setAllPoints="true"/>
+				<Scripts>
+					<OnEnter>
+						GameTooltip:SetOwner( self, "ANCHOR_RIGHT")
+						GameTooltip:SetText( self.isVisible and "Visible" or "Hidden", 1, 1, 1)
+						GameTooltip:AddLine("Players in your group "..(self.isVisible and "|cFF00FF00can|r" or "|cFFFF0000cannot|r").." see this unit on their map.", 1, 0.81, 0, 1);
+						GameTooltip:AddLine( "&lt;Left Click to Toggle>", 0.44, 0.44, 0.44, true);
+						GameTooltip:Show()
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+					<OnClick>
+						DiceMaster4.UnitManagerUnitEditor_UnitListVisibleButtonOnClick( self, button );
+						PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture atlas="PetList-ButtonBackground" parentKey="background"/>
+			</Layer>
+			<Layer level="BORDER">
+				<Texture parentKey="raidMarker" alpha="0.3">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" x="-1" y="1"/>
+					</Anchors>
+					<Size x="44" y="44"/>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER" textureSubLevel="1">
+				<Texture parentKey="HealthBG">
+					<Size x="211" y="4"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.background" relativePoint="BOTTOMLEFT" x="16" y="6"/>
+					</Anchors>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="ArmourBar">
+					<Size x="211" y="4"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.HealthBG" />
+					</Anchors>
+					<Color r="0" g="0.75" b="1" a="1"/>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK" textureSubLevel="1">
+				<Texture parentKey="HealthBar">
+					<Size x="211" y="4"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.HealthBG" />
+					</Anchors>
+					<Color r="1" g="0" b="0" a="1"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString parentKey="name" inherits="GameFontNormal" justifyH="LEFT">
+					<Size x="147" y="25"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.portrait" x="10" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="selectedTexture" atlas="PetList-ButtonSelect" hidden="true"/>
+			</Layer>
+		</Layers>
+		<HighlightTexture atlas="PetList-ButtonHighlight"/>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+			</OnLoad>
+			<OnClick>
+				if button == "RightButton" then
+					DiceMasterUnitManager.dropDownFrame = self.portrait;
+					ToggleDropDownMenu( 1, nil, DiceMasterUnitManager.unitOptionsMenu, self, 0, 0 );
+					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+				else
+					DiceMaster4.UnitManagerUnitEditor_SetSelected( self.index )
+					PlaySound(44316)
+				end
+			</OnClick>
+		</Scripts>
+	</Button>
+	
+	<Button name="DiceMasterUnitManagerButtonTemplate" virtual="true">
+		<Size x="75" y="26"/>
+		<HitRectInsets>
+			<AbsInset left="-13" right="-13" top="0" bottom="0"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="UpLeft" file="Interface\EncounterJournal\UI-EncounterJournalTextures">
+					<Size x="13" y="26"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativePoint="LEFT" x="0" y="0"/>
+					</Anchors>
+					<TexCoords left="0.90039063" right="0.95117188" top="0.04980469" bottom="0.07519531"/>
+				</Texture>
+				<Texture parentKey="UpRight" file="Interface\EncounterJournal\UI-EncounterJournalTextures">
+					<Size x="13" y="26"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+					</Anchors>
+					<TexCoords left="0.90039063" right="0.95117188" top="0.04980469" bottom="0.07519531"/>
+				</Texture>
+				<Texture parentKey="DownLeft" file="Interface\EncounterJournal\UI-EncounterJournalTextures" hidden="true">
+					<Size x="13" y="26"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativePoint="LEFT" x="0" y="0"/>
+					</Anchors>
+					<TexCoords left="0.63476563" right="0.68554688" top="0.06738281" bottom="0.09277344"/>
+				</Texture>
+				<Texture parentKey="DownRight" file="Interface\EncounterJournal\UI-EncounterJournalTextures" hidden="true">
+					<Size x="13" y="26"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+					</Anchors>
+					<TexCoords left="0.63476563" right="0.68554688" top="0.06738281" bottom="0.09277344"/>
+				</Texture>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="HighLeft" file="Interface\EncounterJournal\UI-EncounterJournalTextures">
+					<Size x="13" y="26"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativePoint="LEFT" x="0" y="0"/>
+					</Anchors>
+					<TexCoords left="0.72656250" right="0.77734375" top="0.06738281" bottom="0.09277344"/>
+				</Texture>
+				<Texture parentKey="HighRight" file="Interface\EncounterJournal\UI-EncounterJournalTextures">
+					<Size x="13" y="26"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+					</Anchors>
+					<TexCoords left="0.72656250" right="0.77734375" top="0.06738281" bottom="0.09277344"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<NormalTexture file="Interface\EncounterJournal\UI-EncounterJournalTextures_Tile" horizTile="true" >
+			<Size x="64" y="26"/>
+			<TexCoords left="0.00000000" right="1.00000000" top="0.00195313" bottom="0.05273438"/>
+		</NormalTexture>
+		<PushedTexture file="Interface\EncounterJournal\UI-EncounterJournalTextures_Tile" horizTile="true" >
+			<Size x="64" y="26"/>
+			<TexCoords left="0.00000000" right="1.00000000" top="0.05664063" bottom="0.10742188"/>
+		</PushedTexture>
+		<HighlightTexture file="Interface\EncounterJournal\UI-EncounterJournalTextures_Tile" horizTile="true" >
+			<Size x="64" y="26"/>
+			<TexCoords left="0.00000000" right="1.00000000" top="0.11132813" bottom="0.16210938"/>
+		</HighlightTexture>
+		<NormalFont style="GameFontNormalSmall"/>
+		<ButtonText>
+			<Size x="0" y="12"/>
+			<Anchors>
+				<Anchor point="LEFT" x="-3" y="0"/>
+				<Anchor point="RIGHT" x="3" y="0"/>
+			</Anchors>
+			<Color r="0.973" g="0.902" b="0.581"/>
+		</ButtonText>
+		<Scripts>
+			<OnLoad>
+				local l, t, _, b, r = self.UpLeft:GetTexCoord();
+				self.UpLeft:SetTexCoord(l, l + (r-l)/2, t, b);
+				l, t, _, b, r = self.UpRight:GetTexCoord();
+				self.UpRight:SetTexCoord(l + (r-l)/2, r, t, b);
+
+				l, t, _, b, r = self.DownLeft:GetTexCoord();
+				self.DownLeft:SetTexCoord(l, l + (r-l)/2, t, b);
+				l, t, _, b, r = self.DownRight:GetTexCoord();
+				self.DownRight:SetTexCoord(l + (r-l)/2, r, t, b);
+
+				l, t, _, b, r = self.HighLeft:GetTexCoord();
+				self.HighLeft:SetTexCoord(l, l + (r-l)/2, t, b);
+				l, t, _, b, r = self.HighRight:GetTexCoord();
+				self.HighRight:SetTexCoord(l + (r-l)/2, r, t, b);
+			</OnLoad>
+			<OnMouseDown>
+				self.UpLeft:Hide();
+				self.UpRight:Hide();
+
+				self.DownLeft:Show();
+				self.DownRight:Show();
+			</OnMouseDown>
+			<OnMouseUp>
+				self.UpLeft:Show();
+				self.UpRight:Show();
+
+				self.DownLeft:Hide();
+				self.DownRight:Hide();
+			</OnMouseUp>
+		</Scripts>
+	</Button>
+	
+	<Button name="DiceMasterUnitGridButtonTemplate" virtual="true" registerForClicks="AnyUp">
+		<Size x="48" y="48"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background" file="Interface/COMMON/icon-shadow">
+					<Size x="64" y="64"/>
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER">
+				<Texture parentKey="Available" file="Interface/Buttons/CheckButtonHilight" alpha="0.25" alphaMode="ADD" hidden="true">
+					<Size x="48" y="48"/>
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Text" inherits="GameFontNormal" justifyH="CENTER" alpha="0.5">
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<HighlightTexture parentKey="Highlight" file="Interface/Buttons/ButtonHilight-Square" alphaMode="ADD">
+			<Size x="48" y="48"/>
+			<Anchors>
+				<Anchor point="CENTER" x="0" y="0"/>
+			</Anchors>
+		</HighlightTexture>
+		<Frames>
+			<ModelScene parentKey="Model" drawLayer="BORDER" inherits="NoCameraControlModelSceneMixinTemplate">
+				<Size x="300" y="300"/>
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="20"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString parentKey="Nameplate" inherits="GameFontNormal" justifyH="CENTER" hidden="true">
+							<Anchors>
+								<Anchor point="CENTER" x="0" y="40" />
+							</Anchors>
+							<Color r="0" g="1" b="0"/>
+						</FontString>
+						<FontString parentKey="DamageText" inherits="GameFontNormalLarge" justifyH="CENTER">
+							<Anchors>
+								<Anchor point="CENTER" x="0" y="0" />
+							</Anchors>
+							<Color r="1" g="0" b="0"/>
+						</FontString>
+					</Layer>
+					<Layer level="BACKGROUND" textureSubLevel="2">
+						<Texture parentKey="MapAssetBottom" file="Interface\AddOns\DiceMaster_Battlefronts\Assets\assets" hidden="true">
+							<Size x="48" y="48"/>
+							<Anchors>
+								<Anchor point="BOTTOM" x="0" y="10"/>
+							</Anchors>
+							<TexCoords left="0" right="0.125" top="0.0625" bottom="0.1875"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="-1">
+						<Texture parentKey="MapAssetTop" file="Interface\AddOns\DiceMaster_Battlefronts\Assets\assets" hidden="true">
+							<Size x="48" y="24"/>
+							<Anchors>
+								<Anchor point="BOTTOM" relativeKey="$parent.MapAssetBottom" relativePoint="TOP" x="0" y="0"/>
+							</Anchors>
+							<TexCoords left="0" right="0.125" top="0" bottom="0.0625"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Animations>
+					<AnimationGroup parentKey="AnimIn">
+						<Translation childKey="DamageText" offsetX="0" offsetY="20" duration="2" order="1"/>
+					</AnimationGroup>
+				</Animations>
+				<Scripts>
+					<OnLoad>
+						self.cameras = {};
+						self.actorTemplate = "ModelSceneActorTemplate";
+						self.tagToActor = {};
+						self.tagToCamera = {};
+
+						if self.reversedLighting then
+							local lightPosX, lightPosY, lightPosZ = self:GetLightPosition();
+							self:SetLightPosition(-lightPosX, -lightPosY, lightPosZ);
+
+							local lightDirX, lightDirY, lightDirZ = self:GetLightDirection();
+							self:SetLightDirection(-lightDirX, -lightDirY, lightDirZ);
+						end
+						self:EnableMouse(false)
+						self:SetViewInsets( 20, 20, 20, 20 )
+						self.Actor = self:CreateActor(nil, self.actorTemplate )
+						self.Actor:SetYaw(math.pi/2*-1)
+						self:SetCameraPosition(0,-10,17)
+						self:SetCameraOrientationByYawPitchRoll(math.pi/2,1,0)
+					</OnLoad>
+				</Scripts>
+			</ModelScene>
+		</Frames>
+		<Scripts>
+			<OnEnter>
+				self.Model.Nameplate:Show()
+			</OnEnter>
+			<OnLeave>
+				if not( self.selected ) then
+					self.Model.Nameplate:Hide()
+				end
+			</OnLeave>
+			<OnClick>
+				DiceMaster4.UnitManagerUnitGrid_OnClick( self, button )
+			</OnClick>
+		</Scripts>
+	</Button>
+	
+	<Frame name="DiceMasterUnitManager" inherits="PortraitFrameTemplate" toplevel="true" frameStrata="HIGH" enableMouse="true" parent="UIParent" hidden="false">
+		<Size x="703" y="606"/>
+		<Anchors>
+			<Anchor point="CENTER" x="0" y="0"/>
+		</Anchors>
+		<Frames>
+			<Button name="$parentTab1" useParentLevel="true" inherits="CharacterFrameTabTemplate" text="Units" id="1">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="11" y="2"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PanelTemplates_SetTab(self:GetParent(), 1);
+						DiceMasterUnitManagerUnitEditor:Show();
+						DiceMasterUnitManagerUnitGrid:Hide();
+						PlaySound(841);
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parentTab2" useParentLevel="true" inherits="CharacterFrameTabTemplate" text="Grid" id="2">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentTab1" relativePoint="RIGHT" x="-16" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PanelTemplates_SetTab(self:GetParent(), 2);
+						DiceMasterUnitManagerUnitEditor:Hide();
+						DiceMasterUnitManagerUnitGrid:Show();
+						PlaySound(841);
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Frame name="$parentUnitEditor" setAllPoints="true" hidden="false">
+				<Frames>
+					<Frame parentKey="LeftInset" useParentLevel="true" inherits="InsetFrameTemplate">
+						<Size x="260" y="496"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" x="4" y="-60" />
+							<Anchor point="BOTTOMLEFT" x="4" y="111" />
+						</Anchors>
+					</Frame>
+					<Frame parentKey="BottomLeftInset" useParentLevel="true" inherits="InsetFrameTemplate">
+						<Size x="279" y="391"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.LeftInset" relativePoint="BOTTOMLEFT" y="-10" />
+							<Anchor point="BOTTOMLEFT" y="26"/>
+						</Anchors>
+						<Frames>
+							<Button parentKey="NewUnitButton" inherits="DiceMasterUnitListPortraitTemplate">
+								<Anchors>
+									<Anchor point="LEFT" x="23" y="1"/>
+								</Anchors>
+								<Scripts>
+									<OnShow>
+										SetPortraitToTexture( self.Portrait, "Interface/Icons/INV_Misc_GroupNeedMore" )
+									</OnShow>
+									<OnClick>
+										DiceMaster4.UnitManagerUnitEditor_CreateNewUnit()
+									</OnClick>
+								</Scripts>
+							</Button>
+						</Frames>
+						<Layers>
+							<Layer level="BORDER" textureSubLevel="-7">
+								<Texture parentKey="BackgroundOverlay" setAllPoints="true">
+									<Color r="0" g="0" b="0" a=".1"/>
+								</Texture>
+							</Layer>
+							<Layer>
+								<FontString parentKey="SlotLabel" inherits="GameFontNormal" justifyH="LEFT" text="Create a New Unit">
+									<Size x="100" y="100"/>
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent.NewUnitButton" relativePoint="RIGHT" x="12"/>
+										<Anchor point="RIGHT" x="-40"/>
+									</Anchors>
+									<Color r="0" g="1" b="0"/>
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+					<Frame parentKey="RightInset" useParentLevel="true" inherits="InsetFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.LeftInset" relativePoint="TOPRIGHT" x="20" />
+							<Anchor point="BOTTOMRIGHT" x="-23" y="26"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture file="Interface/ItemTextFrame/Book" setAllPoints="true">
+									<TexCoords left="0" right="0.953" top="0" bottom="0.969"/>
+								</Texture>
+							</Layer>
+							<Layer level="BORDER">
+								<Texture file="Interface\EncounterJournal\UI-EncounterJournalTextures" >
+									<Size x="386" y="39"/>
+									<Anchors>
+										<Anchor point="TOPRIGHT" x="0" y="-30"/>
+									</Anchors>
+									<TexCoords left="0.755859375" right="0.00000000" top="0.9599609375" bottom="1"/>
+								</Texture>
+							</Layer>
+							<Layer level="OVERLAY">
+								<FontString parentKey="NoUnits" inherits="GameFontHighlightLarge" justifyH="CENTER" text="Select a unit from the list to edit.">
+									<Size x="280" y="80"/>
+									<Anchors>
+										<Anchor point="CENTER" x="0" y="0"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+						
+							<Button parentKey="portrait" inherits="DiceMasterUnitInfoPortraitTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" x="0" y="-23"/> 
+								</Anchors>
+								<Scripts>
+									<OnShow>
+										SetPortraitTextureFromCreatureDisplayID( self.Portrait, 31 );
+										self:SetFrameLevel(self:GetParent():GetFrameLevel()+4);
+									</OnShow>
+								</Scripts>
+							</Button>
+							
+							 <!-- Unit name editbox. -->
+							<EditBox parentKey="name" multiLine="false">
+								<Size x="270" y="12"/>
+								<Anchors>
+								  <Anchor point="TOPLEFT" x="85" y="-43"/> 
+								</Anchors>
+								<FontString inherits="GameFontNormalLarge" justifyH="LEFT" />
+								<Scripts> 
+								  <OnLoad>
+									self:SetAutoFocus( false )
+									self:SetTextColor( 0.929, 0.788, 0.620 )
+									self:SetMaxLetters( 60 )
+									self:SetText("Unit Name")
+								  </OnLoad>
+								  <OnEditFocusLost>
+									DiceMaster4.UnitManagerUnitEditor_SaveName()
+								  </OnEditFocusLost>
+								  <OnEscapePressed function="EditBox_ClearFocus"/>
+								  <OnEnterPressed function="EditBox_ClearFocus"/>
+								</Scripts>
+							</EditBox>
+							
+							<Button name="$parentSendTalkingHead" parentKey="sendTalkingHead" inherits="DiceMasterUnitManagerButtonTemplate" frameLevel="10" text="Send Talking Head">
+								<Size x="110" y="26"/>
+								<HitRectInsets>
+									<AbsInset left="-13" right="-13" top="0" bottom="0"/>
+								</HitRectInsets>
+								<Anchors>
+									<Anchor point="TOPRIGHT" x="-23" y="-10"/>
+								</Anchors>
+								<Scripts>
+									<OnEnter>
+										GameTooltip:SetOwner( self, "ANCHOR_RIGHT")
+										GameTooltip:SetText( "Send Talking Head", 1, 1, 1)
+										GameTooltip:AddLine("Send a Talking Head dialogue to players in your group with an animated model of this unit and a custom message.", 1, 0.81, 0, 1);
+										GameTooltip:AddLine( "&lt;Left Click to Send Talking Head>", 0.44, 0.44, 0.44, true);
+										GameTooltip:Show()
+									</OnEnter>
+									<OnLeave>
+										GameTooltip:Hide();
+									</OnLeave>
+									<OnClick>
+										PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+									</OnClick>
+								</Scripts>
+							</Button>
+							
+							<Button name="$parentVisible" parentKey="visible" inherits="DiceMasterUnitManagerButtonTemplate" frameLevel="10" text="Visible">
+								<Size x="50" y="26"/>
+								<HitRectInsets>
+									<AbsInset left="-13" right="-13" top="0" bottom="0"/>
+								</HitRectInsets>
+								<Anchors>
+									<Anchor point="RIGHT" relativeKey="$parent.sendTalkingHead" relativePoint="LEFT" x="-22" y="0"/>
+								</Anchors>
+								<Scripts>
+									<OnEnter>
+										GameTooltip:SetOwner( self, "ANCHOR_RIGHT")
+										GameTooltip:SetText( "Visible", 1, 1, 1)
+										GameTooltip:AddLine("Toggle whether or not players can see this unit on their map.", 1, 0.81, 0, 1);
+										GameTooltip:AddLine( "&lt;Left Click to Toggle>", 0.44, 0.44, 0.44, true);
+										GameTooltip:Show()
+									</OnEnter>
+									<OnLeave>
+										GameTooltip:Hide();
+									</OnLeave>
+									<OnClick>
+										DiceMaster4.UnitManagerUnitEditor_VisibilityButtonOnClick( self, button )
+										PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+									</OnClick>
+								</Scripts>
+							</Button>
+							
+						</Frames>
+					</Frame>
+					<EditBox name="$parentSearchBox" inherits="SearchBoxTemplate" parentKey="searchBox" letters="40">
+						<Size x="235" y="20"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.LeftInset" x="15" y="-9"/>
+						</Anchors>
+						<Scripts>
+							<OnTextChanged>
+								SearchBoxTemplate_OnTextChanged(self);
+							</OnTextChanged>
+							<OnHide>
+								self:SetText("");
+							</OnHide>
+						</Scripts>
+					</EditBox>
+					<Frame parentKey="UnitCount" useParentLevel="true" inherits="InsetFrameTemplate3">
+						<Size x="130" y="20"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" x="70" y="-35"/>
+						</Anchors>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString parentKey="Count" inherits="GameFontHighlightSmall" justifyH="RIGHT">
+									<Anchors>
+										<Anchor point="RIGHT" x="-10" y="0"/>
+									</Anchors>
+								</FontString>
+								<FontString parentKey="Label" inherits="GameFontNormalSmall" text="Total Units" justifyH="LEFT">
+									<Anchors>
+										<Anchor point="LEFT" x="10" y="0"/>
+										<Anchor point="RIGHT" relativeKey="$parent.Count" relativePoint="LEFT" x="-3" y="0"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnEnter>
+								GameTooltip:SetOwner( self, "ANCHOR_RIGHT")
+								GameTooltip:SetText( "Total Units (" .. ( self.Count:GetText() or 0 ) .. ")", 1, 1, 1);
+								GameTooltip:AddLine("The total number of units you've created for this campaign.", 1, 0.81, 0, 1);
+								GameTooltip:Show()
+							</OnEnter>
+							<OnLeave>
+								GameTooltip:Hide();
+							</OnLeave>
+						</Scripts>
+					</Frame>
+					<Frame parentKey="UnitInfoFrame">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.RightInset" relativePoint="TOPLEFT" x="3" y="-61"/>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent.RightInset" relativePoint="BOTTOMRIGHT" x="-3" y="3"/>
+						</Anchors>
+						<Frames>
+							<ScrollFrame parentKey="ScrollFrame" inherits="UIPanelScrollFrameCodeTemplate" setAllPoints="true">
+								<ScrollChild>
+									<Frame parentKey="Child">
+										<Size x="380" y="1"/>
+										<Layers>
+											<Layer level="OVERLAY">
+												<Texture parentKey="overviewHeader" file="Interface\EncounterJournal\UI-EncounterJournalTextures">
+													<Size x="287" y="30"/>
+													<Anchors>
+														<Anchor point="TOP" x="-8" y="-60"/>
+													</Anchors>
+													<TexCoords left="0.359375" right="0.99609375" top="0.8525390625" bottom="0.880859375"/>
+												</Texture>
+												<FontString inherits="GameFontNormal" justifyH="LEFT" text="Overview">
+													<Size x="200" y="10"/>
+													<Anchors>
+														<Anchor point="BOTTOMLEFT" relativeKey="$parent.overviewHeader" relativePoint="BOTTOMLEFT" x="8" y="6"/>
+													</Anchors>
+													<Color r="0.929" g="0.788" b="0.620"/>
+												</FontString>
+											</Layer>
+										</Layers>
+										<Frames>
+											<DiceMasterUnitHealthBar parentKey="HealthBar">
+												<Anchors>
+													<Anchor point="TOP" x="16" y="-40"/>
+												</Anchors>
+												<Scripts>
+													<OnLoad>
+														self.canEdit = true;
+														self.healthBar:SetScript("OnMouseDown", function(self, button) DiceMaster4.UnitManagerUnitEditor_HealthBarOnClick( self, button ) end);
+													</OnLoad>
+												</Scripts>
+											</DiceMasterUnitHealthBar>
+											<EditBox name="$parentOverviewDescription" parentKey="overviewDescription" justifyH="LEFT" multiLine="true" font="GameFontBlack">
+												<Size x="287" y="0"/> 
+												<Anchors>
+													<Anchor point="TOPLEFT" relativeKey="$parent.overviewHeader" relativePoint="BOTTOMLEFT" x="8" y="-6"/>
+												</Anchors>
+												<Scripts> 
+													<OnLoad>
+														self:SetAutoFocus( false )
+														self:SetMaxLetters( 500 )
+														self:SetTextColor( 0.25, 0.1484375, 0.02 )
+														self:SetText("An overview of the statistics, traits, and description for this unit.");
+													</OnLoad>
+													<OnEditFocusLost>
+														self:Hide();
+														self:GetParent().overviewDescription:SetText(self:GetText());
+														self:GetParent().overviewDescription:Show();
+													</OnEditFocusLost>
+													<OnEscapePressed function="EditBox_ClearFocus"/>
+												</Scripts>
+											</EditBox>
+											<DiceMasterUnitInfoTemplate name="$parentTraitsFrame" parentKey="TraitsFrame">
+												<Size x="287" y="24"/>
+												<Anchors>
+													<Anchor point="TOP" relativeKey="$parent.overviewDescription" relativePoint="BOTTOM" x="0" y="-15"/>
+												</Anchors>
+												<Scripts>
+													<OnShow>
+														self.button.title:SetText("Traits");
+														self.index = 1;
+													</OnShow>
+												</Scripts>
+											</DiceMasterUnitInfoTemplate>
+											<DiceMasterUnitInfoTemplate name="$parentStatisticsFrame" parentKey="StatisticsFrame">
+												<Size x="287" y="24"/>
+												<Anchors>
+													<Anchor point="TOP" relativeKey="$parent.TraitsFrame" relativePoint="BOTTOM" x="0" y="-6"/>
+												</Anchors>
+												<Scripts>
+													<OnShow>
+														self.button.title:SetText("Statistics");
+														self.index = 2;
+													</OnShow>
+												</Scripts>
+											</DiceMasterUnitInfoTemplate>
+											<DiceMasterUnitInfoTemplate name="$parentDescriptionFrame" parentKey="DescriptionFrame">
+												<Size x="287" y="24"/>
+												<Anchors>
+													<Anchor point="TOP" relativeKey="$parent.StatisticsFrame" relativePoint="BOTTOM" x="0" y="-6"/>
+												</Anchors>
+												<Scripts>
+													<OnShow>
+														self.button.title:SetText("Description");
+														self.descriptionEditable:SetText("Type a short description of this unit.")
+														self.isEditable = true;
+														self.index = 3;
+													</OnShow>
+												</Scripts>
+											</DiceMasterUnitInfoTemplate>
+										</Frames>
+									</Frame>
+								</ScrollChild>
+								<Scripts>
+									<OnLoad>
+										ScrollFrame_OnLoad(self);
+									</OnLoad>
+									<OnUpdate>
+										-- TODO
+									</OnUpdate>
+								</Scripts>
+							</ScrollFrame>
+						</Frames>
+					</Frame>
+					<!--Name needed for HybridScrollFrameTemplate-->
+					<ScrollFrame name="$parentListScrollFrame" parentKey="ListScrollFrame" inherits="HybridScrollFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.LeftInset" x="3" y="-36"/>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent.LeftInset" x="-2" y="3"/>
+						</Anchors>
+						<Frames>
+							<Slider name="$parentScrollBar" inherits="HybridScrollBarTrimTemplate" parentKey="scrollBar">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="4" y="20"/>
+									<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="4" y="11"/>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self.trackBG:Show();
+										self.trackBG:SetVertexColor(0, 0, 0, 0.75);
+									</OnLoad>
+								</Scripts>
+							</Slider>
+						</Frames>
+					</ScrollFrame>
+					<Button parentKey="deleteButton" motionScriptsWhileDisabled="true" inherits="MagicButtonTemplate" text="Delete">
+						<Size x="120" y="22"/>
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								DiceMaster4.UnitManagerUnitEditor_DeleteUnit()
+							</OnClick>
+							<OnUpdate>
+								if not DiceMasterUnitManagerUnitEditor.selectedUnitID then
+									self:Disable()
+								else
+									self:Enable()
+								end
+							</OnUpdate>
+						</Scripts>
+					</Button>
+					<Button parentKey="duplicateButton" motionScriptsWhileDisabled="true" inherits="MagicButtonTemplate" text="Duplicate">
+						<Size x="120" y="22"/>
+						<Anchors>
+							<Anchor point="RIGHT" relativeKey="$parent.deleteButton" relativePoint="LEFT" x="0" y="0"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								DiceMaster4.UnitManagerUnitEditor_DuplicateUnit()
+							</OnClick>
+							<OnUpdate>
+								if not DiceMasterUnitManagerUnitEditor.selectedUnitID then
+									self:Disable()
+								else
+									self:Enable()
+								end
+							</OnUpdate>
+						</Scripts>
+					</Button>
+				</Frames>
+				<Scripts>
+					<OnLoad>
+						DiceMaster4.UnitManagerUnitEditor_OnLoad( self )
+					</OnLoad>
+					<OnShow>
+						DiceMaster4.UnitManagerUnitEditor_UpdateUnitList()
+					</OnShow>
+				</Scripts>
+			</Frame>
+			<Frame name="$parentUnitGrid" setAllPoints="true" hidden="true">
+				<Frames>
+					<Frame parentKey="X" frameLevel="3" hidden="true">
+						<Size x="32" y="32"/>
+						<Anchors>
+							<Anchor point="CENTER" x="0" y="0"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BORDER">
+								<Texture file="Interface/PetBattles/DeadPetIcon" setAllPoints="true" />
+							</Layer>
+						</Layers>
+					</Frame>
+					<Frame parentKey="Inset" useParentLevel="true" inherits="InsetFrameTemplate">
+						<Size x="260" y="496"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" x="4" y="-60" />
+							<Anchor point="BOTTOMRIGHT" x="-6" y="26" />
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND" textureSubLevel="-4">
+								<Texture atlas="Garr_InfoBox-BackgroundTile" horizTile="true" vertTile="true">
+									<Anchors>
+										<Anchor point="TOPLEFT"/>
+										<Anchor point="BOTTOMRIGHT"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Frame>
+				</Frames>
+				<Scripts>
+					<OnLoad>
+						DiceMaster4.UnitManagerUnitGrid_OnLoad( self )
+					</OnLoad>
+					<OnShow>
+						--DiceMaster4.UnitManagerUnitEditor_UpdateUnitList()
+					</OnShow>
+				</Scripts>
+			</Frame>
+			<Frame name="$parentUnitOptionsMenu" inherits="UIDropDownMenuTemplate" enableMouse="true" parentKey="unitOptionsMenu"/>
+		</Frames>
+
+		<Scripts>
+			<OnLoad>
+				self:SetClampedToScreen( true )
+				self:SetMovable(true)
+				self:EnableMouse(true)
+				self:RegisterForDrag( "LeftButton" )
+				self:SetScript( "OnDragStart", self.StartMoving )
+				self:SetScript( "OnDragStop", self.StopMovingOrSizing )
+				--self:SetScale(0.8)
+				self:SetUserPlaced( true )
+				
+				self.PortraitContainer.portrait:SetTexture( "Interface/AddOns/DiceMaster/Texture/logo" )
+				self.TitleContainer.TitleText:SetText("Unit Manager")
+				PanelTemplates_SetNumTabs(self, 2);
+				
+				UIDropDownMenu_Initialize(self.unitOptionsMenu, DiceMaster4.UnitManagerOptionsMenu_Init, "MENU");
+
+				PanelTemplates_SetTab(self, 1);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+
+	
+  <Frame name="DiceMasterUnitManagerFieldEditor" parent="DiceMasterUnitManager" inherits="SimplePanelTemplate" hidden="true" frameStrata="DIALOG" topLevel="true">
+    <Size x="256" y="290" />
+	<Anchors>
+		<Anchor point="LEFT" relativePoint="RIGHT"/>
+	</Anchors>
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture file="Interface/AddOns/DiceMaster/Texture/dicemaster-header">
+				<TexCoords left="0" right="0.623" top="0" bottom="0.566" />
+				<Size x="160" y="72"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="-16" />
+				</Anchors>
+			</Texture>
+			<FontString parentKey="HeaderTitle" inherits="GameFontNormal" justifyH="center">
+				<Anchors>
+				  <Anchor point="TOP" x="0" y="-12"/> 
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+    <Scripts>
+      <OnLoad>
+		if self.NineSlice then
+			self.NineSlice:SetFrameLevel(1)
+		end
+      </OnLoad>
+    </Scripts>
+    <Frames>
+      <DropdownButton name="$parentLoadDropdown" parentKey="LoadDropdown" inherits="DiceMasterCollectionDropdownTemplate">
+		<Size x="220" y="22"/>
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.Inset" x="12" y="-12"/> 
+		</Anchors>
+	  </DropdownButton>
+	  <DiceMasterTraitButton name="$parentIconButton" parentKey="Icon" >
+        <Size x="42" y="42"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="$parentLoadDropdown" relativePoint="BOTTOMLEFT" x="0" y="-12"/> 
+		</Anchors>
+        <Scripts>
+          <OnLoad>
+            self:SetCustomTooltip( "|cFFFFD100Click to select an icon." )
+          </OnLoad>
+          <OnClick>
+            PlaySound(54132)
+            DiceMaster4.IconPicker_Open( self:GetParent() )
+          </OnClick>
+        </Scripts>
+		<Frames>
+		  <Button parentKey="RemoveIconButton" name="$parentRemoveIconButton" hidden="false">
+			<Size x="16" y="16"/>
+			<Anchors>
+				<Anchor point="CENTER" relativePoint="TOPRIGHT" x="-4" y="-4" />
+			</Anchors>
+			<Scripts>
+				<OnEnter>
+					GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+					GameTooltip:SetText( "Remove Icon" )
+					GameTooltip:Show()
+				</OnEnter>
+				<OnClick>
+					DiceMasterUnitManagerFieldEditorIconButton:SetTexture( "Interface/Icons/inv_misc_questionmark" );
+				</OnClick>
+				<OnLeave>
+					GameTooltip:Hide()
+				</OnLeave>
+			</Scripts>
+			<NormalTexture file="Interface\Buttons\UI-GroupLoot-Pass-Up"/>
+			<HighlightTexture file="Interface\Buttons\UI-GroupLoot-Pass-Highlight" alphaMode="ADD"/>
+			<PushedTexture file="Interface\Buttons\UI-GroupLoot-Pass-Down"/>
+		  </Button>
+		</Frames>
+      </DiceMasterTraitButton>
+	  <EditBox name="$parentTitle" parentKey="Title" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<Size x="165" y="12"/> 
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="16" y="0"/> 
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+		  <FontString inherits="GameFontNormalLeft" justifyH="left" text="Title">
+				<Size x="150" y="12"/>
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="0" y="20"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<Scripts> 
+		  <OnLoad>
+			self:SetAutoFocus( false )
+			self:SetTextColor( 1, 1, 1 )
+			self:SetMaxLetters( 200 )
+		  </OnLoad>
+		  <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEnterPressed function="EditBox_ClearFocus"/>
+		  <OnTabPressed>
+			DiceMasterUnitManagerFieldEditorDescription.EditBox:SetFocus()
+		  </OnTabPressed>
+		</Scripts>
+	  </EditBox>
+	  <ScrollFrame name="$parentDescription" parentKey="Description" inherits="InputScrollFrameTemplate">
+		<Size x="215" y="64"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="BOTTOMLEFT" x="4" y="-24"/>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString inherits="GameFontNormalLeft" justifyH="left" text="Tooltip Description">
+					<Size x="150" y="12"/>
+					<Anchors>
+					  <Anchor point="TOPLEFT" x="0" y="20"/> 
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<KeyValues>
+			<KeyValue key="maxLetters" value="500"/>
+			<KeyValue key="instructions" value="A description of this statistic."/>
+		</KeyValues>
+		<Scripts>
+			<OnLoad>
+				InputScrollFrame_OnLoad(self);
+			</OnLoad>
+		</Scripts>
+		</ScrollFrame>
+		<EditBox name="$parentValue" parentKey="Value" font="GameFontNormalMed2" inherits="InputBoxTemplate">
+		<Size x="220" y="12"/> 
+		<Anchors>
+		  <Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="0" y="-30"/> 
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK">
+		  <FontString name="$parentValueTitle" inherits="GameFontNormalLeft" justifyH="left" text="Value">
+				<Anchors>
+				  <Anchor point="TOPLEFT" x="0" y="20"/> 
+				</Anchors>
+			</FontString>
+		  </Layer>
+		</Layers>
+		<Scripts> 
+		  <OnLoad>
+			self:SetAutoFocus( false )
+			self:SetTextColor( 1, 1, 1 )
+			self:SetMaxLetters( 200 )
+		  </OnLoad>
+		  <OnEscapePressed function="EditBox_ClearFocus"/>
+		  <OnEnterPressed function="EditBox_ClearFocus"/>
+		</Scripts>
+	  </EditBox>
+	  <Button name="$parentSaveButton" parentKey="saveButton" inherits="UIPanelButtonTemplate" text="Save">
+			<Size x="100" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMLEFT" x="0" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.UnitManagerFieldEditor_Save()
+				</OnClick>
+			</Scripts>
+		</Button>
+	  <Button name="$parentCloseButton" parentKey="loadButton" inherits="UIPanelButtonTemplate" text="Close">
+			<Size x="100" y="22"/>
+			<Anchors>
+				<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+			</Anchors>
+			<Scripts>
+				<OnClick>
+					DiceMaster4.UnitManagerFieldEditor_OnCloseClicked()
+				</OnClick>
+			</Scripts>
+		</Button>
+    </Frames>
+  </Frame>
+
+</Ui>

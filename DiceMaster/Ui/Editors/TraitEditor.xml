@@ -1417,7 +1417,7 @@
 							end
 							actor:SetScale(actors[i][3]);
 							actor:SetPosition(actors[i][4],actors[i][5],actors[i][6]);
-							actor:SetAnimationBlendOperation(LE_MODEL_BLEND_OPERATION_ANIM);
+							actor:SetAnimationBlendOperation(0);
 							actor:SetAlpha(1);
 							if actors[i][7] then
 								actor:Show();
@@ -1660,18 +1660,17 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Button name="$parentAlignmentDropdown" parentKey="alignmentDropdown" enableMouse="true" inherits="UIDropDownMenuTemplate">
-				<Size x="150" y="22"/>
+			<DropdownButton name="$parentAlignmentDropdown" parentKey="alignmentDropdown" inherits="WowStyle1DropdownTemplate">
+				<Size x="160" y="22"/>
 				<Anchors>
-				  <Anchor point="TOPRIGHT" x="-64" y="32"/> 
+				  <Anchor point="TOPRIGHT" x="-42" y="29"/> 
 				</Anchors>
 				<Scripts>
 				  <OnShow>
-					UIDropDownMenu_Initialize( self, DiceMaster4.SkillFrameAlignment_OnLoad )
-					UIDropDownMenu_SetWidth(self, 150, 5)
+					DiceMaster4.SkillFrameAlignment_SetUp( self );
 				  </OnShow>
 				</Scripts>
-			</Button>
+			</DropdownButton>
 			<Button name="$parentExportButton" registerForClicks="LeftButtonDown">
 				<Size x="27" y="25"/>
 				<Anchors>
@@ -2111,6 +2110,17 @@
 				<Scripts>
 					<OnClick>
 						DiceMaster4.SkillEditor_Open()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="$parentEditButton" inherits="UIPanelButtonTemplate" text="Edit" hidden="true">
+				<Size x="85" y="22"/>
+				<Anchors>
+					<Anchor point="RIGHT" relativeTo="$parentNewButton" relativePoint="LEFT" x="0" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.SkillEditor_Edit()
 					</OnClick>
 				</Scripts>
 			</Button>

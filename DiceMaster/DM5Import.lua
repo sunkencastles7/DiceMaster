@@ -53,8 +53,7 @@ function Me.ImportDM5Saved()
 
 	-- If a statistic had an attribute attached, find its GUID and insert 
 	-- it into the skillModifiers table.
-	for i = 1, #Me.Profile.
-	s do
+	for i = 1, #Me.Profile.stats do
 		if Me.Profile.stats[i] and Me.Profile.stats[i].attribute then
 			for skillIndex = 1, #Me.Profile.skills do
 				if Me.Profile.skills[skillIndex].name == Me.Profile.stats[i].attribute then
@@ -65,4 +64,29 @@ function Me.ImportDM5Saved()
 	end
 	
 	Me.Profile.dm5Imported = true;
+end
+
+function Me.ConvertCollections()
+	
+	-- Move the old saved buffs storage to the new collections table.
+
+	if Me.db.global.savedBuffs then
+		Me.db.global.collections.buffs["Collection 1"] = {};
+		for i = 1, #Me.db.global.savedBuffs do
+			local buff = {
+				icon = Me.db.global.savedBuffs[i].icon or "Interface/Icons/inv_misc_questionmark";
+				name = Me.db.global.savedBuffs[i].name or "Buff Name";
+				desc = Me.db.global.savedBuffs[i].desc or "Description";
+				skill = Me.db.global.savedBuffs[i].skill or nil;
+				skillRank = Me.db.global.savedBuffs[i].skillRank or nil;
+				cancelable = Me.db.global.savedBuffs[i].cancelable or false;
+				duration = Me.db.global.savedBuffs[i].duration or false;
+				aoe = Me.db.global.savedBuffs[i].aoe or 0;
+				stackable = Me.db.global.savedBuffs[i].stackable or false;
+			}
+			tinsert( Me.db.global.collections.buffs["Collection 1"], buff );
+		end
+		Me.db.global.savedBuffs = nil;
+	end
+
 end

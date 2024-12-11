@@ -1,0 +1,157 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <Script file="UnitCard.lua"/> -->
+  
+  <PlayerModel name="DiceMasterUnitCard" enableMouse="true" intrinsic="true">
+	<Animations>
+		<AnimationGroup parentKey="SlideLeft" looping="NONE" setToFinalAlpha="true">
+			<Translation offsetX="-39" offsetY="0" duration="0.3" order="1"/>
+			<Scripts>
+				<OnFinished>
+					local point, parent, relativePoint, x, y = self:GetParent():GetPoint();
+					self:GetParent():ClearAllPoints();
+					self:GetParent():SetPoint(point, parent, relativePoint, x - 39, y);
+					self:GetParent().oldPoint = { point, parent, relativePoint, x, y }
+				</OnFinished>
+			</Scripts>
+		</AnimationGroup>
+		<AnimationGroup parentKey="SlideRight" looping="NONE">
+			<Translation offsetX="39" offsetY="0" duration="0.3" order="1"/>
+			<Scripts>
+				<OnFinished>
+					local point, parent, relativePoint, x, y = self:GetParent():GetPoint();
+					self:GetParent():ClearAllPoints();
+					self:GetParent():SetPoint(point, parent, relativePoint, x + 39, y);
+					self:GetParent().oldPoint = { point, parent, relativePoint, x, y }
+				</OnFinished>
+			</Scripts>
+		</AnimationGroup>
+		<AnimationGroup parentKey="TurnArrowBounce" looping="REPEAT">
+			<Translation childKey="TurnArrow" duration="1" order="1" smoothing="IN_OUT" offsetY="-10"/>
+			<Translation childKey="TurnArrow" duration="1" order="2" smoothing="IN_OUT" offsetY="10"/>
+		</AnimationGroup>
+		<AnimationGroup parentKey="DamageTextScroll" looping="NONE">
+			<Translation childKey="DamageText" duration="1" order="1" smoothing="IN_OUT" offsetY="-42"/>
+			<Alpha childKey="DamageText" duration="1" order="1" fromAlpha="1" toAlpha="0"/>
+		</AnimationGroup>
+	</Animations>
+    <Size x="78" y="104"/>
+	<Layers>
+		<Layer level="BACKGROUND">
+			<Texture setAllPoints="true">
+				<Color r="0" g="0" b="0"/>
+			</Texture>
+		</Layer>
+		<Layer level="OVERLAY" textureSubLevel="-1">
+			<Texture parentKey="Background" atlas="transmog-wardrobe-border-collected">
+				<Size x="96" y="122"/>
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="-3"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="OVERLAY">
+			<FontString parentKey="Name" inherits="GameFontNormal" justifyV="TOP" wordwrap="true" mixin="AutoScalingFontStringMixin">
+				<KeyValues>
+					<KeyValue key="minLineHeight" value="8" type="number"/>
+				</KeyValues>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="-32"/>
+					<Anchor point="TOPRIGHT" x="0" y="-8"/>
+				</Anchors> 
+			</FontString>
+			<FontString parentKey="DamageText" inherits="NumberFont_Outline_Med" justifyV="MIDDLE" hidden="true">
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="0"/>
+				</Anchors> 
+			</FontString>
+			<Texture parentKey="Highlight" atlas="transmog-wardrobe-border-current" hidden="true">
+				<Size x="84" y="110"/>
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="0"/>
+				</Anchors>
+			</Texture>
+			<Texture parentKey="TurnArrow" atlas="Azerite-PointingArrow" hidden="true">
+				<Size x="42" y="28"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="0"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="HIGHLIGHT">
+			<Texture atlas="transmog-wardrobe-border-highlighted" alphaMode="ADD">
+				<Size x="84" y="110"/>
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="0"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+	</Layers>
+	<Frames>
+		<Button parentKey="HealthFrame">
+			<Size x="32" y="32"/>
+			<Anchors>
+				<Anchor point="BOTTOMRIGHT" x="8" y="-8"/>
+			</Anchors> 
+			<Scripts>
+				<OnLoad>
+					self.Title = "Player Health";
+					DiceMaster4.SetupTooltip( self, nil, "Health", nil, nil, nil, nil,
+					  "Represents this unit's health.|n|cFF707070&lt;Left/Right Click to Add/Remove>|n&lt;Shift+Left Click to Set Max>|n&lt;Ctrl+Left Click to Set Value>|n&lt;Alt+Left/Right Click to Add/Remove Armour>" )
+				</OnLoad>
+				<OnMouseDown>
+					self:GetParent():OnHealthClicked( button );
+				</OnMouseDown>
+			</Scripts>
+			<Layers>
+				<Layer level="BACKGROUND">
+					<Texture parentKey="background" setAllPoints="true" file="Interface/AddOns/DiceMaster/Texture/health-icon-2">
+					</Texture>
+				</Layer>
+				<Layer level="BORDER">
+					<Texture parentKey="armour" file="Interface/AddOns/DiceMaster/Texture/armour-icon-2" hidden="true">
+						<Size x="32" y="32"/>
+						<Anchors>
+						  <Anchor point="CENTER" x="0" y="20"/>
+						</Anchors>
+					</Texture>
+				</Layer>
+				<Layer level="ARTWORK">
+					<FontString parentKey="text" font="Interface/AddOns/DiceMaster/Fonts/Belwe_Medium.ttf" justifyH="MIDDLE" outline="NORMAL">
+						<FontHeight val="20"/>
+						<Anchors>
+						  <Anchor point="CENTER" x="0" y="-3"/>
+						</Anchors>
+						<Color r="1.0" g="1.0" b="1.0" a="1.0"/>
+					</FontString>
+					<FontString parentKey="armourText" font="Interface/AddOns/DiceMaster/Fonts/Belwe_Medium.ttf" justifyH="MIDDLE" outline="NORMAL">
+						<FontHeight val="22"/>
+						<Anchors>
+						  <Anchor point="CENTER" x="0" y="21"/>
+						</Anchors>
+						<Color r="1.0" g="1.0" b="1.0" a="1.0"/>
+					</FontString>
+				</Layer>
+			</Layers>
+		</Button>
+		<Frame parentKey="MiddleFrame" hidden="true">
+			<Size x="32" y="80"/>
+			<Anchors>
+				<Anchor point="LEFT" x="-16" y="0"/>
+			</Anchors> 
+			<Layers>
+				<Layer level="BACKGROUND">
+					<Texture setAllPoints="true"/>
+				</Layer>
+			</Layers>
+		</Frame>
+	</Frames>
+    <Scripts>
+      <OnLoad>
+        DiceMaster4.UnitCard_Init( self );
+      </OnLoad>
+    </Scripts>
+    
+  </PlayerModel>
+
+</Ui>

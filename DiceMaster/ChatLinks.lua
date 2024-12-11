@@ -320,12 +320,14 @@ local function RefreshItemRef()
 			ItemRefTooltip:AddLine( item.name, color.r, color.g, color.b, 1 )
 		end
 
-		if item.properties["Cosmetic"] then
-			ItemRefTooltip:AddLine( "Cosmetic", 1, 0.5, 1, 1 );
-		end
+		if item.properties then
+			if item.properties["Cosmetic"] then
+				ItemRefTooltip:AddLine( "Cosmetic", 1, 0.5, 1, 1 );
+			end
 
-		if item.properties["Crafting Reagent"] then
-			ItemRefTooltip:AddLine( "Crafting Reagent", 0.4, 0.733, 1, 1 );
+			if item.properties["Crafting Reagent"] then
+				ItemRefTooltip:AddLine( "Crafting Reagent", 0.4, 0.733, 1, 1 );
+			end
 		end
 		
 		if item.soulbound then

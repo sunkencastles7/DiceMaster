@@ -1,0 +1,91 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <Script file="HealthBar.lua"/>
+
+	<!-- Status bar widget for unit health frames. -->
+    <Frame name="DiceMasterUnitHealthBar" enableMouse="true" intrinsic="true" >
+		<Size x="230" y="14"/>
+		<HitRectInsets>
+			<AbsInset left="-25" right="0" top="-15" bottom="0"/>
+		</HitRectInsets>
+		<Frames>
+			<StatusBar parentKey="armourBar" drawLayer="BORDER" setAllPoints="true">
+				<Scripts>
+					<OnLoad>
+						self:SetStatusBarTexture("Interface/TargetingFrame/UI-StatusBar", "BORDER", -2);
+						self:GetStatusBarTexture():SetDrawLayer("BORDER")
+						self:SetStatusBarColor(0, 0.75, 1);
+					</OnLoad>
+				</Scripts>
+			</StatusBar>
+			<StatusBar parentKey="healthBar" drawLayer="ARTWORK" setAllPoints="true">
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture file="Interface\Common\friendship-parts" parentKey="bar" >  <!-- the bar itself -->
+							<Size x="267" y="38"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" x="-31" y="18"/>
+							</Anchors>
+							<TexCoords left="0.01367188" right="0.53515625" top="0.01562500" bottom="0.60937500"/>
+						</Texture>
+					</Layer>
+					<Layer level="ARTWORK" textureSubLevel="1">
+						<Texture file="Interface\Common\friendship-heart" parentKey="icon">
+							<Size x="32" y="32"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" x="-27" y="14"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="BACKGROUND">
+						<Texture setAllPoints="true">  <!-- bar fill background -->
+							<Color r="0" g="0" b="0" a="0.5"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<Texture parentKey="armourGlow" inherits="OverAbsorbGlowTemplate" hidden="true">
+							<Size x="14" y="16"/>
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT" x="-6" />
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="HIGHLIGHT">
+						<FontString parentKey="text" inherits="TextStatusBarText" setallpoints="true" />
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad>
+						self:SetStatusBarTexture("Interface/TargetingFrame/UI-StatusBar", "BORDER", -2);
+						self:GetStatusBarTexture():SetDrawLayer("BORDER")
+						self:SetStatusBarColor(1, 0, 0);
+					</OnLoad>
+					<OnEnter>
+						local parent = self:GetParent()
+						if parent.armour > 0 then
+							self.text:SetText( "Health: "..parent.filled.." (+"..parent.armour..")/"..parent.filled_max )
+						else
+							self.text:SetText( "Health: "..parent.filled.."/"..parent.filled_max )
+						end
+						GameTooltip:SetOwner( self, "ANCHOR_RIGHT")
+						GameTooltip:SetText( "Health", 1, 1, 1)
+						GameTooltip:AddLine("Represents this unit's health.", 1, 0.81, 0);
+						if parent.canEdit then
+							GameTooltip:AddLine("|cFF707070&lt;Left/Right Click to Add/Remove>|n&lt;Shift+Left Click to Set Max>|n&lt;Ctrl+Left Click to Set Value>|n&lt;Alt+Left/Right Click to Add/Remove Armour>", 1, 1, 1, true );
+						end
+						GameTooltip:Show()
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</StatusBar>
+		</Frames>
+		<Scripts>
+			<OnLoad intrinsicOrder="precall">
+				DiceMaster4.UnitHealthBar_Init( self )
+			</OnLoad>
+		</Scripts>
+	</Frame>
+
+</Ui>

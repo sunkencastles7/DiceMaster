@@ -1,6 +1,131 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
 	
+	<CheckButton name="DiceMasterRollBannerPromptCheckboxTemplate" virtual="true">
+		<Size x="24" y="24"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Text" inherits="GameFontWhite">
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" x="4" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<NormalTexture atlas="checkbox-minimal" useAtlasSize="true"/>
+		<PushedTexture atlas="checkbox-minimal" useAtlasSize="true"/>
+		<CheckedTexture atlas="checkmark-minimal" useAtlasSize="true"/>
+		<DisabledCheckedTexture atlas="checkmark-minimal-disabled" useAtlasSize="true"/>
+	</CheckButton>
+
 	<!--The banner frame.-->
+	<Frame name="DiceMasterRollBannerPromptOptionFrameTemplate" virtual="true">
+		<Size x="269" y="44"/>
+		<Frames>
+			<CheckButton parentKey="CheckBox">
+				<Size x="24" y="24"/>
+				<Anchors>
+					<Anchor point="LEFT"/>
+				</Anchors>
+				<NormalTexture atlas="checkbox-minimal" useAtlasSize="true"/>
+				<PushedTexture atlas="checkbox-minimal" useAtlasSize="true"/>
+				<CheckedTexture atlas="checkmark-minimal" useAtlasSize="true"/>
+				<DisabledCheckedTexture atlas="checkmark-minimal-disabled" useAtlasSize="true"/>
+			</CheckButton>
+			<DiceMasterTraitButton parentKey="Icon" >
+				<Size x="22" y="22"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent.CheckBox" relativePoint="RIGHT" x="2" y="0"/> 
+				</Anchors>
+				<Scripts>
+				  <OnLoad>
+            
+					self:SetCustomTooltip( "|cFFFFD100Click to select an icon for this option." )
+            
+				  </OnLoad>
+				  <OnClick>
+					PlaySound(54132)
+					DiceMaster4.IconPicker_Open( self:GetParent() )
+				  </OnClick>
+				</Scripts>
+			</DiceMasterTraitButton>
+			<EditBox parentKey="Title" font="GameFontHighlight" inherits="InputBoxTemplate">
+				<Size x="80" y="12"/> 
+				<Anchors>
+				  <Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="8" y="0"/> 
+				</Anchors>
+				<Scripts> 
+				  <OnLoad>
+					self:SetAutoFocus( false )
+					self:SetTextColor( 1, 1, 1 )
+					self:SetMaxLetters( 255 )
+					self:SetText( "Title" )
+				  </OnLoad>
+				  <OnEnter>
+					GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+					GameTooltip:SetText( self:GetText() );
+					GameTooltip:Show();
+				  </OnEnter>
+				  <OnLeave function="GameTooltip_Hide"/>
+				  <OnEditFocusLost>
+					local id = self:GetParent():GetID();
+					DiceMasterBannerPromptDialog.options[ id ].name = self:GetText();
+				  </OnEditFocusLost>
+				  <OnTabPressed>
+					self:GetParent().Description:SetFocus()
+				  </OnTabPressed>
+				  <OnEscapePressed function="EditBox_ClearFocus"/>
+				  <OnEnterPressed function="EditBox_ClearFocus"/>
+				</Scripts>
+			</EditBox>
+			<EditBox parentKey="Description" font="GameFontHighlight" inherits="InputBoxTemplate">
+				<Size x="160" y="12"/> 
+				<Anchors>
+				  <Anchor point="LEFT" relativeKey="$parent.Title" relativePoint="RIGHT" x="8" y="0"/> 
+				</Anchors>
+				<Scripts> 
+				  <OnLoad>
+					self:SetAutoFocus( false )
+					self:SetTextColor( 1, 1, 1 )
+					self:SetMaxLetters( 500 )
+					self:SetText( "Description" )
+				  </OnLoad>
+				  <OnEnter>
+					GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+					GameTooltip:SetText( self:GetText() );
+					GameTooltip:Show();
+				  </OnEnter>
+				  <OnLeave function="GameTooltip_Hide"/>
+				  <OnEditFocusLost>
+					local id = self:GetParent():GetID();
+					DiceMasterBannerPromptDialog.options[ id ].desc = self:GetText();
+				  </OnEditFocusLost>
+				  <OnEscapePressed function="EditBox_ClearFocus"/>
+				  <OnEnterPressed function="EditBox_ClearFocus"/>
+				</Scripts>
+			</EditBox>
+			<Button parentKey="Delete">
+				<Size x="18" y="18"/>
+				<Anchors>
+				  <Anchor point="LEFT" relativeKey="$parent.Description" relativePoint="RIGHT" x="4" y="0"/>
+				</Anchors>
+				<Scripts>
+				  <OnEnter>
+					GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+					GameTooltip:SetText("Delete");
+					GameTooltip:Show();
+				  </OnEnter>
+				  <OnLeave function="GameTooltip_Hide"/>
+				  <OnClick>
+					DiceMaster4.RollBannerPromptDialog_RemoveOption( self:GetParent():GetID() );
+				  </OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-GroupLoot-Pass-Up"/>
+				<HighlightTexture file="Interface\Buttons\UI-GroupLoot-Pass-Highlight" alphaMode="ADD"/>
+				<PushedTexture file="Interface\Buttons\UI-GroupLoot-Pass-Down"/>
+			</Button>
+		</Frames>
+	</Frame>
+	
 	<Frame name="DiceMasterRollBannerOptionFrameTemplate" parentArray="OptionFrames" hidden="true" virtual="true">
 		<Size x="269" y="44"/>
 		<Layers>
@@ -133,48 +258,32 @@
 				</Texture>
 				<FontString parentKey="Title" inherits="GameFontNormal" text="Send Banner">
 					<Anchors>
-						<Anchor point="TOP" relativeKey="$parent.Header" relativePoint="TOP" x="0" y="-14"/>
+						<Anchor point="TOP" relativeKey="$parent.Header" x="0" y="-14"/>
 					</Anchors>
 				</FontString>
-				<FontString parentKey="SelectTitle" inherits="GameFontNormal" justifyV="TOP" justifyH="CENTER" text="Select a Combat Phase:">
+				<FontString parentKey="Title2" inherits="GameFontNormal" justifyV="TOP" justifyH="CENTER" text="Combat Turn Tracker Options:">
 					<Anchors>
-						<Anchor point="TOPLEFT" x="18" y="-32"/>
-						<Anchor point="BOTTOMRIGHT" x="-18" y="48"/>
+						<Anchor point="TOP" relativeKey="$parent.Header" x="0" y="-135"/>
 					</Anchors>
 				</FontString>
-				<FontString parentKey="Desc" inherits="GameFontNormal" justifyV="TOP" justifyH="CENTER" text="Combat Turn Tracker Options:">
+				<FontString parentKey="Title3" inherits="GameFontNormal" justifyV="TOP" justifyH="CENTER" text="Submenu Options:">
 					<Anchors>
-						<Anchor point="TOPLEFT" x="18" y="-130"/>
-						<Anchor point="BOTTOMRIGHT" x="-18" y="48"/>
-					</Anchors>
-				</FontString>
-				<FontString parentKey="Desc2" inherits="GameFontNormal" justifyV="TOP" justifyH="CENTER">
-					<Anchors>
-						<Anchor point="TOPLEFT" x="18" y="-190"/>
-						<Anchor point="BOTTOMRIGHT" x="-18" y="48"/>
+						<Anchor point="TOP" relativeKey="$parent.Header" x="0" y="-200"/>
 					</Anchors>
 				</FontString>
 			</Layer>
 		</Layers>
 		<Frames>
-			<Button parentKey="OptionsDropdown" enableMouse="true" inherits="UIDropDownMenuTemplate" hidden="false">
-				<Size x="145" y="22"/>
+			<DropdownButton name="$parentLoadDropdown" parentKey="LoadDropdown" inherits="DiceMasterCollectionDropdownTemplate">
+				<Size x="220" y="22"/>
 				<Anchors>
-					<Anchor point="TOP" x="-24" y="-48"/>
+				  <Anchor point="TOP" x="0" y="-32"/> 
 				</Anchors>
-				<Scripts>
-				  <OnLoad>
-					UIDropDownMenu_Initialize( self, DiceMaster4.RollBannerDropDown_OnLoad )
-					UIDropDownMenu_SetSelectedID( self, 6 )
-					UIDropDownMenu_SetText(self, "Custom") 
-					UIDropDownMenu_SetWidth(self, 145, 5)
-				  </OnLoad>
-				</Scripts>
-			</Button>
+			</DropdownButton>
 			<EditBox parentKey="BannerTitle" font="GameFontHighlight" inherits="InputBoxTemplate">
 				<Size x="240" y="12"/> 
 				<Anchors>
-				  <Anchor point="TOP" x="0" y="-85"/> 
+				  <Anchor point="TOP" x="0" y="-62"/> 
 				</Anchors>
 				<Scripts> 
 				  <OnLoad>
@@ -203,36 +312,32 @@
 				  <OnEnterPressed function="EditBox_ClearFocus"/>
 				</Scripts>
 			</EditBox>
-			<CheckButton name="$parentAdvanceTurn" parentKey="AdvanceTurn" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentAdvanceTurn" parentKey="AdvanceTurn" inherits="DiceMasterRollBannerPromptCheckboxTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" x="14" y="-140"/> 
+					<Anchor point="TOPLEFT" x="14" y="-135"/> 
 				</Anchors>
 				<Scripts>
-					<OnLoad>
-						self:SetChecked( true )
-						self:SetScript( "OnClick", function( self ) end)
-						_G["DiceMasterBannerPromptDialogAdvanceTurnText"]:SetText( "This phase advances to the next combat round." )
-						_G["DiceMasterBannerPromptDialogAdvanceTurnText"]:SetTextColor( 1, 1, 1 )
-					</OnLoad>
+					<OnShow>
+						self:SetChecked( true );
+						self.Text:SetText( "This banner advances to the next combat round." );
+					</OnShow>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentTurnTimer" parentKey="TurnTimer" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentTurnTimer" parentKey="TurnTimer" inherits="DiceMasterRollBannerPromptCheckboxTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" x="14" y="-160"/> 
+					<Anchor point="TOPLEFT" relativeKey="$parent.AdvanceTurn" relativePoint="BOTTOMLEFT" x="0" y="0"/> 
 				</Anchors>
 				<Scripts>
-					<OnLoad>
-						self:SetChecked( true )
-						self:SetScript( "OnClick", function( self ) end)
-						_G["DiceMasterBannerPromptDialogTurnTimerText"]:SetText( "Set a timer for this phase:" )
-						_G["DiceMasterBannerPromptDialogTurnTimerText"]:SetTextColor( 1, 1, 1 )
-					</OnLoad>
+					<OnShow>
+						self:SetChecked( true );
+						self.Text:SetText( "Set a timer for this phase:" );
+					</OnShow>
 				</Scripts>
 			</CheckButton>
 			<Button parentKey="Timer" enableMouse="true" inherits="UIDropDownMenuTemplate">
 				<Size x="100" y="22"/>
 				<Anchors>
-					<Anchor point="LEFT" relativeTo="DiceMasterBannerPromptDialogTurnTimerText" relativePoint="RIGHT" x="-12" y="-2"/> 
+					<Anchor point="LEFT" relativeKey="$parent.TurnTimer.Text" relativePoint="RIGHT" x="-12" y="-2"/> 
 				</Anchors>
 				<Scripts>
 				  <OnLoad>
@@ -243,7 +348,19 @@
 				  </OnLoad>
 				</Scripts>
 			</Button>
-			<CheckButton parentKey="Accept" inherits="UIPanelButtonTemplate" text="Send">
+			<Button parentKey="AddOption" inherits="UIPanelButtonTemplate" text="Add Option...">
+				<Size x="150" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOM" x="0" y="42"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DiceMaster4.RollBannerPromptDialog_AddOption()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button parentKey="Accept" inherits="UIPanelButtonTemplate" text="Send">
+				<Size x="100" y="22"/>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" x="14" y="14"/>
 				</Anchors>
@@ -252,8 +369,9 @@
 						DiceMaster4.RollBanner_SendBanner()
 					</OnClick>
 				</Scripts>
-			</CheckButton>
-			<CheckButton parentKey="Cancel" inherits="UIPanelButtonTemplate" text="Cancel">
+			</Button>
+			<Button parentKey="Cancel" inherits="UIPanelButtonTemplate" text="Cancel">
+				<Size x="100" y="22"/>
 				<Anchors>
 					<Anchor point="BOTTOMRIGHT" x="-14" y="14"/>
 				</Anchors>
@@ -262,32 +380,15 @@
 						DiceMasterBannerPromptDialog:Hide()
 					</OnClick>
 				</Scripts>
-			</CheckButton>
+			</Button>
 		</Frames>
 		<Scripts>
 			<OnLoad inherit="prepend">
-				self:SetClampedToScreen( true )
-				self:SetMovable(true)
-				self:EnableMouse(true)
-				self:RegisterForDrag( "LeftButton" )
-				self:SetScript( "OnDragStart", self.StartMoving )
-				self:SetScript( "OnDragStop", self.StopMovingOrSizing )
-				self:SetUserPlaced( true )
-				
-				self.target = "RAID"
-				
-				-- create check buttons
-				self.checkboxes = {}
-				for i = 1, 6 do
-					self.checkboxes[i] = CreateFrame( "CheckButton", "DiceMasterBannerPromptDialogCheckbox"..i, self, "UICheckButtonTemplate" )
-					self.checkboxes[i]:SetPoint( "TOPLEFT", 14 , -190 - 20*i )
-					self.checkboxes[i]:SetScript( "OnClick", function( self, button ) end)
-					_G["DiceMasterBannerPromptDialogCheckbox"..i.."Text"]:SetTextColor(1, 1, 1)
-					self.checkboxes[i]:Hide()
-				end
+				DiceMaster4.RollBannerPromptDialog_OnLoad( self );
 			</OnLoad>
 			<OnShow>
 				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
+				DiceMaster4.RollBannerPromptDialog_UpdateOptions(self);
 			</OnShow>
 			<OnHide>
 				PlaySound(SOUNDKIT.GS_TITLE_OPTION_EXIT) 

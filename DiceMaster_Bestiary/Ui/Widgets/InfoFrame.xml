@@ -1,0 +1,454 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\FrameXML\UI.xsd">
+
+  <Script file="InfoFrame.lua"/>
+	
+	<!-- Unit Info Trait Entry -->
+	<Frame name="DiceMasterUnitInfoTraitTemplate" intrinsic="true">
+		<Size x="300" y="36"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Icon" setAllPoints="true">
+					<Size x ="36" y="36" />
+					<Anchors>
+						<Anchor point="LEFT" x="5" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="IconBG" setAllPoints="true" atlas="UI-HUD-ActionBar-IconFrame-Slot">
+					<Size x ="36" y="36" />
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Icon"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString parentKey="Text" inherits="GameFontBlackMedium" justifyH="RIGHT">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="10" />
+					</Anchors>
+					<Color r="0.208" g="0" b="0"/>
+				</FontString>
+				<Texture parentKey="IconBorder" atlas="UI-HUD-ActionBar-IconFrame">
+					<Size x ="38" y="36" />
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Icon"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad intrinsicOrder="precall">
+				DiceMaster4.UnitInfoTrait_Init( self )
+			</OnLoad>
+			<OnMouseDown>
+				self:OnClick()
+			</OnMouseDown>
+			<OnEnter>
+				self:OnEnter()
+			</OnEnter>
+			<OnLeave>
+				self:OnLeave()
+			</OnLeave>
+		</Scripts>
+	</Frame>
+	
+	<!-- Unit Info Statistic Entry -->
+	<Frame name="DiceMasterUnitInfoStatisticsTemplate" intrinsic="true">
+		<Size x="200" y="16"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Icon">
+					<Size x="16" y="16"/>
+					<Anchors>
+						<Anchor point="LEFT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="IconBG" setAllPoints="true" atlas="UI-HUD-ActionBar-IconFrame-Slot">
+					<Size x ="16" y="16" />
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Icon"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="IconBorder" atlas="GarrMission_WeakEncounterAbilityBorder">
+					<Size x="32" y="32"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Icon"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="TextLeft" inherits="GameFontBlack" justifyH="LEFT" justifyV="TOP">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="8" y="0"/>
+					</Anchors>
+					<Color r="0.25" g="0.1484375" b=".02" a="1"/>
+				</FontString>
+				<FontString parentKey="TextRight" inherits="GameFontBlack" justifyH="LEFT" justifyV="TOP">
+					<Size x="230" y="0"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.TextLeft" relativePoint="RIGHT" x="4" y="0"/>
+					</Anchors>
+					<Color r="0" g="0" b="0" a="1"/>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad intrinsicOrder="precall">
+				DiceMaster4.UnitInfoStatistic_Init( self )
+			</OnLoad>
+			<OnMouseDown>
+				self:OnClick()
+			</OnMouseDown>
+			<OnEnter>
+				self:OnEnter()
+			</OnEnter>
+			<OnLeave>
+				self:OnLeave()
+			</OnLeave>
+		</Scripts>
+	</Frame>
+	
+	<!-- Unit Info Section -->
+	<Frame name="DiceMasterUnitInfoTemplate" hyperlinksEnabled="true" intrinsic="true">
+		<KeyValues>
+			<KeyValue key="tooltipFrame" value="GameTooltip" type="global"/>
+		</KeyValues>
+		<Animations>
+			<AnimationGroup parentKey="flashAnim">
+				<Alpha target="$parentHeaderButtonGlow" fromAlpha="0" toAlpha="1" duration="0.6" order="1"/>
+				<Alpha target="$parentHeaderButtonGlow" fromAlpha="1" toAlpha="0"  duration="0.6" order="2"/>
+				<Alpha target="$parentHeaderButtonGlow" fromAlpha="0" toAlpha="1" duration="0.6" order="3"/>
+				<Alpha target="$parentHeaderButtonGlow" fromAlpha="1" toAlpha="0"  duration="0.9" order="4"/>
+			</AnimationGroup>
+		</Animations>
+		<Size x="5" y="24"/>
+		<Frames>
+			<Button name="$parentHeaderButton" parentKey="button">
+				<Size x="5" y="24"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" x="0" y="0"/>
+					<Anchor point="RIGHT" x="0" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString name="$parentExpandedIcon" inherits="GameFontNormalLarge" parentKey="expandedIcon">
+							<Size x="12" y="12"/>
+							<Anchors>
+								<Anchor point="LEFT" x="5" y="0"/>
+							</Anchors>
+						</FontString>
+						<FontString name="$parentTitle" inherits="GameFontNormal" parentKey="title" justifyH="LEFT">
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentExpandedIcon" relativePoint="RIGHT" x="5" y="-1"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentELeftUp" file="Interface\EncounterJournal\UI-EncounterJournalTextures" parentKey="eLeftUp" hidden="true">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.81445313" right="0.93945313" top="0.39453125" bottom="0.42285156"/>
+							<Anchors>
+								<Anchor point="LEFT" x="-1" y="-1"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentERightUp" file="Interface\EncounterJournal\UI-EncounterJournalTextures" parentKey="eRightUp" hidden="true">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.34570313" right="0.47070313" top="0.49316406" bottom="0.52148438"/>
+							<Anchors>
+								<Anchor point="RIGHT" x="3" y="-1"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentELeftDown" file="Interface\EncounterJournal\UI-EncounterJournalTextures" parentKey="eLeftDown" hidden="true">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.64062500" right="0.76562500" top="0.21386719" bottom="0.24218750"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentELeftUp" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentERightDown" file="Interface\EncounterJournal\UI-EncounterJournalTextures" parentKey="eRightDown" hidden="true">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.76953125" right="0.89453125" top="0.21386719" bottom="0.24218750"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeTo="$parentERightUp" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentCLeftUp" file="Interface\EncounterJournal\UI-EncounterJournalTextures" parentKey="cLeftUp">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.84960938" right="0.97460938" top="0.49023438" bottom="0.51855469"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentELeftUp" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentCRightUp" file="Interface\EncounterJournal\UI-EncounterJournalTextures" parentKey="cRightUp">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.72656250" right="0.85156250" top="0.52441406" bottom="0.55273438"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeTo="$parentERightUp" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentCLeftDown" file="Interface\EncounterJournal\UI-EncounterJournalTextures" parentKey="cLeftDown" hidden="true">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.47460938" right="0.59960938" top="0.49316406" bottom="0.52148438"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentELeftUp" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentCRightDown" file="Interface\EncounterJournal\UI-EncounterJournalTextures" parentKey="cRightDown" hidden="true">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.60351563" right="0.72851563" top="0.49316406" bottom="0.52148438"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeTo="$parentERightUp" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="BACKGROUND" textureSubLevel="-2">
+						<Texture name="$parentEMidUp" file="Interface\EncounterJournal\UI-EncounterJournalTextures_Tile" horizTile="true" parentKey="eMidUp" hidden="true">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.00000000" right="1.00000000" top="0.22265625" bottom="0.27929688"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentELeftUp" relativePoint="RIGHT" x="-32" y="0"/>
+								<Anchor point="RIGHT" relativeTo="$parentERightUp" relativePoint="LEFT" x="32" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentEMidDown" file="Interface\EncounterJournal\UI-EncounterJournalTextures_Tile" horizTile="true" parentKey="eMidDown" hidden="true">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.00000000" right="1.00000000" top="0.40429688" bottom="0.46093750"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentELeftDown" relativePoint="RIGHT" x="-32" y="0"/>
+								<Anchor point="RIGHT" relativeTo="$parentERightDown" relativePoint="LEFT" x="32" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentCMidUp" file="Interface\EncounterJournal\UI-EncounterJournalTextures_Tile" horizTile="true" parentKey="cMidUp">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.00000000" right="1.00000000" top="0.34375000" bottom="0.40039063"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentELeftUp" relativePoint="RIGHT" x="-32" y="0"/>
+								<Anchor point="RIGHT" relativeTo="$parentERightUp" relativePoint="LEFT" x="32" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentCMidDown" file="Interface\EncounterJournal\UI-EncounterJournalTextures_Tile" horizTile="true" parentKey="cMidDown" hidden="true">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.00000000" right="1.00000000" top="0.40429688" bottom="0.46093750"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentELeftDown" relativePoint="RIGHT" x="-32" y="0"/>
+								<Anchor point="RIGHT" relativeTo="$parentERightDown" relativePoint="LEFT" x="32" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="HIGHLIGHT">
+						<Texture name="$parentHighlightLeft" file="Interface\EncounterJournal\UI-EncounterJournalTextures">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.74218750" right="0.86718750" top="0.15820313" bottom="0.18652344"/>
+							<Anchors>
+								<Anchor point="LEFT" x="-1" y="-1"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentHighlightRight" file="Interface\EncounterJournal\UI-EncounterJournalTextures">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.87109375" right="0.99609375" top="0.15820313" bottom="0.18652344"/>
+							<Anchors>
+								<Anchor point="RIGHT" x="3" y="-1"/>
+							</Anchors>
+						</Texture>
+						<Texture name="$parentHighlightMid" file="Interface\EncounterJournal\UI-EncounterJournalTextures_Tile" horizTile="true">
+							<Size x="64" y="29"/>
+							<TexCoords left="0.00000000" right="1.00000000" top="0.46484375" bottom="0.52148438"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentHighlightLeft" relativePoint="RIGHT" x="-32" y="0"/>
+								<Anchor point="RIGHT" relativeTo="$parentHighlightRight" relativePoint="LEFT" x="32" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame name="$parentGlow" alpha="0">
+						<Anchors>
+							<Anchor point="TOPLEFT" x="0" y="0"/>
+							<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture name="$parentHighlightLeft" file="Interface\EncounterJournal\UI-EncounterJournalTextures">
+									<Size x="64" y="29"/>
+									<TexCoords left="0.74218750" right="0.86718750" top="0.15820313" bottom="0.18652344"/>
+									<Anchors>
+										<Anchor point="LEFT" x="-1" y="-1"/>
+									</Anchors>
+								</Texture>
+								<Texture name="$parentHighlightRight" file="Interface\EncounterJournal\UI-EncounterJournalTextures">
+									<Size x="64" y="29"/>
+									<TexCoords left="0.87109375" right="0.99609375" top="0.15820313" bottom="0.18652344"/>
+									<Anchors>
+										<Anchor point="RIGHT" x="3" y="-1"/>
+									</Anchors>
+								</Texture>
+								<Texture name="$parentHighlightMid" file="Interface\EncounterJournal\UI-EncounterJournalTextures_Tile" horizTile="true">
+									<Size x="64" y="29"/>
+									<TexCoords left="0.00000000" right="1.00000000" top="0.46484375" bottom="0.52148438"/>
+									<Anchors>
+										<Anchor point="LEFT" relativeTo="$parentHighlightLeft" relativePoint="RIGHT" x="-32" y="0"/>
+										<Anchor point="RIGHT" relativeTo="$parentHighlightRight" relativePoint="LEFT" x="32" y="0"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Frame>
+					<Button parentKey="VisibileButton" name="$parentVisibleButton" hidden="false">
+						<KeyValues>
+							<KeyValue key="isVisible" value="true" type="boolean"/>
+						</KeyValues>
+						<Size x="32" y="32"/>
+						<Anchors>
+							<Anchor point="RIGHT" />
+						</Anchors>
+						<Scripts>
+							<OnEnter>
+								GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+								GameTooltip:SetText( self.isVisible and "Visible" or "Hidden", 1, 1, 1)
+								GameTooltip:AddLine("Players in your group "..( self.isVisible and "|cFF00FF00can|r" or "|cFFFF0000cannot|r").." see the information in this category.", 1, 0.81, 0, 1);
+								GameTooltip:AddLine( "&lt;Left Click to Toggle>", 0.44, 0.44, 0.44, true);
+								GameTooltip:Show();
+							</OnEnter>
+							<OnClick>
+								self:GetParent():GetParent():OnToggleVisibility( self, button );
+							</OnClick>
+							<OnLeave>
+								GameTooltip:Hide()
+							</OnLeave>
+						</Scripts>
+						<NormalTexture parentKey="NormalTexture" atlas="gm-icon-visible" setAllPoints="true"/>
+					</Button>
+				</Frames>
+				<Scripts>
+					<OnLoad>
+						self.textures = {
+							expanded = {
+								up = {self.eLeftUp, self.eMidUp, self.eRightUp},
+								down = {self.eLeftDown, self.eMidDown, self.eRightDown}
+							},
+							collapsed = {
+								up = {self.cLeftUp, self.cMidUp, self.cRightUp},
+								down = {self.cLeftDown, self.cMidDown, self.cRightDown}
+							},
+						}
+						self.tex = self.textures.collapsed;
+					</OnLoad>
+					<OnShow>
+						DiceMaster4.UnitInfo_UpdateButtonState( self )
+					</OnShow>
+					<OnClick>
+						self:GetParent():ToggleHeaders()
+					</OnClick>
+					<OnMouseDown>
+						self.tex.up[1]:Hide();
+						self.tex.up[2]:Hide();
+						self.tex.up[3]:Hide();
+
+						self.tex.down[1]:Show();
+						self.tex.down[2]:Show();
+						self.tex.down[3]:Show();
+					</OnMouseDown>
+					<OnMouseUp>
+						self.tex.up[1]:Show();
+						self.tex.up[2]:Show();
+						self.tex.up[3]:Show();
+
+						self.tex.down[1]:Hide();
+						self.tex.down[2]:Hide();
+						self.tex.down[3]:Hide();
+					</OnMouseUp>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+						GameTooltip:SetText(self.title:GetText(), nil, nil, nil, nil, true);
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</Button>
+			<EditBox name="$parentDescriptionEditable" parentKey="descriptionEditable" justifyH="LEFT" multiLine="true" font="GameFontBlack">
+				<Size x="0" y="0"/> 
+				<Anchors>
+					<Anchor point="TOP" relativePoint="BOTTOM" relativeTo="$parentHeaderButton" x="0" y="-9"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentDescriptionBG" file="Interface\EncounterJournal\UI-EncounterJournalTextures" parentKey="descriptionBG">
+							<Size x="12" y="12"/>
+							<TexCoords left="0.00195313" right="0.50195313" top="0.02246094" bottom="0.10058594"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" x="-9" y="12"/>
+								<Anchor point="BOTTOMRIGHT" x="9" y="-11"/>
+							</Anchors>
+						</Texture>
+						<Texture file="Interface\EncounterJournal\UI-EncounterJournalTextures" parentKey="descriptionBGBottom">
+							<Size x="243" y="9"/>
+							<TexCoords left="0.04492188" right="0.51953125" top="0.00097656" bottom="0.00976563"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parentDescriptionBG" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+								<Anchor point="RIGHT" relativeTo="$parentDescriptionBG" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts> 
+					<OnLoad>
+						self:SetAutoFocus( false )
+						self:SetTextColor( 0.25, 0.1484375, 0.02 )
+						self:SetMaxLetters( 5000 )
+						self:SetText( " " )
+						self:Disable()
+					</OnLoad>
+					<OnEditFocusLost>
+						--DiceMaster4.TraitEditor_SaveName()
+					</OnEditFocusLost>
+					<OnEscapePressed function="EditBox_ClearFocus"/>
+				</Scripts>
+			</EditBox>
+		</Frames>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentDescription" inherits="GameFontBlack" justifyH="LEFT" parentKey="description">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="TOP" relativePoint="BOTTOM" relativeTo="$parentHeaderButton" x="0" y="-9"/>
+					</Anchors>
+					<Color r="0.25" g="0.1484375" b=".02" a="1"/>
+				</FontString>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentDescriptionBG" file="Interface\EncounterJournal\UI-EncounterJournalTextures" parentKey="descriptionBG">
+					<Size x="12" y="12"/>
+					<TexCoords left="0.00195313" right="0.50195313" top="0.02246094" bottom="0.10058594"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentDescription" x="-9" y="12"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parentDescription" x="9" y="-11"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\EncounterJournal\UI-EncounterJournalTextures" parentKey="descriptionBGBottom">
+					<Size x="243" y="9"/>
+					<TexCoords left="0.04492188" right="0.51953125" top="0.00097656" bottom="0.00976563"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentDescriptionBG" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+						<Anchor point="RIGHT" relativeTo="$parentDescriptionBG" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad intrinsicOrder="precall">
+				DiceMaster4.UnitInfo_Init( self )
+			</OnLoad>
+			<OnHide>
+				self:SetScript("OnUpdate", nil);
+			</OnHide>
+			<OnHyperlinkEnter function="InlineHyperlinkFrame_OnEnter"/>
+			<OnHyperlinkLeave function="InlineHyperlinkFrame_OnLeave"/>
+			<OnHyperlinkClick function="InlineHyperlinkFrame_OnClick"/>
+		</Scripts>
+	</Frame>
+
+</Ui>

@@ -1364,12 +1364,12 @@ function Me.SetMana( mana )
 	mana = math.floor( mana )
 	
 	local effect = {
-		type = "mana";
-		health = health;
-		armour = armour;
+		type = "health";
+		health = 0;
+		mana = mana;
 	}
 	
-	Me.AdjustHealthEditor_AdjustMana( effect )
+	Me.AdjustHealthEditor_AdjustHealth( effect )
 end
 
 ---------------------------------------------------------------------------

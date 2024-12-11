@@ -28,6 +28,7 @@ local CLASS_TEX_COORDS = {
 	["DRUID"]		 = { 0.25, 0.375, 0.75, 1 },
 	["MONK"]		 = { 0.125, 0.25, 0.75, 1 },
 	["DEMONHUNTER"]	 = { 0.375, 0.5, 0.75, 1 },
+	["EVOKER"]		 = { 0.20, 0.58, 0.50, 1 },
 }
 
 local function SetCompatibleRestrictedRange(range)

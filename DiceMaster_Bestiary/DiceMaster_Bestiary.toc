@@ -1,0 +1,16 @@
+## Interface: 110005
+## Title: DiceMaster Bestiary
+## Author: Skylar
+## Notes: Allows Dungeon Masters to create and display custom NPCs.
+## Version: 1.0
+## RequiredDeps: DiceMaster
+## SavedVariablesPerCharacter: DiceMaster_Bestiary
+
+DiceMaster_Bestiary.lua
+Config.lua
+Comm.lua
+Bestiary.lua
+UnitDetails.lua
+UnitManager.lua
+
+Ui/Ui.xml

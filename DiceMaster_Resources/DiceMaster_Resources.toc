@@ -1,5 +1,6 @@
-## Interface: 110000
+## Interface: 110005
 ## Title: DiceMaster Resources
+## IconTexture: Interface/AddOns/DiceMaster/Texture/logo
 ## Author: Skylar
 ## Notes: A load-on-demand database of resources used by DiceMaster.
 ## Version: 1.0

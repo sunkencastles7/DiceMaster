@@ -2,13 +2,29 @@
   
   <!-- Template for the model buttons in the model selector. -->
   <PlayerModel name="DiceMasterModelPickerButton" virtual="true">
-    <Size x="32" y="32"/>
+    <Size x="78" y="104"/>
 	<Layers>
+		<Layer level="OVERLAY" textureSubLevel="-1">
+			<Texture parentKey="Background" atlas="transmog-wardrobe-border-collected">
+				<Size x="96" y="122"/>
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="-3"/>
+				</Anchors>
+			</Texture>
+		</Layer>
 		<Layer level="OVERLAY">
 			<Texture parentKey="check" file="Interface/Buttons/UI-CheckBox-Check" hidden="true">
 				<Size x="16" y="16"/>
 				<Anchors>
 					<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="HIGHLIGHT">
+			<Texture atlas="transmog-wardrobe-border-highlighted" alphaMode="ADD">
+				<Size x="84" y="110"/>
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="0"/>
 				</Anchors>
 			</Texture>
 		</Layer>
@@ -28,7 +44,7 @@
   
   <!-- The icon selector, shown when you click on the trait icon to edit the texture. -->
   <Frame name="DiceMasterModelPicker" parent="UIParent" hidden="true" inherits="SimplePanelTemplate" frameStrata="DIALOG" toplevel="true">
-    <Size x="256" y="372"/>
+    <Size x="390" y="542"/>
     <Anchors>
       <Anchor point="LEFT" relativeTo="DiceMasterTraitEditor" relativePoint="RIGHT" x="0" y="0" />
     </Anchors>
@@ -52,15 +68,14 @@
     
     <Scripts>
       <OnLoad>	
-        self.Inset:SetPoint("TOPLEFT", self, "TOPLEFT", 3, -76)
+        self.Inset:SetPoint("TOPLEFT", self, "TOPLEFT", 3, -54)
 		-- create icon map
 		self.icons = {}
 		for y = 0,3 do
 		  for x = 0,3 do
 			local btn = CreateFrame( "PlayerModel", nil, self.selectorFrame, "DiceMasterModelPickerButton" )
 			btn.pickerIndex = index
-			btn:SetPoint( "TOPLEFT", self.selectorFrame, "TOPLEFT", 53*x, -65*y-2 )
-			btn:SetSize( 53, 65 )
+			btn:SetPoint( "TOPLEFT", self.selectorFrame, "TOPLEFT", (( btn:GetWidth() + 10 ) * x) + 3, ((-1 * btn:GetHeight() - 10) * y-2) - 3 );
 			
 			table.insert( self.icons, btn )
 			btn.pickerIndex = #self.icons
@@ -73,68 +88,32 @@
       </OnLoad>
     </Scripts>
     <Frames>
-	
-	  <!-- Favourites filter. -->
-      <Button name="$parentFilter" parentKey="filter" enableMouse="true" inherits="UIDropDownMenuTemplate">
-		<Size x="150" y="22"/>
+      <!-- Collections dropdown -->
+      <DropdownButton name="$parentLoadDropdown" parentKey="LoadDropdown" inherits="DiceMasterCollectionDropdownTemplate">
+		<Size x="180" y="22"/>
 		<Anchors>
-		  <Anchor point="TOPLEFT" x="0" y="-48"/> 
+          <Anchor point="TOPLEFT" x="8" y="-28" />
 		</Anchors>
-	  </Button>
-	  
-	  <Button name="$parentRenameButton" inherits="UIPanelButtonTemplate" text="R">
-			<Size x="24" y="24"/>
-			<Anchors>
-				<Anchor point="TOPLEFT" relativeTo="$parentFilter" relativePoint="TOPRIGHT" x="32" y="-2"/> 
-			</Anchors>
-			<Scripts>
-				<OnClick>
-					StaticPopup_Show("DICEMASTER4_RENAMECOLLECTION", nil, nil, DiceMasterModelPickerFilterText:GetText())
-				</OnClick>
-				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to rename this collection.")
-					self:Disable()
-				</OnLoad>
-			</Scripts>
-	  </Button>
-		
-	  <Button name="$parentDeleteButton" inherits="UIPanelButtonTemplate" text="X">
-			<Size x="24" y="24"/>
-			<Anchors>
-				<Anchor point="TOPLEFT" relativeTo="$parentRenameButton" relativePoint="TOPRIGHT" x="2" y="0"/> 
-			</Anchors>
-			<Scripts>
-				<OnClick>
-					StaticPopup_Show("DICEMASTER4_DELETECOLLECTION", nil, nil, DiceMasterModelPickerFilterText:GetText())
-				</OnClick>
-				<OnLoad>
-					DiceMaster4.SetupTooltip( self, nil,  "|cFFFFD100Click to delete this collection.")
-					self:Disable()
-				</OnLoad>
-			</Scripts>
-	  </Button>
-    
+	  </DropdownButton>
+
       <!-- Search/filter box. -->
       <EditBox parentKey="search" inherits="SearchBoxTemplate">
-        <Size x="200" y="8" />
+        <Size x="180" y="8" />
         <Anchors>
-          <Anchor point="TOP" x="0" y="-34" />
+		  <Anchor point="LEFT" relativeKey="$parent.LoadDropdown" relativePoint="RIGHT" x="10" y="0"/> 
         </Anchors>
         
         <Scripts>
           <OnTextChanged>
             SearchBoxTemplate_OnTextChanged(self);
-			UIDropDownMenu_SetText(DiceMasterModelPickerFilter, "Default")
 			DiceMaster4.ModelPicker_FilterChanged( "default" )
-			DiceMasterModelPickerRenameButton:Disable()
-			DiceMasterModelPickerDeleteButton:Disable()
           </OnTextChanged>
           
           
           <OnEscapePressed function="EditBox_ClearFocus"/>
         </Scripts>
       </EditBox>
-	  
+
 	  <Button inherits="MagicButtonTemplate" text="CLOSE">
 		<Size x="100" y="22"/>
 		<Anchors>

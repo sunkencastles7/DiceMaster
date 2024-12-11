@@ -168,7 +168,7 @@
 		</Layers>
         <Scripts>
           <OnLoad>
-            TextStatusBar_Initialize(self);
+            self:InitializeTextStatusBar();
 			self.textLockable = 1;
 			self.lockColor = true;
 			
@@ -216,7 +216,7 @@
 		</Layers>
         <Scripts>
           <OnLoad>
-            TextStatusBar_Initialize(self);
+            self:InitializeTextStatusBar();
 			self.textLockable = 1;
 			self.lockColor = true;
           </OnLoad>
@@ -420,7 +420,7 @@
 				</Layers>
 				<Scripts>
 					<OnLoad>
-						TextStatusBar_Initialize(self);
+						self:InitializeTextStatusBar();
 						self.textLockable = 1;
 						self.lockColor = true;
 					</OnLoad>

@@ -9,55 +9,6 @@
 local Me = DiceMaster4
 local Profile = Me.Profile
 
-local options = {
-	{
-		name = "Combat Begins",
-		description = "Combat has officially begun.",
-		options = {
-			{ icon = "Interface/Icons/VAS_NameChange", name = "Hold Emotes", desc = "Hold posts until the Emote Phase.", details = "Please hold off from posting any emotes at this time. You can still engage in brief dialogue, but save any descriptive emotes for the next Emote Phase, or when combat ends.", },
-		},
-	},
-	{
-		name = "Action Phase",
-		description = "Choose one of the following:",
-		options = {
-			{ icon = "Interface/Icons/Garrison_Building_SparringArena", name = "Combat Action", desc = "Attempt a Combat Action.", details = "A Combat Action represents your character's attempt to deal or defend against damage on your turn.|n|nExample: Melee Attack, Ranged Attack, Spell Attack" },
-			{ icon = "Interface/Icons/achievement_guild_doctorisin", name = "Skill", desc = "Attempt to use a Skill.", details = "Skills represent some of the most basic, fundamental abilities your character possesses, and most character non-combat actions can be categorised into at least one of the default Skills.|n|nExample: Bluff, Healing, Perception, Spellcraft" },
-			{ icon = "Interface/Icons/achievement_guildperk_quick and dead", name = "Trait", desc = "Use an active-use Trait.", details = "Traits represent your character's strengths, weaknesses, and unique abilities. You can choose to use one of your active-use traits this turn.", },
-			{ icon = "Interface/Icons/achievement_guildperk_fasttrack_rank2", name = "Move", desc = "Move to another location.", details = "Movement is restricted during combat. You can use your turn to move up to 20 yards in any direction, or reposition yourself.", },
-			{ icon = "Interface/Icons/ACHIEVEMENT_GUILDPERK_EVERYONES A HERO", name = "Stand", desc = "Stand still and forego your turn.", details = "You can choose to forfeit your action this turn and stand still.", },
-			{ icon = "Interface/Icons/achievement_guildperk_reinforce", name = "Protect", desc = "Grant you or an ally |cFF00FF00+3|r Defence.", details = "You can use your turn to defend yourself or another character, granting the chosen target |cFF00FF00+3|r to their next Defence roll.", },
-		},
-	},
-	{
-		name = "Reaction Phase",
-		description = "You may be prompted to roll for one of the following:",
-		options = {
-			{ icon = "Interface/Icons/Garrison_Building_SparringArena", name = "Combat Action", desc = "Attempt a Combat Action.", details = "A Combat Action represents your character's attempt to deal or defend against damage on your turn.|n|nExample: Defence, Spell Defence" },
-			{ icon = "Interface/Icons/achievement_guildperk_massresurrection", name = "Saving Throw", desc = "Attempt a Saving Throw.", details = "Generally, when your character is subject to an unusual or magical attack, you are allowed to roll a Saving Throw to avoid or reduce the effect.|n|nExample: Fortitude Save, Reflex Save, Will Save", },
-		},
-	},
-	{
-		name = "Emote Phase",
-		description = "You may now post your emote in chat.",
-		options = {
-			{ icon = "Interface/Icons/vas_guildnamechange", name = "Emote", desc = "Post your emote in chat.", details = "You can now post a descriptive emote of your character's actions from the last turn in party or raid chat.", },
-		},
-	},
-	{
-		name = "Combat Ends",
-		description = "Combat has officially ended.",
-		options = {
-			{ icon = "Interface/Icons/VAS_NameChange", name = "Hold Emotes", desc = "Continue holding posts for now.", details = "Please hold off from posting any emotes at this time. You can still engage in brief dialogue, but save any descriptive emotes for later.", },
-			{ icon = "Interface/Icons/vas_guildnamechange", name = "Emote", desc = "You may resume posting in chat.", details = "You can now post a descriptive emote of your character's actions from the last turn in party or raid chat.", },
-		},
-	},
-	{
-		name = "Custom",
-		description = "Banner Subtitle",
-	},
-}
-
 local TIMER_INTERVALS = {
 	{name = "1 Minute", time = 60},
 	{name = "2 Minutes", time = 120},
@@ -72,71 +23,52 @@ local TIMER_INTERVALS = {
 
 local CURRENT_COMBAT_ROUND = 1;
 
-function Me.RollBannerDropDown_OnClick(self, arg1)
-	if arg1 then
-		UIDropDownMenu_SetSelectedID(DiceMasterBannerPromptDialog.OptionsDropdown, arg1)
-		UIDropDownMenu_SetText(DiceMasterBannerPromptDialog.OptionsDropdown, options[arg1].name)
-		
-		if options[arg1].name == "Custom" then
-			DiceMasterBannerPromptDialog.BannerTitle:SetText("Banner Title")
-		else
-			DiceMasterBannerPromptDialog.BannerTitle:SetText(options[arg1].name)
-		end
-		
-		DiceMasterBannerPromptDialog.BannerSubtitle:SetText(options[arg1].description)
-		DiceMasterBannerPromptDialog.Desc2:SetText("")
-		
-		-- Update the checkboxes
-		local checkboxes = DiceMasterBannerPromptDialog.checkboxes
-		for i = 1, #checkboxes do
-			checkboxes[i]:SetChecked( false )
-			checkboxes[i]:Hide()
-			DiceMasterBannerPromptDialog:SetHeight( 220 )
-		end
-		
-		if options[arg1].options then
-			DiceMasterBannerPromptDialog.Desc2:SetText("Select which options are available to players:")
-			local checkOptions = options[arg1].options
-			for i = 1, #checkOptions do
-				checkboxes[i]:Show()
-				_G["DiceMasterBannerPromptDialogCheckbox"..i.."Text"]:SetText( "|T" .. checkOptions[i].icon .. ":16|t |cFFFFD100" .. checkOptions[i].name .. ":|r " ..  checkOptions[i].desc .. "|r")
-				DiceMasterBannerPromptDialog:SetHeight( 250 + 20*i )
-			end
-		end
-		
-		if arg1 == 1 or arg1 == 5 then
-			DiceMasterBannerPromptDialog.AdvanceTurn:Disable()
-			DiceMasterBannerPromptDialog.AdvanceTurn:SetChecked( false )
-			_G["DiceMasterBannerPromptDialogAdvanceTurnText"]:SetTextColor( 0.5, 0.5, 0.5 )
-			DiceMasterBannerPromptDialog.TurnTimer:Disable()
-			DiceMasterBannerPromptDialog.TurnTimer:SetChecked( false )
-			_G["DiceMasterBannerPromptDialogTurnTimerText"]:SetTextColor( 0.5, 0.5, 0.5 )
-		else
-			DiceMasterBannerPromptDialog.AdvanceTurn:Enable()
-			_G["DiceMasterBannerPromptDialogAdvanceTurnText"]:SetTextColor( 1, 1, 1 )
-			DiceMasterBannerPromptDialog.TurnTimer:Enable()
-			_G["DiceMasterBannerPromptDialogTurnTimerText"]:SetTextColor( 1, 1, 1 )
-		end
+local collectFunc = function()
+	local banner = {};
+	banner.name = DiceMasterBannerPromptDialog.BannerTitle:GetText();
+	banner.desc = DiceMasterBannerPromptDialog.BannerSubtitle:GetText();
+	banner.advanceTurn = DiceMasterBannerPromptDialog.AdvanceTurn:GetChecked();
+	if DiceMasterBannerPromptDialog.TurnTimer:GetChecked() then
+		banner.timer = TIMER_INTERVALS[ UIDropDownMenu_GetSelectedID( DiceMasterBannerPromptDialog.Timer ) ].time;
 	end
+	banner.options = {};
+	-- Collect options data.
+	for checkbox in DiceMasterBannerPromptDialog.checkboxes:EnumerateActive() do
+		local option = {
+			icon = checkbox.Icon.icon:GetTexture();
+			name = checkbox.Title:GetText();
+			desc = checkbox.Description:GetText();
+		};
+		tinsert( banner.options, option );
+	end
+
+	return banner;
 end
 
-function Me.RollBannerDropDown_OnLoad(frame, level, menuList)
-	local info = UIDropDownMenu_CreateInfo()
-	
-	info.text = "|cFFffd100Combat Phases:"
-	info.notClickable = true;
-	info.notCheckable = true;
-	UIDropDownMenu_AddButton(info, level)
-	info.notClickable = false;
-	info.disabled = false;
-	
-	for i = 1, #options do
-	   info.text = options[i].name;
-	   info.arg1 = i;
-	   info.notCheckable = true;
-	   info.func = Me.RollBannerDropDown_OnClick;
-	   UIDropDownMenu_AddButton(info, level)
+local returnFunc = function( bannerData )
+	if not( bannerData ) then
+		return
 	end
+
+	DiceMasterBannerPromptDialog.BannerTitle:SetText( bannerData.name );
+	DiceMasterBannerPromptDialog.BannerSubtitle:SetText( bannerData.desc );
+	DiceMasterBannerPromptDialog.AdvanceTurn:SetChecked( bannerData.advanceTurn );
+	DiceMasterBannerPromptDialog.TurnTimer:SetChecked( bannerData.timer )
+	if bannerData.timer then
+		UIDropDownMenu_SetSelectedID( bannerData.timer );
+	end
+	if bannerData.options then
+		DiceMasterBannerPromptDialog.options = bannerData.options
+	else
+		DiceMasterBannerPromptDialog.options = {}
+		local option = {
+			icon = "Interface/Icons/inv_misc_questionmark";
+			name = "Title";
+			desc = "Description";
+		};
+		tinsert( DiceMasterBannerPromptDialog.options, option );
+	end
+	Me.RollBannerPromptDialog_UpdateOptions()
 end
 
 function Me.RollBannerTimerDropDown_OnClick(self, arg1)
@@ -160,41 +92,105 @@ function Me.RollBannerTimerDropDown_OnLoad(frame, level, menuList)
 	end
 end
 
+function Me.RollBannerPromptDialog_OnLoad( self )
+	self:SetClampedToScreen( true )
+	self:SetMovable(true)
+	self:EnableMouse(true)
+	self:RegisterForDrag( "LeftButton" )
+	self:SetScript( "OnDragStart", self.StartMoving )
+	self:SetScript( "OnDragStop", self.StopMovingOrSizing )
+	self:SetUserPlaced( true )
+				
+	self.target = "RAID";
+				
+	-- create check buttons
+	self.checkboxes = CreateFramePool("Frame", self, "DiceMasterRollBannerPromptOptionFrameTemplate")
+
+	self.options = {};
+	for i = 1, 3 do
+		local option = {
+			icon = "Interface/Icons/inv_misc_questionmark";
+			name = "Title";
+			desc = "Description";
+		};
+		tinsert( self.options, option );
+	end
+	--Me.RollBannerPromptDialog_UpdateOptions()
+end
+
+function Me.RollBannerPromptDialog_SelectIcon( texture, optionFrame )
+	DiceMasterBannerPromptDialog.options[ optionFrame:GetID() ].icon = texture;
+	optionFrame.Icon:SetTexture( texture );
+end
+
+function Me.RollBannerPromptDialog_UpdateOptions()
+	DiceMasterBannerPromptDialog.checkboxes:ReleaseAll();
+	local options = DiceMasterBannerPromptDialog.options;
+	for i = 1, #options do
+		local checkbox = DiceMasterBannerPromptDialog.checkboxes:Acquire();
+		checkbox:SetPoint("TOPLEFT", 14, -170 -28*i);
+		--checkbox.Title:SetText( "Option " .. i );
+		checkbox:SetID(i);
+		checkbox:Show();
+		checkbox.Title:SetText( options[i].name );
+		checkbox.Description:SetText( options[i].desc );
+		checkbox.Icon:SetTexture( options[i].icon );
+		checkbox.CheckBox:SetChecked( true );
+		DiceMasterBannerPromptDialog:SetHeight( 270 + (28*i) );
+	end
+
+	DiceMasterBannerPromptDialog.LoadDropdown:SetCollection(nil, "Banners", collectFunc, nil, returnFunc);
+end
+
+function Me.RollBannerPromptDialog_AddOption()
+	if #DiceMasterBannerPromptDialog.options < 10 then
+		local option = {
+			icon = "Interface/Icons/inv_misc_questionmark";
+			name = "Title";
+			desc = "Description";
+		};
+		tinsert( DiceMasterBannerPromptDialog.options, option );
+	end
+	Me.RollBannerPromptDialog_UpdateOptions();
+end
+
+function Me.RollBannerPromptDialog_RemoveOption( index )
+	if #DiceMasterBannerPromptDialog.options > 1 then
+		tremove( DiceMasterBannerPromptDialog.options, index );
+	end
+	Me.RollBannerPromptDialog_UpdateOptions();
+end
+
 function Me.RollBanner_OnLoad( self )
 	self:SetScale( 0.8 )
 
-	for i = 2, 6 do
+	for i = 2, 10 do
 		local button = CreateFrame("Frame", "DiceMasterRollBannerOptionFrame"..i, self, "DiceMasterRollBannerOptionFrameTemplate");
 		button:SetID(i)
 		button:SetPoint("TOP", _G["DiceMasterRollBannerOptionFrame"..(i-1)], "BOTTOM", 0, -2);
 		button:SetScript( "OnShow", function( self ) self.Anim:Play() end)
 	end	
-	
 end
 
-function Me.RollBanner_UpdateOptions( id, data )
+function Me.RollBanner_UpdateOptions( data )
 
-	if not id or not data then
-		DiceMasterRollBanner:SetHeight( 180 )
-		return
-	end
-	
-	for i = 1, 6 do
-		local button = _G[ "DiceMasterRollBannerOptionFrame" .. i ]
+	DiceMasterRollBanner:SetHeight( 180 );
+	for i = 1, 10, 1 do
+		local button = _G[ "DiceMasterRollBannerOptionFrame" .. i ];
 		
 		if data[i] then
-			button.Icon:SetTexture( data[i].icon )
-			button.Title:SetText( data[i].name )
-			button.Description:SetText( data[i].desc )
-			button.IconHitBox.details = data[i].details
-			button:Show()
+			button.Icon:SetTexture( data[i].icon );
+			button.Title:SetText( data[i].name );
+			button.Description:SetText( data[i].desc );
+			button.IconHitBox.details = data[i].details;
+			button:Show();
 			
-			DiceMasterRollBanner:SetHeight( 180 + 45*i )
+			DiceMasterRollBanner:SetHeight( 180 + 45*i );
 		else
-			button.Icon:SetTexture( nil )
-			button.Title:SetText( "" )
-			button.Description:SetText( "" )
-			button.IconHitBox.details = nil
+			button.Icon:SetTexture( nil );
+			button.Title:SetText( "" );
+			button.Description:SetText( "" );
+			button.IconHitBox.details = nil;
 			button:Hide()
 		end
 	end
@@ -233,17 +229,16 @@ function Me.RollBanner_SendBanner()
 		return
 	end
 	
-	local type = UIDropDownMenu_GetSelectedID(DiceMasterBannerPromptDialog.OptionsDropdown)
 	local data = {}
-	
 	-- Collect options data.
-	if type and options[type].options then
-		local checkboxes = DiceMasterBannerPromptDialog.checkboxes
-		local checkOptions = options[type].options
-		for i = 1, 6 do
-			if checkboxes[i]:IsShown() and checkboxes[i]:GetChecked() then
-				tinsert( data, checkOptions[i] )
-			end
+	for checkbox in DiceMasterBannerPromptDialog.checkboxes:EnumerateActive() do
+		if checkbox.CheckBox:GetChecked() then
+			local option = {
+				icon = checkbox.Icon.icon:GetTexture();
+				name = checkbox.Title:GetText();
+				desc = checkbox.Description:GetText();
+			};
+			tinsert( data, option );
 		end
 	end
 	
@@ -252,11 +247,6 @@ function Me.RollBanner_SendBanner()
 	
 	if DiceMasterBannerPromptDialog.AdvanceTurn:GetChecked() then
 		CURRENT_COMBAT_ROUND = CURRENT_COMBAT_ROUND + 1;
-		turnHasChanged = true;
-	end
-	
-	if type == 5 then
-		CURRENT_COMBAT_ROUND = 1;
 		turnHasChanged = true;
 	end
 	
@@ -280,7 +270,6 @@ function Me.RollBanner_SendBanner()
 
 	local msg = Me:Serialize( "BANNER", {
 		na = tostring( UnitName("player") );
-		id = tonumber( type );
 		ti = tostring( DiceMasterBannerPromptDialog.BannerTitle:GetText() );
 		su = tostring( DiceMasterBannerPromptDialog.BannerSubtitle:GetText() );
 		op = data;
@@ -335,7 +324,7 @@ function Me.RollBanner_OnBanner( data, dist, sender )
 	if not UnitIsGroupLeader(sender, 1) and not Me.IsLeader( false ) then return end
  
 	-- sanitize message
-	if not data.na or not data.id or not data.ti then
+	if not data.na or not data.ti then
 	   
 		return
 	end
@@ -397,35 +386,29 @@ function Me.RollBanner_OnBanner( data, dist, sender )
 			elseif UnitFactionGroup("player") == "Horde" then
 				DiceMasterTurnTracker.BG:SetAtlas("HordeScenario-TrackerHeader", true)
 			end
-			-- if this is a "Combat Ends" phase, hide the frame.
-			if data.id == 5 then
-				DiceMasterTurnTracker:Hide()
+			DiceMasterTurnTracker:Show()
+			DiceMasterTurnTracker.TurnTitle:SetText( data.ti )
+			Me.SetupTooltip( DiceMasterTurnTracker, nil, "|cFFffd100"..data.ti )
+				
+			if data.cr then
+				DiceMasterTurnTracker.TurnTotal:SetText( "Round " .. data.cr )
+			end
+				
+			if data.tm then
+				DiceMasterTurnTracker.TimeLeftLabel:Show()
+				DiceMasterTurnTracker.TimeLeft:SetText( date("%M:%S", data.tm) )
+				DiceMasterTurnTracker.TimeLeftLabel:Show()
+				DiceMasterTurnTracker.TimeLeft:Show()
+				DiceMasterTurnTracker.TimeLeft:SetTextColor( 1, 1, 1 )
+				DiceMasterTurnTracker.Bar:Show()
+				DiceMasterTurnTracker.Bar:SetMinMaxValues( 0, data.tm )
+				DiceMasterTurnTracker.Bar:SetValue( data.tm )
+				DiceMasterTurnTracker.Bar:SetStatusBarColor( 0.26, 0.42, 1 )
+				Me.TurnTracker_StartTimer()
 			else
-				DiceMasterTurnTracker:Show()
-				DiceMasterTurnTracker.TurnTitle:SetText( data.ti )
-				Me.SetupTooltip( DiceMasterTurnTracker, nil, "|cFFffd100"..data.ti )
-				
-				if data.cr then
-					DiceMasterTurnTracker.TurnTotal:SetText( "Round " .. data.cr )
-				end
-				
-				if data.tm then
-					DiceMasterTurnTracker.TimeLeftLabel:Show()
-					DiceMasterTurnTracker.TimeLeft:SetText( date("%M:%S", data.tm) )
-					DiceMasterTurnTracker.TimeLeftLabel:Show()
-					DiceMasterTurnTracker.TimeLeft:Show()
-					DiceMasterTurnTracker.TimeLeft:SetTextColor( 1, 1, 1 )
-					DiceMasterTurnTracker.Bar:Show()
-					DiceMasterTurnTracker.Bar:SetMinMaxValues( 0, data.tm )
-					DiceMasterTurnTracker.Bar:SetValue( data.tm )
-					DiceMasterTurnTracker.Bar:SetStatusBarColor( 0.26, 0.42, 1 )
-					Me.TurnTracker_StartTimer()
-				else
-					DiceMasterTurnTracker.TimeLeftLabel:Hide()
-					DiceMasterTurnTracker.TimeLeft:Hide()
-					DiceMasterTurnTracker.Bar:Hide()
-				end
-				
+				DiceMasterTurnTracker.TimeLeftLabel:Hide()
+				DiceMasterTurnTracker.TimeLeft:Hide()
+				DiceMasterTurnTracker.Bar:Hide()
 			end
 		elseif DiceMasterTurnTracker:IsShown() then
 			DiceMasterTurnTracker:Hide()
@@ -459,9 +442,9 @@ function Me.RollBanner_OnBanner( data, dist, sender )
 		
 		DiceMasterRollBanner.Title:SetText( data.ti )
 		DiceMasterRollBanner.SubTitle:SetText( data.su )
-		Me.RollBanner_UpdateOptions( data.id, data.op )
+		Me.RollBanner_UpdateOptions( data.op )
 		
-		Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t "..data.ti , "RAID")
+		Me.PrintMessage("|TInterface/AddOns/DiceMaster/Texture/logo:12|t "..data.ti.."|cFFFFFFFF "..data.su.."|r" , "RAID")
 		
 		DiceMasterRollBanner.AnimIn:Play()
 		

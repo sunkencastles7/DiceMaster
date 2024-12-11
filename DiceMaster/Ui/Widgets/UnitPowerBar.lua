@@ -515,6 +515,15 @@ local altPowerBars = {
 		flash = false;
 		inset = 0;
 	},
+	["druid-seed-bar"] = {
+		path = "Interface/AddOns/DiceMaster/Texture/druid-seed-bar_";
+		frame = false;
+		background = true;
+		fill = true;
+		spark = false;
+		flash = false;
+		inset = 0;
+	},
 }
 
 local altPowerBarTextures = {

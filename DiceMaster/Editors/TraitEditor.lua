@@ -348,8 +348,9 @@ function Me.ValidateSkillSheet( sheet )
 	if not type( sheet ) == "table" then return false end
 	for i = 1, #sheet do
 		local skill = sheet[i];
-		if not type( skill ) == "table" then return false end
-		if not type( skill.name ) == "string" or skill.name == "" then return false end
+		if not( skill ) then return end
+		if type( skill ) ~= "table" then return false end
+		if type( skill.name ) ~= "string" or skill.name == "" then return false end
 		if skill.desc then
 			if not type( skill.desc ) == "string" then return false end
 		end
@@ -1935,58 +1936,44 @@ function Me.SkillFrameTemplate_OnLoad(frame, level, menuList)
 	UIDropDownMenu_AddButton(info, level);
 end
 
-function Me.SkillFrameAlignment_OnClick(self, arg1, arg2, checked)
-	Me.Profile.alignment = arg1;
-	UIDropDownMenu_SetSelectedValue(DiceMasterSkillFrameAlignmentDropdown, arg1, false)
-	UIDropDownMenu_SetText( DiceMasterSkillFrameAlignmentDropdown, "|cFFFFD100Alignment:|r " .. Me.Profile.alignment )
+function Me.SkillFrameAlignment_OnClick( alignment )
+	Me.Profile.alignment = alignment;
 end
 
-function Me.SkillFrameAlignment_OnLoad(frame, level, menuList)
-	local info = UIDropDownMenu_CreateInfo();
-	if level == 1 then
-		info.text = "Alignments";
-		info.isTitle = true;
-		info.notClickable = true;
-		info.notCheckable = true;
-		UIDropDownMenu_AddButton(info);
-		info.hasArrow = true;
-		for k,v in pairs( Me.AlignmentList ) do
-			info.text = k;
-			info.isTitle = false;
-			info.notClickable = false;
-			info.disabled = false;
-			info.menuList = k;
-			UIDropDownMenu_AddButton(info);
-		end
-		info.text = "(None)";
-		info.arg1 = "(None)";
-		info.func = Me.SkillFrameAlignment_OnClick;
-		info.notCheckable = false;
-		info.hasArrow = false;
-		info.isTitle = false;
-		info.tooltipTitle = "(None)";
-		info.tooltipText = "This character has no alignment.";
-		info.tooltipOnButton = true;
-		info.menuList = nil;
-		info.checked = Me.Profile.alignment == info.text;
-		UIDropDownMenu_AddButton(info, level);
-	elseif menuList then
-		for i = 1, #Me.AlignmentList[menuList] do
-			info.text = Me.AlignmentList[menuList][i].name;
-			info.arg1 = Me.AlignmentList[menuList][i].name;
-			info.func = Me.SkillFrameAlignment_OnClick;
-			info.notCheckable = false;
-			info.isTitle = false;
-			info.tooltipTitle = Me.AlignmentList[menuList][i].name;
-			info.tooltipText = Me.AlignmentList[menuList][i].desc .. "|n|nExamples: |cFFFFFFFF" .. Me.AlignmentList[menuList][i].examples[1];
-			for example = 2, #Me.AlignmentList[menuList][i].examples do
-				info.tooltipText = info.tooltipText .. ", " .. Me.AlignmentList[menuList][i]["examples"][example];
+function Me.SkillFrameAlignment_SetUp( self )
+	self:SetDefaultText( "Alignment" );
+	self:SetupMenu(function(dropdown, rootDescription)
+		rootDescription:CreateTitle( "Alignments" );
+		for k, v in pairs( Me.AlignmentList ) do
+			local alignmentType = rootDescription:CreateButton(k, nil);
+			alignmentType:AddInitializer(function(button, description, menu)
+				MenuVariants.CreateSubmenuArrow(button);
+			end);
+			for i = 1, #v do
+				local alignment = v[i];
+				local entryButton = alignmentType:CreateRadio( alignment.name, function()
+					return Me.Profile.alignment == alignment.name
+				end, function()
+					Me.SkillFrameAlignment_OnClick( alignment.name )
+				end);
+				entryButton:SetTooltip(function(tooltip, elementDescription)
+					GameTooltip_SetTitle(tooltip, MenuUtil.GetElementText(elementDescription));
+					local descText = alignment.desc .. "|n|nExamples: |cFFFFFFFF" .. alignment.examples[1];
+					for example = 2, #alignment.examples do
+						descText = descText .. ", " .. alignment.examples[example];
+					end
+					GameTooltip_AddNormalLine(tooltip, descText);
+				end);
 			end
-			info.tooltipOnButton = true;
-			info.checked = Me.Profile.alignment == info.text;
-			UIDropDownMenu_AddButton(info, level);
 		end
-	end
+		local lastButton = rootDescription:CreateRadio( "(No Alignment)", function()
+			return Me.Profile.alignment == "(No Alignment)";
+		end, function() Me.SkillFrameAlignment_OnClick( "(No Alignment)" ) end);
+		lastButton:SetTooltip(function(tooltip, elementDescription)
+			GameTooltip_SetTitle(tooltip, MenuUtil.GetElementText(elementDescription));
+			GameTooltip_AddNormalLine(tooltip, "This character has no alignment.");
+		end);
+	end);
 end
  
 function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
@@ -2169,7 +2156,7 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 		statusBar:SetMinMaxValues(0, skillMaxRank);
 		statusBar:SetValue(skillRankStart);
 		if tonumber( skillRank ) < 0 then
-			color = RED_FONT_COLOR_CODE;
+			skillRank = RED_FONT_COLOR_CODE..skillRank;
 		end
 		if ( Me.GetModifiersFromSkillGUID( skillGUID ) == 0 ) then
 			statusBarSkillRank:SetText(skillRank..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
@@ -2184,7 +2171,7 @@ function Me.SkillFrame_SetStatusBar( statusBarID, skillIndex, numSkills )
 				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
-			statusBarSkillRank:SetText( color .. (skillRank+modifiers) ..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
+			statusBarSkillRank:SetText( color .. (skillRankStart+modifiers) ..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
 		end
 	end
 end
@@ -2234,9 +2221,13 @@ function Me.SkillDetailFrame_SetStatusBar( skillPosition )
 			statusBarIncreaseButton.canIncreaseMax = false;
 			statusBarDecreaseButton.canDecreaseMax = false;
 		end
+		DiceMasterSkillFrameEditButton:Show();
+		DiceMasterSkillFrameEditButton:Enable();
 	else
 		statusBarIncreaseButton:Disable();
 		statusBarDecreaseButton:Disable();
+		DiceMasterSkillFrameEditButton:Hide();
+		DiceMasterSkillFrameEditButton:Disable();
 	end
 
 	-- Hide or show abandon button
@@ -2347,7 +2338,7 @@ function Me.SkillDetailFrame_SetStatusBar( skillPosition )
 				statusBarFillBar:SetValue(skillRankStart + modifiers)
 				statusBarFillBar:Show();
 			end
-			statusBarSkillRank:SetText(color..(skillRank+modifiers)..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
+			statusBarSkillRank:SetText(color..(skillRankStart+modifiers)..FONT_COLOR_CODE_CLOSE.."/"..skillMaxRank);
 		end
 	end
 end
@@ -2391,7 +2382,7 @@ function Me.SkillFrame_UpdateSkills()
 	end
 	
 	-- Update the alignment dropdown button
-	UIDropDownMenu_SetText( DiceMasterSkillFrameAlignmentDropdown, "|cFFFFD100Alignment:|r " .. Me.Profile.alignment )
+	DiceMasterSkillFrameAlignmentDropdown:SetDefaultText( Me.Profile.alignment );
 
 	-- Hide unused bars
 	for i=index, 12 do

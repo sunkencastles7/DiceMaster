@@ -1299,6 +1299,8 @@ function Me.CloseAllEditors( notPickers, notEditors, notItems )
 		Me.CurrencyEditor_Close()
 		Me.ScreenEffectEditor_Close()
 		Me.AdjustHealthEditor_Close()
+		Me.LearnSkillEditor_Close()
+		Me.LearnRecipeEditor_Close()
 	end
 	if not ( notItems ) then
 		Me.ItemEditor_Close()
@@ -1444,7 +1446,9 @@ function Me:OnEnable()
 	Me.Dice_Init()
 	Me.Comm_Init()
 	Me.ItemTrade_Init()
+	Me.MinimapButton:OnLoad()
 	Me.ImportDM5Saved()
+	Me.ConvertCollections()
 	Me.Emoji_Init()
 	Me.PostTracker_Init()
 	
@@ -1479,10 +1483,10 @@ function Me:OnEnable()
 		EditModeExpanded:RegisterFrame( frame, "|TInterface/AddOns/DiceMaster/Texture/logo:12|t " .. frame.Title, Me.Profile.framePositions[frame.Title] );
 	end
 	
-	if not( Me.db.global.lastSplashShown ) or not( Me.db.global.lastSplashShown == "5.1.9" ) then
+	if not( Me.db.global.lastSplashShown ) or not( Me.db.global.lastSplashShown == "5.2.0" ) then
 		-- If we haven't seen the splash frame for the latest version, show it.
 		DiceMasterSplashFrame:Show();
-		Me.db.global.lastSplashShown = "5.1.9";
+		Me.db.global.lastSplashShown = "5.2.0";
 	end
 	
 	Me.UpdatePanelTraits()

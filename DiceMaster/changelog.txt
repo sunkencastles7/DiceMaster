@@ -1,3 +1,19 @@
+### 5.2.1
+- Patch 11.0.5 support.
+- Added new icons from Hearthstone.
+
+### 5.2.0
+- Patch 11.0.2 support.
+- Fixed an issue with some outdated backdrops.
+- Added a new 'Edit' button that appears on the bottom corner of the Skills frame when an editable skill is selected.
+- Added a new "My Collections" system for saving buffs, models, banners, and more!
+- Saved buffs using the old system have been automatically migrated.
+- Added a new Druid Seed skin for Custom Resource and Progress Bars.
+- Re-added the minimap button (oops).
+- Revamped the Send Banner feature to allow users to customise up to 10 optional submenu options with a custom title, icon, and description.
+- Expanded the Model Picker to included larger model frames.
+- Updated Ace libraries.
+
 ### 5.1.9
 - The War Within pre-patch support.
 - Updated to 11.0.
