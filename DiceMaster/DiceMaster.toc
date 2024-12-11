@@ -3,7 +3,7 @@
 ## IconTexture: Interface/AddOns/DiceMaster/Texture/logo
 ## Author: Skylar, Rennae
 ## Notes: A dice-rolling tabletop addon for roleplay.
-## Version: 5.2.0
+## Version: 5.2.1
 ## SavedVariables: DiceMaster4_Saved
 ## SavedVariablesPerCharacter: DiceMaster_TraitOne, DiceMaster_TraitTwo, DiceMaster_TraitThree, DiceMaster_TraitFour, DiceMaster_TraitFive, DiceMaster_Charges, DiceMaster_ChargesName, DiceMaster_ChargesColor, DiceMaster_ChargesMax
 
